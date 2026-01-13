@@ -4,12 +4,59 @@ Welcome to Team Roboto 447's repository for the FIRST Robotics Competition 2026 
 
 ## About the Game
 
-The FRC 2026 game will be revealed during the Kickoff event. At this time, we know that each match will consist of:
+### Match Overview
 
-- **Autonomous Period**: 15 seconds
-- **Teleoperated Period**: 2 minutes and 15 seconds
+Each Match lasts 2 minutes and 40 seconds, with two Alliances of three teams competing to earn points by scoring Fuel in their active Hub and climbing their Tower. Robots start on their Starting Line and may be preloaded with up to eight Fuel.
 
-Additional game details, including objectives, scoring mechanisms, and field elements, will be announced at Kickoff. This README will be updated once the game is revealed.
+### Autonomous Period (20 seconds)
+
+- Both Hubs are Active during Auto
+- Robots operate autonomously to:
+  - Score Fuel into the Hub (1 point each)
+  - Climb their Tower to Level 1
+- Additional Fuel can be collected from the Depot or from Human Players in the Outpost
+- Human Players can throw from the Outpost into the Hub to score points
+- Scored Fuel is returned to the Neutral Zone
+
+### Teleoperated Period (2 minutes 20 seconds)
+
+Teleop is divided into six segments where Drivers control their Robots:
+
+1. **Transition Shift (10 seconds)**: Both Hubs are Active
+2. **Alliance Shift 1 (25 seconds)**: The Alliance that scored the most Fuel in Auto will have their Hub Inactive; the opposing Hub is Active
+3. **Alliance Shift 2 (25 seconds)**: Hub status switches
+4. **Alliance Shift 3 (25 seconds)**: Hubs alternate again
+5. **Alliance Shift 4 (25 seconds)**: Hubs alternate again
+6. **End Game (30 seconds)**: Both Hubs are Active
+
+During Teleop, each Fuel scored in an Active Hub is worth 1 point.
+
+### Field Elements
+
+- **Hubs**: Active or Inactive depending on the shift; Alliances score Fuel here
+- **Tower**: Climbing structure with three levels
+- **Depot**: Source of additional Fuel
+- **Outpost**: Where Human Players can deliver Fuel to Robots or throw into the Hub
+- **Neutral Zone**: Area where Fuel is returned after scoring
+- **Bumps and Trenches**: Obstacles Robots can drive over or under to access the Neutral Zone
+
+### Scoring & Ranking Points
+
+**Fuel Scoring:**
+- Auto: 1 point per Fuel
+- Teleop: 1 point per Fuel in Active Hub
+
+**Climbing:**
+- Level 1: 10 points
+- Level 2: 20 points
+- Level 3: 30 points
+
+**Ranking Points:**
+- **Energized**: Score enough Fuel to meet the Energized threshold (100 for regional/district events)
+- **Supercharged**: Score enough Fuel to meet the Supercharged threshold (360 for regional/district events)
+- **Traversal**: Earn enough Tower points from climbing in Auto or Teleop (50 for regional/district events)
+
+The Alliance with the most points overall wins the Match.
 
 ## Code Structure
 
