@@ -100,9 +100,9 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     Pose2d pose2d = cameraPose.estimatedPose.toPose2d();
     if (RobotState.isDisabled()) {
       System.out.println("Setting position");
-      swerveSubsystem.getSwerveDrive().resetOdometry(pose2d);
+      swerveSubsystem.resetPose(pose2d);
     } else {
-      swerveSubsystem.getSwerveDrive().addVisionMeasurement(pose2d, cameraPose.timestampSeconds,
+      swerveSubsystem.addVisionMeasurement(pose2d, cameraPose.timestampSeconds,
           confidenceCalculator(cameraPose));
     }
   }
