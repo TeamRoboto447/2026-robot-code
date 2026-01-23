@@ -32,7 +32,7 @@ public class PhotonRunnable implements Runnable {
     public PhotonRunnable(PhotonCamera camera, Transform3d robotToCamera) {
         this.photonCamera = camera;
         PhotonPoseEstimator poseEstimator = null;
-        AprilTagFieldLayout layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+        AprilTagFieldLayout layout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
         layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
         if (this.photonCamera != null) {
             poseEstimator = new PhotonPoseEstimator(layout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCamera);
