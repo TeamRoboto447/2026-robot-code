@@ -25,18 +25,18 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
   private final CommandSwerveDrivetrain swerveSubsystem;
   private final PhotonRunnable frontCamera;
-  // private final PhotonRunnable rightCamera;
+  private final PhotonRunnable backCamera;
 
   /** Creates a new PoseEstimatorSubsystem. */
   public PoseEstimatorSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
     this.swerveSubsystem = swerveSubsystem;
     if (USE_VISION) {
       this.frontCamera = new PhotonRunnable(new PhotonCamera("FrontCam"), VisionConstants.ROBOT_TO_FRONT_CAM);
-      // this.rightCamera = new PhotonRunnable(new PhotonCamera("rightCamera"), null);
+      this.backCamera = new PhotonRunnable(new PhotonCamera("BackCam"), VisionConstants.ROBOT_TO_BACK_CAM);
       this.setDefaultCommand(this.createNotifierCommand(this));
     } else {
       this.frontCamera = null;
-      // this.rightCamera = null;
+      this.backCamera = null;
     }
   }
 
@@ -44,14 +44,14 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
   public void periodic() {
     if (VisionConstants.USE_VISION) {
       estimatorChecker(frontCamera);
-      // estimatorChecker(rightCamera);
+      estimatorChecker(backCamera);
     }
   }
 
   private NotifierCommand createNotifierCommand(PoseEstimatorSubsystem peSubsystem) {
     return new NotifierCommand(() -> {
       frontCamera.run();
-      // rightCamera.run();
+      backCamera.run();
     }, 0.02, peSubsystem);
   }
 

@@ -37,7 +37,10 @@ public final class Constants {
 
         public static final Transform3d ROBOT_TO_FRONT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(12.375), Units.inchesToMeters(-1.5), Units.inchesToMeters(7)),
-        new Rotation3d(0, 0, Units.degreesToRadians(5)));
+        new Rotation3d(0, Units.degreesToRadians(-5), 0));
+        public static final Transform3d ROBOT_TO_BACK_CAM = new Transform3d(
+        new Translation3d(Units.inchesToMeters(-12.875), Units.inchesToMeters(5.25), Units.inchesToMeters(7)),
+        new Rotation3d(0, Units.degreesToRadians(5), Units.degreesToRadians(180)));
 
         public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(), 1,
         1, 1 * Math.PI);
