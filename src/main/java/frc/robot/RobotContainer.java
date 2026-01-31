@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
 
 import frc.robot.lib.BLine.*;
@@ -44,6 +45,8 @@ public class RobotContainer {
     private final Field2d field = new Field2d();
 
     public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
+    public final TurretSubsystem turretSubsystem;
+    public final PoseEstimatorSubsystem poseEstimatorSubsystem;
 
     FollowPath.Builder pathBuilder = new FollowPath.Builder(
         swerveSubsystem,
@@ -57,11 +60,13 @@ public class RobotContainer {
         .withPoseReset(swerveSubsystem::resetPose);
 
     public RobotContainer() {
-        configureBindings();
 
-        new PoseEstimatorSubsystem(swerveSubsystem);
+        this.turretSubsystem = new TurretSubsystem(field, swerveSubsystem);
+        this. poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
 
         SmartDashboard.putData("Field", field);
+        
+        configureBindings();
     }
 
     private void configureBindings() {
@@ -87,6 +92,15 @@ public class RobotContainer {
         joystick.b().whileTrue(swerveSubsystem.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
+
+        joystick.rightBumper().whileTrue(turretSubsystem.run(() -> {
+            turretSubsystem.shoot();
+        }));
+        joystick.rightBumper().onFalse(turretSubsystem.stop());
+
+        joystick.start().onTrue(turretSubsystem.runOnce(() -> {
+            turretSubsystem.pullSmartDashboardData();
+        }));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.

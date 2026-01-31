@@ -61,10 +61,16 @@ public final class Constants {
             OUT_OF_FIELD
         };
 
-        /*
-        ALL AREA MEASUREMENTS ARE IN METERS!!!
+        public enum TurretTarget {
+            RED_HUB,
+            BLUE_HUB,
+            AUDIENCE_CORNER,
+            SCORING_CORNER,
+            NONE
+        }
 
-        Also, Neutral Zone names are from blue side.
+        /*
+        ALL TRANSLATION MEASUREMENTS ARE IN METERS!!!
         */
         public static class FieldZoneAreas {
             public static final Rectangle2d RED_ALLIANCE_ZONE_AREA = new Rectangle2d(
@@ -81,5 +87,26 @@ public final class Constants {
                 new Translation2d(4.63, 4.035),
                 new Translation2d(11.91, 8.07));
         }
+
+        public static class TurretTargetPoints {
+            public static final Translation3d RED_HUB = new Translation3d(0, 4.035, 1.83);
+            public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.54, 7.07, 0);
+            public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.54, 1, 0);
+            
+            public static final Translation3d BLUE_HUB = new Translation3d(0, 4.035, 1.83);
+            public static final Translation3d BLUE_LEFT_CORNER = new Translation3d(1, 7.07, 0);
+            public static final Translation3d BLUE_RIGHT_CORNER = new Translation3d(1, 1, 0);
+        }
+    }
+
+    public static class TurretSubsystemConstants {
+        public static final int LEFT_SHOOTER_MOTOR_ID = 40;     //
+        public static final int RIGHT_SHOOTER_MOTOR_ID = 41;    //  TODO: SET PROPER IDS FOR THESE MOTORS!!!
+        public static final int HOOD_MOTOR_ID = -1;             //
+        public static final int ANGLE_MOTOR_ID = -1;            //
+
+        public static final double SHOOTER_KP = 0;
+        public static final double SHOOTER_KI = 0;
+        public static final double SHOOTER_KD = 0;
     }
 }
