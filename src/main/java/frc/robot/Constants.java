@@ -3,8 +3,10 @@ package frc.robot;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -48,7 +50,36 @@ public final class Constants {
     }
 
     public static class FieldConstants {
-        public static final double FIELD_LENGTH_METERS = Units.inchesToMeters(651.25); // TODO: CHANGE THESE!!!!!!!!!!
-        public static final double FIELD_WIDTH_METERS = Units.inchesToMeters(315.5);
+        public static final double FIELD_LENGTH_METERS = Units.inchesToMeters(651.22);
+        public static final double FIELD_WIDTH_METERS = Units.inchesToMeters(317.69);
+
+        public enum FieldZone {
+            RED_ALLIANCE_ZONE,
+            BLUE_ALLIANCE_ZONE,
+            AUDIENCE_NEUTRAL_ZONE,
+            SCORING_NEUTRAL_ZONE,
+            OUT_OF_FIELD
+        };
+
+        /*
+        ALL AREA MEASUREMENTS ARE IN METERS!!!
+
+        Also, Neutral Zone names are from blue side.
+        */
+        public static class FieldZoneAreas {
+            public static final Rectangle2d RED_ALLIANCE_ZONE_AREA = new Rectangle2d(
+                new Translation2d(11.91, 0),
+                new Translation2d(16.54, 8.07));    // Field length and width
+            public static final Rectangle2d BLUE_ALLIANCE_ZONE_AREA = new Rectangle2d(
+                new Translation2d(0, 0),
+                new Translation2d(4.63, 8.07));
+
+            public static final Rectangle2d AUDIENCE_NEUTRAL_ZONE_AREA = new Rectangle2d(
+                new Translation2d(4.63, 0), 
+                new Translation2d(11.91, 4.035));
+            public static final Rectangle2d SCORING_NEUTRAL_ZONE_AREA = new Rectangle2d(
+                new Translation2d(4.63, 4.035),
+                new Translation2d(11.91, 8.07));
+        }
     }
 }

@@ -14,6 +14,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -25,7 +26,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.Constants.FieldConstants.FieldZoneAreas;
+import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -322,5 +324,20 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public ChassisSpeeds getChassisSpeeds() {
         return getState().Speeds;
+    }
+
+    public FieldZone getFieldZone() {
+        Translation2d translation = this.getPose().getTranslation();
+        if (FieldZoneAreas.BLUE_ALLIANCE_ZONE_AREA.contains(translation)) {
+            return FieldZone.BLUE_ALLIANCE_ZONE;
+        } else if (FieldZoneAreas.RED_ALLIANCE_ZONE_AREA.contains(translation)) {
+            return FieldZone.RED_ALLIANCE_ZONE;
+        } else if (FieldZoneAreas.AUDIENCE_NEUTRAL_ZONE_AREA.contains(translation)) {
+            return FieldZone.AUDIENCE_NEUTRAL_ZONE;
+        } else if (FieldZoneAreas.SCORING_NEUTRAL_ZONE_AREA.contains(translation)) {
+            return FieldZone.SCORING_NEUTRAL_ZONE;
+        } else {
+            return FieldZone.OUT_OF_FIELD;
+        }
     }
 }
