@@ -4,13 +4,25 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.Slot0Configs;
+import java.io.File;
+import java.io.IOException;
+import java.util.Optional;
+
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.Timer;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,9 +31,16 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.TurretTarget;
+import frc.robot.Constants.FieldConstants.TurretTargetPoints;
+import frc.robot.utils.TargettingUtils.ControlTarget;
 
 public class TurretSubsystem extends SubsystemBase {
     private final CommandSwerveDrivetrain swerveSubsystem;
+    
+    private final File lookupTable;
+    private double prevReading = Double.NaN;
+    private double prevReadingTimestamp = Double.NaN;
+    private double currentVelocityToTarget = 0;
 
     // private final Field2d field;
 
@@ -36,7 +55,7 @@ public class TurretSubsystem extends SubsystemBase {
     /** Creates a new TurretSubsystem. */
     public TurretSubsystem(Field2d fieldImport, CommandSwerveDrivetrain sSubsystem) {
         this.swerveSubsystem = sSubsystem;
-        // this.field = fieldImport;
+        this.lookupTable = new File(Filesystem.getDeployDirectory(), "lookup_table.json");
 
         SmartDashboard.putNumber("Turret/Turret kP", 0);
         SmartDashboard.putNumber("Turret/Turret kI", 0);
@@ -64,6 +83,19 @@ public class TurretSubsystem extends SubsystemBase {
 
     }
     public void periodic() {
+        Translation2d targetFlatTranslation = getTargetFromEnum(turretTarget).toTranslation2d();
+        double targetDist = targetFlatTranslation.getDistance(swerveSubsystem.getPose().getTranslation());
+        double targetDistTimestamp = Timer.getFPGATimestamp();
+
+        if (prevReading != Double.NaN) {
+            double deltaDist = targetDist - prevReading;
+            double deltaTime = targetDistTimestamp - prevReadingTimestamp;
+            currentVelocityToTarget = deltaDist / deltaTime;
+        }
+
+        prevReading = targetDist;
+        prevReadingTimestamp = targetDistTimestamp;
+
         updateTurretTarget();
         updateSmartDashboard();
     }
@@ -126,5 +158,64 @@ public class TurretSubsystem extends SubsystemBase {
 
         System.out.println(SmartDashboard.getNumber("Turret/Turret kP", 0));
         this.rightShooterMotor.getConfigurator().apply(fxConfigs);
+    }
+
+    public ControlTarget getControlTarget() {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode lookupNode = mapper.readTree(lookupTable);
+            
+            Translation3d targetTranslation = getTargetFromEnum(turretTarget);
+            int targetHeight = (int) targetTranslation.getZ();
+            JsonNode dataNode = lookupNode
+                .get(String.valueOf(targetHeight))
+                .get(String.valueOf(prevReading))
+                .get(String.valueOf(currentVelocityToTarget));
+
+            if (dataNode.isNull()) {
+                return new ControlTarget();
+            } else {
+                int rpm = dataNode.get("rpm").asInt();
+                double hoodAngle = dataNode.get("angle_deg").asDouble();
+                return new ControlTarget(rpm, hoodAngle);
+            }
+        } catch (IOException e) {
+            DriverStation.reportError("Error reading lookup table JSON: " + e.getMessage(), e.getStackTrace());
+            return new ControlTarget();
+        }
+    }
+
+    private Translation3d getTargetFromEnum(TurretTarget target) {
+        Optional<Alliance> optionalAlliance = DriverStation.getAlliance();
+        Alliance currentAlliance;
+        if (optionalAlliance.isPresent()) {
+            currentAlliance = optionalAlliance.get();
+        } else {
+            currentAlliance = Alliance.Red;
+        }
+        
+        switch (target) {
+            case RED_HUB: {
+                return TurretTargetPoints.RED_HUB;
+            }
+            case BLUE_HUB: {
+                return TurretTargetPoints.BLUE_HUB;
+            }
+            case AUDIENCE_CORNER: {
+                if (currentAlliance == Alliance.Red) {
+                    return TurretTargetPoints.RED_LEFT_CORNER;
+                } else {
+                    return TurretTargetPoints.BLUE_RIGHT_CORNER;
+                }
+            }
+            case SCORING_CORNER: {
+                if (currentAlliance == Alliance.Red) {
+                    return TurretTargetPoints.RED_RIGHT_CORNER;
+                } else {
+                    return TurretTargetPoints.BLUE_LEFT_CORNER;
+                }
+            }
+            default: return new Translation3d();
+        }    
     }
 }
