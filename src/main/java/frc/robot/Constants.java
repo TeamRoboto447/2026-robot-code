@@ -1,5 +1,7 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -11,6 +13,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -100,13 +103,20 @@ public final class Constants {
     }
 
     public static class TurretSubsystemConstants {
-        public static final int LEFT_SHOOTER_MOTOR_ID = 40;     //
-        public static final int RIGHT_SHOOTER_MOTOR_ID = 41;    //  TODO: SET PROPER IDS FOR THESE MOTORS!!!
-        public static final int HOOD_MOTOR_ID = -1;             //
+        public static final int LEFT_SHOOTER_MOTOR_ID = 40;
+        public static final int RIGHT_SHOOTER_MOTOR_ID = 41;
+        public static final int HOOD_MOTOR_ID = 42;
         public static final int ANGLE_MOTOR_ID = -1;            //
+        public static final int KICKER_MOTOR_ID = -1;           //  TODO: SET PROPER IDS FOR THESE MOTORS!!!
 
         public static final double SHOOTER_KP = 0;
         public static final double SHOOTER_KI = 0;
         public static final double SHOOTER_KD = 0;
+
+        public static final int LOOKUP_TABLE_VEL_STEP = 1;
+
+        public static final Angle MIN_HOOD_ANGLE = Degrees.of(17);
+        public static final Angle MAX_HOOD_ANGLE = Degrees.of(45);
+        public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(19.5);
     }
 }

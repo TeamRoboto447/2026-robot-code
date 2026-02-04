@@ -4,12 +4,17 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.MutAngle;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -27,7 +32,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.TurretTarget;
@@ -41,13 +48,20 @@ public class TurretSubsystem extends SubsystemBase {
     private double prevReading = Double.NaN;
     private double prevReadingTimestamp = Double.NaN;
     private double currentVelocityToTarget = 0;
+    private ControlTarget currentControlTarget;
+    private MutAngle currentHoodAngle;
+    private boolean hoodLimitSet = false;
+    private final Trigger hoodLowerLimitTrigger;
+    private double rotationOffset = 0;
 
     // private final Field2d field;
 
     private final TalonFX rightShooterMotor;
     private final TalonFX leftShooterMotor;
-    // private final TalonFX hoodMotor;
+    private final TalonFX hoodMotor;
+    private final DigitalInput hoodLowerLimit; 
     // private final TalonFX angleMotor;
+    private final TalonFX kickerMotor;
 
     public TurretTarget turretTarget = TurretTarget.NONE;
     private TalonFXConfiguration fxConfigs = new TalonFXConfiguration();
@@ -64,12 +78,12 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Turret/Target RPM", 3000);
 
         this.rightShooterMotor = new TalonFX(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID);
-        var slot0config = fxConfigs.Slot0;
-        slot0config.kP = 0;
-        slot0config.kI = 0;
-        slot0config.kD = 0;
-        slot0config.kV = 0;
-        slot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+        var shooterSlot0config = fxConfigs.Slot0;
+        shooterSlot0config.kP = 0;
+        shooterSlot0config.kI = 0;
+        shooterSlot0config.kD = 0;
+        shooterSlot0config.kV = 0;
+        shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
         
         this.rightShooterMotor.getConfigurator().apply(fxConfigs);
 
@@ -77,9 +91,18 @@ public class TurretSubsystem extends SubsystemBase {
 
         this.leftShooterMotor.setControl(new Follower(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID, MotorAlignmentValue.Opposed));
         
-        // this.hoodMotor = new TalonFX(TurretSubsystemConstants.HOOD_MOTOR_ID);
+        this.hoodMotor = new TalonFX(TurretSubsystemConstants.HOOD_MOTOR_ID);
+        this.hoodLowerLimit = new DigitalInput(0);
+
+        hoodLowerLimitTrigger = new Trigger(() -> hoodLowerLimit.get());
+        hoodLowerLimitTrigger.onTrue(Commands.runOnce((() -> {
+            this.currentHoodAngle = Degrees.mutable(17);
+            this.rotationOffset = 0;            //  TODO: Figure out how to get current rotations from hood motor
+        }), this));
 
         // this.angleMotor = new TalonFX(TurretSubsystemConstants.ANGLE_MOTOR_ID);
+
+        this.kickerMotor = new TalonFX(TurretSubsystemConstants.KICKER_MOTOR_ID);
 
     }
     public void periodic() {
@@ -92,6 +115,10 @@ public class TurretSubsystem extends SubsystemBase {
             double deltaTime = targetDistTimestamp - prevReadingTimestamp;
             currentVelocityToTarget = deltaDist / deltaTime;
         }
+
+        currentControlTarget = getControlTarget();
+
+        
 
         prevReading = targetDist;
         prevReadingTimestamp = targetDistTimestamp;
@@ -114,6 +141,22 @@ public class TurretSubsystem extends SubsystemBase {
     // private void turnRaw(double speed) {
     //     this.angleMotor.set(speed);
     // }
+
+    public void kick(double strength) {
+        if (rightShooterMotor.getVelocity().isNear(currentControlTarget.getRPS(), 0.8)) {
+            kickerMotor.set(strength);
+        } else {
+            kickerMotor.set(0);
+        }
+    }
+
+    public void setHoodAngle(Angle newAngle) {
+        if (!hoodLimitSet) {
+            return;
+        } else {
+            hoodMotor.setPosition(0);
+        }
+    }
 
     private void updateSmartDashboard() {
         SmartDashboard.putNumber("Turret/Turret Angle", 0);
@@ -167,10 +210,13 @@ public class TurretSubsystem extends SubsystemBase {
             
             Translation3d targetTranslation = getTargetFromEnum(turretTarget);
             int targetHeight = (int) targetTranslation.getZ();
+
+            int steppedVelocity = ((int) Math.round(currentVelocityToTarget / TurretSubsystemConstants.LOOKUP_TABLE_VEL_STEP)) * TurretSubsystemConstants.LOOKUP_TABLE_VEL_STEP;
+
             JsonNode dataNode = lookupNode
                 .get(String.valueOf(targetHeight))
                 .get(String.valueOf(prevReading))
-                .get(String.valueOf(currentVelocityToTarget));
+                .get(String.valueOf(steppedVelocity));
 
             if (dataNode.isNull()) {
                 return new ControlTarget();
