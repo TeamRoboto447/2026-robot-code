@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
@@ -48,23 +49,28 @@ public class TurretSubsystem extends SubsystemBase {
     private double prevReading = Double.NaN;
     private double prevReadingTimestamp = Double.NaN;
     private double currentVelocityToTarget = 0;
-    private ControlTarget currentControlTarget;
+    private ControlTarget currentControlTarget = new ControlTarget();
     private MutAngle currentHoodAngle;
     private boolean hoodLimitSet = false;
     private final Trigger hoodLowerLimitTrigger;
-    private double rotationOffset = 0;
 
     // private final Field2d field;
 
     private final TalonFX rightShooterMotor;
     private final TalonFX leftShooterMotor;
     private final TalonFX hoodMotor;
-    private final DigitalInput hoodLowerLimit; 
+    private final DigitalInput hoodLowerLimitSwitch; 
     // private final TalonFX angleMotor;
     private final TalonFX kickerMotor;
 
     public TurretTarget turretTarget = TurretTarget.NONE;
-    private TalonFXConfiguration fxConfigs = new TalonFXConfiguration();
+    private TalonFXConfiguration ShooterFxConfigs = new TalonFXConfiguration();
+    private final VelocityVoltage velocityReq = new VelocityVoltage(0).withSlot(0);
+
+    private TalonFXConfiguration HoodFxConfigs = new TalonFXConfiguration();
+    private final PositionVoltage positionReq = new PositionVoltage(0).withSlot(0);
+
+    // private 
     
     /** Creates a new TurretSubsystem. */
     public TurretSubsystem(Field2d fieldImport, CommandSwerveDrivetrain sSubsystem) {
@@ -77,27 +83,39 @@ public class TurretSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Turret/Turret kV", 0);
         SmartDashboard.putNumber("Turret/Target RPM", 3000);
 
+        SmartDashboard.putNumber("Turret/Hood kP", 0);
+        SmartDashboard.putNumber("Turret/Hood kI", 0);
+        SmartDashboard.putNumber("Turret/Hood kD", 0);
+
         this.rightShooterMotor = new TalonFX(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID);
-        var shooterSlot0config = fxConfigs.Slot0;
+        var shooterSlot0config = ShooterFxConfigs.Slot0;
         shooterSlot0config.kP = 0;
         shooterSlot0config.kI = 0;
         shooterSlot0config.kD = 0;
         shooterSlot0config.kV = 0;
         shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
         
-        this.rightShooterMotor.getConfigurator().apply(fxConfigs);
+        this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
 
         this.leftShooterMotor = new TalonFX(TurretSubsystemConstants.LEFT_SHOOTER_MOTOR_ID);
 
         this.leftShooterMotor.setControl(new Follower(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID, MotorAlignmentValue.Opposed));
         
         this.hoodMotor = new TalonFX(TurretSubsystemConstants.HOOD_MOTOR_ID);
-        this.hoodLowerLimit = new DigitalInput(0);
+        var hoodSlot0config = HoodFxConfigs.Slot0;
+        hoodSlot0config.kP = 0;
+        hoodSlot0config.kI = 0;
+        hoodSlot0config.kD = 0;
+        hoodSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
-        hoodLowerLimitTrigger = new Trigger(() -> hoodLowerLimit.get());
+        this.hoodMotor.getConfigurator().apply(HoodFxConfigs);
+
+        this.hoodLowerLimitSwitch = new DigitalInput(0);
+
+        hoodLowerLimitTrigger = new Trigger(() -> hoodLowerLimitSwitch.get());
         hoodLowerLimitTrigger.onTrue(Commands.runOnce((() -> {
             this.currentHoodAngle = Degrees.mutable(17);
-            this.rotationOffset = 0;            //  TODO: Figure out how to get current rotations from hood motor
+            this.hoodMotor.setPosition(0);
         }), this));
 
         // this.angleMotor = new TalonFX(TurretSubsystemConstants.ANGLE_MOTOR_ID);
@@ -127,10 +145,8 @@ public class TurretSubsystem extends SubsystemBase {
         updateSmartDashboard();
     }
 
-    private final VelocityVoltage velocityReq = new VelocityVoltage(0).withSlot(0);
-
     public void shoot() {
-        double targetRPS = SmartDashboard.getNumber("Turret/Target RPM", 0) / 60;
+        double targetRPS = currentControlTarget.getRPS();
         rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
     }
 
@@ -151,16 +167,22 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void setHoodAngle(Angle newAngle) {
-        if (!hoodLimitSet) {
+        if ((!hoodLimitSet) ||
+                (newAngle.compareTo(TurretSubsystemConstants.MAX_HOOD_ANGLE) > 0) ||
+                (newAngle.compareTo(TurretSubsystemConstants.MIN_HOOD_ANGLE) < 0)) {
             return;
         } else {
-            hoodMotor.setPosition(0);
+            double rotationsToAngle = newAngle
+                .minus(TurretSubsystemConstants.MIN_HOOD_ANGLE)
+                .div(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO)
+                .magnitude();
+            hoodMotor.setControl(positionReq.withPosition(rotationsToAngle));
         }
     }
 
     private void updateSmartDashboard() {
         SmartDashboard.putNumber("Turret/Turret Angle", 0);
-        SmartDashboard.putNumber("Turret/Hood Angle", 0);
+        SmartDashboard.putNumber("Turret/Hood Angle", currentHoodAngle.magnitude());
         SmartDashboard.putNumber("Turret/Turret Speed", this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
 
         SmartDashboard.putString("Turret/Turret Target", this.turretTarget.toString());        
@@ -191,16 +213,25 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void pullSmartDashboardData() {
-        var slot0config = fxConfigs.Slot0;
+        var shooterSlot0config = ShooterFxConfigs.Slot0;
         
-        slot0config.kP = SmartDashboard.getNumber("Turret/Turret kP", 0);
-        slot0config.kI = SmartDashboard.getNumber("Turret/Turret kI", 0);
-        slot0config.kD = SmartDashboard.getNumber("Turret/Turret kD", 0);
-        slot0config.kV = SmartDashboard.getNumber("Turret/Turret kV", 0);
-        slot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+        shooterSlot0config.kP = SmartDashboard.getNumber("Turret/Turret kP", 0);
+        shooterSlot0config.kI = SmartDashboard.getNumber("Turret/Turret kI", 0);
+        shooterSlot0config.kD = SmartDashboard.getNumber("Turret/Turret kD", 0);
+        shooterSlot0config.kV = SmartDashboard.getNumber("Turret/Turret kV", 0);
+        shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         System.out.println(SmartDashboard.getNumber("Turret/Turret kP", 0));
-        this.rightShooterMotor.getConfigurator().apply(fxConfigs);
+        this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
+        
+        var hoodSlot0config = HoodFxConfigs.Slot0;
+        hoodSlot0config.kP = SmartDashboard.getNumber("Turret/Hood kP", 0);
+        hoodSlot0config.kI = SmartDashboard.getNumber("Turret/Hood kI", 0);
+        hoodSlot0config.kD = SmartDashboard.getNumber("Turret/Hood kD", 0);
+        hoodSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+
+        this.hoodMotor.getConfigurator().apply(hoodSlot0config);
+        
     }
 
     public ControlTarget getControlTarget() {
@@ -211,11 +242,12 @@ public class TurretSubsystem extends SubsystemBase {
             Translation3d targetTranslation = getTargetFromEnum(turretTarget);
             int targetHeight = (int) targetTranslation.getZ();
 
+            int steppedTargetDist = ((int) Math.round(prevReading / TurretSubsystemConstants.LOOKUP_TABLE_DIST_STEP)) * TurretSubsystemConstants.LOOKUP_TABLE_DIST_STEP;
             int steppedVelocity = ((int) Math.round(currentVelocityToTarget / TurretSubsystemConstants.LOOKUP_TABLE_VEL_STEP)) * TurretSubsystemConstants.LOOKUP_TABLE_VEL_STEP;
 
             JsonNode dataNode = lookupNode
                 .get(String.valueOf(targetHeight))
-                .get(String.valueOf(prevReading))
+                .get(String.valueOf(steppedTargetDist))
                 .get(String.valueOf(steppedVelocity));
 
             if (dataNode.isNull()) {

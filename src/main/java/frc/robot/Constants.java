@@ -114,6 +114,7 @@ public final class Constants {
         public static final double SHOOTER_KD = 0;
 
         public static final int LOOKUP_TABLE_VEL_STEP = 1;
+        public static final int LOOKUP_TABLE_DIST_STEP = 1;
 
         public static final Angle MIN_HOOD_ANGLE = Degrees.of(17);
         public static final Angle MAX_HOOD_ANGLE = Degrees.of(45);
