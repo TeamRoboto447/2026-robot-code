@@ -120,4 +120,9 @@ public final class Constants {
         public static final Angle MAX_HOOD_ANGLE = Degrees.of(45);
         public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(19.5);
     }
+
+    public static class IntakeSubsystemConstants {
+        public static final int LIFT_MOTOR_ID = -1;
+        public static final int INTAKE_MOTOR_ID = -1;
+    }
 }
