@@ -125,4 +125,8 @@ public final class Constants {
         public static final int LIFT_MOTOR_ID = -1;
         public static final int INTAKE_MOTOR_ID = -1;
     }
+
+    public static class IndexerSubsystemConstants {
+        public static final int SPINNER_MOTOR_ID = -1;
+    }
 }
