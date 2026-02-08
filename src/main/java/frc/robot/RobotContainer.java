@@ -6,6 +6,9 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -22,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
 
@@ -44,25 +48,28 @@ public class RobotContainer {
 
     private final Field2d field = new Field2d();
 
-    public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
+    // public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
     public final TurretSubsystem turretSubsystem;
-    public final PoseEstimatorSubsystem poseEstimatorSubsystem;
+    public final IndexerSubsystem indexerSubsystem;
+    // public final PoseEstimatorSubsystem poseEstimatorSubsystem;
 
-    FollowPath.Builder pathBuilder = new FollowPath.Builder(
-        swerveSubsystem,
-        swerveSubsystem::getPose,
-        swerveSubsystem::getChassisSpeeds,
-        swerveSubsystem::driveWithChassisSpeeds,
-        new PIDController(5.0, 0.0, 0.0),
-        new PIDController(3.0, 0.0, 0.0),
-        new PIDController(2.0, 0.0, 0.0)
-        ).withDefaultShouldFlip()
-        .withPoseReset(swerveSubsystem::resetPose);
+    // FollowPath.Builder pathBuilder = new FollowPath.Builder(
+    //     swerveSubsystem,
+    //     swerveSubsystem::getPose,
+    //     swerveSubsystem::getChassisSpeeds,
+    //     swerveSubsystem::driveWithChassisSpeeds,
+    //     new PIDController(5.0, 0.0, 0.0),
+    //     new PIDController(3.0, 0.0, 0.0),
+    //     new PIDController(2.0, 0.0, 0.0)
+    //     ).withDefaultShouldFlip()
+    //     .withPoseReset(swerveSubsystem::resetPose);
 
     public RobotContainer() {
 
-        this.turretSubsystem = new TurretSubsystem(field, swerveSubsystem);
-        this. poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
+        // this.turretSubsystem = new TurretSubsystem(field, swerveSubsystem);
+        this.turretSubsystem = new TurretSubsystem(field);
+        this.indexerSubsystem = new IndexerSubsystem();
+        // this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
 
         SmartDashboard.putData("Field", field);
         
@@ -72,47 +79,80 @@ public class RobotContainer {
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        swerveSubsystem.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            swerveSubsystem.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
+        // swerveSubsystem.setDefaultCommand(
+        //     // Drivetrain will execute this command periodically
+        //     swerveSubsystem.applyRequest(() ->
+        //         drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+        //             .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+        //             .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+        //     )
+        // );
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-            swerveSubsystem.applyRequest(() -> idle).ignoringDisable(true)
-        );
 
-        joystick.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
-        joystick.b().whileTrue(swerveSubsystem.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
+        // final var idle = new SwerveRequest.Idle();
+        // RobotModeTriggers.disabled().whileTrue(
+        //     swerveSubsystem.applyRequest(() -> idle).ignoringDisable(true)
+        // );
+
+        // joystick.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
+        // joystick.b().whileTrue(swerveSubsystem.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        // ));
 
         joystick.rightBumper().whileTrue(turretSubsystem.run(() -> {
             turretSubsystem.shoot();
         }));
-        joystick.rightBumper().onFalse(turretSubsystem.stop());
+        joystick.rightBumper().onFalse(turretSubsystem.stopShooter());
+
+        joystick.rightTrigger().onTrue(turretSubsystem.run(() -> {
+            turretSubsystem.setHoodAngle(Degrees.of(SmartDashboard.getNumber("Turret/Target Hood Angle",0)));
+        }));
+        // AtomicInteger angle = new AtomicInteger(25);
+        // AtomicBoolean goingUp = new AtomicBoolean(true);
+        // joystick.rightTrigger().whileTrue(turretSubsystem.run(() -> {
+        //     turretSubsystem.setHoodAngle(Degrees.of(angle.get()));
+        //     if(goingUp.get()) {
+        //         if(angle.get() >= 45) {
+        //             angle.set(angle.get()-1);
+        //             goingUp.set(false);
+        //         } else angle.set(angle.get()+1);
+        //     } else {
+                
+        //         if(angle.get() <= 25) {
+        //             angle.set(angle.get()+1);
+        //             goingUp.set(true);
+        //         } else angle.set(angle.get()-1);
+        //     }
+        // }));
+        joystick.rightTrigger().onFalse(turretSubsystem.stopHood());
 
         joystick.start().onTrue(turretSubsystem.runOnce(() -> {
             turretSubsystem.pullSmartDashboardData();
         }));
 
+        joystick.leftTrigger().whileTrue(indexerSubsystem.run(() -> {
+            indexerSubsystem.spin();
+        }));
+        joystick.leftTrigger().onFalse(indexerSubsystem.stop());
+
+        joystick.start().onTrue(indexerSubsystem.runOnce(() -> {
+            indexerSubsystem.pullSmartDashboardData();
+        }));
+        
+
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(swerveSubsystem.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(swerveSubsystem.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kReverse));
+        // joystick.back().and(joystick.y()).whileTrue(swerveSubsystem.sysIdDynamic(Direction.kForward));
+        // joystick.back().and(joystick.x()).whileTrue(swerveSubsystem.sysIdDynamic(Direction.kReverse));
+        // joystick.start().and(joystick.y()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kForward));
+        // joystick.start().and(joystick.x()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kReverse));
 
         // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
+        // joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
 
-        swerveSubsystem.registerTelemetry(logger::telemeterize);
+        // swerveSubsystem.registerTelemetry(logger::telemeterize);
     }
 
     public Command getAutonomousCommand() {
@@ -121,7 +161,7 @@ public class RobotContainer {
             System.out.println("YEET!");
         }));
         return Commands.sequence(
-            pathBuilder.build(testPath)
+            // pathBuilder.build(testPath)
         );
     }
 }

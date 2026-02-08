@@ -106,19 +106,28 @@ public final class Constants {
         public static final int LEFT_SHOOTER_MOTOR_ID = 40;
         public static final int RIGHT_SHOOTER_MOTOR_ID = 41;
         public static final int HOOD_MOTOR_ID = 42;
-        public static final int ANGLE_MOTOR_ID = -1;            //
-        public static final int KICKER_MOTOR_ID = -1;           //  TODO: SET PROPER IDS FOR THESE MOTORS!!!
+        public static final int ANGLE_MOTOR_ID = 43;
+        public static final int KICKER_MOTOR_ID = 44;
 
         public static final double SHOOTER_KP = 0;
         public static final double SHOOTER_KI = 0;
         public static final double SHOOTER_KD = 0;
+        public static final double SHOOTER_KV = 0;
+
+        public static final double HOOD_KP = 0;
+        public static final double HOOD_KI = 0;
+        public static final double HOOD_KD = 0;
 
         public static final int LOOKUP_TABLE_VEL_STEP = 1;
         public static final int LOOKUP_TABLE_DIST_STEP = 1;
 
         public static final Angle MIN_HOOD_ANGLE = Degrees.of(17);
         public static final Angle MAX_HOOD_ANGLE = Degrees.of(45);
-        public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(19.5);
+        public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(1.219);
+
+        public static final Angle MIN_TURRET_ANGLE = Degrees.of(0);
+        public static final Angle MAX_TURRET_ANGLE = Degrees.of(360);
+        public static final Angle TURRET_DEGREES_ROTATION_RATIO = Degrees.of(55.8);
     }
 
     public static class IntakeSubsystemConstants {
@@ -127,6 +136,11 @@ public final class Constants {
     }
 
     public static class IndexerSubsystemConstants {
-        public static final int SPINNER_MOTOR_ID = -1;
+        public static final int SPINNER_MOTOR_ID = 50;
+        
+        public static final double SPINNER_KP = 0;
+        public static final double SPINNER_KI = 0;
+        public static final double SPINNER_KD = 0;
+        public static final double SPINNER_KV = 0;
     }
 }
