@@ -66,8 +66,8 @@ public class RobotContainer {
 
     public RobotContainer() {
 
-        // this.turretSubsystem = new TurretSubsystem(field, swerveSubsystem);
-        this.turretSubsystem = new TurretSubsystem(field);
+        // this.turretSubsystem = new TurretSubsystem(swerveSubsystem);
+        this.turretSubsystem = new TurretSubsystem();
         this.indexerSubsystem = new IndexerSubsystem();
         // this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
 
@@ -127,6 +127,9 @@ public class RobotContainer {
         //     }
         // }));
         joystick.rightTrigger().onFalse(turretSubsystem.stopHood());
+
+        joystick.x().onTrue(turretSubsystem.run(() -> turretSubsystem.kick(1)));
+        joystick.x().onFalse(turretSubsystem.stopKicker());
 
         joystick.start().onTrue(turretSubsystem.runOnce(() -> {
             turretSubsystem.pullSmartDashboardData();

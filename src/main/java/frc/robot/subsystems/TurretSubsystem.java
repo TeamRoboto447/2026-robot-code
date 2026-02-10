@@ -64,6 +64,7 @@ public class TurretSubsystem extends SubsystemBase {
     private MutAngle currentHoodAngle = Degrees.mutable(17);
     private boolean hoodLimitSet = false;
     private final Trigger hoodLowerLimitTrigger;
+    public final Trigger feedTrigger;
 
     // private final Field2d field;
 
@@ -74,21 +75,18 @@ public class TurretSubsystem extends SubsystemBase {
     private final SparkClosedLoopController hoodController;
     // private final DigitalInput hoodLowerLimitSwitch; 
     private final TalonFX angleMotor;
-    private final TalonFX kickerMotor;
+    private final SparkMax kickerMotor;
 
     public TurretTarget turretTarget = TurretTarget.NONE;
     private TalonFXConfiguration ShooterFxConfigs = new TalonFXConfiguration();
     private final VelocityVoltage velocityReq = new VelocityVoltage(0).withSlot(0);
 
-    private TalonFXConfiguration HoodFxConfigs = new TalonFXConfiguration();
-    private final PositionVoltage hoodPositionReq = new PositionVoltage(0).withSlot(0);
-
     private TalonFXConfiguration AngleFxConfigs = new TalonFXConfiguration();
     private final PositionVoltage anglePositionReq = new PositionVoltage(0).withSlot(0);
     
     /** Creates a new TurretSubsystem. */
-    // public TurretSubsystem(Field2d fieldImport, CommandSwerveDrivetrain sSubsystem) {
-    public TurretSubsystem(Field2d fieldImport) {
+    // public TurretSubsystem(CommandSwerveDrivetrain sSubsystem) {
+    public TurretSubsystem() {
         // this.swerveSubsystem = sSubsystem;
         this.lookupTable = new File(Filesystem.getDeployDirectory(), "lookup_table.json");
 
@@ -145,7 +143,9 @@ public class TurretSubsystem extends SubsystemBase {
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
 
-        this.kickerMotor = new TalonFX(TurretSubsystemConstants.KICKER_MOTOR_ID);
+        this.kickerMotor = new SparkMax(TurretSubsystemConstants.KICKER_MOTOR_ID, MotorType.kBrushless);
+
+        this.feedTrigger = new Trigger(() -> this.rightShooterMotor.getVelocity().isNear(currentControlTarget.getRPS(), 0.8));
 
     }
     public void periodic() {
@@ -185,6 +185,10 @@ public class TurretSubsystem extends SubsystemBase {
         return this.run(() -> this.hoodMotor.set(0));
     }
 
+    public Command stopKicker() {
+        return this.run(() -> this.kickerMotor.set(0));
+    }
+
     public void turnToAngle(Angle newAngle) {
         if ((false) ||
                 (newAngle.compareTo(TurretSubsystemConstants.MAX_TURRET_ANGLE) > 0) ||
@@ -201,11 +205,11 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void kick(double strength) {
-        if (rightShooterMotor.getVelocity().isNear(currentControlTarget.getRPS(), 0.8)) {
+        // if (rightShooterMotor.getVelocity().isNear(SmartDashboard.getNumber("Turret/Target Turret RPM", 0), 0.8)) {
             kickerMotor.set(strength);
-        } else {
-            kickerMotor.set(0);
-        }
+        // } else {
+        //     kickerMotor.set(0);
+        // }
     }
 
     public void setHoodAngle(Angle newAngle) {
