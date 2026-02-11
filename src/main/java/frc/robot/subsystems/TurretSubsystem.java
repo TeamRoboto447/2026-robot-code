@@ -156,7 +156,7 @@ public class TurretSubsystem extends SubsystemBase {
         double targetDist = targetFlatTranslation.getDistance(poseProvider.getPose().getTranslation());
         double targetDistTimestamp = Timer.getFPGATimestamp();
 
-        if (prevReading != Double.NaN) {
+        if (!Double.isNaN(prevReading)) {
             double deltaDist = targetDist - prevReading;
             double deltaTime = targetDistTimestamp - prevReadingTimestamp;
             currentVelocityToTarget = deltaDist / deltaTime;
