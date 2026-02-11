@@ -19,7 +19,10 @@ public class IndexerSubsystem extends SubsystemBase {
 
     private TalonFXConfiguration SpinnerFxConfigs = new TalonFXConfiguration();
     // private final VelocityVoltage velocityReq = new VelocityVoltage(0).withSlot(0);
-    /** Creates a new IndexerSubsystem. */
+
+    /**
+     * Creates a new IndexerSubsystem.
+     */
     public IndexerSubsystem() {
         spinnerMotor = new TalonFX(IndexerSubsystemConstants.SPINNER_MOTOR_ID);
 
@@ -33,21 +36,35 @@ public class IndexerSubsystem extends SubsystemBase {
         this.spinnerMotor.getConfigurator().apply(SpinnerFxConfigs);
     }
 
+    /**
+     * Updates the subsystem's various elements. 
+     * Currently only updates the spinner velocity on the NetworkTables.
+     */
     @Override
     public void periodic() {
         NetworkedConfig.Indexer.setSpinnerSpeed(this.spinnerMotor.getVelocity().getValueAsDouble()*60);
     }
 
+    /**
+     * Spins the motor in the hopper at the speed specified on the NetworkTables.
+     */
     public void spin() {
         // spinnerMotor.setControl(velocityReq.withVelocity(-NetworkedConfig.Indexer.getTargetSpeed()/60));
         spinnerMotor.set(-NetworkedConfig.Indexer.getTargetSpeed());
     }
 
+    /**
+     * Stops the motor in the hopper.
+     * @return A {@link Command} that stops the motor.
+     */
     public Command stop() {
         return this.run(() -> spinnerMotor.set(0));
     }
 
-    public void pullSmartDashboardData() {
+    /**
+     * Pulls data from the NetworkTables.
+     */
+    public void pullNetworkTableData() {
         var spinnerSlot0config = SpinnerFxConfigs.Slot0;
         
         spinnerSlot0config.kP = NetworkedConfig.Indexer.getSpinnerKP();

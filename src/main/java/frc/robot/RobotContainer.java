@@ -149,7 +149,7 @@ public class RobotContainer {
         joystick.leftTrigger().onFalse(indexerSubsystem.stop());
 
         joystick.start().onTrue(indexerSubsystem.runOnce(() -> {
-            indexerSubsystem.pullSmartDashboardData();
+            indexerSubsystem.pullNetworkTableData();
         }));
         
 
