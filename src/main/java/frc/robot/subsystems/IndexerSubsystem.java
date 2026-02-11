@@ -14,6 +14,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IndexerSubsystemConstants;
 import frc.robot.networking.NetworkedConfig;
 
+/**
+ * A subsystem for that allows control of the spindexer in the hopper.
+ */
 public class IndexerSubsystem extends SubsystemBase {
     private final TalonFX spinnerMotor;
 

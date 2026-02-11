@@ -49,6 +49,10 @@ import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.TargettingUtils.ControlTarget;
 
+/**
+ * A subsystem that allows control of the flywheel, the hood, 
+ * the turret's angle, and the kicker.
+ */
 public class TurretSubsystem extends SubsystemBase {
     private final PoseProvider poseProvider;
     
