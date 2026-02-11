@@ -6,6 +6,9 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * A subsystem for interacting with the LiDAR sensor.
+ */
 public class ObjectAvoidanceSubsystem extends SubsystemBase {
     /** Creates a new ObjectAvoidanceSubsystem. */
     public ObjectAvoidanceSubsystem() {}

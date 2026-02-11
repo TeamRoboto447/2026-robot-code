@@ -22,13 +22,20 @@ import frc.robot.Constants.FieldConstants;
 import static frc.robot.Constants.VisionConstants.APRILTAG_AMBIGUITY_THRESHOLD;
 import frc.robot.utils.MathUtils;
 
-/** Add your docs here. */
+/**
+ * A single camera instance, used in the {@link PoseEstimatorSubsystem}.
+ */
 public class PhotonRunnable implements Runnable {
 
     private final PhotonPoseEstimator photonPoseEstimator;
     private final PhotonCamera photonCamera;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
 
+    /**
+     * Creates a new PhotonRunnable.
+     * @param camera The camera to get data from.
+     * @param robotToCamera The positional offset of the camera from the center of the robot in the form of a {@link Transform3d} object.
+     */
     public PhotonRunnable(PhotonCamera camera, Transform3d robotToCamera) {
         this.photonCamera = camera;
         PhotonPoseEstimator poseEstimator = null;
@@ -41,6 +48,9 @@ public class PhotonRunnable implements Runnable {
         this.photonPoseEstimator = poseEstimator;
     }
 
+    /**
+     * Contains the code to run every iteration.
+     */
     @Override
     public void run() {
         if (this.photonPoseEstimator != null && this.photonCamera != null) {
@@ -58,6 +68,10 @@ public class PhotonRunnable implements Runnable {
         }
     }
 
+    /**
+     * Gets the latest estimated pose of the robot.
+     * @return The estimated pose.
+     */
     public EstimatedRobotPose grabLatestEstimatedPose() {
         return atomicEstimatedRobotPose.getAndSet(null);
     }

@@ -22,6 +22,9 @@ import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.networking.NetworkedTelemetry;
 
+/**
+ * Manages all of the vision cameras on the robot.
+ */
 public class PoseEstimatorSubsystem extends SubsystemBase {
 
   private final CommandSwerveDrivetrain swerveSubsystem;
