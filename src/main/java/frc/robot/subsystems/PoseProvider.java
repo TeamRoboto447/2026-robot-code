@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.math.geometry.Pose2d;
 import frc.robot.Constants.FieldConstants.FieldZone;
 
+/**
+ * Abstact interface to make it easier to implement pose retreival.
+ */
 public interface PoseProvider {
     /**
      * Gets the current estimated pose of the robot on the field.
