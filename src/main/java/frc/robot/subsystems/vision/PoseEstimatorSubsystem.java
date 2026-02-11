@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.networking.NetworkedTelemetry;
 
 public class PoseEstimatorSubsystem extends SubsystemBase {
 
@@ -95,8 +96,12 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
   public void estimatorChecker(PhotonRunnable estimator) {
     EstimatedRobotPose cameraPose = estimator.grabLatestEstimatedPose();
-    if (cameraPose == null)
+    if (cameraPose == null) {
+      NetworkedTelemetry.Vision.setHasValidAprilTags(false);
       return;
+    }
+    
+    NetworkedTelemetry.Vision.setHasValidAprilTags(true);
     Pose2d pose2d = cameraPose.estimatedPose.toPose2d();
     if (RobotState.isDisabled()) {
       System.out.println("Setting position");

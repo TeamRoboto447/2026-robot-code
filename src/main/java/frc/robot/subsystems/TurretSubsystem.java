@@ -10,6 +10,7 @@ import java.util.Objects;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -45,6 +46,7 @@ import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.TurretTarget;
 import frc.robot.Constants.FieldConstants.TurretTargetPoints;
 import frc.robot.networking.NetworkedConfig;
+import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.TargettingUtils.ControlTarget;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -233,7 +235,10 @@ public class TurretSubsystem extends SubsystemBase {
         NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
         NetworkedConfig.Turret.setTurretSpeed(this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
 
-        NetworkedConfig.Turret.setTurretTarget(this.turretTarget.toString());        
+        NetworkedConfig.Turret.setTurretTarget(this.turretTarget.toString());
+        
+        Translation3d targetPosition = getTargetFromEnum(this.turretTarget);
+        NetworkedTelemetry.Pose.publishTargetCircle(targetPosition, Units.inchesToMeters(12));
     }
 
     public void updateTurretTarget() {
