@@ -9,9 +9,9 @@ import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeSubsystemConstants;
+import frc.robot.networking.NetworkedConfig;
 
 public class IntakeSubsystem extends SubsystemBase {
     private final TalonFX liftMotor;
@@ -34,10 +34,6 @@ public class IntakeSubsystem extends SubsystemBase {
         liftSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         liftMotor.getConfigurator().apply(LiftFxConfigs);
-
-        SmartDashboard.putNumber("Intake/Lift kP", 0);
-        SmartDashboard.putNumber("Intake/Lift kI", 0);
-        SmartDashboard.putNumber("Intake/Lift kD", 0);
     }
 
     @Override
@@ -66,14 +62,14 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     private void updateSmartDashboard() {
-        SmartDashboard.putNumber("Intake/Intake Speed", this.intakeMotor.getVelocity().getValueAsDouble()*60);
+        NetworkedConfig.Intake.setIntakeSpeed(this.intakeMotor.getVelocity().getValueAsDouble()*60);
     }
 
     public void pullSmartDashboardData() {
         var liftSlot0config = LiftFxConfigs.Slot0;
-        liftSlot0config.kP = SmartDashboard.getNumber("Intake/Lift kP", 0);
-        liftSlot0config.kI = SmartDashboard.getNumber("Intake/Lift kI", 0);
-        liftSlot0config.kD = SmartDashboard.getNumber("Intake/Lift kD", 0);
+        liftSlot0config.kP = NetworkedConfig.Intake.getLiftKP();
+        liftSlot0config.kI = NetworkedConfig.Intake.getLiftKI();
+        liftSlot0config.kD = NetworkedConfig.Intake.getLiftKD();
         liftSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         this.liftMotor.getConfigurator().apply(LiftFxConfigs);

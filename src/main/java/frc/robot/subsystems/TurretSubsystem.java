@@ -15,7 +15,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.MutAngle;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -41,7 +40,6 @@ import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -54,7 +52,7 @@ import frc.robot.networking.NetworkedConfig;
 import frc.robot.utils.TargettingUtils.ControlTarget;
 
 public class TurretSubsystem extends SubsystemBase {
-    private final CommandSwerveDrivetrain swerveSubsystem;
+    private final PoseProvider poseProvider;
     
     private final File lookupTable;
     private double prevReading = Double.NaN;
@@ -64,7 +62,7 @@ public class TurretSubsystem extends SubsystemBase {
     private MutAngle currentHoodAngle = Degrees.mutable(17);
     private boolean hoodLimitSet = false;
     private final Trigger hoodLowerLimitTrigger;
-    public final Trigger feedTrigger;
+    private final Trigger feedTrigger;
 
     // private final Field2d field;
 
@@ -84,9 +82,19 @@ public class TurretSubsystem extends SubsystemBase {
     private TalonFXConfiguration AngleFxConfigs = new TalonFXConfiguration();
     private final PositionVoltage anglePositionReq = new PositionVoltage(0).withSlot(0);
     
+    /**
+     * Get the trigger that indicates when the shooter is at target velocity.
+     * This can be used to coordinate feeding game pieces when the shooter is ready.
+     * 
+     * @return Trigger that activates when shooter is at target speed
+     */
+    public Trigger getFeedTrigger() {
+        return feedTrigger;
+    }
+    
     /** Creates a new TurretSubsystem. */
-    public TurretSubsystem(CommandSwerveDrivetrain sSubsystem) {
-        this.swerveSubsystem = sSubsystem;
+    public TurretSubsystem(PoseProvider poseProvider) {
+        this.poseProvider = poseProvider;
         this.lookupTable = new File(Filesystem.getDeployDirectory(), "lookup_table.json");
 
         this.rightShooterMotor = new TalonFX(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID);
@@ -138,7 +146,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
     public void periodic() {
         Translation2d targetFlatTranslation = getTargetFromEnum(turretTarget).toTranslation2d();
-        double targetDist = targetFlatTranslation.getDistance(swerveSubsystem.getPose().getTranslation());
+        double targetDist = targetFlatTranslation.getDistance(poseProvider.getPose().getTranslation());
         double targetDistTimestamp = Timer.getFPGATimestamp();
 
         if (prevReading != Double.NaN) {
@@ -224,7 +232,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void updateTurretTarget() {
-        FieldZone currentFieldZone = this.swerveSubsystem.getFieldZone();
+        FieldZone currentFieldZone = this.poseProvider.getFieldZone();
 
         NetworkedConfig.Turret.setDebugFieldZone(currentFieldZone.toString());
 
