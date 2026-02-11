@@ -45,6 +45,16 @@ public class NetworkedConfig {
         private static final DoubleEntry targetHoodAngle = turretTable
             .getDoubleTopic("Target Hood Angle").getEntry(17);
         
+        // Turret PID
+        private static final DoubleEntry turretKP = turretTable
+            .getDoubleTopic("Turret kP").getEntry(TurretSubsystemConstants.TURRET_KP);
+        private static final DoubleEntry turretKI = turretTable
+            .getDoubleTopic("Turret kP").getEntry(TurretSubsystemConstants.TURRET_KI);
+        private static final DoubleEntry turretKD = turretTable
+            .getDoubleTopic("Turret kP").getEntry(TurretSubsystemConstants.TURRET_KD);
+        private static final DoubleEntry targetTurretAngle = turretTable
+            .getDoubleTopic("Target Turret Angle").getEntry(0);
+        
         // Telemetry
         private static final DoubleEntry turretAngle = turretTable
             .getDoubleTopic("Turret Angle").getEntry(0);
@@ -69,6 +79,10 @@ public class NetworkedConfig {
             hoodKI.get();
             hoodKD.get();
             targetHoodAngle.get();
+            turretKP.get();
+            turretKI.get();
+            turretKD.get();
+            targetTurretAngle.get();
         }
         
         // Launcher
@@ -108,6 +122,23 @@ public class NetworkedConfig {
         public static double getTargetHoodAngle() {
             return targetHoodAngle.get();
         }
+
+        // Turret
+        public static double getTurretKP() {
+            return turretKP.get();
+        }
+
+        public static double getTurretKI() {
+            return turretKI.get();
+        }
+
+        public static double getTurretKD() {
+            return turretKD.get();
+        }
+
+        public static double getTargetTurretAngle() {
+            return targetTurretAngle.get();
+        };
         
         // Telemetry
         public static void setTurretAngle(double angle) {

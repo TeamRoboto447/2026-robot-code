@@ -131,6 +131,10 @@ public final class Constants {
         public static final double HOOD_KI = 0;
         public static final double HOOD_KD = 0;
 
+        public static final double TURRET_KP = 0;
+        public static final double TURRET_KD = 0;
+        public static final double TURRET_KI = 0;
+
         public static final int LOOKUP_TABLE_VEL_STEP = 1;
         public static final int LOOKUP_TABLE_DIST_STEP = 1;
 
@@ -138,8 +142,8 @@ public final class Constants {
         public static final Angle MAX_HOOD_ANGLE = Degrees.of(45);
         public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(1.219);
 
-        public static final Angle MIN_TURRET_ANGLE = Degrees.of(0);
-        public static final Angle MAX_TURRET_ANGLE = Degrees.of(360);
+        public static final Angle MIN_TURRET_ANGLE = Degrees.of(-45);
+        public static final Angle MAX_TURRET_ANGLE = Degrees.of(45);
         public static final Angle TURRET_DEGREES_ROTATION_RATIO = Degrees.of(55.8);
     }
 

@@ -192,10 +192,12 @@ public class TurretSubsystem extends SubsystemBase {
         return this.run(() -> this.kickerMotor.set(0));
     }
 
+    public Command stopTurret() {
+        return this.run(() -> this.angleMotor.set(0));
+    }
+
     public void turnToAngle(Angle newAngle) {
-        if ((false) ||
-                (newAngle.compareTo(TurretSubsystemConstants.MAX_TURRET_ANGLE) > 0) ||
-                (newAngle.compareTo(TurretSubsystemConstants.MIN_TURRET_ANGLE) < 0)) {
+        if ((newAngle.compareTo(TurretSubsystemConstants.MAX_TURRET_ANGLE) > 0) || (newAngle.compareTo(TurretSubsystemConstants.MIN_TURRET_ANGLE) < 0)) {
             return;
         } else {
             double rotationsToAngle = newAngle
@@ -231,7 +233,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     private void updateSmartDashboard() {
-        NetworkedConfig.Turret.setTurretAngle(0);
+        NetworkedConfig.Turret.setTurretAngle(TurretSubsystemConstants.MIN_TURRET_ANGLE.plus(TurretSubsystemConstants.TURRET_DEGREES_ROTATION_RATIO.times(this.angleMotor.getPosition().getValueAsDouble())).magnitude());
         NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
         NetworkedConfig.Turret.setTurretSpeed(this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
 
@@ -301,6 +303,15 @@ public class TurretSubsystem extends SubsystemBase {
         shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
+
+        var angleSlot0config = AngleFxConfigs.Slot0;
+
+        angleSlot0config.kP = NetworkedConfig.Turret.getTurretKP();
+        angleSlot0config.kI = NetworkedConfig.Turret.getTurretKP();
+        angleSlot0config.kD = NetworkedConfig.Turret.getTurretKP();
+        angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+
+        this.angleMotor.getConfigurator().apply(AngleFxConfigs);
         
         SparkMaxConfig hoodConfig = new SparkMaxConfig();
         hoodConfig.inverted(true);

@@ -134,6 +134,11 @@ public class RobotContainer {
         // joystick.x().onTrue(turretSubsystem.run(() -> turretSubsystem.kick(1)));
         // joystick.x().onFalse(turretSubsystem.stopKicker());
 
+        joystick.y().onTrue(turretSubsystem.run(() -> {
+            turretSubsystem.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
+        }));
+        joystick.y().onFalse(turretSubsystem.stopTurret());
+
         joystick.start().onTrue(turretSubsystem.runOnce(() -> {
             turretSubsystem.pullSmartDashboardData();
         }));
