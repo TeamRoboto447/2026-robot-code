@@ -20,6 +20,7 @@ import frc.robot.networking.NetworkedConfig;
 public class IntakeSubsystem extends SubsystemBase {
     private final SparkMax liftMotor;
     private final SparkMax intakeMotor;
+    @SuppressWarnings("unused")
     private final RelativeEncoder liftEncoder;
     private final SparkClosedLoopController liftController;
 

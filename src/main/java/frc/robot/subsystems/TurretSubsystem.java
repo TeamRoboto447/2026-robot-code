@@ -4,17 +4,13 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -59,7 +55,7 @@ public class TurretSubsystem extends SubsystemBase {
     private double prevReadingTimestamp = Double.NaN;
     private double currentVelocityToTarget = 0;
     private ControlTarget currentControlTarget = new ControlTarget();
-    private MutAngle currentHoodAngle = Degrees.mutable(17);
+    @SuppressWarnings("unused")
     private boolean hoodLimitSet = false;
     private final Trigger hoodLowerLimitTrigger;
     private final Trigger feedTrigger;
@@ -125,7 +121,6 @@ public class TurretSubsystem extends SubsystemBase {
 
         hoodLowerLimitTrigger = new Trigger(() -> this.hoodMotor.getForwardLimitSwitch().isPressed());
         hoodLowerLimitTrigger.onTrue(Commands.runOnce((() -> {
-            this.currentHoodAngle = Degrees.mutable(17);
             this.hoodEncoder.setPosition(0);
         }), this));
 
