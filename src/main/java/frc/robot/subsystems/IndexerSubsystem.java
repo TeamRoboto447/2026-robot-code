@@ -36,7 +36,7 @@ public class IndexerSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Indexer/Spinner kI", IndexerSubsystemConstants.SPINNER_KI);
         SmartDashboard.putNumber("Indexer/Spinner kD", IndexerSubsystemConstants.SPINNER_KD);
         SmartDashboard.putNumber("Indexer/Spinner kV", IndexerSubsystemConstants.SPINNER_KV);
-        SmartDashboard.putNumber("Indexer/Target Speed", 1);
+        SmartDashboard.putNumber("Indexer/Target Speed", 0.28);
     }
 
     @Override

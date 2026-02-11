@@ -48,26 +48,25 @@ public class RobotContainer {
 
     private final Field2d field = new Field2d();
 
-    // public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
+    public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
     // public final PoseEstimatorSubsystem poseEstimatorSubsystem;
 
-    // FollowPath.Builder pathBuilder = new FollowPath.Builder(
-    //     swerveSubsystem,
-    //     swerveSubsystem::getPose,
-    //     swerveSubsystem::getChassisSpeeds,
-    //     swerveSubsystem::driveWithChassisSpeeds,
-    //     new PIDController(5.0, 0.0, 0.0),
-    //     new PIDController(3.0, 0.0, 0.0),
-    //     new PIDController(2.0, 0.0, 0.0)
-    //     ).withDefaultShouldFlip()
-    //     .withPoseReset(swerveSubsystem::resetPose);
+    FollowPath.Builder pathBuilder = new FollowPath.Builder(
+        swerveSubsystem,
+        swerveSubsystem::getPose,
+        swerveSubsystem::getChassisSpeeds,
+        swerveSubsystem::driveWithChassisSpeeds,
+        new PIDController(5.0, 0.0, 0.0),
+        new PIDController(3.0, 0.0, 0.0),
+        new PIDController(2.0, 0.0, 0.0)
+        ).withDefaultShouldFlip()
+        .withPoseReset(swerveSubsystem::resetPose);
 
     public RobotContainer() {
 
-        // this.turretSubsystem = new TurretSubsystem(swerveSubsystem);
-        this.turretSubsystem = new TurretSubsystem();
+        this.turretSubsystem = new TurretSubsystem(swerveSubsystem);
         this.indexerSubsystem = new IndexerSubsystem();
         // this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
 
@@ -79,32 +78,34 @@ public class RobotContainer {
     private void configureBindings() {
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
-        // swerveSubsystem.setDefaultCommand(
-        //     // Drivetrain will execute this command periodically
-        //     swerveSubsystem.applyRequest(() ->
-        //         drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-        //             .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-        //             .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-        //     )
-        // );
+        swerveSubsystem.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            swerveSubsystem.applyRequest(() ->
+                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            )
+        );
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
 
-        // final var idle = new SwerveRequest.Idle();
-        // RobotModeTriggers.disabled().whileTrue(
-        //     swerveSubsystem.applyRequest(() -> idle).ignoringDisable(true)
-        // );
+        final var idle = new SwerveRequest.Idle();
+        RobotModeTriggers.disabled().whileTrue(
+            swerveSubsystem.applyRequest(() -> idle).ignoringDisable(true)
+        );
 
-        // joystick.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
-        // joystick.b().whileTrue(swerveSubsystem.applyRequest(() ->
-        //     point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        // ));
+        joystick.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
+        joystick.b().whileTrue(swerveSubsystem.applyRequest(() ->
+            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        ));
 
         joystick.rightBumper().whileTrue(turretSubsystem.run(() -> {
             turretSubsystem.shoot();
+            turretSubsystem.kick(1);
         }));
-        joystick.rightBumper().onFalse(turretSubsystem.stopShooter());
+        joystick.rightBumper().whileFalse(turretSubsystem.stopShooter());
+        joystick.rightBumper().onFalse(turretSubsystem.stopKicker());
 
         joystick.rightTrigger().onTrue(turretSubsystem.run(() -> {
             turretSubsystem.setHoodAngle(Degrees.of(SmartDashboard.getNumber("Turret/Target Hood Angle",0)));
@@ -128,8 +129,8 @@ public class RobotContainer {
         // }));
         joystick.rightTrigger().onFalse(turretSubsystem.stopHood());
 
-        joystick.x().onTrue(turretSubsystem.run(() -> turretSubsystem.kick(1)));
-        joystick.x().onFalse(turretSubsystem.stopKicker());
+        // joystick.x().onTrue(turretSubsystem.run(() -> turretSubsystem.kick(1)));
+        // joystick.x().onFalse(turretSubsystem.stopKicker());
 
         joystick.start().onTrue(turretSubsystem.runOnce(() -> {
             turretSubsystem.pullSmartDashboardData();
@@ -164,7 +165,7 @@ public class RobotContainer {
             System.out.println("YEET!");
         }));
         return Commands.sequence(
-            // pathBuilder.build(testPath)
+            pathBuilder.build(testPath)
         );
     }
 }

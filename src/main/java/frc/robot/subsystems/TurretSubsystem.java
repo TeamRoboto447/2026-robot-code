@@ -54,7 +54,7 @@ import frc.robot.Constants.FieldConstants.TurretTargetPoints;
 import frc.robot.utils.TargettingUtils.ControlTarget;
 
 public class TurretSubsystem extends SubsystemBase {
-    // private final CommandSwerveDrivetrain swerveSubsystem;
+    private final CommandSwerveDrivetrain swerveSubsystem;
     
     private final File lookupTable;
     private double prevReading = Double.NaN;
@@ -85,28 +85,27 @@ public class TurretSubsystem extends SubsystemBase {
     private final PositionVoltage anglePositionReq = new PositionVoltage(0).withSlot(0);
     
     /** Creates a new TurretSubsystem. */
-    // public TurretSubsystem(CommandSwerveDrivetrain sSubsystem) {
-    public TurretSubsystem() {
-        // this.swerveSubsystem = sSubsystem;
+    public TurretSubsystem(CommandSwerveDrivetrain sSubsystem) {
+        this.swerveSubsystem = sSubsystem;
         this.lookupTable = new File(Filesystem.getDeployDirectory(), "lookup_table.json");
 
-        SmartDashboard.putNumber("Turret/Turret kP", 0);
-        SmartDashboard.putNumber("Turret/Turret kI", 0);
-        SmartDashboard.putNumber("Turret/Turret kD", 0);
-        SmartDashboard.putNumber("Turret/Turret kV", 0);
-        SmartDashboard.putNumber("Turret/Target Turret RPM", 3000);
+        SmartDashboard.putNumber("Turret/Turret kP", TurretSubsystemConstants.SHOOTER_KP);
+        SmartDashboard.putNumber("Turret/Turret kI", TurretSubsystemConstants.SHOOTER_KI);
+        SmartDashboard.putNumber("Turret/Turret kD", TurretSubsystemConstants.SHOOTER_KD);
+        SmartDashboard.putNumber("Turret/Turret kV", TurretSubsystemConstants.SHOOTER_KV);
+        SmartDashboard.putNumber("Turret/Target Turret RPM", 3400);
 
-        SmartDashboard.putNumber("Turret/Hood kP", 0);
-        SmartDashboard.putNumber("Turret/Hood kI", 0);
-        SmartDashboard.putNumber("Turret/Hood kD", 0);
-        SmartDashboard.putNumber("Turret/Target Hood Angle",0);
+        SmartDashboard.putNumber("Turret/Hood kP", TurretSubsystemConstants.HOOD_KP);
+        SmartDashboard.putNumber("Turret/Hood kI", TurretSubsystemConstants.HOOD_KI);
+        SmartDashboard.putNumber("Turret/Hood kD", TurretSubsystemConstants.HOOD_KD);
+        SmartDashboard.putNumber("Turret/Target Hood Angle",17);
 
         this.rightShooterMotor = new TalonFX(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID);
         var shooterSlot0config = ShooterFxConfigs.Slot0;
-        shooterSlot0config.kP = 0;
-        shooterSlot0config.kI = 0;
-        shooterSlot0config.kD = 0;
-        shooterSlot0config.kV = 0;
+        shooterSlot0config.kP = TurretSubsystemConstants.SHOOTER_KP;
+        shooterSlot0config.kI = TurretSubsystemConstants.SHOOTER_KI;
+        shooterSlot0config.kD = TurretSubsystemConstants.SHOOTER_KD;
+        shooterSlot0config.kV = TurretSubsystemConstants.SHOOTER_KV;
         shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
         
         this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
@@ -150,8 +149,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
     public void periodic() {
         Translation2d targetFlatTranslation = getTargetFromEnum(turretTarget).toTranslation2d();
-        // double targetDist = targetFlatTranslation.getDistance(swerveSubsystem.getPose().getTranslation());
-        double targetDist = 0; // TODO: Undo this after testing
+        double targetDist = targetFlatTranslation.getDistance(swerveSubsystem.getPose().getTranslation());
         double targetDistTimestamp = Timer.getFPGATimestamp();
 
         if (prevReading != Double.NaN) {
@@ -178,7 +176,8 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public Command stopShooter() {
-        return this.run(() -> this.rightShooterMotor.set(0));
+        // return this.run(() -> this.rightShooterMotor.set(0));
+        return this.run(() -> this.rightShooterMotor.setControl(velocityReq.withVelocity(0)));
     }
 
     public Command stopHood() {
@@ -236,8 +235,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public void updateTurretTarget() {
-        // FieldZone currentFieldZone = this.swerveSubsystem.getFieldZone();
-        FieldZone currentFieldZone = FieldZone.RED_ALLIANCE_ZONE; // TODO: Revert after testing
+        FieldZone currentFieldZone = this.swerveSubsystem.getFieldZone();
 
         SmartDashboard.putString("Turret/Debug Field Zone", currentFieldZone.toString());
 
@@ -263,23 +261,24 @@ public class TurretSubsystem extends SubsystemBase {
     public void pullSmartDashboardData() {
         var shooterSlot0config = ShooterFxConfigs.Slot0;
         
-        shooterSlot0config.kP = SmartDashboard.getNumber("Turret/Turret kP", 0);
-        shooterSlot0config.kI = SmartDashboard.getNumber("Turret/Turret kI", 0);
-        shooterSlot0config.kD = SmartDashboard.getNumber("Turret/Turret kD", 0);
-        shooterSlot0config.kV = SmartDashboard.getNumber("Turret/Turret kV", 0);
+        shooterSlot0config.kP = SmartDashboard.getNumber("Turret/Turret kP", TurretSubsystemConstants.SHOOTER_KP);
+        shooterSlot0config.kI = SmartDashboard.getNumber("Turret/Turret kI", TurretSubsystemConstants.SHOOTER_KI);
+        shooterSlot0config.kD = SmartDashboard.getNumber("Turret/Turret kD", TurretSubsystemConstants.SHOOTER_KD);
+        shooterSlot0config.kV = SmartDashboard.getNumber("Turret/Turret kV", TurretSubsystemConstants.SHOOTER_KV);
         shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
-        System.out.println(SmartDashboard.getNumber("Turret/Turret kP", 0));
         this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
         
         SparkMaxConfig hoodConfig = new SparkMaxConfig();
         hoodConfig.inverted(true);
         hoodConfig.closedLoop
-            .p(SmartDashboard.getNumber("Turret/Hood kP",0))
-            .i(SmartDashboard.getNumber("Turret/Hood kI",0))
-            .d(SmartDashboard.getNumber("Turret/Hood kD",0));
+            .p(SmartDashboard.getNumber("Turret/Hood kP", TurretSubsystemConstants.HOOD_KP))
+            .i(SmartDashboard.getNumber("Turret/Hood kI", TurretSubsystemConstants.HOOD_KI))
+            .d(SmartDashboard.getNumber("Turret/Hood kD", TurretSubsystemConstants.HOOD_KD));
         
         this.hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        System.out.println("Updated Turret PIDs.");
         
     }
 
