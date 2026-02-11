@@ -13,10 +13,14 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.networking.NetworkedConfig;
 
+/**
+ * A subsystem that allows control of lifting and running the intake.
+ */
 public class IntakeSubsystem extends SubsystemBase {
     private final SparkMax liftMotor;
     private final SparkMax intakeMotor;
@@ -43,19 +47,34 @@ public class IntakeSubsystem extends SubsystemBase {
         liftMotor.configure(liftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
+    /**
+     * Updates the subsystem's various elements.
+     * Currently only updates the intake speed on the NetworkTables.
+     */
     @Override
     public void periodic() {
-        updateSmartDashboard();
+        updateNetworkTables();
     }
 
+    /**
+     * Runs the intake at max speed.
+     */
     public void intake() {
         intakeMotor.set(1);
     }
 
-    public void stop() {
-        intakeMotor.set(0);
+    /**
+     * Stops the intake.
+     * 
+     * @return A {@link Command} that stops the intake.
+     */
+    public Command stop() {
+        return this.run(() -> intakeMotor.set(0));
     }
 
+    /**
+     * Drops the intake to the extended position.
+     */
     public void dropIntake() {
         if (!isIntakeOut) {
             liftController.setSetpoint(.25, ControlType.kPosition); // TODO: Fine-tune value
@@ -63,6 +82,9 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
+    /**
+     * Lifts the intake to the starting position.
+     */
     public void liftIntake() {
         if (isIntakeOut) {
             liftController.setSetpoint(0, ControlType.kPosition);
@@ -70,11 +92,17 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
-    private void updateSmartDashboard() {
+    /**
+     * Updates the data on the NetworkTables.
+     */
+    private void updateNetworkTables() {
         NetworkedConfig.Intake.setIntakeSpeed(this.intakeMotor.getEncoder().getVelocity());
     }
 
-    public void pullSmartDashboardData() {
+    /**
+     * Pulls data from the NetworkTables.
+     */
+    public void pullNetworkTableData() {
         SparkMaxConfig liftConfig = new SparkMaxConfig();
         liftConfig.closedLoop
             .p(NetworkedConfig.Intake.getLiftKP())
