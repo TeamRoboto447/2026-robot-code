@@ -57,8 +57,10 @@ public final class Constants {
         public static final double FIELD_WIDTH_METERS = Units.inchesToMeters(317.69);
 
         public enum FieldZone {
-            RED_ALLIANCE_ZONE,
-            BLUE_ALLIANCE_ZONE,
+            RED_ALLIANCE_AUDIENCE_SIDE,
+            RED_ALLIANCE_SCORING_SIDE,
+            BLUE_ALLIANCE_AUDIENCE_SIDE,
+            BLUE_ALLIANCE_SCORING_SIDE,
             AUDIENCE_NEUTRAL_ZONE,
             SCORING_NEUTRAL_ZONE,
             OUT_OF_FIELD
@@ -74,15 +76,26 @@ public final class Constants {
 
         /*
         ALL TRANSLATION MEASUREMENTS ARE IN METERS!!!
+        TODO: consider using Units.inchesToMeters() for readability
         */
         public static class FieldZoneAreas {
-            public static final Rectangle2d RED_ALLIANCE_ZONE_AREA = new Rectangle2d(
+            // Red alliance zones (audience side is y=0 to y=4.035, scoring side is y=4.035 to y=8.07)
+            public static final Rectangle2d RED_ALLIANCE_AUDIENCE_SIDE_AREA = new Rectangle2d(
                 new Translation2d(11.91, 0),
-                new Translation2d(16.54, 8.07));    // Field length and width
-            public static final Rectangle2d BLUE_ALLIANCE_ZONE_AREA = new Rectangle2d(
+                new Translation2d(16.54, 4.035));
+            public static final Rectangle2d RED_ALLIANCE_SCORING_SIDE_AREA = new Rectangle2d(
+                new Translation2d(11.91, 4.035),
+                new Translation2d(16.54, 8.07));
+            
+            // Blue alliance zones (audience side is y=0 to y=4.035, scoring side is y=4.035 to y=8.07)
+            public static final Rectangle2d BLUE_ALLIANCE_AUDIENCE_SIDE_AREA = new Rectangle2d(
                 new Translation2d(0, 0),
+                new Translation2d(4.63, 4.035));
+            public static final Rectangle2d BLUE_ALLIANCE_SCORING_SIDE_AREA = new Rectangle2d(
+                new Translation2d(0, 4.035),
                 new Translation2d(4.63, 8.07));
 
+            // Neutral zones
             public static final Rectangle2d AUDIENCE_NEUTRAL_ZONE_AREA = new Rectangle2d(
                 new Translation2d(4.63, 0), 
                 new Translation2d(11.91, 4.035));

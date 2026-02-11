@@ -330,10 +330,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public FieldZone getFieldZone() {
         Translation2d translation = this.getPose().getTranslation();
-        if (FieldZoneAreas.BLUE_ALLIANCE_ZONE_AREA.contains(translation)) {
-            return FieldZone.BLUE_ALLIANCE_ZONE;
-        } else if (FieldZoneAreas.RED_ALLIANCE_ZONE_AREA.contains(translation)) {
-            return FieldZone.RED_ALLIANCE_ZONE;
+        if (FieldZoneAreas.BLUE_ALLIANCE_AUDIENCE_SIDE_AREA.contains(translation)) {
+            return FieldZone.BLUE_ALLIANCE_AUDIENCE_SIDE;
+        } else if (FieldZoneAreas.BLUE_ALLIANCE_SCORING_SIDE_AREA.contains(translation)) {
+            return FieldZone.BLUE_ALLIANCE_SCORING_SIDE;
+        } else if (FieldZoneAreas.RED_ALLIANCE_AUDIENCE_SIDE_AREA.contains(translation)) {
+            return FieldZone.RED_ALLIANCE_AUDIENCE_SIDE;
+        } else if (FieldZoneAreas.RED_ALLIANCE_SCORING_SIDE_AREA.contains(translation)) {
+            return FieldZone.RED_ALLIANCE_SCORING_SIDE;
         } else if (FieldZoneAreas.AUDIENCE_NEUTRAL_ZONE_AREA.contains(translation)) {
             return FieldZone.AUDIENCE_NEUTRAL_ZONE;
         } else if (FieldZoneAreas.SCORING_NEUTRAL_ZONE_AREA.contains(translation)) {

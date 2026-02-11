@@ -144,6 +144,16 @@ public class TurretSubsystem extends SubsystemBase {
         this.feedTrigger = new Trigger(() -> this.rightShooterMotor.getVelocity().isNear(currentControlTarget.getRPS(), 0.8));
 
     }
+    
+    /**
+     * Get the current alliance from DriverStation.
+     * 
+     * @return The current alliance, or Alliance.Red as default if alliance is not set
+     */
+    private Alliance getCurrentAlliance() {
+        return DriverStation.getAlliance().orElse(Alliance.Red);
+    }
+    
     public void periodic() {
         Translation2d targetFlatTranslation = getTargetFromEnum(turretTarget).toTranslation2d();
         double targetDist = targetFlatTranslation.getDistance(poseProvider.getPose().getTranslation());
@@ -233,24 +243,50 @@ public class TurretSubsystem extends SubsystemBase {
 
     public void updateTurretTarget() {
         FieldZone currentFieldZone = this.poseProvider.getFieldZone();
+        Alliance currentAlliance = getCurrentAlliance();
 
         NetworkedConfig.Turret.setDebugFieldZone(currentFieldZone.toString());
 
         switch(currentFieldZone) {
-            case RED_ALLIANCE_ZONE: {
-                this.turretTarget = TurretTarget.RED_HUB;
+            case RED_ALLIANCE_AUDIENCE_SIDE:
+            case RED_ALLIANCE_SCORING_SIDE: {
+                // If in red zone and we're red alliance, aim for hub
+                if (currentAlliance == Alliance.Red) {
+                    this.turretTarget = TurretTarget.RED_HUB;
+                } else {
+                    // Blue alliance in opponent zone
+                    this.turretTarget = (currentFieldZone == FieldZone.RED_ALLIANCE_AUDIENCE_SIDE) 
+                        ? TurretTarget.AUDIENCE_CORNER 
+                        : TurretTarget.SCORING_CORNER;
+                }
+                break;
             }
-            case BLUE_ALLIANCE_ZONE: {
-                this.turretTarget = TurretTarget.BLUE_HUB;
+            case BLUE_ALLIANCE_AUDIENCE_SIDE:
+            case BLUE_ALLIANCE_SCORING_SIDE: {
+                // If in blue zone and we're blue alliance, aim for hub
+                if (currentAlliance == Alliance.Blue) {
+                    this.turretTarget = TurretTarget.BLUE_HUB;
+                } else {
+                    // Blue alliance in opponent zone
+                    this.turretTarget = (currentFieldZone == FieldZone.BLUE_ALLIANCE_AUDIENCE_SIDE) 
+                        ? TurretTarget.AUDIENCE_CORNER 
+                        : TurretTarget.SCORING_CORNER;
+                }
+                break;
             }
             case SCORING_NEUTRAL_ZONE: {
+                // In neutral zone, aim for scoring corner
                 this.turretTarget = TurretTarget.SCORING_CORNER;
+                break;
             }
             case AUDIENCE_NEUTRAL_ZONE: {
+                // In neutral zone, aim for audience corner
                 this.turretTarget = TurretTarget.AUDIENCE_CORNER;
+                break;
             }
             case OUT_OF_FIELD: {
                 this.turretTarget = TurretTarget.NONE;
+                break;
             }
         }
     }
@@ -327,13 +363,7 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     private Translation3d getTargetFromEnum(TurretTarget target) {
-        Optional<Alliance> optionalAlliance = DriverStation.getAlliance();
-        Alliance currentAlliance;
-        if (optionalAlliance.isPresent()) {
-            currentAlliance = optionalAlliance.get();
-        } else {
-            currentAlliance = Alliance.Red;
-        }
+        Alliance currentAlliance = getCurrentAlliance();
         
         switch (target) {
             case RED_HUB: {
