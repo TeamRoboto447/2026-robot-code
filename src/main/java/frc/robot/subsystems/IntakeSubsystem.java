@@ -4,36 +4,42 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.networking.NetworkedConfig;
 
 public class IntakeSubsystem extends SubsystemBase {
-    private final TalonFX liftMotor;
-    private final TalonFX intakeMotor;
+    private final SparkMax liftMotor;
+    private final SparkMax intakeMotor;
+    private final RelativeEncoder liftEncoder;
+    private final SparkClosedLoopController liftController;
 
     private boolean isIntakeOut = false;
 
-    private TalonFXConfiguration LiftFxConfigs = new TalonFXConfiguration();
-    private final PositionVoltage positionReq = new PositionVoltage(0).withSlot(0);
-
     /** Creates a new IntakeSubsystem. */
     public IntakeSubsystem() {
-        liftMotor = new TalonFX(IntakeSubsystemConstants.LIFT_MOTOR_ID);
-        intakeMotor = new TalonFX(IntakeSubsystemConstants.INTAKE_MOTOR_ID);
+        liftMotor = new SparkMax(IntakeSubsystemConstants.LIFT_MOTOR_ID, MotorType.kBrushless);
+        intakeMotor = new SparkMax(IntakeSubsystemConstants.INTAKE_MOTOR_ID, MotorType.kBrushless);
 
-        var liftSlot0config = LiftFxConfigs.Slot0;
-        liftSlot0config.kP = 0;
-        liftSlot0config.kI = 0;
-        liftSlot0config.kD = 0;
-        liftSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+        liftEncoder = liftMotor.getEncoder();
+        liftController = liftMotor.getClosedLoopController();
 
-        liftMotor.getConfigurator().apply(LiftFxConfigs);
+        SparkMaxConfig liftConfig = new SparkMaxConfig();
+        liftConfig.closedLoop
+            .p(0)
+            .i(0)
+            .d(0);
+        
+        liftMotor.configure(liftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     @Override
@@ -51,27 +57,29 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void dropIntake() {
         if (!isIntakeOut) {
-            liftMotor.setControl(positionReq.withPosition(.25));        // TODO: Fine-tune value
+            liftController.setSetpoint(.25, ControlType.kPosition); // TODO: Fine-tune value
+            isIntakeOut = true;
         }
     }
 
     public void liftIntake() {
         if (isIntakeOut) {
-            liftMotor.setControl(positionReq.withPosition(0));
+            liftController.setSetpoint(0, ControlType.kPosition);
+            isIntakeOut = false;
         }
     }
 
     private void updateSmartDashboard() {
-        NetworkedConfig.Intake.setIntakeSpeed(this.intakeMotor.getVelocity().getValueAsDouble()*60);
+        NetworkedConfig.Intake.setIntakeSpeed(this.intakeMotor.getEncoder().getVelocity());
     }
 
     public void pullSmartDashboardData() {
-        var liftSlot0config = LiftFxConfigs.Slot0;
-        liftSlot0config.kP = NetworkedConfig.Intake.getLiftKP();
-        liftSlot0config.kI = NetworkedConfig.Intake.getLiftKI();
-        liftSlot0config.kD = NetworkedConfig.Intake.getLiftKD();
-        liftSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
-
-        this.liftMotor.getConfigurator().apply(LiftFxConfigs);
+        SparkMaxConfig liftConfig = new SparkMaxConfig();
+        liftConfig.closedLoop
+            .p(NetworkedConfig.Intake.getLiftKP())
+            .i(NetworkedConfig.Intake.getLiftKI())
+            .d(NetworkedConfig.Intake.getLiftKD());
+        
+        this.liftMotor.configure(liftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 }
