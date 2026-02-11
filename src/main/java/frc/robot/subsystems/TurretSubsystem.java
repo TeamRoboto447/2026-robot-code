@@ -62,17 +62,15 @@ public class TurretSubsystem extends SubsystemBase {
     private final Trigger hoodLowerLimitTrigger;
     private final Trigger feedTrigger;
 
-    // private final Field2d field;
-
     private final TalonFX rightShooterMotor;
     private final TalonFX leftShooterMotor;
     private final SparkMax hoodMotor;
     private final RelativeEncoder hoodEncoder;
     private final SparkClosedLoopController hoodController;
-    // private final DigitalInput hoodLowerLimitSwitch; 
     private final TalonFX angleMotor;
     private final SparkMax kickerMotor;
 
+    /** The current turret target as an enum. */
     public TurretTarget turretTarget = TurretTarget.NONE;
     private TalonFXConfiguration ShooterFxConfigs = new TalonFXConfiguration();
     private final VelocityVoltage velocityReq = new VelocityVoltage(0).withSlot(0);
@@ -90,7 +88,11 @@ public class TurretSubsystem extends SubsystemBase {
         return feedTrigger;
     }
     
-    /** Creates a new TurretSubsystem. */
+    /** 
+     * Creates a new TurretSubsystem.
+     * 
+     * @param poseProvider An object that can fetch the current robot pose
+     */
     public TurretSubsystem(PoseProvider poseProvider) {
         this.poseProvider = poseProvider;
         this.lookupTable = new File(Filesystem.getDeployDirectory(), "lookup_table.json");
@@ -150,7 +152,12 @@ public class TurretSubsystem extends SubsystemBase {
     private Alliance getCurrentAlliance() {
         return DriverStation.getAlliance().orElse(Alliance.Red);
     }
-    
+
+    /**
+     * Updates the subsystem's various elements, 
+     * including its networktables, the current target, and the turret control data.
+     */
+    @Override
     public void periodic() {
         Translation2d targetFlatTranslation = getTargetFromEnum(turretTarget).toTranslation2d();
         double targetDist = targetFlatTranslation.getDistance(poseProvider.getPose().getTranslation());
@@ -170,24 +177,42 @@ public class TurretSubsystem extends SubsystemBase {
         prevReadingTimestamp = targetDistTimestamp;
 
         updateTurretTarget();
-        updateSmartDashboard();
+        updateNetworkTables();
     }
 
+    /**
+     * Tells the flywheel to spin at a specific speed, taken from the control target.
+     */
     public void shoot() {
         // double targetRPS = currentControlTarget.getRPS();
         double targetRPS = NetworkedConfig.Turret.getTargetRPM()/60;
         rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
     }
 
+    /**
+     * Stops the shooter. Does not immediately stop due to flywheel momentum.
+     * 
+     * @return A {@link Command} that stops the shooter.
+     */
     public Command stopShooter() {
         // return this.run(() -> this.rightShooterMotor.set(0));
         return this.run(() -> this.rightShooterMotor.setControl(velocityReq.withVelocity(0)));
     }
 
+    /**
+     * Stops the hood.
+     * 
+     * @return A {@link Command} that stops the hood.
+     */
     public Command stopHood() {
         return this.run(() -> this.hoodMotor.set(0));
     }
 
+    /**
+     * Stops the kicker.
+     * 
+     * @return A {@link Command} that stops the kicker.
+     */
     public Command stopKicker() {
         return this.run(() -> this.kickerMotor.set(0));
     }
@@ -196,6 +221,11 @@ public class TurretSubsystem extends SubsystemBase {
         return this.run(() -> this.angleMotor.set(0));
     }
 
+    /**
+     * Starts the turret moving towards a new angle.
+     * 
+     * @param newAngle The angle to move toward.
+     */
     public void turnToAngle(Angle newAngle) {
         if ((newAngle.compareTo(TurretSubsystemConstants.MAX_TURRET_ANGLE) > 0) || (newAngle.compareTo(TurretSubsystemConstants.MIN_TURRET_ANGLE) < 0)) {
             return;
@@ -209,14 +239,24 @@ public class TurretSubsystem extends SubsystemBase {
         }
     }
 
+    /**
+     * Runs the kicker motor if the flywheel is close to its target speed.
+     * 
+     * @param strength The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).
+     */
     public void kick(double strength) {
-        // if (rightShooterMotor.getVelocity().isNear(SmartDashboard.getNumber("Turret/Target Turret RPM", 0), 0.8)) {
+        // if (rightShooterMotor.getVelocity().isNear(NetworkedConfig.Turret.getTargetRPM()/60, 0.8)) {
             kickerMotor.set(strength);
         // } else {
         //     kickerMotor.set(0);
         // }
     }
 
+    /**
+     * Starts the hood moving towards a new angle.
+     * 
+     * @param newAngle The new angle for the hood to move to.
+     */
     public void setHoodAngle(Angle newAngle) {
         if (/*(!hoodLimitSet) || */
                 (newAngle.compareTo(TurretSubsystemConstants.MAX_HOOD_ANGLE) > 0) ||
@@ -232,7 +272,10 @@ public class TurretSubsystem extends SubsystemBase {
         }
     }
 
-    private void updateSmartDashboard() {
+    /**
+     * Updates the data posted to the NetworkTables. 
+     */
+    private void updateNetworkTables() {
         NetworkedConfig.Turret.setTurretAngle(TurretSubsystemConstants.MIN_TURRET_ANGLE.plus(TurretSubsystemConstants.TURRET_DEGREES_ROTATION_RATIO.times(this.angleMotor.getPosition().getValueAsDouble())).magnitude());
         NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
         NetworkedConfig.Turret.setTurretSpeed(this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
@@ -243,6 +286,9 @@ public class TurretSubsystem extends SubsystemBase {
         NetworkedTelemetry.Pose.publishTargetCircle(targetPosition, Units.inchesToMeters(12));
     }
 
+    /**
+     * Updates the current turret target.
+     */
     public void updateTurretTarget() {
         FieldZone currentFieldZone = this.poseProvider.getFieldZone();
         Alliance currentAlliance = getCurrentAlliance();
@@ -293,7 +339,10 @@ public class TurretSubsystem extends SubsystemBase {
         }
     }
 
-    public void pullSmartDashboardData() {
+    /**
+     * Pulls data from the NetworkTables.
+     */
+    public void pullNetworkTableData() {
         var shooterSlot0config = ShooterFxConfigs.Slot0;
         
         shooterSlot0config.kP = NetworkedConfig.Turret.getShooterKP();
@@ -326,6 +375,11 @@ public class TurretSubsystem extends SubsystemBase {
         
     }
 
+    /**
+     * Gets the current control target - namely the target RPM and hood angle.
+     * 
+     * @return A {@link ControlTarget} with the appropiate data.
+     */
     public ControlTarget getControlTarget() {
         JsonFactory factory = new MappingJsonFactory();
         try (JsonParser parser = factory.createParser(lookupTable)) {
@@ -373,6 +427,12 @@ public class TurretSubsystem extends SubsystemBase {
         }
     }
 
+    /**
+     * Gets the coordinates of the current target from an enum.
+     * 
+     * @param target A {@link TurretTarget} enum to retrieve the postion from.
+     * @return The target coordinates in the form of a {@link Translation3d} object.
+     */
     private Translation3d getTargetFromEnum(TurretTarget target) {
         Alliance currentAlliance = getCurrentAlliance();
         

@@ -140,7 +140,7 @@ public class RobotContainer {
         joystick.y().onFalse(turretSubsystem.stopTurret());
 
         joystick.start().onTrue(turretSubsystem.runOnce(() -> {
-            turretSubsystem.pullSmartDashboardData();
+            turretSubsystem.pullNetworkTableData();
         }));
 
         joystick.leftTrigger().whileTrue(indexerSubsystem.run(() -> {
