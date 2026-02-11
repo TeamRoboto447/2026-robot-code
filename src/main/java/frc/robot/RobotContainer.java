@@ -30,6 +30,7 @@ import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
 
 import frc.robot.lib.BLine.*;
+import frc.robot.networking.NetworkedConfig;
 
 public class RobotContainer {
     private double MaxSpeed = 0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -73,6 +74,7 @@ public class RobotContainer {
         SmartDashboard.putData("Field", field);
         
         configureBindings();
+        NetworkedConfig.initializeAllDefaults();
     }
 
     private void configureBindings() {
@@ -108,7 +110,7 @@ public class RobotContainer {
         joystick.rightBumper().onFalse(turretSubsystem.stopKicker());
 
         joystick.rightTrigger().onTrue(turretSubsystem.run(() -> {
-            turretSubsystem.setHoodAngle(Degrees.of(SmartDashboard.getNumber("Turret/Target Hood Angle",0)));
+            turretSubsystem.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
         }));
         // AtomicInteger angle = new AtomicInteger(25);
         // AtomicBoolean goingUp = new AtomicBoolean(true);

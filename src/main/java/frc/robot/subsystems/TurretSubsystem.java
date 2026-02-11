@@ -42,7 +42,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -51,6 +50,7 @@ import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.TurretTarget;
 import frc.robot.Constants.FieldConstants.TurretTargetPoints;
+import frc.robot.networking.NetworkedConfig;
 import frc.robot.utils.TargettingUtils.ControlTarget;
 
 public class TurretSubsystem extends SubsystemBase {
@@ -88,17 +88,6 @@ public class TurretSubsystem extends SubsystemBase {
     public TurretSubsystem(CommandSwerveDrivetrain sSubsystem) {
         this.swerveSubsystem = sSubsystem;
         this.lookupTable = new File(Filesystem.getDeployDirectory(), "lookup_table.json");
-
-        SmartDashboard.putNumber("Turret/Turret kP", TurretSubsystemConstants.SHOOTER_KP);
-        SmartDashboard.putNumber("Turret/Turret kI", TurretSubsystemConstants.SHOOTER_KI);
-        SmartDashboard.putNumber("Turret/Turret kD", TurretSubsystemConstants.SHOOTER_KD);
-        SmartDashboard.putNumber("Turret/Turret kV", TurretSubsystemConstants.SHOOTER_KV);
-        SmartDashboard.putNumber("Turret/Target Turret RPM", 3400);
-
-        SmartDashboard.putNumber("Turret/Hood kP", TurretSubsystemConstants.HOOD_KP);
-        SmartDashboard.putNumber("Turret/Hood kI", TurretSubsystemConstants.HOOD_KI);
-        SmartDashboard.putNumber("Turret/Hood kD", TurretSubsystemConstants.HOOD_KD);
-        SmartDashboard.putNumber("Turret/Target Hood Angle",17);
 
         this.rightShooterMotor = new TalonFX(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID);
         var shooterSlot0config = ShooterFxConfigs.Slot0;
@@ -171,7 +160,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     public void shoot() {
         // double targetRPS = currentControlTarget.getRPS();
-        double targetRPS = SmartDashboard.getNumber("Turret/Target Turret RPM",0)/60;
+        double targetRPS = NetworkedConfig.Turret.getTargetRPM()/60;
         rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
     }
 
@@ -227,17 +216,17 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     private void updateSmartDashboard() {
-        SmartDashboard.putNumber("Turret/Turret Angle", 0);
-        SmartDashboard.putNumber("Turret/Hood Angle", TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
-        SmartDashboard.putNumber("Turret/Turret Speed", this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
+        NetworkedConfig.Turret.setTurretAngle(0);
+        NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
+        NetworkedConfig.Turret.setTurretSpeed(this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
 
-        SmartDashboard.putString("Turret/Turret Target", this.turretTarget.toString());        
+        NetworkedConfig.Turret.setTurretTarget(this.turretTarget.toString());        
     }
 
     public void updateTurretTarget() {
         FieldZone currentFieldZone = this.swerveSubsystem.getFieldZone();
 
-        SmartDashboard.putString("Turret/Debug Field Zone", currentFieldZone.toString());
+        NetworkedConfig.Turret.setDebugFieldZone(currentFieldZone.toString());
 
         switch(currentFieldZone) {
             case RED_ALLIANCE_ZONE: {
@@ -261,10 +250,10 @@ public class TurretSubsystem extends SubsystemBase {
     public void pullSmartDashboardData() {
         var shooterSlot0config = ShooterFxConfigs.Slot0;
         
-        shooterSlot0config.kP = SmartDashboard.getNumber("Turret/Turret kP", TurretSubsystemConstants.SHOOTER_KP);
-        shooterSlot0config.kI = SmartDashboard.getNumber("Turret/Turret kI", TurretSubsystemConstants.SHOOTER_KI);
-        shooterSlot0config.kD = SmartDashboard.getNumber("Turret/Turret kD", TurretSubsystemConstants.SHOOTER_KD);
-        shooterSlot0config.kV = SmartDashboard.getNumber("Turret/Turret kV", TurretSubsystemConstants.SHOOTER_KV);
+        shooterSlot0config.kP = NetworkedConfig.Turret.getShooterKP();
+        shooterSlot0config.kI = NetworkedConfig.Turret.getShooterKI();
+        shooterSlot0config.kD = NetworkedConfig.Turret.getShooterKD();
+        shooterSlot0config.kV = NetworkedConfig.Turret.getShooterKV();
         shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
@@ -272,9 +261,9 @@ public class TurretSubsystem extends SubsystemBase {
         SparkMaxConfig hoodConfig = new SparkMaxConfig();
         hoodConfig.inverted(true);
         hoodConfig.closedLoop
-            .p(SmartDashboard.getNumber("Turret/Hood kP", TurretSubsystemConstants.HOOD_KP))
-            .i(SmartDashboard.getNumber("Turret/Hood kI", TurretSubsystemConstants.HOOD_KI))
-            .d(SmartDashboard.getNumber("Turret/Hood kD", TurretSubsystemConstants.HOOD_KD));
+            .p(NetworkedConfig.Turret.getHoodKP())
+            .i(NetworkedConfig.Turret.getHoodKI())
+            .d(NetworkedConfig.Turret.getHoodKD());
         
         this.hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
