@@ -27,30 +27,6 @@ jobs:
       - name: Generate Javadocs
         run: ./gradlew javadoc  # FRC output: build/docs/javadoc
 
-      - name: Fetch all remote branches
-        run: git fetch --pruned --unshallow
-
-      - name: Cleanup deleted branch docs
-        run: |
-          # List active branches (exclude gh-pages)
-          mapfile -t ACTIVE_BRANCHES < <(git branch -r --list 'origin/*' | sed 's|origin/||' | grep -v '^gh-pages$')
-          
-          # Checkout/create gh-pages
-          git checkout gh-pages || git checkout --orphan gh-pages
-          
-          # Remove dirs not matching active branches (assumes branch names as dirs)
-          shopt -s dotglob  # Include hidden files if any
-          for dir in */; do
-            branch_name="${dir%/}"
-            if [[ ! " ${ACTIVE_BRANCHES[*]} " =~ " ${branch_name} " ]]; then
-              echo "Removing deleted branch dir: $branch_name"
-              rm -rf "$dir"
-            fi
-          done
-          
-          git add .
-          git commit -m "Cleanup Javadocs for deleted branches" || true
-
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
@@ -59,3 +35,30 @@ jobs:
           publish_branch: gh-pages
           keep_files: true
           destination_dir: ${{ github.ref_name }}
+
+      - name: Cleanup deleted branch docs
+        run: |
+          # Fetch all remote branches
+          git fetch --prune origin
+          
+          # List active branches (exclude gh-pages)
+          mapfile -t ACTIVE_BRANCHES < <(git branch -r --list 'origin/*' | sed 's|origin/||' | grep -v '^gh-pages$')
+          
+          # Checkout gh-pages
+          git checkout gh-pages
+          
+          # Remove dirs not matching active branches
+          for dir in */; do
+            branch_name="${dir%/}"
+            if [[ ! " ${ACTIVE_BRANCHES[*]} " =~ " ${branch_name} " ]]; then
+              echo "Removing deleted branch dir: $branch_name"
+              rm -rf "$dir"
+            fi
+          done
+          
+          # Commit changes if any
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Cleanup Javadocs for deleted branches" || echo "No deleted branches to clean up"
+          git push origin gh-pages
