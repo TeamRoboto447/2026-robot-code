@@ -27,91 +27,122 @@ import frc.robot.networking.NetworkedTelemetry;
  */
 public class PoseEstimatorSubsystem extends SubsystemBase {
 
-  private final CommandSwerveDrivetrain swerveSubsystem;
-  private final PhotonRunnable frontCamera;
-  private final PhotonRunnable backCamera;
+    private final CommandSwerveDrivetrain swerveSubsystem;
+    private final PhotonRunnable frontCamera;
+    private final PhotonRunnable backCamera;
 
-  /** Creates a new PoseEstimatorSubsystem. */
-  public PoseEstimatorSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
-    this.swerveSubsystem = swerveSubsystem;
-    if (USE_VISION) {
-      this.frontCamera = new PhotonRunnable(new PhotonCamera("FrontCam"), VisionConstants.ROBOT_TO_FRONT_CAM);
-      this.backCamera = new PhotonRunnable(new PhotonCamera("BackCam"), VisionConstants.ROBOT_TO_BACK_CAM);
-      this.setDefaultCommand(this.createNotifierCommand(this));
-    } else {
-      this.frontCamera = null;
-      this.backCamera = null;
-    }
-  }
-
-  @Override
-  public void periodic() {
-    if (VisionConstants.USE_VISION) {
-      estimatorChecker(frontCamera);
-      estimatorChecker(backCamera);
-    }
-  }
-
-  private NotifierCommand createNotifierCommand(PoseEstimatorSubsystem peSubsystem) {
-    return new NotifierCommand(() -> {
-      frontCamera.run();
-      backCamera.run();
-    }, 0.02, peSubsystem);
-  }
-
-  public Pose2d getCurrentPose() {
-    return swerveSubsystem.getState().Pose;
-  }
-
-  public void setCurrentPose(Pose2d newPose) {
-    swerveSubsystem.resetPose(newPose);
-  }
-
-  public void resetFieldPosition() {
-    setCurrentPose(new Pose2d());
-  }
-
-  private Matrix<N3, N1> confidenceCalculator(EstimatedRobotPose estimation) {
-    double smallestDistance = Double.POSITIVE_INFINITY;
-    for (PhotonTrackedTarget target : estimation.targetsUsed) {
-      Transform3d t3d = target.getBestCameraToTarget();
-      double distance = Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
-      if (distance < smallestDistance)
-        smallestDistance = distance;
+    /** Creates a new PoseEstimatorSubsystem. */
+    public PoseEstimatorSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
+        this.swerveSubsystem = swerveSubsystem;
+        if (USE_VISION) {
+            this.frontCamera = new PhotonRunnable(new PhotonCamera("FrontCam"), VisionConstants.ROBOT_TO_FRONT_CAM);
+            this.backCamera = new PhotonRunnable(new PhotonCamera("BackCam"), VisionConstants.ROBOT_TO_BACK_CAM);
+            this.setDefaultCommand(this.createNotifierCommand(this));
+        } else {
+            this.frontCamera = null;
+            this.backCamera = null;
+        }
     }
 
-    double poseAmbiguityFactor = estimation.targetsUsed.size() != 1 ? 1
-        : Math.max(1, estimation.targetsUsed.get(0).getPoseAmbiguity() + VisionConstants.POSE_AMBIGUITY_SHIFTER
-            * VisionConstants.POSE_AMBIGUITY_MULTIPLIER);
+    /**
+     * Updates the subsystem's various elements.
+     */
+    @Override
+    public void periodic() {
+        if (VisionConstants.USE_VISION) {
+            estimatorChecker(frontCamera);
+            estimatorChecker(backCamera);
+        }
+    }
 
-    double confidenceMultiplier = Math.max(
-        1,
-        (Math.max(
+    /**
+     * Creates a new notifier command.
+     * @return The created command
+     */
+    private NotifierCommand createNotifierCommand(PoseEstimatorSubsystem peSubsystem) {
+        return new NotifierCommand(() -> {
+            frontCamera.run();
+            backCamera.run();
+        }, 0.02, peSubsystem);
+    }
+
+    /**
+     * Gets the robot's current pose.
+     * 
+     * @return The current robot pose
+     */
+    public Pose2d getCurrentPose() {
+        return swerveSubsystem.getState().Pose;
+    }
+
+    /**
+     * Sets a new robot pose.
+     * 
+     * @param newPose The pose to set
+     */
+    public void setCurrentPose(Pose2d newPose) {
+        swerveSubsystem.resetPose(newPose);
+    }
+
+    /**
+     * Resets where the robot thinks it is on the field.
+     */
+    public void resetFieldPosition() {
+        setCurrentPose(new Pose2d());
+    }
+
+    /**
+     * Gets the confidence of an estimated robot pose.
+     * 
+     * @param estimation The estimated position of the robot
+     * @return A matrix representing the confidence of the position
+     */
+    private Matrix<N3, N1> confidenceCalculator(EstimatedRobotPose estimation) {
+        double smallestDistance = Double.POSITIVE_INFINITY;
+        for (PhotonTrackedTarget target : estimation.targetsUsed) {
+            Transform3d t3d = target.getBestCameraToTarget();
+            double distance = Math.sqrt(Math.pow(t3d.getX(), 2) + Math.pow(t3d.getY(), 2) + Math.pow(t3d.getZ(), 2));
+            if (distance < smallestDistance)
+                smallestDistance = distance;
+        }
+
+        double poseAmbiguityFactor = estimation.targetsUsed.size() != 1 ? 1
+            : Math.max(1, estimation.targetsUsed.get(0).getPoseAmbiguity() + VisionConstants.POSE_AMBIGUITY_SHIFTER
+                * VisionConstants.POSE_AMBIGUITY_MULTIPLIER);
+
+        double confidenceMultiplier = Math.max(
             1,
-            Math.max(0, smallestDistance - VisionConstants.NOISY_DISTANCE_METERS)
-                * VisionConstants.DISTANCE_WEIGHT)
-            * poseAmbiguityFactor)
-            / (1
-                + ((estimation.targetsUsed.size() - 1)
-                    * VisionConstants.TAG_PRESENCE_WEIGHT)));
-    return VisionConstants.VISION_MEASUREMENT_STANDARD_DEVIATIONS.times(confidenceMultiplier);
-  }
+            (Math.max(
+                1,
+                Math.max(0, smallestDistance - VisionConstants.NOISY_DISTANCE_METERS)
+                    * VisionConstants.DISTANCE_WEIGHT)
+                * poseAmbiguityFactor)
+                / (1
+                    + ((estimation.targetsUsed.size() - 1)
+                        * VisionConstants.TAG_PRESENCE_WEIGHT)));
+        return VisionConstants.VISION_MEASUREMENT_STANDARD_DEVIATIONS.times(confidenceMultiplier);
+    }
 
-  public void estimatorChecker(PhotonRunnable estimator) {
-    EstimatedRobotPose cameraPose = estimator.grabLatestEstimatedPose();
-    if (cameraPose == null) {
-      NetworkedTelemetry.Vision.setHasValidAprilTags(false);
-      return;
+    /**
+     * Checks if a camera can see any tags and, if so, adds its current measurement to the swerve subsystem.
+     * 
+     * @param estimator The camera to check
+     */
+    public void estimatorChecker(PhotonRunnable estimator) {
+        EstimatedRobotPose cameraPose = estimator.grabLatestEstimatedPose();
+        if (cameraPose == null) {
+            NetworkedTelemetry.Vision.setHasValidAprilTags(false);
+            return;
+        }
+        
+        NetworkedTelemetry.Vision.setHasValidAprilTags(true);
+        Pose2d pose2d = cameraPose.estimatedPose.toPose2d();
+        if (RobotState.isDisabled()) {
+            System.out.println("Setting position");
+            swerveSubsystem.resetPose(pose2d);
+        } else {
+            swerveSubsystem.addVisionMeasurement(pose2d, cameraPose.timestampSeconds,
+                confidenceCalculator(cameraPose));
+        }
     }
-    
-    NetworkedTelemetry.Vision.setHasValidAprilTags(true);
-    Pose2d pose2d = cameraPose.estimatedPose.toPose2d();
-    if (RobotState.isDisabled()) {
-      System.out.println("Setting position");
-      swerveSubsystem.resetPose(pose2d);
-    } else {
-      swerveSubsystem.addVisionMeasurement(pose2d, cameraPose.timestampSeconds,
-          confidenceCalculator(cameraPose));
-    }
-  }
 }
