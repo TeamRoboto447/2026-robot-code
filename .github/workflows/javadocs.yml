@@ -36,29 +36,181 @@ jobs:
           keep_files: true
           destination_dir: ${{ github.ref_name }}
 
-      - name: Cleanup deleted branch docs
+      - name: Cleanup deleted branch docs and generate index
         run: |
           # Fetch all remote branches
           git fetch --prune origin
           
-          # List active branches (exclude gh-pages)
-          mapfile -t ACTIVE_BRANCHES < <(git branch -r --list 'origin/*' | sed 's|origin/||' | grep -v '^gh-pages$')
+          # List active remote branches (exclude gh-pages) - trim/normalize names
+          mapfile -t ACTIVE_BRANCHES < <(git for-each-ref --format='%(refname:short)' refs/remotes/origin | sed 's|^origin/||' | grep -v '^gh-pages$')
           
           # Checkout gh-pages
           git checkout gh-pages
           
-          # Remove dirs not matching active branches
-          for dir in */; do
-            branch_name="${dir%/}"
-            if [[ ! " ${ACTIVE_BRANCHES[*]} " =~ " ${branch_name} " ]]; then
-              echo "Removing deleted branch dir: $branch_name"
+          # Remove leaf directories (the actual published branch folders) that don't match remote branches
+          mapfile -t PUBLISHED_DIRS < <(find . -type d -mindepth 1 -not -path '*/.*' -print | sed 's|^./||' | while IFS= read -r p; do
+            # consider directory as a published branch folder if it contains HTML output or other files
+            if ls "$p"/*.html >/dev/null 2>&1 || [ -f "$p/package-list" ] || [ -n "$(ls -A "$p" 2>/dev/null)" ]; then
+              echo "$p"
+            fi
+          done)
+
+          for dir in "${PUBLISHED_DIRS[@]}"; do
+            # only remove directories that are not present as an active remote branch
+            if [[ ! " ${ACTIVE_BRANCHES[*]} " =~ " ${dir} " ]]; then
+              echo "Removing deleted branch dir: $dir"
               rm -rf "$dir"
             fi
           done
+          
+          # Generate index.html from actual directories present on gh-pages (only show folders that exist)
+          cat > index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>TeamRoboto447 Javadocs - Branch Selection</title>
+              <style>
+                  * {
+                      margin: 0;
+                      padding: 0;
+                      box-sizing: border-box;
+                  }
+                  body {
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      min-height: 100vh;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                      padding: 20px;
+                  }
+                  .container {
+                      background: white;
+                      border-radius: 12px;
+                      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                      max-width: 800px;
+                      width: 100%;
+                      padding: 40px;
+                  }
+                  h1 {
+                      color: #333;
+                      margin-bottom: 10px;
+                      font-size: 2em;
+                  }
+                  .subtitle {
+                      color: #666;
+                      margin-bottom: 30px;
+                      font-size: 1.1em;
+                  }
+                  .info {
+                      background: #f8f9fa;
+                      border-left: 4px solid #667eea;
+                      padding: 15px;
+                      margin-bottom: 30px;
+                      border-radius: 4px;
+                  }
+                  .branch-list {
+                      list-style: none;
+                  }
+                  .branch-item {
+                      margin-bottom: 12px;
+                  }
+                  .branch-link {
+                      display: flex;
+                      align-items: center;
+                      padding: 16px 20px;
+                      background: #f8f9fa;
+                      border-radius: 8px;
+                      text-decoration: none;
+                      color: #333;
+                      transition: all 0.3s ease;
+                      border: 2px solid transparent;
+                  }
+                  .branch-link:hover {
+                      background: #667eea;
+                      color: white;
+                      transform: translateX(5px);
+                      border-color: #667eea;
+                  }
+                  .branch-icon {
+                      margin-right: 12px;
+                      font-size: 1.2em;
+                  }
+                  .branch-name {
+                      font-weight: 500;
+                      font-size: 1.1em;
+                  }
+                  .last-updated {
+                      color: #999;
+                      font-size: 0.9em;
+                      margin-top: 30px;
+                      text-align: center;
+                  }
+                  .no-branches {
+                      text-align: center;
+                      padding: 40px;
+                      color: #999;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Robot code javadocs</h1>
+                  <p class="subtitle">2026 Robot Code Documentation</p>
+                  
+                  <div class="info">
+                      <strong>Select a branch</strong> to view its generated Javadocs documentation.
+                  </div>
+                  
+                  <ul class="branch-list" id="branchList">
+                      <!-- Branches will be inserted here -->
+          EOF
+          
+          # Build list from directories present in the gh-pages working tree (include nested paths
+          # produced by branches with slashes, e.g. feature/xyz). Only include directories that
+          # actually contain files.
+          mapfile -t VALID_DIRS < <(find . -type d -mindepth 1 -maxdepth 6 -not -path '*/.*' -print | sed 's|^./||' | while IFS= read -r p; do [ -n "$(ls -A "$p" 2>/dev/null)" ] && echo "$p"; done)
+
+          if [ ${#VALID_DIRS[@]} -eq 0 ]; then
+            echo '            <li class="no-branches">No branches with Javadocs available yet.</li>' >> index.html
+          else
+            # Sort and prefer main/master/development ordering if present
+            printf '%s\n' "${VALID_DIRS[@]}" | sort | while IFS= read -r branch; do
+              # trim whitespace
+              branch="$(echo "$branch" | xargs)"
+              # escape HTML (branch names are safe for filenames but keep this minimal)
+              safe_branch="$branch"
+              echo "            <li class=\"branch-item\">" >> index.html
+              echo "                <a href=\"./${safe_branch}/\" class=\"branch-link\">" >> index.html
+              echo "                    <span class=\"branch-icon\">📂</span>" >> index.html
+              echo "                    <span class=\"branch-name\">${safe_branch}</span>" >> index.html
+              echo "                </a>" >> index.html
+              echo "            </li>" >> index.html
+            done
+          fi
+          
+          # Close the HTML
+          cat >> index.html << 'EOF'
+                  </ul>
+                  
+                  <div class="last-updated">
+                      Last updated: <span id="timestamp"></span>
+                  </div>
+              </div>
+              
+              <script>
+                  // Display current timestamp
+                  document.getElementById('timestamp').textContent = new Date().toLocaleString();
+              </script>
+          </body>
+          </html>
+          EOF
           
           # Commit changes if any
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Cleanup Javadocs for deleted branches" || echo "No deleted branches to clean up"
+          git commit -m "Update Javadocs and regenerate index" || echo "No changes to commit"
           git push origin gh-pages
