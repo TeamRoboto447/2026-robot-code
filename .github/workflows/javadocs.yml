@@ -1,0 +1,58 @@
+name: Generate Javadocs
+
+on:
+  push:
+    branches: ['**']  # Any branch
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'oracle'  # FRC standard
+          java-version: '21'  # 2026 FRC (adjust if needed)
+
+      - name: Generate Javadocs
+        run: ./gradlew javadoc  # FRC output: build/docs/javadoc
+
+      - name: Fetch all remote branches
+        run: git fetch --pruned --unshallow
+
+      - name: Cleanup deleted branch docs
+        run: |
+          # List active branches (exclude gh-pages)
+          mapfile -t ACTIVE_BRANCHES < <(git branch -r --list 'origin/*' | sed 's|origin/||' | grep -v '^gh-pages$')
+          
+          # Checkout/create gh-pages
+          git checkout gh-pages || git checkout --orphan gh-pages
+          
+          # Remove dirs not matching active branches (assumes branch names as dirs)
+          shopt -s dotglob  # Include hidden files if any
+          for dir in */; do
+            branch_name="${dir%/}"
+            if [[ ! " ${ACTIVE_BRANCHES[*]} " =~ " ${branch_name} " ]]; then
+              echo "Removing deleted branch dir: $branch_name"
+              rm -rf "$dir"
+            fi
+          done
+          
+          git add .
+          git commit -m "Cleanup Javadocs for deleted branches" || true
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/docs/javadoc
+          publish_branch: gh-pages
+          keep_files: true
+          destination_dir: ${{ github.ref_name }}
