@@ -30,6 +30,9 @@ import edu.wpi.first.units.measure.Angle;
 
 public final class Constants {
 
+    /**
+     * Holds constants related to the vision subsystem.
+     */
     public static class VisionConstants {
         public static final double APRILTAG_AMBIGUITY_THRESHOLD = 0.2;
         public static final double POSE_AMBIGUITY_SHIFTER = 0;
@@ -52,6 +55,9 @@ public final class Constants {
 
     }
 
+    /**
+     * Holds constants related to the field.
+     */
     public static class FieldConstants {
         public static final double FIELD_LENGTH_METERS = Units.inchesToMeters(651.22);
         public static final double FIELD_WIDTH_METERS = Units.inchesToMeters(317.69);
@@ -78,6 +84,9 @@ public final class Constants {
         ALL TRANSLATION MEASUREMENTS ARE IN METERS!!!
         TODO: consider using Units.inchesToMeters() for readability
         */
+        /**
+         * Holds areas considered to be part of different "field zones".
+         */
         public static class FieldZoneAreas {
             // Red alliance zones (audience side is y=0 to y=4.035, scoring side is y=4.035 to y=8.07)
             public static final Rectangle2d RED_ALLIANCE_AUDIENCE_SIDE_AREA = new Rectangle2d(
