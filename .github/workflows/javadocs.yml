@@ -20,6 +20,9 @@ jobs:
         with:
           distribution: 'oracle'  # FRC standard
           java-version: '21'  # 2026 FRC (adjust if needed)
+          
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
 
       - name: Generate Javadocs
         run: ./gradlew javadoc  # FRC output: build/docs/javadoc
