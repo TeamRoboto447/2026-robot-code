@@ -220,7 +220,11 @@ public class TurretSubsystem extends SubsystemBase {
     public Command stopKicker() {
         return this.run(() -> this.kickerMotor.set(0));
     }
-
+    /**
+     * Stops the turret.
+     * 
+     * @return A {@link Command} that stops the turret.
+     */
     public Command stopTurret() {
         return this.run(() -> this.angleMotor.set(0));
     }
