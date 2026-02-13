@@ -149,7 +149,7 @@ public final class Constants {
 
         public static final Angle MIN_HOOD_ANGLE = Degrees.of(17);
         public static final Angle MAX_HOOD_ANGLE = Degrees.of(45);
-        public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(1.219);
+        public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(0.406);
 
         public static final Angle MIN_TURRET_ANGLE = Degrees.of(-45);
         public static final Angle MAX_TURRET_ANGLE = Degrees.of(45);

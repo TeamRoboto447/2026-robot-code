@@ -118,7 +118,7 @@ public class TurretSubsystem extends SubsystemBase {
         this.hoodMotor = new SparkMax(TurretSubsystemConstants.HOOD_MOTOR_ID, MotorType.kBrushless);
 
         SparkMaxConfig hoodConfig = new SparkMaxConfig();
-        hoodConfig.inverted(true);
+        hoodConfig.inverted(false);
         hoodConfig.closedLoop
             .p(TurretSubsystemConstants.HOOD_KP)
             .i(TurretSubsystemConstants.HOOD_KI)
@@ -235,7 +235,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @param newAngle The angle to move toward.
      */
     public void turnToAngle(Angle newAngle) {
-        if ((newAngle.compareTo(TurretSubsystemConstants.MAX_TURRET_ANGLE) > 0) || (newAngle.compareTo(TurretSubsystemConstants.MIN_TURRET_ANGLE) < 0)) {
+        if ((newAngle.magnitude() > TurretSubsystemConstants.MAX_TURRET_ANGLE.magnitude()) || (newAngle.magnitude() < TurretSubsystemConstants.MIN_TURRET_ANGLE.magnitude())) {
             return;
         } else {
             double rotationsToAngle = newAngle
@@ -292,6 +292,10 @@ public class TurretSubsystem extends SubsystemBase {
         
         Translation3d targetPosition = getTargetFromEnum(this.turretTarget);
         NetworkedTelemetry.Pose.publishTargetCircle(targetPosition, Units.inchesToMeters(12));
+
+        NetworkedTelemetry.Turret.setCTHoodAngle(currentControlTarget.hoodAngle);
+        NetworkedTelemetry.Turret.setCTFlywheelRPM(currentControlTarget.rpm);
+        NetworkedTelemetry.Turret.setCTValidTrajectory(currentControlTarget.properlySet);
     }
 
     /**
@@ -364,8 +368,8 @@ public class TurretSubsystem extends SubsystemBase {
         var angleSlot0config = AngleFxConfigs.Slot0;
 
         angleSlot0config.kP = NetworkedConfig.Turret.getTurretKP();
-        angleSlot0config.kI = NetworkedConfig.Turret.getTurretKP();
-        angleSlot0config.kD = NetworkedConfig.Turret.getTurretKP();
+        angleSlot0config.kI = NetworkedConfig.Turret.getTurretKI();
+        angleSlot0config.kD = NetworkedConfig.Turret.getTurretKD();
         angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
@@ -401,7 +405,7 @@ public class TurretSubsystem extends SubsystemBase {
             parser.nextToken();
             while (parser.nextToken() != null) {
                 String heightName = parser.currentName();
-                if (!heightName.equals(String.valueOf(targetHeight))) {
+                if (!(heightName == null) && (!heightName.equals(String.valueOf(targetHeight)))) {
                     parser.nextToken();
                     parser.skipChildren();
                 } else {
@@ -419,16 +423,21 @@ public class TurretSubsystem extends SubsystemBase {
             if (Objects.isNull(velocityNode)) {
                 return new ControlTarget();
             }
-            JsonNode dataNode = velocityNode
-                .get(String.valueOf(steppedVelocity));
-
-            if (dataNode.isNull()) {
+            try {
+                JsonNode dataNode = velocityNode
+                    .get(String.valueOf(steppedVelocity));
+                if (dataNode.isNull()) {
+                    return new ControlTarget();
+                } else {
+                    int rpm = dataNode.get("rpm").asInt();
+                    double hoodAngle = dataNode.get("angle_deg").asDouble();
+                    return new ControlTarget(rpm, hoodAngle);
+                }
+            } catch (NullPointerException error) {
+                DriverStation.reportError("Velocity Node is null: " + error.getMessage(), error.getStackTrace());
                 return new ControlTarget();
-            } else {
-                int rpm = dataNode.get("rpm").asInt();
-                double hoodAngle = dataNode.get("angle_deg").asDouble();
-                return new ControlTarget(rpm, hoodAngle);
             }
+            
         } catch (IOException e) {
             DriverStation.reportError("Error reading lookup table JSON: " + e.getMessage(), e.getStackTrace());
             return new ControlTarget();

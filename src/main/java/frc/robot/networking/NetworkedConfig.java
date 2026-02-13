@@ -77,15 +77,15 @@ public class NetworkedConfig {
             shooterKI.get();
             shooterKD.get();
             shooterKV.get();
-            targetRPM.get();
+            targetRPM.set(3400);
             hoodKP.get();
             hoodKI.get();
             hoodKD.get();
-            targetHoodAngle.get();
+            targetHoodAngle.set(17);
             turretKP.get();
             turretKI.get();
             turretKD.get();
-            targetTurretAngle.get();
+            targetTurretAngle.set(0);
         }
         
         // Launcher
@@ -304,6 +304,33 @@ public class NetworkedConfig {
             intakeSpeed.set(speed);
         }
     }
+
+    public static class Debug {
+        private static final NetworkTable debugTable = defaultNTInstance.getTable("Debug");
+
+        private static final DoubleEntry newPoseX = debugTable.getDoubleTopic("New Pose X").getEntry(0);
+        private static final DoubleEntry newPoseY = debugTable.getDoubleTopic("New Pose Y").getEntry(0);
+        private static final DoubleEntry newPoseRotation = debugTable.getDoubleTopic("New Pose Rotation").getEntry(0);
+
+        public static void initializeDefaults() {
+            newPoseX.get();
+            newPoseY.get();
+            newPoseRotation.get();
+        }
+        
+        public static double getNewPoseX() {
+            return newPoseX.get();
+        }
+        
+        public static double getNewPoseY() {
+            return newPoseY.get();
+        }
+        
+        public static double getNewPoseRotation() {
+            return newPoseRotation.get();
+        }
+        
+    }
     
     /**
      * Initialize all default values in NetworkTables.
@@ -313,5 +340,6 @@ public class NetworkedConfig {
         Turret.initializeDefaults();
         Indexer.initializeDefaults();
         Intake.initializeDefaults();
+        Debug.initializeDefaults();
     }
 }

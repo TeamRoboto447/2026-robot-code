@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -104,13 +105,14 @@ public class RobotContainer {
 
         joystick.rightBumper().whileTrue(turretSubsystem.run(() -> {
             turretSubsystem.shoot();
-            turretSubsystem.kick(1);
+            turretSubsystem.kick(0.25);
         }));
         joystick.rightBumper().whileFalse(turretSubsystem.stopShooter());
         joystick.rightBumper().onFalse(turretSubsystem.stopKicker());
 
         joystick.rightTrigger().onTrue(turretSubsystem.run(() -> {
             turretSubsystem.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
+            // turretSubsystem.setHoodAngle(Degrees.of(SmartDashboard.getNumber("Turret/Target Hood Angle", 17)));
         }));
         // AtomicInteger angle = new AtomicInteger(25);
         // AtomicBoolean goingUp = new AtomicBoolean(true);
@@ -152,6 +154,11 @@ public class RobotContainer {
             indexerSubsystem.pullNetworkTableData();
         }));
         
+        joystick.back().onTrue(swerveSubsystem.run(() -> swerveSubsystem.resetPose(new Pose2d(
+            NetworkedConfig.Debug.getNewPoseX(),
+            NetworkedConfig.Debug.getNewPoseY(),
+            new Rotation2d(NetworkedConfig.Debug.getNewPoseRotation())
+        ))));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.

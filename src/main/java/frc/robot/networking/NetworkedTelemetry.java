@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -191,6 +192,26 @@ public class NetworkedTelemetry {
          */
         public static boolean hasValidAprilTags() {
             return hasValidAprilTags.get();
+        }
+    }
+
+    public static class Turret {
+        private static final NetworkTable turretTable = defaultNTInstance.getTable("Turret");
+
+        private static final DoubleEntry controlTargetHoodAngle = turretTable.getDoubleTopic("Control Target Hood Angle").getEntry(0);
+        private static final DoubleEntry controlTargetFlywheelRPM = turretTable.getDoubleTopic("Control Target Flywheel RPM").getEntry(0);
+        private static final BooleanEntry controlTargetValidTrajectory = turretTable.getBooleanTopic("Control Target Valid Trajectory").getEntry(false);
+
+        public static void setCTHoodAngle(double angle) {
+            controlTargetHoodAngle.set(angle);
+        }
+
+        public static void setCTFlywheelRPM(double rpm) {
+            controlTargetFlywheelRPM.set(rpm);
+        }
+
+        public static void setCTValidTrajectory(boolean valid) {
+            controlTargetValidTrajectory.set(valid);
         }
     }
 }
