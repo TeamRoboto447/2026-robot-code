@@ -1,5 +1,6 @@
 package frc.robot.networking;
 
+import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -22,6 +23,7 @@ public class NetworkedConfig {
      */
     public static class Turret {
         private static final NetworkTable turretTable = defaultNTInstance.getTable("TurretAssembly");
+        private static final NetworkTable turretTargettingTable = turretTable.getSubTable("targetting");
         private static final NetworkTable hoodTable = turretTable.getSubTable("hood");
         private static final NetworkTable flywheelTable = turretTable.getSubTable("flywheel");
         private static final NetworkTable rotationTable = turretTable.getSubTable("rotation");
@@ -57,6 +59,9 @@ public class NetworkedConfig {
             .getDoubleTopic("kD").getEntry(TurretSubsystemConstants.TURRET_KD);
         private static final DoubleEntry targetTurretAngle = rotationTable
             .getDoubleTopic("Target Turret Angle").getEntry(0);
+
+        private static final BooleanEntry validTarget = turretTargettingTable
+            .getBooleanTopic("has_valid_shot").getEntry(false);
         
         // Telemetry
         private static final DoubleEntry turretAngle = rotationTable
@@ -89,6 +94,7 @@ public class NetworkedConfig {
             turretKI.get();
             turretKD.get();
             targetTurretAngle.set(0);
+            validTarget.get();
         }
         
         // Launcher
@@ -160,6 +166,10 @@ public class NetworkedConfig {
             return targetTurretAngle.get();
         };
         
+        public static boolean hasValidTarget() {
+            return validTarget.get();
+        }
+
         // Telemetry
 
         /** Sends a value as the current turret angle. */

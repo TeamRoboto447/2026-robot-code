@@ -14,6 +14,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -82,6 +83,8 @@ public class TurretSubsystem extends SubsystemBase {
     private TalonFXConfiguration AngleFxConfigs = new TalonFXConfiguration();
     private final PositionVoltage anglePositionReq = new PositionVoltage(0).withSlot(0);
     
+    private boolean runFlywheel = false;
+    private final boolean hoodMotorInverted = false;
     /**
      * Get the trigger that indicates when the shooter is at target velocity.
      * This can be used to coordinate feeding game pieces when the shooter is ready.
@@ -118,7 +121,7 @@ public class TurretSubsystem extends SubsystemBase {
         this.hoodMotor = new SparkMax(TurretSubsystemConstants.HOOD_MOTOR_ID, MotorType.kBrushless);
 
         SparkMaxConfig hoodConfig = new SparkMaxConfig();
-        hoodConfig.inverted(false);
+        hoodConfig.inverted(hoodMotorInverted);
         hoodConfig.closedLoop
             .p(TurretSubsystemConstants.HOOD_KP)
             .i(TurretSubsystemConstants.HOOD_KI)
@@ -182,6 +185,14 @@ public class TurretSubsystem extends SubsystemBase {
 
         updateTurretTarget();
         updateNetworkTables();
+
+
+        double targetRPS = runFlywheel ? NetworkedConfig.Turret.hasValidTarget() ? NetworkedConfig.Turret.getTargetRPM()/60 : 0 : 0;
+        SmartDashboard.putNumber("turretThinksHasTarget", targetRPS);
+        if (targetRPS > 16) // Approx 1000 RPM
+            rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
+        else
+            rightShooterMotor.set(0);
     }
 
     /**
@@ -194,39 +205,30 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * Stops the shooter. Does not immediately stop due to flywheel momentum.
-     * 
-     * @return A {@link Command} that stops the shooter.
+     * Stops the shooter. Does not immediately stop due to inertia.
      */
-    public Command stopShooter() {
-        // return this.run(() -> this.rightShooterMotor.set(0));
-        return this.run(() -> this.rightShooterMotor.setControl(velocityReq.withVelocity(0)));
+    public void stopShooter() {
+        this.runFlywheel = false;
     }
 
     /**
      * Stops the hood.
-     * 
-     * @return A {@link Command} that stops the hood.
      */
-    public Command stopHood() {
-        return this.run(() -> this.hoodMotor.set(0));
+    public void stopHood() {
+        this.hoodMotor.set(0);
     }
 
     /**
      * Stops the kicker.
-     * 
-     * @return A {@link Command} that stops the kicker.
      */
-    public Command stopKicker() {
-        return this.run(() -> this.kickerMotor.set(0));
+    public void stopKicker() {
+        this.kickerMotor.set(0);
     }
     /**
      * Stops the turret.
-     * 
-     * @return A {@link Command} that stops the turret.
      */
-    public Command stopTurret() {
-        return this.run(() -> this.angleMotor.set(0));
+    public void stopTurret() {
+        this.angleMotor.set(0);
     }
 
     /**
@@ -253,11 +255,10 @@ public class TurretSubsystem extends SubsystemBase {
      * @param strength The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).
      */
     public void kick(double strength) {
-        // if (rightShooterMotor.getVelocity().isNear(NetworkedConfig.Turret.getTargetRPM()/60, 0.8)) {
+        if(NetworkedConfig.Turret.hasValidTarget())
             kickerMotor.set(strength);
-        // } else {
-        //     kickerMotor.set(0);
-        // }
+        else
+            kickerMotor.set(0);
     }
 
     /**
@@ -375,7 +376,7 @@ public class TurretSubsystem extends SubsystemBase {
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
         
         SparkMaxConfig hoodConfig = new SparkMaxConfig();
-        hoodConfig.inverted(true);
+        hoodConfig.inverted(hoodMotorInverted);
         hoodConfig.closedLoop
             .p(NetworkedConfig.Turret.getHoodKP())
             .i(NetworkedConfig.Turret.getHoodKI())

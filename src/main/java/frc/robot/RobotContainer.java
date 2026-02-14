@@ -106,14 +106,15 @@ public class RobotContainer {
         joystick.rightBumper().whileTrue(turretSubsystem.run(() -> {
             turretSubsystem.shoot();
             turretSubsystem.kick(0.25);
-        }));
-        joystick.rightBumper().whileFalse(turretSubsystem.stopShooter());
-        joystick.rightBumper().onFalse(turretSubsystem.stopKicker());
-
-        joystick.rightTrigger().onTrue(turretSubsystem.run(() -> {
             turretSubsystem.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
-            // turretSubsystem.setHoodAngle(Degrees.of(SmartDashboard.getNumber("Turret/Target Hood Angle", 17)));
         }));
+
+        joystick.rightBumper().onFalse(turretSubsystem.runOnce(() -> {
+            turretSubsystem.stopShooter();
+            turretSubsystem.stopKicker();
+            turretSubsystem.stopHood();
+            }));
+
         // AtomicInteger angle = new AtomicInteger(25);
         // AtomicBoolean goingUp = new AtomicBoolean(true);
         // joystick.rightTrigger().whileTrue(turretSubsystem.run(() -> {
@@ -131,7 +132,6 @@ public class RobotContainer {
         //         } else angle.set(angle.get()-1);
         //     }
         // }));
-        joystick.rightTrigger().onFalse(turretSubsystem.stopHood());
 
         // joystick.x().onTrue(turretSubsystem.run(() -> turretSubsystem.kick(1)));
         // joystick.x().onFalse(turretSubsystem.stopKicker());
@@ -139,7 +139,9 @@ public class RobotContainer {
         joystick.y().onTrue(turretSubsystem.run(() -> {
             turretSubsystem.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
         }));
-        joystick.y().onFalse(turretSubsystem.stopTurret());
+        joystick.y().onFalse(turretSubsystem.run(() -> {
+            turretSubsystem.stopTurret();
+        }));
 
         joystick.start().onTrue(turretSubsystem.runOnce(() -> {
             turretSubsystem.pullNetworkTableData();
