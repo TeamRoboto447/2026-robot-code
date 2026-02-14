@@ -286,7 +286,7 @@ public class TurretSubsystem extends SubsystemBase {
     private void updateNetworkTables() {
         NetworkedConfig.Turret.setTurretAngle(TurretSubsystemConstants.MIN_TURRET_ANGLE.plus(TurretSubsystemConstants.TURRET_DEGREES_ROTATION_RATIO.times(this.angleMotor.getPosition().getValueAsDouble())).magnitude());
         NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
-        NetworkedConfig.Turret.setTurretSpeed(this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
+        NetworkedConfig.Turret.setFlywheelSpeed(this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
 
         NetworkedConfig.Turret.setTurretTarget(this.turretTarget.toString());
         

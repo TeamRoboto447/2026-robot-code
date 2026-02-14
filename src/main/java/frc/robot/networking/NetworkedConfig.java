@@ -21,47 +21,50 @@ public class NetworkedConfig {
      * Turret configuration values accessible via NetworkTables.
      */
     public static class Turret {
-        private static final NetworkTable turretTable = defaultNTInstance.getTable("Turret");
+        private static final NetworkTable turretTable = defaultNTInstance.getTable("TurretAssembly");
+        private static final NetworkTable hoodTable = turretTable.getSubTable("hood");
+        private static final NetworkTable flywheelTable = turretTable.getSubTable("flywheel");
+        private static final NetworkTable rotationTable = turretTable.getSubTable("rotation");
         
         // Shooter PID
-        private static final DoubleEntry shooterKP = turretTable
-            .getDoubleTopic("Flywheel kP").getEntry(TurretSubsystemConstants.SHOOTER_KP);
-        private static final DoubleEntry shooterKI = turretTable
-            .getDoubleTopic("Flywheel kI").getEntry(TurretSubsystemConstants.SHOOTER_KI);
-        private static final DoubleEntry shooterKD = turretTable
-            .getDoubleTopic("Flywheel kD").getEntry(TurretSubsystemConstants.SHOOTER_KD);
-        private static final DoubleEntry shooterKV = turretTable
-            .getDoubleTopic("Flywheel kV").getEntry(TurretSubsystemConstants.SHOOTER_KV);
-        private static final DoubleEntry targetRPM = turretTable
+        private static final DoubleEntry shooterKP = flywheelTable
+            .getDoubleTopic("kP").getEntry(TurretSubsystemConstants.SHOOTER_KP);
+        private static final DoubleEntry shooterKI = flywheelTable
+            .getDoubleTopic("kI").getEntry(TurretSubsystemConstants.SHOOTER_KI);
+        private static final DoubleEntry shooterKD = flywheelTable
+            .getDoubleTopic("kD").getEntry(TurretSubsystemConstants.SHOOTER_KD);
+        private static final DoubleEntry shooterKV = flywheelTable
+            .getDoubleTopic("kV").getEntry(TurretSubsystemConstants.SHOOTER_KV);
+        private static final DoubleEntry targetRPM = flywheelTable
             .getDoubleTopic("Target Flywheel RPM").getEntry(3400);
         
         // Hood PID
-        private static final DoubleEntry hoodKP = turretTable
-            .getDoubleTopic("Hood kP").getEntry(TurretSubsystemConstants.HOOD_KP);
-        private static final DoubleEntry hoodKI = turretTable
-            .getDoubleTopic("Hood kI").getEntry(TurretSubsystemConstants.HOOD_KI);
-        private static final DoubleEntry hoodKD = turretTable
-            .getDoubleTopic("Hood kD").getEntry(TurretSubsystemConstants.HOOD_KD);
-        private static final DoubleEntry targetHoodAngle = turretTable
+        private static final DoubleEntry hoodKP = hoodTable
+            .getDoubleTopic("kP").getEntry(TurretSubsystemConstants.HOOD_KP);
+        private static final DoubleEntry hoodKI = hoodTable
+            .getDoubleTopic("kI").getEntry(TurretSubsystemConstants.HOOD_KI);
+        private static final DoubleEntry hoodKD = hoodTable
+            .getDoubleTopic("kD").getEntry(TurretSubsystemConstants.HOOD_KD);
+        private static final DoubleEntry targetHoodAngle = hoodTable
             .getDoubleTopic("Target Hood Angle").getEntry(17);
         
         // Turret PID
-        private static final DoubleEntry turretKP = turretTable
-            .getDoubleTopic("Turret kP").getEntry(TurretSubsystemConstants.TURRET_KP);
-        private static final DoubleEntry turretKI = turretTable
-            .getDoubleTopic("Turret kP").getEntry(TurretSubsystemConstants.TURRET_KI);
-        private static final DoubleEntry turretKD = turretTable
-            .getDoubleTopic("Turret kP").getEntry(TurretSubsystemConstants.TURRET_KD);
-        private static final DoubleEntry targetTurretAngle = turretTable
+        private static final DoubleEntry turretKP = rotationTable
+            .getDoubleTopic("kP").getEntry(TurretSubsystemConstants.TURRET_KP);
+        private static final DoubleEntry turretKI = rotationTable
+            .getDoubleTopic("kI").getEntry(TurretSubsystemConstants.TURRET_KI);
+        private static final DoubleEntry turretKD = rotationTable
+            .getDoubleTopic("kD").getEntry(TurretSubsystemConstants.TURRET_KD);
+        private static final DoubleEntry targetTurretAngle = rotationTable
             .getDoubleTopic("Target Turret Angle").getEntry(0);
         
         // Telemetry
-        private static final DoubleEntry turretAngle = turretTable
+        private static final DoubleEntry turretAngle = rotationTable
             .getDoubleTopic("Turret Angle").getEntry(0);
-        private static final DoubleEntry hoodAngle = turretTable
+        private static final DoubleEntry hoodAngle = hoodTable
             .getDoubleTopic("Hood Angle").getEntry(0);
-        private static final DoubleEntry turretSpeed = turretTable
-            .getDoubleTopic("Turret Speed").getEntry(0);
+        private static final DoubleEntry flywheelSpeed = flywheelTable
+            .getDoubleTopic("Flywheel Speed").getEntry(0);
         private static final StringEntry turretTarget = turretTable
             .getStringTopic("Turret Target").getEntry("");
         private static final StringEntry debugFieldZone = turretTable
@@ -170,8 +173,8 @@ public class NetworkedConfig {
         }
         
         /** Sends a value as the current shooter speed. */
-        public static void setTurretSpeed(double speed) {
-            turretSpeed.set(speed);
+        public static void setFlywheelSpeed(double speed) {
+            flywheelSpeed.set(speed);
         }
         
         /** Sends a value as the current turret target. */
