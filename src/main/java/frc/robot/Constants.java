@@ -148,7 +148,7 @@ public final class Constants {
         public static final int LOOKUP_TABLE_DIST_STEP = 1;
 
         public static final Angle MIN_HOOD_ANGLE = Degrees.of(23);
-        public static final Angle MAX_HOOD_ANGLE = Degrees.of(45);
+        public static final Angle MAX_HOOD_ANGLE = Degrees.of(44);
         public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(1);
 
         public static final Angle MIN_TURRET_ANGLE = Degrees.of(-45);

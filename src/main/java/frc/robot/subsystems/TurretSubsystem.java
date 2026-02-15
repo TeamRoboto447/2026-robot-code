@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -193,6 +195,9 @@ public class TurretSubsystem extends SubsystemBase {
             rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
         else
             rightShooterMotor.set(0);
+
+        
+        this.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
     }
 
     /**

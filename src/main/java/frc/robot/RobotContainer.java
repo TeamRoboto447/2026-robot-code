@@ -106,13 +106,11 @@ public class RobotContainer {
         joystick.rightBumper().whileTrue(turretSubsystem.run(() -> {
             turretSubsystem.shoot();
             turretSubsystem.kick(0.25);
-            turretSubsystem.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
         }));
 
         joystick.rightBumper().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();
             turretSubsystem.stopKicker();
-            turretSubsystem.stopHood();
             }));
 
         // AtomicInteger angle = new AtomicInteger(25);
