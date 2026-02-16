@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import com.ctre.phoenix6.SignalLogger;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -166,6 +167,39 @@ public class RobotContainer {
         // joystick.back().and(joystick.x()).whileTrue(swerveSubsystem.sysIdDynamic(Direction.kReverse));
         // joystick.start().and(joystick.y()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kForward));
         // joystick.start().and(joystick.x()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kReverse));
+
+        // SysId bindings for turret flywheel characterization — explicitly start/stop SignalLogger
+        joystick.back().and(joystick.y()).onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> SignalLogger.start()),
+                turretSubsystem.sysIdDynamic(Direction.kForward),
+                Commands.runOnce(() -> SignalLogger.stop())
+            )
+        );
+
+        joystick.back().and(joystick.x()).onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> SignalLogger.start()),
+                turretSubsystem.sysIdDynamic(Direction.kReverse),
+                Commands.runOnce(() -> SignalLogger.stop())
+            )
+        );
+
+        joystick.start().and(joystick.y()).onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> SignalLogger.start()),
+                turretSubsystem.sysIdQuasistatic(Direction.kForward),
+                Commands.runOnce(() -> SignalLogger.stop())
+            )
+        );
+
+        joystick.start().and(joystick.x()).onTrue(
+            Commands.sequence(
+                Commands.runOnce(() -> SignalLogger.start()),
+                turretSubsystem.sysIdQuasistatic(Direction.kReverse),
+                Commands.runOnce(() -> SignalLogger.stop())
+            )
+        );
 
         // Reset the field-centric heading on left bumper press.
         // joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));

@@ -43,6 +43,10 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import static edu.wpi.first.units.Units.*;
+import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
@@ -87,6 +91,8 @@ public class TurretSubsystem extends SubsystemBase {
     
     private boolean runFlywheel = false;
     private final boolean hoodMotorInverted = false;
+    /* SysId routine for profiling the shooter (flywheel) */
+    private final SysIdRoutine m_sysIdRoutineFlywheel;
     /**
      * Get the trigger that indicates when the shooter is at target velocity.
      * This can be used to coordinate feeding game pieces when the shooter is ready.
@@ -119,6 +125,28 @@ public class TurretSubsystem extends SubsystemBase {
         this.leftShooterMotor = new TalonFX(TurretSubsystemConstants.LEFT_SHOOTER_MOTOR_ID);
 
         this.leftShooterMotor.setControl(new Follower(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID, MotorAlignmentValue.Opposed));
+
+        /* build SysId routine now that motors are initialized */
+        m_sysIdRoutineFlywheel = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null,               // default ramp rate
+                Volts.of(6),        // dynamic step voltage (6 V)
+                null,               // default timeout (10 s)
+                state -> SignalLogger.writeString("SysIdFlywheel_State", state.toString())
+            ),
+            new SysIdRoutine.Mechanism(
+                volts -> {
+                    /* apply commanded volts as a percent output (scale by battery voltage) */
+                    double percent = volts.in(Volts) / RobotController.getBatteryVoltage();
+                    rightShooterMotor.set(percent);
+                    /* log requested volts and measured velocity for post-processing */
+                    SignalLogger.writeDouble("Flywheel_Request_V", volts.in(Volts));
+                    SignalLogger.writeDouble("Flywheel_RPS", rightShooterMotor.getVelocity().getValueAsDouble());
+                },
+                null,
+                this
+            )
+        );
 
         this.hoodMotor = new SparkMax(TurretSubsystemConstants.HOOD_MOTOR_ID, MotorType.kBrushless);
 
@@ -391,6 +419,24 @@ public class TurretSubsystem extends SubsystemBase {
 
         System.out.println("Updated Turret PIDs.");
         
+    }
+
+    /**
+     * Runs the SysId Quasistatic test for the turret flywheel.
+     * @param direction Direction of the SysId Quasistatic test
+     * @return Command to run
+     */
+    public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineFlywheel.quasistatic(direction);
+    }
+
+    /**
+     * Runs the SysId Dynamic test for the turret flywheel.
+     * @param direction Direction of the SysId Dynamic test
+     * @return Command to run
+     */
+    public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+        return m_sysIdRoutineFlywheel.dynamic(direction);
     }
 
     /**
