@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Theseus extends TimedRobot {
     private Command m_autonomousCommand;
 
-    private final RobotContainer m_robotContainer;
+    private final ShipOfTheseus m_robotContainer;
 
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
@@ -22,7 +22,7 @@ public class Theseus extends TimedRobot {
         .withJoystickReplay();
 
     public Theseus() {
-        m_robotContainer = new RobotContainer();
+        m_robotContainer = new ShipOfTheseus();
         SignalLogger.enableAutoLogging(false);
     }
 

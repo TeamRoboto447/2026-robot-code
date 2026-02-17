@@ -35,7 +35,7 @@ import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
 import frc.robot.lib.BLine.*;
 import frc.robot.networking.NetworkedConfig;
 
-public class RobotContainer {
+public class ShipOfTheseus {
     private double MaxSpeed = 0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -69,7 +69,7 @@ public class RobotContainer {
         ).withDefaultShouldFlip()
         .withPoseReset(swerveSubsystem::resetPose);
 
-    public RobotContainer() {
+    public ShipOfTheseus() {
 
         this.turretSubsystem = new TurretSubsystem(swerveSubsystem);
         this.indexerSubsystem = new IndexerSubsystem();
