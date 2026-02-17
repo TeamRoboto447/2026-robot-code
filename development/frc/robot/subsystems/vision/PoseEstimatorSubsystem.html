@@ -97,6 +97,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PoseEstimatorSubsystem</span>
 <span class="extends-implements">extends edu.wpi.first.wpilibj2.command.SubsystemBase</span></div>
+<div class="block">Manages all of the vision cameras on the robot.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -128,19 +129,29 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#estimatorChecker(frc.robot.subsystems.vision.PhotonRunnable)" class="member-name-link">estimatorChecker</a><wbr>(<a href="PhotonRunnable.html" title="class in frc.robot.subsystems.vision">PhotonRunnable</a>&nbsp;estimator)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Checks if a camera can see any tags and, if so, adds its current measurement to the swerve subsystem.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.geometry.Pose2d</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCurrentPose()" class="member-name-link">getCurrentPose</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets the robot's current pose.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates the subsystem's various elements.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetFieldPosition()" class="member-name-link">resetFieldPosition</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Resets where the robot thinks it is on the field.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setCurrentPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">setCurrentPose</a><wbr>(edu.wpi.first.math.geometry.Pose2d&nbsp;newPose)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Sets a new robot pose.</div>
+</div>
 </div>
 </div>
 </div>
@@ -183,30 +194,47 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="periodic()">
 <h3>periodic</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">periodic</span>()</div>
+<div class="block">Updates the subsystem's various elements.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="getCurrentPose()">
 <h3>getCurrentPose</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Pose2d</span>&nbsp;<span class="element-name">getCurrentPose</span>()</div>
+<div class="block">Gets the robot's current pose.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>The current robot pose</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setCurrentPose(edu.wpi.first.math.geometry.Pose2d)">
 <h3>setCurrentPose</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCurrentPose</span><wbr><span class="parameters">(edu.wpi.first.math.geometry.Pose2d&nbsp;newPose)</span></div>
+<div class="block">Sets a new robot pose.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>newPose</code> - The pose to set</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="resetFieldPosition()">
 <h3>resetFieldPosition</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">resetFieldPosition</span>()</div>
+<div class="block">Resets where the robot thinks it is on the field.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="estimatorChecker(frc.robot.subsystems.vision.PhotonRunnable)">
 <h3>estimatorChecker</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">estimatorChecker</span><wbr><span class="parameters">(<a href="PhotonRunnable.html" title="class in frc.robot.subsystems.vision">PhotonRunnable</a>&nbsp;estimator)</span></div>
+<div class="block">Checks if a camera can see any tags and, if so, adds its current measurement to the swerve subsystem.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>estimator</code> - The camera to check</dd>
+</dl>
 </section>
 </li>
 </ul>

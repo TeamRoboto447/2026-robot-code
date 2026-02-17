@@ -96,7 +96,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">PhotonRunnable</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a></span></div>
-<div class="block">Add your docs here.</div>
+<div class="block">A single camera instance, used in the <a href="PoseEstimatorSubsystem.html" title="class in frc.robot.subsystems.vision"><code>PoseEstimatorSubsystem</code></a>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -110,7 +110,9 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(org.photonvision.PhotonCamera,edu.wpi.first.math.geometry.Transform3d)" class="member-name-link">PhotonRunnable</a><wbr>(org.photonvision.PhotonCamera&nbsp;camera,
  edu.wpi.first.math.geometry.Transform3d&nbsp;robotToCamera)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates a new PhotonRunnable.</div>
+</div>
 </div>
 </section>
 </li>
@@ -127,10 +129,14 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.photonvision.EstimatedRobotPose</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#grabLatestEstimatedPose()" class="member-name-link">grabLatestEstimatedPose</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets the latest estimated pose of the robot.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#run()" class="member-name-link">run</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Contains the code to run every iteration.</div>
+</div>
 </div>
 </div>
 </div>
@@ -153,6 +159,12 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <h3>PhotonRunnable</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">PhotonRunnable</span><wbr><span class="parameters">(org.photonvision.PhotonCamera&nbsp;camera,
  edu.wpi.first.math.geometry.Transform3d&nbsp;robotToCamera)</span></div>
+<div class="block">Creates a new PhotonRunnable.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>camera</code> - The camera to get data from.</dd>
+<dd><code>robotToCamera</code> - The positional offset of the camera from the center of the robot in the form of a <code>Transform3d</code> object.</dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -167,6 +179,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <section class="detail" id="run()">
 <h3>run</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">run</span>()</div>
+<div class="block">Contains the code to run every iteration.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html#run()" title="class or interface in java.lang" class="external-link">run</a></code>&nbsp;in interface&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a></code></dd>
@@ -177,6 +190,11 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <section class="detail" id="grabLatestEstimatedPose()">
 <h3>grabLatestEstimatedPose</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.photonvision.EstimatedRobotPose</span>&nbsp;<span class="element-name">grabLatestEstimatedPose</span>()</div>
+<div class="block">Gets the latest estimated pose of the robot.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>The estimated pose.</dd>
+</dl>
 </section>
 </li>
 </ul>

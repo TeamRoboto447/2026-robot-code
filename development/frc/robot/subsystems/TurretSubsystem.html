@@ -97,6 +97,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">TurretSubsystem</span>
 <span class="extends-implements">extends edu.wpi.first.wpilibj2.command.SubsystemBase</span></div>
+<div class="block">A subsystem that allows control of the flywheel, the hood, 
+ the turret's angle, and the kicker.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -111,7 +113,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code><a href="../Constants.FieldConstants.TurretTarget.html" title="enum class in frc.robot">Constants.FieldConstants.TurretTarget</a></code></div>
 <div class="col-second even-row-color"><code><a href="#turretTarget" class="member-name-link">turretTarget</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">The current turret target as an enum.</div>
+</div>
 </div>
 </section>
 </li>
@@ -143,7 +147,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../utils/TargettingUtils.ControlTarget.html" title="class in frc.robot.utils">TargettingUtils.ControlTarget</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getControlTarget()" class="member-name-link">getControlTarget</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets the current control target - namely the target RPM and hood angle.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.button.Trigger</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFeedTrigger()" class="member-name-link">getFeedTrigger</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -151,31 +157,50 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#kick(double)" class="member-name-link">kick</a><wbr>(double&nbsp;strength)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Runs the kicker motor if the flywheel is close to its target speed.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates the subsystem's various elements, 
+ including its networktables, the current target, and the turret control data.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pullSmartDashboardData()" class="member-name-link">pullSmartDashboardData</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pullNetworkTableData()" class="member-name-link">pullNetworkTableData</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Pulls data from the NetworkTables.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setHoodAngle(edu.wpi.first.units.measure.Angle)" class="member-name-link">setHoodAngle</a><wbr>(edu.wpi.first.units.measure.Angle&nbsp;newAngle)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Starts the hood moving towards a new angle.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shoot()" class="member-name-link">shoot</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Tells the flywheel to spin at a specific speed, taken from the control target.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopHood()" class="member-name-link">stopHood</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Stops the hood.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopKicker()" class="member-name-link">stopKicker</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Stops the kicker.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopShooter()" class="member-name-link">stopShooter</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Stops the shooter.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopTurret()" class="member-name-link">stopTurret</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Stops the turret.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sysIdDynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction)" class="member-name-link">sysIdDynamic</a><wbr>(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction&nbsp;direction)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -188,10 +213,14 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#turnToAngle(edu.wpi.first.units.measure.Angle)" class="member-name-link">turnToAngle</a><wbr>(edu.wpi.first.units.measure.Angle&nbsp;newAngle)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Starts the turret moving towards a new angle.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateTurretTarget()" class="member-name-link">updateTurretTarget</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates the current turret target.</div>
+</div>
 </div>
 </div>
 </div>
@@ -219,6 +248,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="turretTarget">
 <h3>turretTarget</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../Constants.FieldConstants.TurretTarget.html" title="enum class in frc.robot">Constants.FieldConstants.TurretTarget</a></span>&nbsp;<span class="element-name">turretTarget</span></div>
+<div class="block">The current turret target as an enum.</div>
 </section>
 </li>
 </ul>
@@ -234,6 +264,10 @@ loadScripts(document, 'script');</script>
 <h3>TurretSubsystem</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">TurretSubsystem</span><wbr><span class="parameters">(<a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a>&nbsp;poseProvider)</span></div>
 <div class="block">Creates a new TurretSubsystem.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>poseProvider</code> - An object that can fetch the current robot pose</dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -260,66 +294,90 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="periodic()">
 <h3>periodic</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">periodic</span>()</div>
+<div class="block">Updates the subsystem's various elements, 
+ including its networktables, the current target, and the turret control data.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="shoot()">
 <h3>shoot</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">shoot</span>()</div>
+<div class="block">Tells the flywheel to spin at a specific speed, taken from the control target.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="stopShooter()">
 <h3>stopShooter</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopShooter</span>()</div>
+<div class="block">Stops the shooter. Does not immediately stop due to inertia.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="stopHood()">
 <h3>stopHood</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopHood</span>()</div>
+<div class="block">Stops the hood.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="stopKicker()">
 <h3>stopKicker</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopKicker</span>()</div>
+<div class="block">Stops the kicker.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="stopTurret()">
 <h3>stopTurret</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopTurret</span>()</div>
+<div class="block">Stops the turret.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="turnToAngle(edu.wpi.first.units.measure.Angle)">
 <h3>turnToAngle</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">turnToAngle</span><wbr><span class="parameters">(edu.wpi.first.units.measure.Angle&nbsp;newAngle)</span></div>
+<div class="block">Starts the turret moving towards a new angle.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>newAngle</code> - The angle to move toward.</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="kick(double)">
 <h3>kick</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">kick</span><wbr><span class="parameters">(double&nbsp;strength)</span></div>
+<div class="block">Runs the kicker motor if the flywheel is close to its target speed.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>strength</code> - The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setHoodAngle(edu.wpi.first.units.measure.Angle)">
 <h3>setHoodAngle</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setHoodAngle</span><wbr><span class="parameters">(edu.wpi.first.units.measure.Angle&nbsp;newAngle)</span></div>
+<div class="block">Starts the hood moving towards a new angle.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>newAngle</code> - The new angle for the hood to move to.</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="updateTurretTarget()">
 <h3>updateTurretTarget</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">updateTurretTarget</span>()</div>
+<div class="block">Updates the current turret target.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="pullSmartDashboardData()">
-<h3>pullSmartDashboardData</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">pullSmartDashboardData</span>()</div>
+<section class="detail" id="pullNetworkTableData()">
+<h3>pullNetworkTableData</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">pullNetworkTableData</span>()</div>
+<div class="block">Pulls data from the NetworkTables.</div>
 </section>
 </li>
 <li>
@@ -352,6 +410,11 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getControlTarget()">
 <h3>getControlTarget</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../utils/TargettingUtils.ControlTarget.html" title="class in frc.robot.utils">TargettingUtils.ControlTarget</a></span>&nbsp;<span class="element-name">getControlTarget</span>()</div>
+<div class="block">Gets the current control target - namely the target RPM and hood angle.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>A <a href="../utils/TargettingUtils.ControlTarget.html" title="class in frc.robot.utils"><code>TargettingUtils.ControlTarget</code></a> with the appropiate data.</dd>
+</dl>
 </section>
 </li>
 </ul>
