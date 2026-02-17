@@ -19,7 +19,7 @@ public class MotorTestingSubsystem extends SubsystemBase {
   public MotorTestingSubsystem() {
     // NOTE: This is a testing subsystem — use a literal CAN ID instead of Constants.
     // Pick an ID not used elsewhere on your robot.
-    this.testMotor = new TalonFX(60);
+    this.testMotor = new TalonFX(5);
   }
 
   /** Set the motor output as a percentage (-1.0 .. 1.0). */
