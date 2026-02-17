@@ -55,7 +55,7 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
-    // public final PoseEstimatorSubsystem poseEstimatorSubsystem;
+    public final PoseEstimatorSubsystem poseEstimatorSubsystem;
     public final ClimberSubsystem climberSubsystem;
 
     FollowPath.Builder pathBuilder = new FollowPath.Builder(
@@ -73,7 +73,7 @@ public class RobotContainer {
 
         this.turretSubsystem = new TurretSubsystem(swerveSubsystem);
         this.indexerSubsystem = new IndexerSubsystem();
-        // this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
+        this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
         this.climberSubsystem = new ClimberSubsystem();
 
         SmartDashboard.putData("Field", field);
