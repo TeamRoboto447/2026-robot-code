@@ -346,7 +346,7 @@ public class NetworkedConfig {
             .getDoubleTopic("Current Position").getEntry(0.0);
         // Direct open-loop output for testing (-1.0 .. 1.0)
         private static final DoubleEntry openLoopOutput = climberTable
-            .getDoubleTopic("Open Loop Speed").getEntry(0.0);
+            .getDoubleTopic("Open Loop Speed").getEntry(0.2);
 
         public static void initializeDefaults() {
             climberKP.get();
@@ -357,7 +357,7 @@ public class NetworkedConfig {
             climberMaxOutput.get();
             targetPosition.get();
             currentPosition.get();
-            openLoopOutput.get();
+            openLoopOutput.set(0.2);
         }
 
         // PID accessors (for future closed-loop control)
