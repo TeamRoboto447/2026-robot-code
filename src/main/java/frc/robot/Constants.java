@@ -2,6 +2,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -14,6 +16,8 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import frc.robot.libraries.Repulsor.Fields.FieldDefinition;
+import frc.robot.libraries.Repulsor.Fields.Rebuilt2026;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -29,6 +33,32 @@ import edu.wpi.first.units.measure.Angle;
  */
 
 public final class Constants {
+
+    public static class RepulsorConstants {
+    public static final AprilTagFieldLayout aprilTagLayout =
+        AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    /**
+     * Field length in meters (full field X dimension). Sourced from the
+     * AprilTag field layout; keep units in meters.
+     */
+    public static final double FIELD_LENGTH = 16.540988;
+
+    /**
+     * Field width in meters (full field Y dimension). Sourced from the
+     * AprilTag field layout; keep units in meters.
+     */
+    public static final double FIELD_WIDTH = aprilTagLayout.getFieldWidth();
+    public static final FieldDefinition FIELD = new Rebuilt2026();
+
+    /**
+     * Robot external footprint (meters). These are the full robot
+     * dimensions (length = X, width = Y) and SHOULD include bumpers and
+     * any permanent protrusions. Use these values for collision checks
+     * and pathing where the code expects full extents.
+     */
+    public static final double ROBOT_X = Units.inchesToMeters(33.583);
+    public static final double ROBOT_Y = Units.inchesToMeters(36.583000);
+    }
 
     /**
      * Holds constants related to the vision subsystem.

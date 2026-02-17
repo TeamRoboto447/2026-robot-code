@@ -1,0 +1,62 @@
+/*
+ * Copyright (C) 2026 Paul Hodges
+ *
+ * This file is part of Repulsor.
+ *
+ * Repulsor is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Repulsor is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Repulsor. If not, see https://www.gnu.org/licenses/.
+ */
+
+package frc.robot.libraries.Repulsor.Metrics;
+
+import com.google.gson.Gson;
+import java.lang.reflect.Type;
+import java.util.Optional;
+
+public final class MetricCodecs {
+  private MetricCodecs() {}
+
+  public static final class GsonCodec<T> implements MetricCodec<T> {
+    private final Gson gson = new Gson();
+    private final Type type;
+
+    public GsonCodec(Type type) {
+      this.type = type;
+    }
+
+    @Override
+    public String encode(T value) {
+      return value == null ? "" : gson.toJson(value, type);
+    }
+
+    @Override
+    public Optional<T> decode(String raw) {
+      if (raw == null || raw.isEmpty()) return Optional.empty();
+      return Optional.ofNullable(gson.fromJson(raw, type));
+    }
+  }
+
+  public static final class StringCodec implements MetricCodec<String> {
+    @Override
+    public String encode(String value) {
+      return value == null ? "" : value;
+    }
+  }
+
+  public static final class DoubleCodec implements MetricCodec<Double> {
+    @Override
+    public String encode(Double value) {
+      return value == null ? "" : Double.toString(value);
+    }
+  }
+}
