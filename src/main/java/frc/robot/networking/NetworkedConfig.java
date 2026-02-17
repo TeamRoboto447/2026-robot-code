@@ -60,6 +60,7 @@ public class NetworkedConfig {
         private static final DoubleEntry targetTurretAngle = rotationTable
             .getDoubleTopic("Target Turret Angle").getEntry(0);
 
+        // Turret Targeting
         private static final BooleanEntry validTarget = turretTargettingTable
             .getBooleanTopic("has_valid_shot").getEntry(false);
         
@@ -166,7 +167,7 @@ public class NetworkedConfig {
             return targetTurretAngle.get();
         };
         
-        public static boolean hasValidTarget() {
+        public static boolean hasValidTrajectory() {
             return validTarget.get();
         }
 
@@ -318,6 +319,62 @@ public class NetworkedConfig {
         }
     }
 
+    /**
+     * Climber configuration values accessible via NetworkTables.
+     */
+    public static class Climber {
+        private static final NetworkTable climberTable = defaultNTInstance.getTable("Climber");
+
+        // Spark MAX closed-loop PID (prepared for future implementation)
+        private static final DoubleEntry climberKP = climberTable
+            .getDoubleTopic("kP").getEntry(0.0);
+        private static final DoubleEntry climberKI = climberTable
+            .getDoubleTopic("kI").getEntry(0.0);
+        private static final DoubleEntry climberKD = climberTable
+            .getDoubleTopic("kD").getEntry(0.0);
+        private static final DoubleEntry climberKFF = climberTable
+            .getDoubleTopic("kFF").getEntry(0.0);
+        private static final DoubleEntry climberIZone = climberTable
+            .getDoubleTopic("iZone").getEntry(0.0);
+        private static final DoubleEntry climberMaxOutput = climberTable
+            .getDoubleTopic("Max Output").getEntry(1.0);
+
+        // Target / telemetry
+        private static final DoubleEntry targetPosition = climberTable
+            .getDoubleTopic("Target Position").getEntry(0.0);
+        private static final DoubleEntry currentPosition = climberTable
+            .getDoubleTopic("Current Position").getEntry(0.0);
+        // Direct open-loop output for testing (-1.0 .. 1.0)
+        private static final DoubleEntry openLoopOutput = climberTable
+            .getDoubleTopic("Open Loop Speed").getEntry(0.0);
+
+        public static void initializeDefaults() {
+            climberKP.get();
+            climberKI.get();
+            climberKD.get();
+            climberKFF.get();
+            climberIZone.get();
+            climberMaxOutput.get();
+            targetPosition.get();
+            currentPosition.get();
+            openLoopOutput.get();
+        }
+
+        // PID accessors (for future closed-loop control)
+        public static double getClimberKP() { return climberKP.get(); }
+        public static double getClimberKI() { return climberKI.get(); }
+        public static double getClimberKD() { return climberKD.get(); }
+        public static double getClimberKFF() { return climberKFF.get(); }
+        public static double getClimberIZone() { return climberIZone.get(); }
+        public static double getClimberMaxOutput() { return climberMaxOutput.get(); }
+
+        // Target / telemetry
+        public static double getTargetPosition() { return targetPosition.get(); }
+        public static void setCurrentPosition(double pos) { currentPosition.set(pos); }
+        public static double getOpenLoopOutput() { return openLoopOutput.get(); }
+        public static void setOpenLoopOutput(double out) { openLoopOutput.set(out); }
+    }
+
     public static class Debug {
         private static final NetworkTable debugTable = defaultNTInstance.getTable("Debug");
 
@@ -353,6 +410,7 @@ public class NetworkedConfig {
         Turret.initializeDefaults();
         Indexer.initializeDefaults();
         Intake.initializeDefaults();
+        Climber.initializeDefaults();
         Debug.initializeDefaults();
     }
 }

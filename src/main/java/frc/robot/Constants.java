@@ -169,4 +169,8 @@ public final class Constants {
         public static final double SPINNER_KD = 0;
         public static final double SPINNER_KV = 0;
     }
+
+    public static class ClimberSubsystemConstants {
+        public static final int CLIMBER_MOTOR_ID = 45;
+    }
 }

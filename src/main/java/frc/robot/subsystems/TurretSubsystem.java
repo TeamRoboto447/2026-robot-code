@@ -16,7 +16,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -217,8 +216,7 @@ public class TurretSubsystem extends SubsystemBase {
         updateNetworkTables();
 
 
-        double targetRPS = runFlywheel ? NetworkedConfig.Turret.hasValidTarget() ? NetworkedConfig.Turret.getTargetRPM()/60 : 0 : 0;
-        SmartDashboard.putNumber("turretThinksHasTarget", targetRPS);
+        double targetRPS = runFlywheel ? NetworkedConfig.Turret.hasValidTrajectory() ? NetworkedConfig.Turret.getTargetRPM()/60 : 0 : 0;
         if (targetRPS > 16) // Approx 1000 RPM
             rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
         else
@@ -288,7 +286,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @param strength The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).
      */
     public void kick(double strength) {
-        if(NetworkedConfig.Turret.hasValidTarget())
+        if(NetworkedConfig.Turret.hasValidTrajectory())
             kickerMotor.set(strength);
         else
             kickerMotor.set(0);

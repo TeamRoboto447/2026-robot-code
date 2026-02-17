@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import com.ctre.phoenix6.SignalLogger;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
@@ -55,6 +56,7 @@ public class RobotContainer {
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
     // public final PoseEstimatorSubsystem poseEstimatorSubsystem;
+    public final ClimberSubsystem climberSubsystem;
 
     FollowPath.Builder pathBuilder = new FollowPath.Builder(
         swerveSubsystem,
@@ -72,6 +74,7 @@ public class RobotContainer {
         this.turretSubsystem = new TurretSubsystem(swerveSubsystem);
         this.indexerSubsystem = new IndexerSubsystem();
         // this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
+        this.climberSubsystem = new ClimberSubsystem();
 
         SmartDashboard.putData("Field", field);
         
@@ -160,6 +163,10 @@ public class RobotContainer {
             NetworkedConfig.Debug.getNewPoseY(),
             new Rotation2d(NetworkedConfig.Debug.getNewPoseRotation())
         ))));
+
+        joystick.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.climb()));
+        joystick.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
+        joystick.pov(-1).whileTrue(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
