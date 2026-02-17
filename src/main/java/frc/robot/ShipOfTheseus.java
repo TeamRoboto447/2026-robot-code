@@ -31,6 +31,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
+import frc.robot.subsystems.MotorTestingSubsystem;
 
 import frc.robot.lib.BLine.*;
 import frc.robot.networking.NetworkedConfig;
@@ -53,6 +54,8 @@ public class ShipOfTheseus {
     private final Field2d field = new Field2d();
 
     public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
+    // TODO: MotorTestingSubsystem is for local testing only — remove before merging to main
+    public final MotorTestingSubsystem motorTestingSubsystem = new MotorTestingSubsystem();
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
     public final PoseEstimatorSubsystem poseEstimatorSubsystem;
@@ -90,8 +93,14 @@ public class ShipOfTheseus {
             swerveSubsystem.applyRequest(() ->
                 drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(0)//-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left) //TODO: re-enable rotation
             )
+        );
+
+        // Default command for testing motor — right joystick Y drives the TalonFX.
+        // TODO: Remove this testing binding and the MotorTestingSubsystem before merging to main
+        motorTestingSubsystem.setDefaultCommand(
+            motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(-joystick.getRightY()))
         );
 
         // Idle while the robot is disabled. This ensures the configured
