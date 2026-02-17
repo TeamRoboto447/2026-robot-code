@@ -181,25 +181,35 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Tells the flywheel to spin at a specific speed, taken from the control target.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopHood()" class="member-name-link">stopHood</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Stops the hood.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopKicker()" class="member-name-link">stopKicker</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Stops the kicker.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopShooter()" class="member-name-link">stopShooter</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Stops the shooter.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopTurret()" class="member-name-link">stopTurret</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Stops the turret.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sysIdDynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction)" class="member-name-link">sysIdDynamic</a><wbr>(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction&nbsp;direction)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Runs the SysId Dynamic test for the turret flywheel.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sysIdQuasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction)" class="member-name-link">sysIdQuasistatic</a><wbr>(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction&nbsp;direction)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Runs the SysId Quasistatic test for the turret flywheel.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#turnToAngle(edu.wpi.first.units.measure.Angle)" class="member-name-link">turnToAngle</a><wbr>(edu.wpi.first.units.measure.Angle&nbsp;newAngle)</code></div>
@@ -298,45 +308,29 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="stopShooter()">
 <h3>stopShooter</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">stopShooter</span>()</div>
-<div class="block">Stops the shooter. Does not immediately stop due to flywheel momentum.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>A <code>Command</code> that stops the shooter.</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopShooter</span>()</div>
+<div class="block">Stops the shooter. Does not immediately stop due to inertia.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="stopHood()">
 <h3>stopHood</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">stopHood</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopHood</span>()</div>
 <div class="block">Stops the hood.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>A <code>Command</code> that stops the hood.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="stopKicker()">
 <h3>stopKicker</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">stopKicker</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopKicker</span>()</div>
 <div class="block">Stops the kicker.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>A <code>Command</code> that stops the kicker.</dd>
-</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="stopTurret()">
 <h3>stopTurret</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">stopTurret</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopTurret</span>()</div>
 <div class="block">Stops the turret.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>A <code>Command</code> that stops the turret.</dd>
-</dl>
 </section>
 </li>
 <li>
@@ -384,6 +378,32 @@ loadScripts(document, 'script');</script>
 <h3>pullNetworkTableData</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">pullNetworkTableData</span>()</div>
 <div class="block">Pulls data from the NetworkTables.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="sysIdQuasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction)">
+<h3>sysIdQuasistatic</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">sysIdQuasistatic</span><wbr><span class="parameters">(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction&nbsp;direction)</span></div>
+<div class="block">Runs the SysId Quasistatic test for the turret flywheel.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>direction</code> - Direction of the SysId Quasistatic test</dd>
+<dt>Returns:</dt>
+<dd>Command to run</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="sysIdDynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction)">
+<h3>sysIdDynamic</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">sysIdDynamic</span><wbr><span class="parameters">(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction&nbsp;direction)</span></div>
+<div class="block">Runs the SysId Dynamic test for the turret flywheel.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>direction</code> - Direction of the SysId Dynamic test</dd>
+<dt>Returns:</dt>
+<dd>Command to run</dd>
+</dl>
 </section>
 </li>
 <li>
