@@ -7,7 +7,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -22,8 +21,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import com.ctre.phoenix6.SignalLogger;
+// (removed unused imports)
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
@@ -37,6 +35,7 @@ import frc.robot.subsystems.MotorTestingSubsystem;
 
 import frc.robot.lib.BLine.*;
 import frc.robot.networking.NetworkedConfig;
+import frc.robot.networking.NetworkedTelemetry;
 
 public class ShipOfTheseus {
     private double MaxSpeed = 0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -51,7 +50,8 @@ public class ShipOfTheseus {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController joystick = new CommandXboxController(0);
+    private final CommandXboxController DriverController = new CommandXboxController(0);
+    private final CommandXboxController OperatorController = new CommandXboxController(1);
 
     private final Field2d field = new Field2d();
 
@@ -63,6 +63,7 @@ public class ShipOfTheseus {
     public final PoseEstimatorSubsystem poseEstimatorSubsystem;
     public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
+    private final AtomicBoolean repulsorHasPiece = new AtomicBoolean(false);
 
     FollowPath.Builder pathBuilder = new FollowPath.Builder(
         swerveSubsystem,
@@ -94,7 +95,8 @@ public class ShipOfTheseus {
                 frc.robot.Constants.RepulsorConstants.ROBOT_Y,
                 0.0,
                 0.0,
-                () -> false); // TODO: replace this with a real supplier to indicate if we have gamepieces
+                repulsorHasPiece::get); // operator-controlled supplier until a sensor is available
+        NetworkedTelemetry.Repulsor.setHasPiece(repulsorHasPiece.get());
         RepulsorDriverStationBootstrap.useDefaultNt();
     }
 
@@ -104,9 +106,9 @@ public class ShipOfTheseus {
         swerveSubsystem.setDefaultCommand(
             // Drivetrain will execute this command periodically
             swerveSubsystem.applyRequest(() ->
-                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left) //TODO: re-enable rotation
+                drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(-DriverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-DriverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left) //TODO: re-enable rotation
             )
         );
 
@@ -125,17 +127,17 @@ public class ShipOfTheseus {
             swerveSubsystem.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        joystick.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
-        joystick.b().whileTrue(swerveSubsystem.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
+        DriverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
+        DriverController.b().whileTrue(swerveSubsystem.applyRequest(() ->
+            point.withModuleDirection(new Rotation2d(-DriverController.getLeftY(), -DriverController.getLeftX()))
         ));
 
-        joystick.rightBumper().whileTrue(turretSubsystem.run(() -> {
+        DriverController.rightBumper().whileTrue(turretSubsystem.run(() -> {
             turretSubsystem.shoot();
             turretSubsystem.kick(0.35);
         }));
 
-        joystick.rightBumper().onFalse(turretSubsystem.runOnce(() -> {
+        DriverController.rightBumper().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();
             turretSubsystem.stopKicker();
             }));
@@ -161,35 +163,44 @@ public class ShipOfTheseus {
         // joystick.x().onTrue(turretSubsystem.run(() -> turretSubsystem.kick(1)));
         // joystick.x().onFalse(turretSubsystem.stopKicker());
 
-        joystick.y().onTrue(turretSubsystem.run(() -> {
+        // Operator toggle for Repulsor "has piece" (temporary until a sensor is wired).
+        // Pressing X will toggle the value; it is published to NetworkTables for visibility.
+        OperatorController.x().onTrue(Commands.runOnce(() -> {
+            boolean next = !repulsorHasPiece.get();
+            repulsorHasPiece.set(next);
+            NetworkedTelemetry.Repulsor.setHasPiece(next);
+            SmartDashboard.putBoolean("Repulsor/HasPiece", next);
+        }));
+
+        DriverController.y().onTrue(turretSubsystem.run(() -> {
             turretSubsystem.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
         }));
-        joystick.y().onFalse(turretSubsystem.run(() -> {
+        DriverController.y().onFalse(turretSubsystem.run(() -> {
             turretSubsystem.stopTurret();
         }));
 
-        joystick.start().onTrue(turretSubsystem.runOnce(() -> {
+        DriverController.start().onTrue(turretSubsystem.runOnce(() -> {
             turretSubsystem.pullNetworkTableData();
         }));
 
-        joystick.leftTrigger().whileTrue(indexerSubsystem.run(() -> {
+        DriverController.leftTrigger().whileTrue(indexerSubsystem.run(() -> {
             indexerSubsystem.spin();
         }));
-        joystick.leftTrigger().onFalse(indexerSubsystem.stop());
+        DriverController.leftTrigger().onFalse(indexerSubsystem.stop());
 
-        joystick.start().onTrue(indexerSubsystem.runOnce(() -> {
+        DriverController.start().onTrue(indexerSubsystem.runOnce(() -> {
             indexerSubsystem.pullNetworkTableData();
         }));
         
-        joystick.back().onTrue(swerveSubsystem.run(() -> swerveSubsystem.resetPose(new Pose2d(
+        DriverController.back().onTrue(swerveSubsystem.run(() -> swerveSubsystem.resetPose(new Pose2d(
             NetworkedConfig.Debug.getNewPoseX(),
             NetworkedConfig.Debug.getNewPoseY(),
             new Rotation2d(NetworkedConfig.Debug.getNewPoseRotation())
         ))));
 
-        joystick.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.climb()));
-        joystick.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
-        joystick.pov(-1).whileTrue(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
+        DriverController.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.climb()));
+        DriverController.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
+        DriverController.pov(-1).whileTrue(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -237,7 +248,7 @@ public class ShipOfTheseus {
         // Reset the field-centric heading on left bumper press.
         // joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
 
-        // swerveSubsystem.registerTelemetry(logger::telemeterize);
+    swerveSubsystem.registerTelemetry(logger::telemeterize);
     }
 
     public Command getAutonomousCommand() {
