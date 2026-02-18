@@ -51,13 +51,19 @@ jobs:
           # Find published directories that actually contain Javadoc output files (only treat these as
           # published branch folders). This avoids treating parent folders (e.g. `refactor`) as a
           # published folder when the real published path is `refactor/javadocs`.
-          mapfile -t PUBLISHED_DIRS < <(find . -type f \( -name 'index.html' -o -name 'allclasses-index.html' -o -name 'package-list' \) -printf '%h\n' | sed 's|^./||' | sort -u)
+          # build list of published directories (exclude '.' root entry)
+          mapfile -t PUBLISHED_DIRS < <(find . -type f \( -name 'index.html' -o -name 'allclasses-index.html' -o -name 'package-list' \) -printf '%h\n' | sed 's|^./||' | grep -v '^\.$' | sort -u)
 
           for dir in "${PUBLISHED_DIRS[@]}"; do
+            # skip the repository root or empty values (never remove '.' or '')
+            if [[ -z "$dir" || "$dir" == "." ]]; then
+              continue
+            fi
+
             # only remove directories that are not present as an active remote branch
             if [[ ! " ${ACTIVE_BRANCHES[*]} " =~ " ${dir} " ]]; then
               echo "Removing deleted branch dir: $dir"
-              rm -rf "$dir"
+              rm -rf "./$dir"
             fi
           done
           
@@ -171,7 +177,8 @@ jobs:
           # actually contain files.
           # Only include directories that contain Javadoc marker files so parents like `refactor`
           # (which merely contain a child published folder) are not listed as their own entries.
-          mapfile -t VALID_DIRS < <(find . -type f \( -name 'index.html' -o -name 'allclasses-index.html' -o -name 'package-list' \) -printf '%h\n' | sed 's|^./||' | sort -u)
+          # only consider real published javadoc folders (exclude repo root)
+          mapfile -t VALID_DIRS < <(find . -type f \( -name 'index.html' -o -name 'allclasses-index.html' -o -name 'package-list' \) -printf '%h\n' | sed 's|^./||' | grep -v '^\.$' | sort -u)
 
           if [ ${#VALID_DIRS[@]} -eq 0 ]; then
             echo '            <li class="no-branches">No branches with Javadocs available yet.</li>' >> index.html
