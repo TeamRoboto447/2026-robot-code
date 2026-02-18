@@ -25,7 +25,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
 
-public abstract class TankDriveImpl extends DriveRepulsor {
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public abstract class TankDriveImpl extends SubsystemBase implements DriveRepulsor {
   private double lastLeftMS = 0.0;
   private double lastRightMS = 0.0;
   private double lastCmdTime = Timer.getFPGATimestamp();

@@ -28,7 +28,6 @@ import com.ctre.phoenix6.SignalLogger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
 import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
-import frc.robot.adapters.SwerveRepulsorAdapter;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -90,7 +89,7 @@ public class ShipOfTheseus {
 
         this.repulsor =
             new Repulsor(
-                new SwerveRepulsorAdapter(swerveSubsystem),
+                swerveSubsystem,
                 frc.robot.Constants.RepulsorConstants.ROBOT_X,
                 frc.robot.Constants.RepulsorConstants.ROBOT_Y,
                 0.0,

@@ -22,12 +22,17 @@ package frc.robot.libraries.Repulsor;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 
-public abstract class DriveRepulsor extends SubsystemBase {
-  public abstract void runVelocity(ChassisSpeeds speeds);
+/**
+ * Drive interface Repulsor uses to control the robot drive. Implementations
+ * should also satisfy WPILib's {@link Subsystem} contract (for example by
+ * extending {@code SubsystemBase}).
+ */
+public interface DriveRepulsor extends Subsystem {
+  void runVelocity(ChassisSpeeds speeds);
 
-  public abstract Pose2d getPose();
+  Pose2d getPose();
 
-  public abstract PIDController getOmegaPID();
+  PIDController getOmegaPID();
 }
