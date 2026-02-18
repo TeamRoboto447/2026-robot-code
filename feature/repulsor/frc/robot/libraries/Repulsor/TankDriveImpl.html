@@ -86,19 +86,18 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance">edu.wpi.first.wpilibj2.command.SubsystemBase
-<div class="inheritance"><a href="DriveRepulsor.html" title="class in frc.robot.libraries.Repulsor">frc.robot.libraries.Repulsor.DriveRepulsor</a>
 <div class="inheritance">frc.robot.libraries.Repulsor.TankDriveImpl</div>
-</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code>edu.wpi.first.util.sendable.Sendable</code>, <code>edu.wpi.first.wpilibj2.command.Subsystem</code></dd>
+<dd><code>edu.wpi.first.util.sendable.Sendable</code>, <code>edu.wpi.first.wpilibj2.command.Subsystem</code>, <code><a href="DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">TankDriveImpl</span>
-<span class="extends-implements">extends <a href="DriveRepulsor.html" title="class in frc.robot.libraries.Repulsor">DriveRepulsor</a></span></div>
+<span class="extends-implements">extends edu.wpi.first.wpilibj2.command.SubsystemBase
+implements <a href="DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></span></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -185,17 +184,17 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <div class="inherited-list">
-<h3 id="methods-inherited-from-class-frc.robot.libraries.Repulsor.DriveRepulsor">Methods inherited from class&nbsp;frc.robot.libraries.Repulsor.<a href="DriveRepulsor.html" title="class in frc.robot.libraries.Repulsor">DriveRepulsor</a></h3>
-<code><a href="DriveRepulsor.html#getOmegaPID()">getOmegaPID</a>, <a href="DriveRepulsor.html#getPose()">getPose</a></code></div>
-<div class="inherited-list">
 <h3 id="methods-inherited-from-class-edu.wpi.first.wpilibj2.command.SubsystemBase">Methods inherited from class&nbsp;edu.wpi.first.wpilibj2.command.SubsystemBase</h3>
 <code>addChild, getName, getSubsystem, initSendable, setName, setSubsystem</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
 <div class="inherited-list">
+<h3 id="methods-inherited-from-class-frc.robot.libraries.Repulsor.DriveRepulsor">Methods inherited from interface&nbsp;frc.robot.libraries.Repulsor.<a href="DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></h3>
+<code><a href="DriveRepulsor.html#getOmegaPID()">getOmegaPID</a>, <a href="DriveRepulsor.html#getPose()">getPose</a></code></div>
+<div class="inherited-list">
 <h3 id="methods-inherited-from-class-edu.wpi.first.wpilibj2.command.Subsystem">Methods inherited from interface&nbsp;edu.wpi.first.wpilibj2.command.Subsystem</h3>
-<code>defer, getCurrentCommand, getDefaultCommand, idle, periodic, register, removeDefaultCommand, run, runEnd, runOnce, setDefaultCommand, simulationPeriodic, startEnd, startRun</code></div>
+<code>defer, getCurrentCommand, getDefaultCommand, getName, idle, periodic, register, removeDefaultCommand, run, runEnd, runOnce, setDefaultCommand, simulationPeriodic, startEnd, startRun</code></div>
 </section>
 </li>
 </ul>
@@ -227,7 +226,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">runVelocity</span><wbr><span class="parameters">(edu.wpi.first.math.kinematics.ChassisSpeeds&nbsp;speeds)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="DriveRepulsor.html#runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)">runVelocity</a></code>&nbsp;in class&nbsp;<code><a href="DriveRepulsor.html" title="class in frc.robot.libraries.Repulsor">DriveRepulsor</a></code></dd>
+<dd><code><a href="DriveRepulsor.html#runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)">runVelocity</a></code>&nbsp;in interface&nbsp;<code><a href="DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code></dd>
 </dl>
 </section>
 </li>
