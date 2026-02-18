@@ -1,4 +1,5 @@
 frc.robot
+frc.robot.adapters
 frc.robot.generated
 frc.robot.libraries.Repulsor
 frc.robot.libraries.Repulsor.Behaviours
