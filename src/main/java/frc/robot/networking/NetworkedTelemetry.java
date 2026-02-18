@@ -195,6 +195,24 @@ public class NetworkedTelemetry {
         }
     }
 
+    /**
+     * Repulsor-related telemetry (operator-supplied "has piece" flag, etc.).
+     */
+    public static class Repulsor {
+        private static final NetworkTable repTable = defaultNTInstance.getTable("Repulsor");
+
+        private static final BooleanEntry hasPiece = repTable
+            .getBooleanTopic("Has Piece").getEntry(false);
+
+        public static void setHasPiece(boolean v) {
+            hasPiece.set(v);
+        }
+
+        public static boolean hasPiece() {
+            return hasPiece.get();
+        }
+    }
+
     public static class Turret {
         private static final NetworkTable turretTable = defaultNTInstance.getTable("Turret");
 
