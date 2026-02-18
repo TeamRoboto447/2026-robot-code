@@ -26,6 +26,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import com.ctre.phoenix6.SignalLogger;
 
 import frc.robot.generated.TunerConstants;
+import frc.robot.libraries.Repulsor.Repulsor;
+import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
+import frc.robot.adapters.SwerveRepulsorAdapter;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -60,6 +63,7 @@ public class ShipOfTheseus {
     public final IndexerSubsystem indexerSubsystem;
     public final PoseEstimatorSubsystem poseEstimatorSubsystem;
     public final ClimberSubsystem climberSubsystem;
+    public final Repulsor repulsor;
 
     FollowPath.Builder pathBuilder = new FollowPath.Builder(
         swerveSubsystem,
@@ -83,6 +87,16 @@ public class ShipOfTheseus {
         
         configureBindings();
         NetworkedConfig.initializeAllDefaults();
+
+        this.repulsor =
+            new Repulsor(
+                new SwerveRepulsorAdapter(swerveSubsystem),
+                frc.robot.Constants.RepulsorConstants.ROBOT_X,
+                frc.robot.Constants.RepulsorConstants.ROBOT_Y,
+                0.0,
+                0.0,
+                () -> false); // TODO: replace this with a real supplier to indicate if we have gamepieces
+        RepulsorDriverStationBootstrap.useDefaultNt();
     }
 
     private void configureBindings() {

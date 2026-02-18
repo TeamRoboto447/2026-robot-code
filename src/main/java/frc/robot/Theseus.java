@@ -30,6 +30,10 @@ public class Theseus extends TimedRobot {
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run(); 
+        // Repulsor main update loop (minimal integration)
+        if (m_robotContainer != null && m_robotContainer.repulsor != null) {
+            m_robotContainer.repulsor.update();
+        }
     }
 
     @Override
