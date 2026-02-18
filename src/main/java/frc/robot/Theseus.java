@@ -23,7 +23,7 @@ public class Theseus extends TimedRobot {
 
     public Theseus() {
         m_robotContainer = new ShipOfTheseus();
-        SignalLogger.enableAutoLogging(false);
+        SignalLogger.setPath("/media/sda1/ctre-logs");
     }
 
     @Override
