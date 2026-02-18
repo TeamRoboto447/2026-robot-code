@@ -94,12 +94,12 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code>edu.wpi.first.wpilibj2.command.Subsystem</code>, <code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code>, <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></code></dd>
+<dd><code>edu.wpi.first.wpilibj2.command.Subsystem</code>, <code><a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code>, <code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code>, <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">CommandSwerveDrivetrain</span>
 <span class="extends-implements">extends <a href="../generated/TunerConstants.TunerSwerveDrivetrain.html" title="class in frc.robot.generated">TunerConstants.TunerSwerveDrivetrain</a>
-implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></span></div>
+implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a>, <a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></span></div>
 <div class="block">Class that extends the Phoenix 6 SwerveDrivetrain class and implements
  Subsystem so it can easily be used in command-based projects.
 
@@ -184,7 +184,8 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#applyRequest(java.util.function.Supplier)" class="member-name-link">applyRequest</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;com.ctre.phoenix6.swerve.SwerveRequest&gt;&nbsp;request)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns a command that applies the specified control request to this swerve drivetrain.</div>
+<div class="block">Returns a command that applies the specified control request to this swerve
+ drivetrain.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#driveWithChassisSpeeds(edu.wpi.first.math.kinematics.ChassisSpeeds)" class="member-name-link">driveWithChassisSpeeds</a><wbr>(edu.wpi.first.math.kinematics.ChassisSpeeds&nbsp;speeds)</code></div>
@@ -197,13 +198,19 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the current field zone the robot is located in.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.geometry.Pose2d</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPose()" class="member-name-link">getPose</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.controller.PIDController</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOmegaPID()" class="member-name-link">getOmegaPID</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.geometry.Pose2d</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPose()" class="member-name-link">getPose</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the current estimated pose of the robot on the field.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)" class="member-name-link">runVelocity</a><wbr>(edu.wpi.first.math.kinematics.ChassisSpeeds&nbsp;speeds)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;edu.wpi.first.math.geometry.Pose2d&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#samplePoseAt(double)" class="member-name-link">samplePoseAt</a><wbr>(double&nbsp;timestampSeconds)</code></div>
@@ -253,8 +260,10 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
  com.ctre.phoenix6.swerve.SwerveModuleConstants&lt;?,<wbr>?,<wbr>?&gt;...&nbsp;modules)</span></div>
 <div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants.
  <p>
- This constructs the underlying hardware devices, so users should not construct
- the devices themselves. If they need the devices, they can access them through
+ This constructs the underlying hardware devices, so users should not
+ construct
+ the devices themselves. If they need the devices, they can access them
+ through
  getters in the classes.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -271,8 +280,10 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
  com.ctre.phoenix6.swerve.SwerveModuleConstants&lt;?,<wbr>?,<wbr>?&gt;...&nbsp;modules)</span></div>
 <div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants.
  <p>
- This constructs the underlying hardware devices, so users should not construct
- the devices themselves. If they need the devices, they can access them through
+ This constructs the underlying hardware devices, so users should not
+ construct
+ the devices themselves. If they need the devices, they can access them
+ through
  getters in the classes.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -294,20 +305,28 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
  com.ctre.phoenix6.swerve.SwerveModuleConstants&lt;?,<wbr>?,<wbr>?&gt;...&nbsp;modules)</span></div>
 <div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants.
  <p>
- This constructs the underlying hardware devices, so users should not construct
- the devices themselves. If they need the devices, they can access them through
+ This constructs the underlying hardware devices, so users should not
+ construct
+ the devices themselves. If they need the devices, they can access them
+ through
  getters in the classes.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>drivetrainConstants</code> - Drivetrain-wide constants for the swerve drive</dd>
+<dd><code>drivetrainConstants</code> - Drivetrain-wide constants for the swerve
+                                  drive</dd>
 <dd><code>odometryUpdateFrequency</code> - The frequency to run the odometry loop. If
-                                  unspecified or set to 0 Hz, this is 250 Hz on
+                                  unspecified or set to 0 Hz, this is 250 Hz
+                                  on
                                   CAN FD, and 100 Hz on CAN 2.0.</dd>
-<dd><code>odometryStandardDeviation</code> - The standard deviation for odometry calculation
-                                  in the form [x, y, theta]ᵀ, with units in meters
+<dd><code>odometryStandardDeviation</code> - The standard deviation for odometry
+                                  calculation
+                                  in the form [x, y, theta]ᵀ, with units in
+                                  meters
                                   and radians</dd>
-<dd><code>visionStandardDeviation</code> - The standard deviation for vision calculation
-                                  in the form [x, y, theta]ᵀ, with units in meters
+<dd><code>visionStandardDeviation</code> - The standard deviation for vision
+                                  calculation
+                                  in the form [x, y, theta]ᵀ, with units in
+                                  meters
                                   and radians</dd>
 <dd><code>modules</code> - Constants for each specific module</dd>
 </dl>
@@ -325,7 +344,8 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <section class="detail" id="applyRequest(java.util.function.Supplier)">
 <h3>applyRequest</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">applyRequest</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;com.ctre.phoenix6.swerve.SwerveRequest&gt;&nbsp;request)</span></div>
-<div class="block">Returns a command that applies the specified control request to this swerve drivetrain.</div>
+<div class="block">Returns a command that applies the specified control request to this swerve
+ drivetrain.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>request</code> - Function returning the request to apply</dd>
@@ -383,14 +403,17 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <h3>addVisionMeasurement</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addVisionMeasurement</span><wbr><span class="parameters">(edu.wpi.first.math.geometry.Pose2d&nbsp;visionRobotPoseMeters,
  double&nbsp;timestampSeconds)</span></div>
-<div class="block">Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
+<div class="block">Adds a vision measurement to the Kalman Filter. This will correct the
+ odometry pose estimate
  while still accounting for measurement noise.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>addVisionMeasurement</code>&nbsp;in class&nbsp;<code>com.ctre.phoenix6.swerve.SwerveDrivetrain&lt;com.ctre.phoenix6.hardware.TalonFX,<wbr>com.ctre.phoenix6.hardware.TalonFX,<wbr>com.ctre.phoenix6.hardware.CANcoder&gt;</code></dd>
 <dt>Parameters:</dt>
-<dd><code>visionRobotPoseMeters</code> - The pose of the robot as measured by the vision camera.</dd>
-<dd><code>timestampSeconds</code> - The timestamp of the vision measurement in seconds.</dd>
+<dd><code>visionRobotPoseMeters</code> - The pose of the robot as measured by the vision
+                              camera.</dd>
+<dd><code>timestampSeconds</code> - The timestamp of the vision measurement in
+                              seconds.</dd>
 </dl>
 </section>
 </li>
@@ -400,7 +423,8 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addVisionMeasurement</span><wbr><span class="parameters">(edu.wpi.first.math.geometry.Pose2d&nbsp;visionRobotPoseMeters,
  double&nbsp;timestampSeconds,
  edu.wpi.first.math.Matrix&lt;edu.wpi.first.math.numbers.N3,<wbr>edu.wpi.first.math.numbers.N1&gt;&nbsp;visionMeasurementStdDevs)</span></div>
-<div class="block">Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
+<div class="block">Adds a vision measurement to the Kalman Filter. This will correct the
+ odometry pose estimate
  while still accounting for measurement noise.
  <p>
  Note that the vision measurement standard deviations passed into this method
@@ -410,10 +434,14 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <dt>Overrides:</dt>
 <dd><code>addVisionMeasurement</code>&nbsp;in class&nbsp;<code>com.ctre.phoenix6.swerve.SwerveDrivetrain&lt;com.ctre.phoenix6.hardware.TalonFX,<wbr>com.ctre.phoenix6.hardware.TalonFX,<wbr>com.ctre.phoenix6.hardware.CANcoder&gt;</code></dd>
 <dt>Parameters:</dt>
-<dd><code>visionRobotPoseMeters</code> - The pose of the robot as measured by the vision camera.</dd>
-<dd><code>timestampSeconds</code> - The timestamp of the vision measurement in seconds.</dd>
-<dd><code>visionMeasurementStdDevs</code> - Standard deviations of the vision pose measurement
-     in the form [x, y, theta]ᵀ, with units in meters and radians.</dd>
+<dd><code>visionRobotPoseMeters</code> - The pose of the robot as measured by the
+                                 vision camera.</dd>
+<dd><code>timestampSeconds</code> - The timestamp of the vision measurement in
+                                 seconds.</dd>
+<dd><code>visionMeasurementStdDevs</code> - Standard deviations of the vision pose
+                                 measurement
+                                 in the form [x, y, theta]ᵀ, with units in
+                                 meters and radians.</dd>
 </dl>
 </section>
 </li>
@@ -428,7 +456,8 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <dt>Parameters:</dt>
 <dd><code>timestampSeconds</code> - The timestamp of the pose in seconds.</dd>
 <dt>Returns:</dt>
-<dd>The pose at the given timestamp (or Optional.empty() if the buffer is empty).</dd>
+<dd>The pose at the given timestamp (or Optional.empty() if the buffer is
+         empty).</dd>
 </dl>
 </section>
 </li>
@@ -439,6 +468,8 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="PoseProvider.html#getPose()">PoseProvider</a></code></span></div>
 <div class="block">Gets the current estimated pose of the robot on the field.</div>
 <dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="../libraries/Repulsor/DriveRepulsor.html#getPose()">getPose</a></code>&nbsp;in interface&nbsp;<code><a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code></dd>
 <dt>Specified by:</dt>
 <dd><code><a href="PoseProvider.html#getPose()">getPose</a></code>&nbsp;in interface&nbsp;<code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code></dd>
 <dt>Returns:</dt>
@@ -463,6 +494,26 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <dd><code><a href="PoseProvider.html#getFieldZone()">getFieldZone</a></code>&nbsp;in interface&nbsp;<code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code></dd>
 <dt>Returns:</dt>
 <dd>The FieldZone enum representing the robot's current zone</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)">
+<h3>runVelocity</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">runVelocity</span><wbr><span class="parameters">(edu.wpi.first.math.kinematics.ChassisSpeeds&nbsp;speeds)</span></div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="../libraries/Repulsor/DriveRepulsor.html#runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)">runVelocity</a></code>&nbsp;in interface&nbsp;<code><a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getOmegaPID()">
+<h3>getOmegaPID</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.math.controller.PIDController</span>&nbsp;<span class="element-name">getOmegaPID</span>()</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="../libraries/Repulsor/DriveRepulsor.html#getOmegaPID()">getOmegaPID</a></code>&nbsp;in interface&nbsp;<code><a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code></dd>
 </dl>
 </section>
 </li>
