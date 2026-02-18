@@ -107,12 +107,13 @@ public class ShipOfTheseus {
             swerveSubsystem.applyRequest(() ->
                 drive.withVelocityX(-joystick.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(0)//-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left) //TODO: re-enable rotation
+                    .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left) //TODO: re-enable rotation
             )
         );
 
         // Default command for testing motor — right joystick Y drives the TalonFX.
         // TODO: Remove this testing binding and the MotorTestingSubsystem before merging to main
+        // motorTestingSubsystem.setDefaultCommand(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(joystick.getRightY())));
         joystick.pov(90).whileTrue(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(1)));
         joystick.pov(270).whileTrue(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(-1)));
         joystick.pov(-1).whileTrue(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(0)));
