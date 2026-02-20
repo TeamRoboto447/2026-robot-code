@@ -268,13 +268,12 @@ public class TurretSubsystem extends SubsystemBase {
      * @param newAngle The angle to move toward.
      */
     public void turnToAngle(Angle newAngle) {
-        if ((newAngle.magnitude() > TurretSubsystemConstants.MAX_TURRET_ANGLE.magnitude()) || (newAngle.magnitude() < TurretSubsystemConstants.MIN_TURRET_ANGLE.magnitude())) {
+        if (newAngle.lt(TurretSubsystemConstants.MIN_TURRET_ANGLE) || newAngle.gt(TurretSubsystemConstants.MAX_TURRET_ANGLE)) {
             return;
         } else {
             double rotationsToAngle = newAngle
-                .minus(TurretSubsystemConstants.MIN_TURRET_ANGLE)
                 .div(TurretSubsystemConstants.TURRET_DEGREES_ROTATION_RATIO)
-                .magnitude();
+                .in(Value);
         
             angleMotor.setControl(anglePositionReq.withPosition(rotationsToAngle));
         }
