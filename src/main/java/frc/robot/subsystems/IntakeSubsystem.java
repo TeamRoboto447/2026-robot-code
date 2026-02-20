@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -23,7 +24,7 @@ import frc.robot.networking.NetworkedConfig;
  */
 public class IntakeSubsystem extends SubsystemBase {
     private final SparkMax liftMotor;
-    private final SparkMax intakeMotor;
+    private final TalonFX intakeMotor;
     @SuppressWarnings("unused")
     private final RelativeEncoder liftEncoder;
     private final SparkClosedLoopController liftController;
@@ -33,7 +34,7 @@ public class IntakeSubsystem extends SubsystemBase {
     /** Creates a new IntakeSubsystem. */
     public IntakeSubsystem() {
         liftMotor = new SparkMax(IntakeSubsystemConstants.LIFT_MOTOR_ID, MotorType.kBrushless);
-        intakeMotor = new SparkMax(IntakeSubsystemConstants.INTAKE_MOTOR_ID, MotorType.kBrushless);
+        intakeMotor = new TalonFX(IntakeSubsystemConstants.INTAKE_MOTOR_ID);
 
         liftEncoder = liftMotor.getEncoder();
         liftController = liftMotor.getClosedLoopController();
@@ -57,10 +58,21 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     /**
-     * Runs the intake at max speed.
+     * Runs the intake.
+     * 
+     * @param speed The speed to intake at
      */
-    public void intake() {
-        intakeMotor.set(1);
+    public void intake(double speed) {
+        intakeMotor.set(speed);
+    }
+
+    /**
+     * Runs the intake in reverse.
+     * 
+     * @param speed The speed to reverse at
+     */
+    public void reverseIntake(double speed) {
+        intakeMotor.set(-speed);
     }
 
     /**
@@ -96,7 +108,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * Updates the data on the NetworkTables.
      */
     private void updateNetworkTables() {
-        NetworkedConfig.Intake.setIntakeSpeed(this.intakeMotor.getEncoder().getVelocity());
+        NetworkedConfig.Intake.setIntakeSpeed(this.intakeMotor.getVelocity().getValueAsDouble());
     }
 
     /**

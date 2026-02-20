@@ -188,7 +188,7 @@ public final class Constants {
 
     public static class IntakeSubsystemConstants {
         public static final int LIFT_MOTOR_ID = -1;
-        public static final int INTAKE_MOTOR_ID = -1;
+        public static final int INTAKE_MOTOR_ID = 46;
     }
 
     public static class IndexerSubsystemConstants {
