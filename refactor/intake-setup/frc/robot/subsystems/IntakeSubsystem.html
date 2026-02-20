@@ -133,9 +133,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Drops the intake to the extended position.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#intake()" class="member-name-link">intake</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#intake(double)" class="member-name-link">intake</a><wbr>(double&nbsp;speed)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Runs the intake at max speed.</div>
+<div class="block">Runs the intake.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#liftIntake()" class="member-name-link">liftIntake</a>()</code></div>
@@ -152,9 +152,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Pulls data from the NetworkTables.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stop()" class="member-name-link">stop</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#reverseIntake(double)" class="member-name-link">reverseIntake</a><wbr>(double&nbsp;speed)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Runs the intake in reverse.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stop()" class="member-name-link">stop</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Stops the intake.</div>
 </div>
 </div>
@@ -204,10 +209,25 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="intake()">
+<section class="detail" id="intake(double)">
 <h3>intake</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">intake</span>()</div>
-<div class="block">Runs the intake at max speed.</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">intake</span><wbr><span class="parameters">(double&nbsp;speed)</span></div>
+<div class="block">Runs the intake.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>speed</code> - The speed to intake at</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="reverseIntake(double)">
+<h3>reverseIntake</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">reverseIntake</span><wbr><span class="parameters">(double&nbsp;speed)</span></div>
+<div class="block">Runs the intake in reverse.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>speed</code> - The speed to reverse at</dd>
+</dl>
 </section>
 </li>
 <li>
