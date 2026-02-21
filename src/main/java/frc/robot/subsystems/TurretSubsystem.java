@@ -248,9 +248,13 @@ public class TurretSubsystem extends SubsystemBase {
         else
             rightShooterMotor.set(0);
 
-        
-        this.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
-        this.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
+        if(NetworkedConfig.Turret.hasValidTrajectory()) {
+            this.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
+            this.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
+        } else {
+            this.stopHood();
+            this.stopTurret();
+        }
     }
 
     /**
