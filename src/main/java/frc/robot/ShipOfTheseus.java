@@ -118,9 +118,15 @@ public class ShipOfTheseus {
         // Default command for testing motor — right joystick Y drives the TalonFX.
         // TODO: Remove this testing binding and the MotorTestingSubsystem before merging to main
         // motorTestingSubsystem.setDefaultCommand(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(joystick.getRightY())));
-        DriverController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.8)));
-        DriverController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(0.8)));
-        DriverController.pov(-1).whileTrue(intakeSubsystem.run(() -> motorTestingSubsystem.setPercent(0)));
+        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.8)));
+        OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(0.8)));
+        OperatorController.pov(0).onTrue(intakeSubsystem.run(() -> intakeSubsystem.liftIntake()));
+        OperatorController.pov(180).onTrue(intakeSubsystem.run(() -> intakeSubsystem.dropIntake()));
+
+        OperatorController.pov(-1).whileTrue(intakeSubsystem.run(() -> {
+            intakeSubsystem.stopIntake();
+            intakeSubsystem.stopLifter();
+        }));
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.

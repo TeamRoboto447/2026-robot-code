@@ -4,17 +4,11 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.PersistMode;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.ResetMode;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.networking.NetworkedConfig;
@@ -23,29 +17,28 @@ import frc.robot.networking.NetworkedConfig;
  * A subsystem that allows control of lifting and running the intake.
  */
 public class IntakeSubsystem extends SubsystemBase {
-    private final SparkMax liftMotor;
+    private final TalonFX liftMotor;
     private final TalonFX intakeMotor;
-    @SuppressWarnings("unused")
-    private final RelativeEncoder liftEncoder;
-    private final SparkClosedLoopController liftController;
+    
+    TalonFXConfiguration liftFXConfigs = new TalonFXConfiguration();
 
     private boolean isIntakeOut = false;
 
     /** Creates a new IntakeSubsystem. */
     public IntakeSubsystem() {
-        liftMotor = new SparkMax(IntakeSubsystemConstants.LIFT_MOTOR_ID, MotorType.kBrushless);
+        liftMotor = new TalonFX(IntakeSubsystemConstants.LIFT_MOTOR_ID);
         intakeMotor = new TalonFX(IntakeSubsystemConstants.INTAKE_MOTOR_ID);
 
-        liftEncoder = liftMotor.getEncoder();
-        liftController = liftMotor.getClosedLoopController();
-
-        SparkMaxConfig liftConfig = new SparkMaxConfig();
-        liftConfig.closedLoop
-            .p(0)
-            .i(0)
-            .d(0);
+        liftFXConfigs.Slot0
+            .withKP(IntakeSubsystemConstants.LIFT_KP)
+            .withKI(IntakeSubsystemConstants.LIFT_KI)
+            .withKD(IntakeSubsystemConstants.LIFT_KD);
         
-        liftMotor.configure(liftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        liftMotor.getConfigurator().apply(liftFXConfigs);
+        liftMotor.getConfigurator().apply(new FeedbackConfigs()
+            .withSensorToMechanismRatio(IntakeSubsystemConstants.LIFT_GEARBOX_RATIO)
+        );
+
     }
 
     /**
@@ -77,11 +70,16 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /**
      * Stops the intake.
-     * 
-     * @return A {@link Command} that stops the intake.
      */
-    public Command stop() {
-        return this.run(() -> intakeMotor.set(0));
+    public void stopIntake() {
+        intakeMotor.set(0);
+    }
+
+    /**
+     * Stops the lifter.
+     */
+    public void stopLifter() {
+        liftMotor.set(0);
     }
 
     /**
@@ -89,7 +87,7 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public void dropIntake() {
         if (!isIntakeOut) {
-            liftController.setSetpoint(.25, ControlType.kPosition); // TODO: Fine-tune value
+            liftMotor.setControl(new PositionVoltage(NetworkedConfig.Intake.getLiftPosition())); // TODO: Fine-tune value
             isIntakeOut = true;
         }
     }
@@ -99,7 +97,7 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public void liftIntake() {
         if (isIntakeOut) {
-            liftController.setSetpoint(0, ControlType.kPosition);
+            liftMotor.setControl(new PositionVoltage(0));
             isIntakeOut = false;
         }
     }
@@ -115,12 +113,11 @@ public class IntakeSubsystem extends SubsystemBase {
      * Pulls data from the NetworkTables.
      */
     public void pullNetworkTableData() {
-        SparkMaxConfig liftConfig = new SparkMaxConfig();
-        liftConfig.closedLoop
-            .p(NetworkedConfig.Intake.getLiftKP())
-            .i(NetworkedConfig.Intake.getLiftKI())
-            .d(NetworkedConfig.Intake.getLiftKD());
+        liftFXConfigs.Slot0
+            .withKP(NetworkedConfig.Intake.getLiftKP())
+            .withKI(NetworkedConfig.Intake.getLiftKI())
+            .withKD(NetworkedConfig.Intake.getLiftKD());
         
-        this.liftMotor.configure(liftConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        this.liftMotor.getConfigurator().apply(liftFXConfigs);
     }
 }
