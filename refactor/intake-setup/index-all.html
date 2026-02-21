@@ -2494,6 +2494,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Gets the kP for the lift's PID.</div>
 </dd>
+<dt><a href="frc/robot/networking/NetworkedConfig.Intake.html#getLiftPosition()" class="member-name-link">getLiftPosition()</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Intake.html" title="class in frc.robot.networking">NetworkedConfig.Intake</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/TankDriveImpl.html#getLinearDeadband()" class="member-name-link">getLinearDeadband()</a> - Method in class frc.robot.libraries.Repulsor.<a href="frc/robot/libraries/Repulsor/TankDriveImpl.html" title="class in frc.robot.libraries.Repulsor">TankDriveImpl</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/TankDriveImpl.html#getLinearSlew()" class="member-name-link">getLinearSlew()</a> - Method in class frc.robot.libraries.Repulsor.<a href="frc/robot/libraries/Repulsor/TankDriveImpl.html" title="class in frc.robot.libraries.Repulsor">TankDriveImpl</a></dt>
@@ -3506,6 +3508,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="frc/robot/libraries/Repulsor/Predictive/PredictiveFieldStateOps.html#lerpVec(edu.wpi.first.math.geometry.Translation2d,edu.wpi.first.math.geometry.Translation2d,double)" class="member-name-link">lerpVec(Translation2d, Translation2d, double)</a> - Static method in class frc.robot.libraries.Repulsor.Predictive.<a href="frc/robot/libraries/Repulsor/Predictive/PredictiveFieldStateOps.html" title="class in frc.robot.libraries.Repulsor.Predictive">PredictiveFieldStateOps</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Commands/Triggers.html#level(java.util.function.BooleanSupplier)" class="member-name-link">level(BooleanSupplier)</a> - Static method in class frc.robot.libraries.Repulsor.Commands.<a href="frc/robot/libraries/Repulsor/Commands/Triggers.html" title="class in frc.robot.libraries.Repulsor.Commands">Triggers</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_GEARBOX_RATIO" class="member-name-link">LIFT_GEARBOX_RATIO</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_KD" class="member-name-link">LIFT_KD</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_KI" class="member-name-link">LIFT_KI</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_KP" class="member-name-link">LIFT_KP</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_MOTOR_ID" class="member-name-link">LIFT_MOTOR_ID</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
@@ -5747,10 +5757,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Stops the motor in the hopper.</div>
 </dd>
-<dt><a href="frc/robot/subsystems/IntakeSubsystem.html#stop()" class="member-name-link">stop()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
-<dd>
-<div class="block">Stops the intake.</div>
-</dd>
 <dt><a href="frc/robot/subsystems/MotorTestingSubsystem.html#stop()" class="member-name-link">stop()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/MotorTestingSubsystem.html" title="class in frc.robot.subsystems">MotorTestingSubsystem</a></dt>
 <dd>
 <div class="block">Stop the motor.</div>
@@ -5761,9 +5767,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Stops the hood.</div>
 </dd>
+<dt><a href="frc/robot/subsystems/IntakeSubsystem.html#stopIntake()" class="member-name-link">stopIntake()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
+<dd>
+<div class="block">Stops the intake.</div>
+</dd>
 <dt><a href="frc/robot/subsystems/TurretSubsystem.html#stopKicker()" class="member-name-link">stopKicker()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></dt>
 <dd>
 <div class="block">Stops the kicker.</div>
+</dd>
+<dt><a href="frc/robot/subsystems/IntakeSubsystem.html#stopLifter()" class="member-name-link">stopLifter()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
+<dd>
+<div class="block">Stops the lifter.</div>
 </dd>
 <dt><a href="frc/robot/subsystems/TurretSubsystem.html#stopShooter()" class="member-name-link">stopShooter()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></dt>
 <dd>
