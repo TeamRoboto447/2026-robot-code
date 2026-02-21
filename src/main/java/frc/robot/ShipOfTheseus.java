@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -55,6 +56,7 @@ public class ShipOfTheseus {
     private final CommandXboxController OperatorController = new CommandXboxController(1);
 
     private final Field2d field = new Field2d();
+    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
     // TODO: MotorTestingSubsystem is for local testing only — remove before merging to main
@@ -87,7 +89,9 @@ public class ShipOfTheseus {
         this.climberSubsystem = new ClimberSubsystem();
 
         SmartDashboard.putData("Field", field);
+        SmartDashboard.putData("Auto Chooser", autoChooser);
         
+        fillAutoChooser();
         configureBindings();
         NetworkedConfig.initializeAllDefaults();
 
@@ -275,13 +279,20 @@ public class ShipOfTheseus {
     swerveSubsystem.registerTelemetry(logger::telemeterize);
     }
 
-    public Command getAutonomousCommand() {
+    private void fillAutoChooser() {
+
         Path testPath = new Path("Square Test");
+
         FollowPath.registerEventTrigger("testLog", new InstantCommand(() -> {
             System.out.println("YEET!");
         }));
-        return Commands.sequence(
+
+        autoChooser.addOption("Square Test", Commands.sequence(
             pathBuilder.build(testPath)
-        );
+        ));
+    }
+
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
     }
 }
