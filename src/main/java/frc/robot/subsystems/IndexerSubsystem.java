@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 // import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -23,6 +25,9 @@ public class IndexerSubsystem extends SubsystemBase {
     private TalonFXConfiguration SpinnerFxConfigs = new TalonFXConfiguration();
     // private final VelocityVoltage velocityReq = new VelocityVoltage(0).withSlot(0);
 
+    // Cached signal — avoids creating a new StatusSignal object every periodic() call.
+    private final StatusSignal<edu.wpi.first.units.measure.AngularVelocity> spinnerVelocitySignal;
+
     /**
      * Creates a new IndexerSubsystem.
      */
@@ -37,6 +42,12 @@ public class IndexerSubsystem extends SubsystemBase {
         spinnerSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
         
         this.spinnerMotor.getConfigurator().apply(SpinnerFxConfigs);
+
+        // Cache and configure the spinner velocity signal at 20 Hz (telemetry only).
+        this.spinnerVelocitySignal = spinnerMotor.getVelocity();
+        this.spinnerVelocitySignal.setUpdateFrequency(20);
+        // Suppress all other default status frames on this motor.
+        this.spinnerMotor.optimizeBusUtilization();
     }
 
     /**
@@ -45,7 +56,9 @@ public class IndexerSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        NetworkedConfig.Indexer.setSpinnerSpeed(this.spinnerMotor.getVelocity().getValueAsDouble()*60);
+        // Refresh the cached signal once per loop — single CAN read.
+        BaseStatusSignal.refreshAll(spinnerVelocitySignal);
+        NetworkedConfig.Indexer.setSpinnerSpeed(spinnerVelocitySignal.getValueAsDouble() * 60);
     }
 
     /**

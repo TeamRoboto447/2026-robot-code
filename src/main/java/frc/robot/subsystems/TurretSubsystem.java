@@ -44,7 +44,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import static edu.wpi.first.units.Units.*;
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.TurretSubsystemConstants;
@@ -79,6 +82,12 @@ public class TurretSubsystem extends SubsystemBase {
     private final SparkClosedLoopController hoodController;
     private final TalonFX angleMotor;
     private final SparkMax kickerMotor;
+
+    // Cached status signals — initialized in constructor after motors are created.
+    // Calling .getVelocity()/.getPosition() repeatedly creates new signal objects
+    // and triggers redundant CAN traffic; caching them reduces bus utilization.
+    private StatusSignal<AngularVelocity> shooterVelocitySignal;
+    private StatusSignal<edu.wpi.first.units.measure.Angle> anglePositionSignal;
 
     /** The current turret target as an enum. */
     public TurretTarget turretTarget = TurretTarget.NONE;
@@ -180,7 +189,26 @@ public class TurretSubsystem extends SubsystemBase {
 
         this.kickerMotor = new SparkMax(TurretSubsystemConstants.KICKER_MOTOR_ID, MotorType.kBrushless);
 
-        this.feedTrigger = new Trigger(() -> this.rightShooterMotor.getVelocity().isNear(currentControlTarget.getRPS(), 0.8));
+        // Cache status signals to avoid creating new signal objects on every periodic() call.
+        // Each un-cached call to .getVelocity()/.getPosition() implicitly registers a new
+        // 50 Hz signal on CAN, rapidly filling bus bandwidth with redundant frames.
+        this.shooterVelocitySignal = this.rightShooterMotor.getVelocity();
+        this.anglePositionSignal   = this.angleMotor.getPosition();
+
+        // Reduce update frequencies to 20 Hz for telemetry-only signals.
+        // These values are only used for dashboard display and targeting decisions
+        // that run at the 20 ms robot loop rate, so 50 Hz is wasteful.
+        this.shooterVelocitySignal.setUpdateFrequency(20);
+        this.anglePositionSignal.setUpdateFrequency(20);
+
+        // Silence all other status frames on these motors that we never read.
+        // Phoenix 6 motors broadcast many signals by default; this tells the firmware
+        // to suppress any frame not explicitly configured above.
+        this.rightShooterMotor.optimizeBusUtilization();
+        this.leftShooterMotor.optimizeBusUtilization();
+        this.angleMotor.optimizeBusUtilization();
+
+        this.feedTrigger = new Trigger(() -> this.shooterVelocitySignal.isNear(currentControlTarget.getRPS(), 0.8));
 
     }
 
@@ -205,7 +233,11 @@ public class TurretSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
-        Translation2d targetFlatTranslation = getTargetFromEnum(turretTarget).toTranslation2d();
+        // Refresh all cached TalonFX signals in a single batched CAN read.
+        // This replaces multiple individual .getVelocity()/.getPosition() calls that
+        // would each generate a separate CAN request at their own update rate.
+        BaseStatusSignal.refreshAll(shooterVelocitySignal, anglePositionSignal);
+
         Translation3d currentTargetPose = getTargetFromEnum(turretTarget);
         Pose2d currentPose = poseProvider.getPose();
         // // double targetDistX = targetFlatTranslation.getX()
@@ -354,10 +386,11 @@ public class TurretSubsystem extends SubsystemBase {
      * Updates the data posted to the NetworkTables. 
      */
     private void updateNetworkTables() {
-        // NetworkedConfig.Turret.setTurretAngle((TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION.times(this.angleMotor.getPosition().getValueAsDouble())).magnitude());
-        NetworkedConfig.Turret.setTurretAngle(this.angleMotor.getPosition().getValueAsDouble());
+        // Use cached signals refreshed at the top of periodic() — no additional CAN reads here.
+        // NetworkedConfig.Turret.setTurretAngle((TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION.times(anglePositionSignal.getValueAsDouble())).magnitude());
+        NetworkedConfig.Turret.setTurretAngle(anglePositionSignal.getValueAsDouble());
         NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
-        NetworkedConfig.Turret.setFlywheelSpeed(this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
+        NetworkedConfig.Turret.setFlywheelSpeed(shooterVelocitySignal.getValueAsDouble() * 60);
 
         NetworkedConfig.Turret.setTurretTarget(this.turretTarget.toString());
         

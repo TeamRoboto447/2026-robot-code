@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -24,6 +26,9 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private boolean isIntakeOut = false;
 
+    // Cached signal — avoids creating a new StatusSignal object every periodic() call.
+    private final StatusSignal<edu.wpi.first.units.measure.AngularVelocity> intakeVelocitySignal;
+
     /** Creates a new IntakeSubsystem. */
     public IntakeSubsystem() {
         liftMotor = new TalonFX(IntakeSubsystemConstants.LIFT_MOTOR_ID);
@@ -40,6 +45,13 @@ public class IntakeSubsystem extends SubsystemBase {
         );
         liftMotor.setPosition(0);
 
+        // Cache and configure the intake velocity signal at 20 Hz (telemetry only).
+        this.intakeVelocitySignal = intakeMotor.getVelocity();
+        this.intakeVelocitySignal.setUpdateFrequency(20);
+        // Suppress all other status frames on motors whose other signals are not needed.
+        this.intakeMotor.optimizeBusUtilization();
+        this.liftMotor.optimizeBusUtilization();
+
     }
 
     /**
@@ -48,6 +60,8 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     @Override
     public void periodic() {
+        // Refresh the cached signal once per loop — single CAN read for all signal data.
+        BaseStatusSignal.refreshAll(intakeVelocitySignal);
         updateNetworkTables();
     }
 
@@ -107,7 +121,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * Updates the data on the NetworkTables.
      */
     private void updateNetworkTables() {
-        NetworkedConfig.Intake.setIntakeSpeed(this.intakeMotor.getVelocity().getValueAsDouble());
+        NetworkedConfig.Intake.setIntakeSpeed(intakeVelocitySignal.getValueAsDouble());
     }
 
     /**

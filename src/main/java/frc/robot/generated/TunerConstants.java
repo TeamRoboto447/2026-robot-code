@@ -197,7 +197,11 @@ public class TunerConstants {
      */
     public static CommandSwerveDrivetrain createDrivetrain(Field2d field) {
         return new CommandSwerveDrivetrain(
-            field, DrivetrainConstants, FrontLeft, FrontRight, BackLeft, BackRight
+            // Odometry frequency: default on RIO CAN 2.0 is 100 Hz; reducing to 50 Hz
+            // significantly lowers CAN bus utilization from the 8 drive/steer motors and
+            // 4 CANcoders that the odometry thread polls. 50 Hz is more than sufficient
+            // for a 20 ms robot loop. Raise back toward 100 Hz only if you add CAN FD hardware.
+            field, DrivetrainConstants, 50.0, FrontLeft, FrontRight, BackLeft, BackRight
         );
     }
 

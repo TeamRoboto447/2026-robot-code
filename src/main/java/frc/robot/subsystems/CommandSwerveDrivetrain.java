@@ -150,6 +150,31 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     /**
+     * Constructs a CTRE SwerveDrivetrain using the specified constants and a
+     * custom odometry update frequency, while also accepting a {@link Field2d}
+     * for dashboard visualization.
+     *
+     * @param fieldImport             Field2d for SmartDashboard display
+     * @param drivetrainConstants     Drivetrain-wide constants for the swerve drive
+     * @param odometryUpdateFrequency The frequency to run the odometry loop. If
+     *                                unspecified or set to 0 Hz, this is 250 Hz on
+     *                                CAN FD, and 100 Hz on CAN 2.0.
+     * @param modules                 Constants for each specific module
+     */
+    public CommandSwerveDrivetrain(
+            Field2d fieldImport,
+            SwerveDrivetrainConstants drivetrainConstants,
+            double odometryUpdateFrequency,
+            SwerveModuleConstants<?, ?, ?>... modules) {
+        super(drivetrainConstants, odometryUpdateFrequency, modules);
+        if (Utils.isSimulation()) {
+            startSimThread();
+        }
+
+        field = fieldImport;
+    }
+
+    /**
      * Constructs a CTRE SwerveDrivetrain using the specified constants.
      * <p>
      * This constructs the underlying hardware devices, so users should not
