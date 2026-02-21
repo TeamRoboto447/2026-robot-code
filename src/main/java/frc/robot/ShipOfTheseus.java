@@ -282,6 +282,8 @@ public class ShipOfTheseus {
     private void fillAutoChooser() {
 
         Path testPath = new Path("Square Test");
+        Path climbLeft = new Path("GoToLeftClimb");
+        Path climbRight = new Path("GoToRightClimb");
 
         FollowPath.registerEventTrigger("testLog", new InstantCommand(() -> {
             System.out.println("YEET!");
