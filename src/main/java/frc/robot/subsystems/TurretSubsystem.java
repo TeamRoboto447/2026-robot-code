@@ -222,6 +222,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         NetworkedConfig.Turret.setRobotX((int) Units.metersToInches(currentPose.getX()));
         NetworkedConfig.Turret.setRobotY((int) Units.metersToInches(currentPose.getY()));
+        NetworkedConfig.Turret.setRobotAngle(currentPose.getRotation().getDegrees());
 
         NetworkedConfig.Turret.setTargetX((int) Units.metersToInches(currentTargetPose.getX()));
         NetworkedConfig.Turret.setTargetY((int) Units.metersToInches(currentTargetPose.getY()));
@@ -243,6 +244,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         
         this.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
+        this.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
     }
 
     /**
