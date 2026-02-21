@@ -170,9 +170,10 @@ public final class Constants {
         public static final double HOOD_KI = 0;
         public static final double HOOD_KD = 0;
 
-        public static final double TURRET_KP = 0;
+        public static final double TURRET_KP = 40;
         public static final double TURRET_KD = 0;
         public static final double TURRET_KI = 0;
+        public static final double TURRET_KS = 0.5;
 
         public static final int LOOKUP_TABLE_VEL_STEP = 1;
         public static final int LOOKUP_TABLE_DIST_STEP = 1;

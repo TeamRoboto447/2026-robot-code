@@ -167,10 +167,10 @@ public class TurretSubsystem extends SubsystemBase {
         this.angleMotor = new TalonFX(TurretSubsystemConstants.ANGLE_MOTOR_ID);
 
         var angleSlot0config = AngleFxConfigs.Slot0;
-        angleSlot0config.kP = 0.5;
-        angleSlot0config.kI = 0;
-        angleSlot0config.kD = 0;
-        angleSlot0config.kS = 0.05;
+        angleSlot0config.kP = TurretSubsystemConstants.TURRET_KP;
+        angleSlot0config.kI = TurretSubsystemConstants.TURRET_KI;
+        angleSlot0config.kD = TurretSubsystemConstants.TURRET_KD;
+        angleSlot0config.kS = TurretSubsystemConstants.TURRET_KS;
         angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
@@ -437,7 +437,7 @@ public class TurretSubsystem extends SubsystemBase {
         angleSlot0config.kP = NetworkedConfig.Turret.getTurretKP();
         angleSlot0config.kI = NetworkedConfig.Turret.getTurretKI();
         angleSlot0config.kD = NetworkedConfig.Turret.getTurretKD();
-        angleSlot0config.kS = 0.05;
+        angleSlot0config.kS = 0.5;
         angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);

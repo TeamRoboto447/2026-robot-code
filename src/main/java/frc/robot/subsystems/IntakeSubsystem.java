@@ -38,6 +38,7 @@ public class IntakeSubsystem extends SubsystemBase {
         liftMotor.getConfigurator().apply(new FeedbackConfigs()
             .withSensorToMechanismRatio(IntakeSubsystemConstants.LIFT_GEARBOX_RATIO)
         );
+        liftMotor.setPosition(0);
 
     }
 
