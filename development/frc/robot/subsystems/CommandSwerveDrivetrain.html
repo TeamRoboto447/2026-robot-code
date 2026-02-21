@@ -148,10 +148,19 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <div class="col-last odd-row-color">
 <div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants.</div>
 </div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(edu.wpi.first.wpilibj.smartdashboard.Field2d,com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,com.ctre.phoenix6.swerve.SwerveModuleConstants...)" class="member-name-link">CommandSwerveDrivetrain</a><wbr>(edu.wpi.first.wpilibj.smartdashboard.Field2d&nbsp;fieldImport,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(edu.wpi.first.wpilibj.smartdashboard.Field2d,com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,double,com.ctre.phoenix6.swerve.SwerveModuleConstants...)" class="member-name-link">CommandSwerveDrivetrain</a><wbr>(edu.wpi.first.wpilibj.smartdashboard.Field2d&nbsp;fieldImport,
  com.ctre.phoenix6.swerve.SwerveDrivetrainConstants&nbsp;drivetrainConstants,
+ double&nbsp;odometryUpdateFrequency,
  com.ctre.phoenix6.swerve.SwerveModuleConstants&lt;?,<wbr>?,<wbr>?&gt;...&nbsp;modules)</code></div>
 <div class="col-last even-row-color">
+<div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants and a
+ custom odometry update frequency, while also accepting a <code>Field2d</code>
+ for dashboard visualization.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(edu.wpi.first.wpilibj.smartdashboard.Field2d,com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,com.ctre.phoenix6.swerve.SwerveModuleConstants...)" class="member-name-link">CommandSwerveDrivetrain</a><wbr>(edu.wpi.first.wpilibj.smartdashboard.Field2d&nbsp;fieldImport,
+ com.ctre.phoenix6.swerve.SwerveDrivetrainConstants&nbsp;drivetrainConstants,
+ com.ctre.phoenix6.swerve.SwerveModuleConstants&lt;?,<wbr>?,<wbr>?&gt;...&nbsp;modules)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants.</div>
 </div>
 </div>
@@ -268,6 +277,27 @@ implements edu.wpi.first.wpilibj2.command.Subsystem, <a href="PoseProvider.html"
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>drivetrainConstants</code> - Drivetrain-wide constants for the swerve drive</dd>
+<dd><code>modules</code> - Constants for each specific module</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(edu.wpi.first.wpilibj.smartdashboard.Field2d,com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,double,com.ctre.phoenix6.swerve.SwerveModuleConstants...)">
+<h3>CommandSwerveDrivetrain</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CommandSwerveDrivetrain</span><wbr><span class="parameters">(edu.wpi.first.wpilibj.smartdashboard.Field2d&nbsp;fieldImport,
+ com.ctre.phoenix6.swerve.SwerveDrivetrainConstants&nbsp;drivetrainConstants,
+ double&nbsp;odometryUpdateFrequency,
+ com.ctre.phoenix6.swerve.SwerveModuleConstants&lt;?,<wbr>?,<wbr>?&gt;...&nbsp;modules)</span></div>
+<div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants and a
+ custom odometry update frequency, while also accepting a <code>Field2d</code>
+ for dashboard visualization.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>fieldImport</code> - Field2d for SmartDashboard display</dd>
+<dd><code>drivetrainConstants</code> - Drivetrain-wide constants for the swerve drive</dd>
+<dd><code>odometryUpdateFrequency</code> - The frequency to run the odometry loop. If
+                                unspecified or set to 0 Hz, this is 250 Hz on
+                                CAN FD, and 100 Hz on CAN 2.0.</dd>
 <dd><code>modules</code> - Constants for each specific module</dd>
 </dl>
 </section>
