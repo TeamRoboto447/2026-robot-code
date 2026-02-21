@@ -120,13 +120,14 @@ public class ShipOfTheseus {
         // motorTestingSubsystem.setDefaultCommand(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(joystick.getRightY())));
         OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.8)));
         OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(0.8)));
-        OperatorController.pov(0).onTrue(intakeSubsystem.run(() -> intakeSubsystem.liftIntake()));
-        OperatorController.pov(180).onTrue(intakeSubsystem.run(() -> intakeSubsystem.dropIntake()));
+        OperatorController.pov(0).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
+        OperatorController.pov(180).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
 
         OperatorController.pov(-1).whileTrue(intakeSubsystem.run(() -> {
             intakeSubsystem.stopIntake();
-            intakeSubsystem.stopLifter();
         }));
+
+        OperatorController.start().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.pullNetworkTableData()));
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.

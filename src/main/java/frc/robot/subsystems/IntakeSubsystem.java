@@ -101,20 +101,14 @@ public class IntakeSubsystem extends SubsystemBase {
      * Drops the intake to the extended position.
      */
     public void dropIntake() {
-        if (!isIntakeOut) {
-            liftMotor.setControl(new PositionVoltage(NetworkedConfig.Intake.getLiftPosition())); // TODO: Fine-tune value
-            isIntakeOut = true;
-        }
+            this.liftMotor.setControl(new PositionVoltage(NetworkedConfig.Intake.getLiftPosition())); // TODO: Fine-tune value
     }
 
     /**
      * Lifts the intake to the starting position.
      */
     public void liftIntake() {
-        if (isIntakeOut) {
-            liftMotor.setControl(new PositionVoltage(0));
-            isIntakeOut = false;
-        }
+        this.liftMotor.setControl(new PositionVoltage(0));
     }
 
     /**

@@ -352,7 +352,7 @@ public class NetworkedConfig {
             .getDoubleTopic("Lift kD").getEntry(IntakeSubsystemConstants.LIFT_KD);
         
         private static final DoubleEntry liftPosition = intakeTable
-            .getDoubleTopic("Lift Position").getEntry(0.25);
+            .getDoubleTopic("Lift Position").getEntry(25);
         
         // Telemetry entries
         private static final DoubleEntry intakeSpeed = intakeTable
@@ -367,7 +367,7 @@ public class NetworkedConfig {
             liftKI.set(IntakeSubsystemConstants.LIFT_KI);
             liftKD.set(IntakeSubsystemConstants.LIFT_KD);
 
-            liftPosition.set(0.25);
+            liftPosition.set(25);
         }
         
         // Lift
