@@ -141,6 +141,20 @@ public class ShipOfTheseus {
             turretSubsystem.stopShooter();
             turretSubsystem.stopKicker();
             }));
+        
+        OperatorController.rightBumper().whileTrue(turretSubsystem.defer(() -> turretSubsystem.turnToTarget()));
+        
+        OperatorController.rightBumper().onFalse(turretSubsystem.runOnce(() ->
+            turretSubsystem.stopTurret()
+        ));
+
+        OperatorController.leftBumper().whileTrue(turretSubsystem.run(() ->
+            turretSubsystem.turnRaw(-OperatorController.getRightY()/4)
+        ));
+
+        OperatorController.rightBumper().onFalse(turretSubsystem.runOnce(() ->
+            turretSubsystem.stopTurret()
+        ));
 
         // AtomicInteger angle = new AtomicInteger(25);
         // AtomicBoolean goingUp = new AtomicBoolean(true);

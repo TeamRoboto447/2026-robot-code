@@ -4,12 +4,11 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -19,6 +18,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -167,17 +167,27 @@ public class TurretSubsystem extends SubsystemBase {
         this.angleMotor = new TalonFX(TurretSubsystemConstants.ANGLE_MOTOR_ID);
 
         var angleSlot0config = AngleFxConfigs.Slot0;
-        angleSlot0config.kP = 0;
+        angleSlot0config.kP = 0.5;
         angleSlot0config.kI = 0;
         angleSlot0config.kD = 0;
+        angleSlot0config.kS = 0.05;
         angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
+        this.angleMotor.getConfigurator().apply(new FeedbackConfigs()
+            .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION));
+        this.angleMotor.setPosition(0);
 
         this.kickerMotor = new SparkMax(TurretSubsystemConstants.KICKER_MOTOR_ID, MotorType.kBrushless);
 
         this.feedTrigger = new Trigger(() -> this.rightShooterMotor.getVelocity().isNear(currentControlTarget.getRPS(), 0.8));
 
+    }
+
+    public Command turnToTarget() {
+        return this.run(() ->{
+            this.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
+        });
     }
     
     /**
@@ -196,21 +206,30 @@ public class TurretSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         Translation2d targetFlatTranslation = getTargetFromEnum(turretTarget).toTranslation2d();
-        double targetDist = targetFlatTranslation.getDistance(poseProvider.getPose().getTranslation());
-        double targetDistTimestamp = Timer.getFPGATimestamp();
+        Translation3d currentTargetPose = getTargetFromEnum(turretTarget);
+        Pose2d currentPose = poseProvider.getPose();
+        // // double targetDistX = targetFlatTranslation.getX()
+        // double targetDistTimestamp = Timer.getFPGATimestamp();
 
-        if (!Double.isNaN(prevReading)) {
-            double deltaDist = targetDist - prevReading;
-            double deltaTime = targetDistTimestamp - prevReadingTimestamp;
-            currentVelocityToTarget = deltaDist / deltaTime;
-        }
+        // if (!Double.isNaN(prevReading)) {
+        //     double deltaDistX = targetDistX - prevReading;
+        //     double deltaTime = targetDistTimestamp - prevReadingTimestamp;
+        //     currentVelocityToTarget = deltaDist / deltaTime;
+        // }
 
-        // currentControlTarget = getControlTarget();
+        NetworkedConfig.Turret.setRobotVX(0); // TODO: Finish later
+        NetworkedConfig.Turret.setRobotVY(0);
 
-        
+        NetworkedConfig.Turret.setRobotX((int) Units.metersToInches(currentPose.getX()));
+        NetworkedConfig.Turret.setRobotY((int) Units.metersToInches(currentPose.getY()));
 
-        prevReading = targetDist;
-        prevReadingTimestamp = targetDistTimestamp;
+        NetworkedConfig.Turret.setTargetX((int) Units.metersToInches(currentTargetPose.getX()));
+        NetworkedConfig.Turret.setTargetY((int) Units.metersToInches(currentTargetPose.getY()));
+        NetworkedConfig.Turret.setTargetHeight((int) Units.metersToInches(currentTargetPose.getZ()));
+       
+
+        // prevReading = targetDist;
+        // prevReadingTimestamp = targetDistTimestamp;
 
         updateTurretTarget();
         updateNetworkTables();
@@ -271,12 +290,20 @@ public class TurretSubsystem extends SubsystemBase {
         if (newAngle.lt(TurretSubsystemConstants.MIN_TURRET_ANGLE) || newAngle.gt(TurretSubsystemConstants.MAX_TURRET_ANGLE)) {
             return;
         } else {
-            double rotationsToAngle = newAngle
-                .div(TurretSubsystemConstants.TURRET_DEGREES_ROTATION_RATIO)
-                .in(Value);
+            angleMotor.setControl(new PositionVoltage(newAngle));
+
+            // double rotations = newAngle
+            //     .div(TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION)
+            //     .in(Value);
         
-            angleMotor.setControl(anglePositionReq.withPosition(rotationsToAngle));
+            // double rotations = newAngle.in(Rotations);
+            // angleMotor.setControl(anglePositionReq.withPosition(rotationsToAngle));
+            // angleMotor.setControl(new PositionVoltage(rotations));
         }
+    }
+
+    public void turnRaw(double power) {
+        angleMotor.set(power);
     }
 
     /**
@@ -315,7 +342,8 @@ public class TurretSubsystem extends SubsystemBase {
      * Updates the data posted to the NetworkTables. 
      */
     private void updateNetworkTables() {
-        NetworkedConfig.Turret.setTurretAngle(TurretSubsystemConstants.MIN_TURRET_ANGLE.plus(TurretSubsystemConstants.TURRET_DEGREES_ROTATION_RATIO.times(this.angleMotor.getPosition().getValueAsDouble())).magnitude());
+        // NetworkedConfig.Turret.setTurretAngle((TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION.times(this.angleMotor.getPosition().getValueAsDouble())).magnitude());
+        NetworkedConfig.Turret.setTurretAngle(this.angleMotor.getPosition().getValueAsDouble());
         NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
         NetworkedConfig.Turret.setFlywheelSpeed(this.rightShooterMotor.getVelocity().getValueAsDouble()*60);
 
@@ -401,9 +429,12 @@ public class TurretSubsystem extends SubsystemBase {
         angleSlot0config.kP = NetworkedConfig.Turret.getTurretKP();
         angleSlot0config.kI = NetworkedConfig.Turret.getTurretKI();
         angleSlot0config.kD = NetworkedConfig.Turret.getTurretKD();
+        angleSlot0config.kS = 0.05;
         angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
+        this.angleMotor.getConfigurator().apply(new FeedbackConfigs()
+            .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION));
         
         SparkMaxConfig hoodConfig = new SparkMaxConfig();
         hoodConfig.inverted(hoodMotorInverted);
