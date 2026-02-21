@@ -217,11 +217,17 @@ public class TurretSubsystem extends SubsystemBase {
         //     currentVelocityToTarget = deltaDist / deltaTime;
         // }
 
-        NetworkedConfig.Turret.setRobotVX(0); // TODO: Finish later
-        NetworkedConfig.Turret.setRobotVY(0);
+        // Offset robot pose by the turret's position relative to the robot center,
+        // rotated to match the robot's current heading.
+        Translation2d turretOffset = new Translation2d(
+            TurretSubsystemConstants.TURRET_TO_ROBOT.getX(),
+            TurretSubsystemConstants.TURRET_TO_ROBOT.getY()
+        ).rotateBy(currentPose.getRotation());
+        double turretX = currentPose.getX() + turretOffset.getX();
+        double turretY = currentPose.getY() + turretOffset.getY();
 
-        NetworkedConfig.Turret.setRobotX((int) Units.metersToInches(currentPose.getX()));
-        NetworkedConfig.Turret.setRobotY((int) Units.metersToInches(currentPose.getY()));
+        NetworkedConfig.Turret.setRobotX((int) Units.metersToInches(turretX));
+        NetworkedConfig.Turret.setRobotY((int) Units.metersToInches(turretY));
         NetworkedConfig.Turret.setRobotAngle(currentPose.getRotation().getDegrees());
 
         NetworkedConfig.Turret.setTargetX((int) Units.metersToInches(currentTargetPose.getX()));

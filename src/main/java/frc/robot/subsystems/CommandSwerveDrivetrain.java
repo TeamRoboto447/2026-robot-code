@@ -17,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -29,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
+import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -279,6 +281,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         // Publish field zone rectangle visualization
         NetworkedTelemetry.Pose.publishFieldZoneRectangle(getFieldZone());
+
+
+        NetworkedConfig.Turret.setRobotVX(Units.metersToInches(this.getChassisSpeeds().vxMetersPerSecond));
+        NetworkedConfig.Turret.setRobotVY(Units.metersToInches(this.getChassisSpeeds().vyMetersPerSecond));
     }
 
     private void startSimThread() {

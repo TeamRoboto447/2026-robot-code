@@ -184,10 +184,11 @@ public final class Constants {
         public static final Angle MIN_TURRET_ANGLE = Degrees.of(-45);
         public static final Angle MAX_TURRET_ANGLE = Degrees.of(45);
 
-        // public static final Angle TURRET_DEGREES_PER_ROTATION = Degrees.of(17.5);
-        // public static final Angle TURRET_DEGREES_PER_ROTATION = Degrees.of((175/30)*3);
-        public static final double TURRET_DEGREES_PER_ROTATION = 29.17; //(175.0/30)*5;
-        // public static final double TURRET_DEGREES_PER_ROTATION = 0.0343;
+        public static final double TURRET_DEGREES_PER_ROTATION = 29.17;
+
+        public static final Transform3d TURRET_TO_ROBOT = new Transform3d(
+            new Translation3d(Units.inchesToMeters(7.5), Units.inchesToMeters(6.5), Units.inchesToMeters(20)),
+            new Rotation3d(0, 0, 0));
     }
     
     public static class IntakeSubsystemConstants {
