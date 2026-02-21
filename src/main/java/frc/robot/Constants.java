@@ -144,11 +144,11 @@ public final class Constants {
         }
 
         public static class TurretTargetPoints {
-            public static final Translation3d RED_HUB = new Translation3d(0, 4.035, 1.83);
+            public static final Translation3d RED_HUB = new Translation3d(11.92, 4.035, 1.83);
             public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.54, 7.07, 0);
             public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.54, 1, 0);
             
-            public static final Translation3d BLUE_HUB = new Translation3d(0, 4.035, 1.83);
+            public static final Translation3d BLUE_HUB = new Translation3d(4.623, 4.035, 1.83);
             public static final Translation3d BLUE_LEFT_CORNER = new Translation3d(1, 7.07, 0);
             public static final Translation3d BLUE_RIGHT_CORNER = new Translation3d(1, 1, 0);
         }

@@ -70,6 +70,8 @@ public class NetworkedConfig {
             .getDoubleTopic("robot_x").getEntry(-1);
         private static final DoubleEntry robotY = turretTargettingTable
             .getDoubleTopic("robot_y").getEntry(-1);
+        private static final DoubleEntry robotAngle = turretTargettingTable
+            .getDoubleTopic("robot_angle").getEntry(-1);
         private static final DoubleEntry robotVX = turretTargettingTable
             .getDoubleTopic("robot_vx").getEntry(-1);
         private static final DoubleEntry robotVY = turretTargettingTable
@@ -115,6 +117,7 @@ public class NetworkedConfig {
             validTarget.get();
             robotX.set(-1);
             robotY.set(-1);
+            robotAngle.set(-1);
             robotVX.set(-1);
             robotVY.set(-1);
             targetX.set(-1);
@@ -205,6 +208,11 @@ public class NetworkedConfig {
         /** Set the robot Y position (in inches) */
         public static void setRobotY(double y) {
             robotY.set(y);
+        }
+
+        /** Set the robot angle (in degrees) */
+        public static void setRobotAngle(double angle) {
+            robotAngle.set(angle);
         }
         
         /** Set the robot VX position (in inches) */
