@@ -212,10 +212,16 @@ loadScripts(document, 'script');</script>
 <div class="block">Runs the SysId Quasistatic test for the turret flywheel.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#turnToAngle(edu.wpi.first.units.measure.Angle)" class="member-name-link">turnToAngle</a><wbr>(edu.wpi.first.units.measure.Angle&nbsp;newAngle)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#turnRaw(double)" class="member-name-link">turnRaw</a><wbr>(double&nbsp;power)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#turnToAngle(edu.wpi.first.units.measure.Angle)" class="member-name-link">turnToAngle</a><wbr>(edu.wpi.first.units.measure.Angle&nbsp;newAngle)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Starts the turret moving towards a new angle.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#turnToTarget()" class="member-name-link">turnToTarget</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateTurretTarget()" class="member-name-link">updateTurretTarget</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -291,6 +297,12 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="turnToTarget()">
+<h3>turnToTarget</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">turnToTarget</span>()</div>
+</section>
+</li>
+<li>
 <section class="detail" id="periodic()">
 <h3>periodic</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">periodic</span>()</div>
@@ -342,6 +354,12 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>newAngle</code> - The angle to move toward.</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="turnRaw(double)">
+<h3>turnRaw</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">turnRaw</span><wbr><span class="parameters">(double&nbsp;power)</span></div>
 </section>
 </li>
 <li>
