@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringEntry;
 import frc.robot.Constants.IndexerSubsystemConstants;
+import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.Constants.TurretSubsystemConstants;
 
 /**
@@ -344,11 +345,14 @@ public class NetworkedConfig {
         
         // Lift PID
         private static final DoubleEntry liftKP = intakeTable
-            .getDoubleTopic("Lift kP").getEntry(0);
+            .getDoubleTopic("Lift kP").getEntry(IntakeSubsystemConstants.LIFT_KP);
         private static final DoubleEntry liftKI = intakeTable
-            .getDoubleTopic("Lift kI").getEntry(0);
+            .getDoubleTopic("Lift kI").getEntry(IntakeSubsystemConstants.LIFT_KI);
         private static final DoubleEntry liftKD = intakeTable
-            .getDoubleTopic("Lift kD").getEntry(0);
+            .getDoubleTopic("Lift kD").getEntry(IntakeSubsystemConstants.LIFT_KD);
+        
+        private static final DoubleEntry liftPosition = intakeTable
+            .getDoubleTopic("Lift Position").getEntry(0.25);
         
         // Telemetry entries
         private static final DoubleEntry intakeSpeed = intakeTable
@@ -359,9 +363,11 @@ public class NetworkedConfig {
          */
         public static void initializeDefaults() {
             // Entries have defaults declared already, simply verify they are created on initialization
-            liftKP.get();
-            liftKI.get();
-            liftKD.get();
+            liftKP.set(IntakeSubsystemConstants.LIFT_KP);
+            liftKI.set(IntakeSubsystemConstants.LIFT_KI);
+            liftKD.set(IntakeSubsystemConstants.LIFT_KD);
+
+            liftPosition.set(0.25);
         }
         
         // Lift
@@ -379,6 +385,10 @@ public class NetworkedConfig {
         /** Gets the kD for the lift's PID. */
         public static double getLiftKD() {
             return liftKD.get();
+        }
+
+        public static double getLiftPosition() {
+            return liftPosition.get();
         }
         
         // Telemetry

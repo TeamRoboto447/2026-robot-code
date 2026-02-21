@@ -29,6 +29,7 @@ import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
 import frc.robot.subsystems.MotorTestingSubsystem;
@@ -60,6 +61,7 @@ public class ShipOfTheseus {
     public final MotorTestingSubsystem motorTestingSubsystem = new MotorTestingSubsystem();
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
+    public final IntakeSubsystem intakeSubsystem;
     public final PoseEstimatorSubsystem poseEstimatorSubsystem;
     public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
@@ -79,6 +81,7 @@ public class ShipOfTheseus {
     public ShipOfTheseus() {
 
         this.turretSubsystem = new TurretSubsystem(swerveSubsystem);
+        this.intakeSubsystem = new IntakeSubsystem();
         this.indexerSubsystem = new IndexerSubsystem();
         this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
         this.climberSubsystem = new ClimberSubsystem();
@@ -115,9 +118,15 @@ public class ShipOfTheseus {
         // Default command for testing motor — right joystick Y drives the TalonFX.
         // TODO: Remove this testing binding and the MotorTestingSubsystem before merging to main
         // motorTestingSubsystem.setDefaultCommand(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(joystick.getRightY())));
-        DriverController.pov(90).whileTrue(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(0.8)));
-        DriverController.pov(270).whileTrue(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(-0.8)));
-        DriverController.pov(-1).whileTrue(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(0)));
+        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.8)));
+        OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(0.8)));
+        OperatorController.pov(0).onTrue(intakeSubsystem.run(() -> intakeSubsystem.liftIntake()));
+        OperatorController.pov(180).onTrue(intakeSubsystem.run(() -> intakeSubsystem.dropIntake()));
+
+        OperatorController.pov(-1).whileTrue(intakeSubsystem.run(() -> {
+            intakeSubsystem.stopIntake();
+            intakeSubsystem.stopLifter();
+        }));
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.

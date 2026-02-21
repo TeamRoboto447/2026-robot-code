@@ -193,7 +193,13 @@ public final class Constants {
     
     public static class IntakeSubsystemConstants {
         public static final int LIFT_MOTOR_ID = -1;
-        public static final int INTAKE_MOTOR_ID = -1;
+        public static final int INTAKE_MOTOR_ID = 46;
+
+        public static final double LIFT_GEARBOX_RATIO = 4.0*4*4;
+
+        public static final double LIFT_KP = 0;
+        public static final double LIFT_KI = 0;
+        public static final double LIFT_KD = 0;
     }
 
     public static class IndexerSubsystemConstants {
