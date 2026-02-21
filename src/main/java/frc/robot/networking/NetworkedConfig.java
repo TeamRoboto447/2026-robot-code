@@ -1,6 +1,8 @@
 package frc.robot.networking;
 
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.BooleanEntry;
+import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -64,6 +66,21 @@ public class NetworkedConfig {
         private static final BooleanEntry validTarget = turretTargettingTable
             .getBooleanTopic("has_valid_shot").getEntry(false);
         
+        private static final DoubleEntry robotX = turretTargettingTable
+            .getDoubleTopic("robot_x").getEntry(-1);
+        private static final DoubleEntry robotY = turretTargettingTable
+            .getDoubleTopic("robot_y").getEntry(-1);
+        private static final DoubleEntry robotVX = turretTargettingTable
+            .getDoubleTopic("robot_vx").getEntry(-1);
+        private static final DoubleEntry robotVY = turretTargettingTable
+            .getDoubleTopic("robot_vy").getEntry(-1);
+        private static final DoubleEntry targetX = turretTargettingTable
+            .getDoubleTopic("target_x").getEntry(-1);
+        private static final DoubleEntry targetY = turretTargettingTable
+            .getDoubleTopic("target_y").getEntry(-1);
+        private static final DoubleEntry targetHeight = turretTargettingTable
+            .getDoubleTopic("target_height").getEntry(-1);
+        
         // Telemetry
         private static final DoubleEntry turretAngle = rotationTable
             .getDoubleTopic("Turret Angle").getEntry(0);
@@ -91,11 +108,18 @@ public class NetworkedConfig {
             hoodKI.get();
             hoodKD.get();
             targetHoodAngle.set(17);
-            turretKP.get();
-            turretKI.get();
-            turretKD.get();
+            turretKP.set(TurretSubsystemConstants.TURRET_KP);
+            turretKI.set(TurretSubsystemConstants.TURRET_KI);
+            turretKD.set(TurretSubsystemConstants.TURRET_KD);
             targetTurretAngle.set(0);
             validTarget.get();
+            robotX.set(-1);
+            robotY.set(-1);
+            robotVX.set(-1);
+            robotVY.set(-1);
+            targetX.set(-1);
+            targetY.set(-1);
+            targetHeight.set(-1);
         }
         
         // Launcher
@@ -169,6 +193,43 @@ public class NetworkedConfig {
         
         public static boolean hasValidTrajectory() {
             return validTarget.get();
+        }
+
+        /** Set the robot X position (in inches) */
+        public static void setRobotX(double x) {
+            
+        // System.out.println((int) Units.metersToInches(x));
+            robotX.set(x);
+        }
+        
+        /** Set the robot Y position (in inches) */
+        public static void setRobotY(double y) {
+            robotY.set(y);
+        }
+        
+        /** Set the robot VX position (in inches) */
+        public static void setRobotVX(double vx) {
+            robotVX.set(vx);
+        }
+        
+        /** Set the robot VY position (in inches) */
+        public static void setRobotVY(double vy) {
+            robotVY.set(vy);
+        }
+        
+        /** Set the target X position (in inches) */
+        public static void setTargetX(double x) {
+            targetX.set(x);
+        }
+        
+        /** Set the target Y position (in inches) */
+        public static void setTargetY(double y) {
+            targetY.set(y);
+        }
+
+        /** Set the target height (in inches) */
+        public static void setTargetHeight(double height) {
+            targetHeight.set(height);
         }
 
         // Telemetry

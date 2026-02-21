@@ -77,8 +77,8 @@ public final class Constants {
         new Translation3d(Units.inchesToMeters(12.375), Units.inchesToMeters(-1.5), Units.inchesToMeters(5)),
         new Rotation3d(0, Units.degreesToRadians(-5), 0));
         public static final Transform3d ROBOT_TO_BACK_CAM = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-14.00), Units.inchesToMeters(12.00), Units.inchesToMeters(9)),
-        new Rotation3d(0, 0, Units.degreesToRadians(135)));
+        new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
+        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(140.24)));
 
         public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(), 1,
         1, 1 * Math.PI);
@@ -183,9 +183,13 @@ public final class Constants {
 
         public static final Angle MIN_TURRET_ANGLE = Degrees.of(-45);
         public static final Angle MAX_TURRET_ANGLE = Degrees.of(45);
-        public static final Angle TURRET_DEGREES_ROTATION_RATIO = Degrees.of(55.8);
-    }
 
+        // public static final Angle TURRET_DEGREES_PER_ROTATION = Degrees.of(17.5);
+        // public static final Angle TURRET_DEGREES_PER_ROTATION = Degrees.of((175/30)*3);
+        public static final double TURRET_DEGREES_PER_ROTATION = 29.17; //(175.0/30)*5;
+        // public static final double TURRET_DEGREES_PER_ROTATION = 0.0343;
+    }
+    
     public static class IntakeSubsystemConstants {
         public static final int LIFT_MOTOR_ID = -1;
         public static final int INTAKE_MOTOR_ID = 46;
