@@ -186,6 +186,7 @@ public final class Constants {
         public static final Angle MAX_TURRET_ANGLE = Degrees.of(45);
 
         public static final double TURRET_DEGREES_PER_ROTATION = 29.17;
+        public static final double TURRET_ANGLE_TOLERANCE_DEGREES = 0.5;
 
         public static final Transform3d TURRET_TO_ROBOT = new Transform3d(
             new Translation3d(Units.inchesToMeters(-7.5), Units.inchesToMeters(-6.5), Units.inchesToMeters(20)),

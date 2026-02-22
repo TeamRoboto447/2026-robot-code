@@ -333,8 +333,13 @@ public class TurretSubsystem extends SubsystemBase {
     public void turnToAngle(Angle newAngle) {
         if (newAngle.lt(TurretSubsystemConstants.MIN_TURRET_ANGLE) || newAngle.gt(TurretSubsystemConstants.MAX_TURRET_ANGLE)) {
             return;
+        }
+        
+        double errorDeg = Math.abs(newAngle.in(Degrees) - anglePositionSignal.getValueAsDouble());
+        if (errorDeg > TurretSubsystemConstants.TURRET_ANGLE_TOLERANCE_DEGREES) {
+            angleMotor.setControl(anglePositionReq.withPosition(newAngle));
         } else {
-            angleMotor.setControl(new PositionVoltage(newAngle));
+            angleMotor.set(0);
         }
     }
 
