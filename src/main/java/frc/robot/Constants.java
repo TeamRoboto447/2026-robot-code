@@ -214,5 +214,12 @@ public final class Constants {
 
     public static class ClimberSubsystemConstants {
         public static final int CLIMBER_MOTOR_ID = 45;
+
+        public static final double CLIMBER_HOLD_KP = 1.0;
+        public static final double CLIMBER_HOLD_KI = 0.0;
+        public static final double CLIMBER_HOLD_KD = 0.0;
+        public static final double CLIMBER_HOLD_KS = 0.0;
+
+        public static final double CLIMBER_HOLD_TOLERANCE_ROTATIONS = 0.5;
     }
 }

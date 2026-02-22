@@ -335,14 +335,6 @@ public class TurretSubsystem extends SubsystemBase {
             return;
         } else {
             angleMotor.setControl(new PositionVoltage(newAngle));
-
-            // double rotations = newAngle
-            //     .div(TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION)
-            //     .in(Value);
-        
-            // double rotations = newAngle.in(Rotations);
-            // angleMotor.setControl(anglePositionReq.withPosition(rotationsToAngle));
-            // angleMotor.setControl(new PositionVoltage(rotations));
         }
     }
 
