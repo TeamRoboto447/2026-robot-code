@@ -107,8 +107,54 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final int</code></div>
-<div class="col-second even-row-color"><code><a href="#CLIMBER_MOTOR_ID" class="member-name-link">CLIMBER_MOTOR_ID</a></code></div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#CLIMBER_DRUM_RADIUS_INCHES" class="member-name-link">CLIMBER_DRUM_RADIUS_INCHES</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Winch drum radius (inches).</div>
+</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#CLIMBER_FULL_EXTENSION_ROTATIONS" class="member-name-link">CLIMBER_FULL_EXTENSION_ROTATIONS</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Motor rotations required to reach full extension.</div>
+</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#CLIMBER_GEARBOX_RATIO" class="member-name-link">CLIMBER_GEARBOX_RATIO</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#CLIMBER_HOLD_KD" class="member-name-link">CLIMBER_HOLD_KD</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#CLIMBER_HOLD_KI" class="member-name-link">CLIMBER_HOLD_KI</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#CLIMBER_HOLD_KP" class="member-name-link">CLIMBER_HOLD_KP</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#CLIMBER_HOLD_KS" class="member-name-link">CLIMBER_HOLD_KS</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#CLIMBER_HOLD_TOLERANCE_ROTATIONS" class="member-name-link">CLIMBER_HOLD_TOLERANCE_ROTATIONS</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#CLIMBER_HOMING_SPEED" class="member-name-link">CLIMBER_HOMING_SPEED</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Open-loop output while homing toward the lower hard stop.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#CLIMBER_HOMING_STALL_AMPS" class="member-name-link">CLIMBER_HOMING_STALL_AMPS</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Stator-current threshold (amps) above which the climber is considered stalled.</div>
+</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#CLIMBER_HOMING_STALL_DURATION_S" class="member-name-link">CLIMBER_HOMING_STALL_DURATION_S</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">How long (seconds) current must exceed the threshold before homing is accepted.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final int</code></div>
+<div class="col-second odd-row-color"><code><a href="#CLIMBER_MOTOR_ID" class="member-name-link">CLIMBER_MOTOR_ID</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#CLIMBER_TRAVEL_INCHES" class="member-name-link">CLIMBER_TRAVEL_INCHES</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -153,6 +199,184 @@ loadScripts(document, 'script');</script>
 <dd>
 <ul class="tag-list">
 <li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_MOTOR_ID">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_HOLD_KP">
+<h3>CLIMBER_HOLD_KP</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_HOLD_KP</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_HOLD_KP">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_HOLD_KI">
+<h3>CLIMBER_HOLD_KI</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_HOLD_KI</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_HOLD_KI">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_HOLD_KD">
+<h3>CLIMBER_HOLD_KD</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_HOLD_KD</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_HOLD_KD">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_HOLD_KS">
+<h3>CLIMBER_HOLD_KS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_HOLD_KS</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_HOLD_KS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_HOLD_TOLERANCE_ROTATIONS">
+<h3>CLIMBER_HOLD_TOLERANCE_ROTATIONS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_HOLD_TOLERANCE_ROTATIONS</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_HOMING_SPEED">
+<h3>CLIMBER_HOMING_SPEED</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_HOMING_SPEED</span></div>
+<div class="block">Open-loop output while homing toward the lower hard stop. Negative = retract/lower.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_HOMING_SPEED">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_HOMING_STALL_AMPS">
+<h3>CLIMBER_HOMING_STALL_AMPS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_HOMING_STALL_AMPS</span></div>
+<div class="block">Stator-current threshold (amps) above which the climber is considered stalled.
+ Kraken X60 stall current is ~200 A; 20 A provides a conservative safe threshold
+ before the mechanical stop applies significant force.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_HOMING_STALL_DURATION_S">
+<h3>CLIMBER_HOMING_STALL_DURATION_S</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_HOMING_STALL_DURATION_S</span></div>
+<div class="block">How long (seconds) current must exceed the threshold before homing is accepted.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_HOMING_STALL_DURATION_S">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_DRUM_RADIUS_INCHES">
+<h3>CLIMBER_DRUM_RADIUS_INCHES</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_DRUM_RADIUS_INCHES</span></div>
+<div class="block">Winch drum radius (inches). Used to convert linear travel to motor rotations.
+ Full extension = CLIMBER_TRAVEL_INCHES / (2π × CLIMBER_DRUM_RADIUS_INCHES) × CLIMBER_GEARBOX_RATIO
+ Tune this if the climber overshoots or undershoots during the systems check.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_DRUM_RADIUS_INCHES">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_GEARBOX_RATIO">
+<h3>CLIMBER_GEARBOX_RATIO</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_GEARBOX_RATIO</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_GEARBOX_RATIO">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_TRAVEL_INCHES">
+<h3>CLIMBER_TRAVEL_INCHES</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_TRAVEL_INCHES</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_TRAVEL_INCHES">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CLIMBER_FULL_EXTENSION_ROTATIONS">
+<h3>CLIMBER_FULL_EXTENSION_ROTATIONS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">CLIMBER_FULL_EXTENSION_ROTATIONS</span></div>
+<div class="block">Motor rotations required to reach full extension.
+ = travel / circumference × gear ratio</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.ClimberSubsystemConstants.CLIMBER_FULL_EXTENSION_ROTATIONS">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>

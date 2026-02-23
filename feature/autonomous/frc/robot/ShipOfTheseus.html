@@ -112,21 +112,18 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>final <a href="subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></code></div>
 <div class="col-second even-row-color"><code><a href="#intakeSubsystem" class="member-name-link">intakeSubsystem</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>final <a href="subsystems/MotorTestingSubsystem.html" title="class in frc.robot.subsystems">MotorTestingSubsystem</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#motorTestingSubsystem" class="member-name-link">motorTestingSubsystem</a></code></div>
+<div class="col-first odd-row-color"><code>final <a href="subsystems/vision/PoseEstimatorSubsystem.html" title="class in frc.robot.subsystems.vision">PoseEstimatorSubsystem</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#poseEstimatorSubsystem" class="member-name-link">poseEstimatorSubsystem</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>final <a href="subsystems/vision/PoseEstimatorSubsystem.html" title="class in frc.robot.subsystems.vision">PoseEstimatorSubsystem</a></code></div>
-<div class="col-second even-row-color"><code><a href="#poseEstimatorSubsystem" class="member-name-link">poseEstimatorSubsystem</a></code></div>
+<div class="col-first even-row-color"><code>final <a href="libraries/Repulsor/Repulsor.html" title="class in frc.robot.libraries.Repulsor">Repulsor</a></code></div>
+<div class="col-second even-row-color"><code><a href="#repulsor" class="member-name-link">repulsor</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>final <a href="libraries/Repulsor/Repulsor.html" title="class in frc.robot.libraries.Repulsor">Repulsor</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#repulsor" class="member-name-link">repulsor</a></code></div>
+<div class="col-first odd-row-color"><code>final <a href="subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#swerveSubsystem" class="member-name-link">swerveSubsystem</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>final <a href="subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></code></div>
-<div class="col-second even-row-color"><code><a href="#swerveSubsystem" class="member-name-link">swerveSubsystem</a></code></div>
+<div class="col-first even-row-color"><code>final <a href="subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></code></div>
+<div class="col-second even-row-color"><code><a href="#turretSubsystem" class="member-name-link">turretSubsystem</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>final <a href="subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#turretSubsystem" class="member-name-link">turretSubsystem</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -155,7 +152,32 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAutonomousCommand()" class="member-name-link">getAutonomousCommand</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAutoClimbCommand()" class="member-name-link">getAutoClimbCommand</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns a command that fully automates the climb sequence when the driver
+ presses the climb button:
+ 
+   Raise the climber to full extension.
+   Drive to the climbing bar position using BLine path following
+       (no odometry reset — navigates from the robot's current pose).
+   Lower the climber onto the bar, engaging the hooks.
+ </div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAutonomousCommand()" class="member-name-link">getAutonomousCommand</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSystemsCheckCommand()" class="member-name-link">getSystemsCheckCommand</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the automated systems-check command to be scheduled during test mode.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodicUpdate()" class="member-name-link">periodicUpdate</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Called every robot loop from <code>Theseus.robotPeriodic()</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#runSensorlessHoming()" class="member-name-link">runSensorlessHoming</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
@@ -178,12 +200,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="swerveSubsystem">
 <h3>swerveSubsystem</h3>
 <div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></span>&nbsp;<span class="element-name">swerveSubsystem</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="motorTestingSubsystem">
-<h3>motorTestingSubsystem</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="subsystems/MotorTestingSubsystem.html" title="class in frc.robot.subsystems">MotorTestingSubsystem</a></span>&nbsp;<span class="element-name">motorTestingSubsystem</span></div>
 </section>
 </li>
 <li>
@@ -245,9 +261,54 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="runSensorlessHoming()">
+<h3>runSensorlessHoming</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">runSensorlessHoming</span>()</div>
+</section>
+</li>
+<li>
 <section class="detail" id="getAutonomousCommand()">
 <h3>getAutonomousCommand</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">getAutonomousCommand</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getAutoClimbCommand()">
+<h3>getAutoClimbCommand</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">getAutoClimbCommand</span>()</div>
+<div class="block">Returns a command that fully automates the climb sequence when the driver
+ presses the climb button:
+ <ol>
+   <li>Raise the climber to full extension.</li>
+   <li>Drive to the climbing bar position using BLine path following
+       (no odometry reset — navigates from the robot's current pose).</li>
+   <li>Lower the climber onto the bar, engaging the hooks.</li>
+ </ol>
+
+ <p><b>Tuning note:</b> The climb target pose is defined in
+ <code>Constants.FieldConstants.CLIMB_POSITION</code>. Adjust the x/y/rotation
+ values there and in <code>deploy/autos/paths/climb.json</code> to match your
+ actual bar location.</p></div>
+</section>
+</li>
+<li>
+<section class="detail" id="periodicUpdate()">
+<h3>periodicUpdate</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">periodicUpdate</span>()</div>
+<div class="block">Called every robot loop from <code>Theseus.robotPeriodic()</code>. Publishes
+ game-state telemetry to NetworkTables using the <a href="libraries/Repulsor/State/GameState.html" title="class in frc.robot.libraries.Repulsor.State"><code>GameState</code></a> instance
+ managed by <a href="libraries/Repulsor/State/StateManager.html" title="class in frc.robot.libraries.Repulsor.State"><code>StateManager</code></a> (updated by <code>repulsor.update()</code>).</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getSystemsCheckCommand()">
+<h3>getSystemsCheckCommand</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">getSystemsCheckCommand</span>()</div>
+<div class="block">Returns the automated systems-check command to be scheduled during test mode.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the systems-check command built by <a href="subsystems/SystemsCheck.html" title="class in frc.robot.subsystems"><code>SystemsCheck</code></a></dd>
+</dl>
 </section>
 </li>
 </ul>
