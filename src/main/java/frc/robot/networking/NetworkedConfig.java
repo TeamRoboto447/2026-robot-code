@@ -470,10 +470,23 @@ public class NetworkedConfig {
         private static final DoubleEntry newPoseY = debugTable.getDoubleTopic("New Pose Y").getEntry(0);
         private static final DoubleEntry newPoseRotation = debugTable.getDoubleTopic("New Pose Rotation").getEntry(0);
 
+        /**
+         * When {@code true}, hub-lock is bypassed and the driver can shoot at the hub
+         * regardless of whether the hub is currently active. Intended for development
+         * only — leave {@code false} during competition.
+         */
+        private static final BooleanEntry bypassHubLock =
+            debugTable.getBooleanTopic("Bypass Hub Lock").getEntry(false);
+
         public static void initializeDefaults() {
             newPoseX.set(0);
             newPoseY.set(0);
             newPoseRotation.set(0);
+            bypassHubLock.set(false);
+        }
+
+        public static boolean isBypassHubLock() {
+            return bypassHubLock.get();
         }
         
         public static double getNewPoseX() {

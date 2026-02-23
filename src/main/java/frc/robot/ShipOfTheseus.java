@@ -28,6 +28,8 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
 import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
+import frc.robot.libraries.Repulsor.State.GameState;
+import frc.robot.libraries.Repulsor.State.StateManager;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -174,13 +176,17 @@ public class ShipOfTheseus {
         // Spin up the flywheel while the trigger is held. Once the flywheel reaches
         // target speed (feedTrigger goes high), the kicker and spindexer activate to
         // feed the shooter. Requires a valid trajectory — does nothing otherwise.
+        // Hub shots are blocked while the hub is inactive; non-hub targets (alliance
+        // zone relays) are always allowed.
         DriverController.rightTrigger().and(turretSubsystem::hasValidTarget)
+            .and(this::isShotAllowed)
             .whileTrue(
                 turretSubsystem.run(() -> turretSubsystem.shoot())
             );
 
         turretSubsystem.getFeedTrigger().and(DriverController.rightTrigger())
             .and(turretSubsystem::hasValidTarget)
+            .and(this::isShotAllowed)
             .whileTrue(Commands.parallel(
                 indexerSubsystem.run(() -> indexerSubsystem.spin()),
                 turretSubsystem.run(() -> turretSubsystem.kick(0.35))
@@ -210,11 +216,13 @@ public class ShipOfTheseus {
         // Operator: Shoot (right trigger)
         // Same logic as the driver shoot binding.
         OperatorController.rightTrigger().and(turretSubsystem::hasValidTarget)
+            .and(this::isShotAllowed)
             .whileTrue(
                 turretSubsystem.run(() -> turretSubsystem.shoot())
             );
         turretSubsystem.getFeedTrigger().and(OperatorController.rightTrigger())
             .and(turretSubsystem::hasValidTarget)
+            .and(this::isShotAllowed)
             .whileTrue(Commands.parallel(
                 indexerSubsystem.run(() -> indexerSubsystem.spin()),
                 turretSubsystem.run(() -> turretSubsystem.kick(0.35))
@@ -494,6 +502,38 @@ public class ShipOfTheseus {
                 ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_SCORING_SIDE
                 : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_AUDIENCE_SIDE;
         }
+    }
+
+    /**
+     * Called every robot loop from {@code Theseus.robotPeriodic()}. Publishes
+     * game-state telemetry to NetworkTables using the {@link GameState} instance
+     * managed by {@link StateManager} (updated by {@code repulsor.update()}).
+     */
+    public void periodicUpdate() {
+        GameState gs = StateManager.getState(GameState.class);
+        if (gs != null) {
+            NetworkedTelemetry.GameState.publish(
+                edu.wpi.first.wpilibj.DriverStation.getMatchTime(),
+                gs.isHubActive()
+            );
+        }
+    }
+
+    /**
+     * Returns {@code true} when a hub-targeting shot is permitted.
+     *
+     * <p>A shot is allowed when any of the following is true:
+     * <ul>
+     *   <li>The turret is <em>not</em> targeting the hub (relay shots always allowed).</li>
+     *   <li>The hub is currently active for this alliance.</li>
+     *   <li>{@link NetworkedConfig.Debug#isBypassHubLock()} is {@code true} (dev override).</li>
+     * </ul>
+     */
+    private boolean isShotAllowed() {
+        if (!turretSubsystem.isTargetingHub()) return true;
+        if (NetworkedConfig.Debug.isBypassHubLock()) return true;
+        GameState gs = StateManager.getState(GameState.class);
+        return gs == null || gs.isHubActive();
     }
 
     /**

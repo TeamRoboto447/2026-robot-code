@@ -382,6 +382,16 @@ public class TurretSubsystem extends SubsystemBase {
         return NetworkedConfig.Turret.hasValidTrajectory();
     }
 
+    /**
+     * Returns true when the turret is currently targeting either alliance hub.
+     * Used to gate shooting during inactive hub periods — if the hub is not
+     * active and the turret is aimed at it, shooting should be blocked.
+     */
+    public boolean isTargetingHub() {
+        return turretTarget == TurretTarget.RED_HUB
+            || turretTarget == TurretTarget.BLUE_HUB;
+    }
+
     /** Returns the current turret rotation angle in degrees (from the cached position signal). */
     public double getTurretAngleDegrees() {
         return anglePositionSignal.getValueAsDouble();

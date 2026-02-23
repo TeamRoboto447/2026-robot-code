@@ -332,4 +332,37 @@ public class NetworkedTelemetry {
             return allPassed;
         }
     }
+
+    /**
+     * Game-state telemetry — publishes match time and hub active status
+     * derived from {@code GameState} via {@code StateManager}.
+     *
+     * <p>NT path: {@code GameState/}</p>
+     */
+    public static class GameState {
+        private static final NetworkTable gameStateTable =
+            defaultNTInstance.getTable("GameState");
+
+        /** Remaining match time in seconds (as reported by DriverStation). */
+        private static final DoubleEntry matchTime =
+            gameStateTable.getDoubleTopic("Match Time").getEntry(-1.0);
+
+        /**
+         * Whether the hub is currently active (accepting fuel) for this alliance.
+         * False if the game data hasn't arrived yet.
+         */
+        private static final BooleanEntry hubActive =
+            gameStateTable.getBooleanTopic("Hub Active").getEntry(false);
+
+        /**
+         * Publishes game-state values to NetworkTables.
+         *
+         * @param matchTimeSecs   Remaining match time in seconds
+         * @param isHubActive     Whether the hub is active for this alliance
+         */
+        public static void publish(double matchTimeSecs, boolean isHubActive) {
+            matchTime.set(matchTimeSecs);
+            hubActive.set(isHubActive);
+        }
+    }
 }

@@ -33,6 +33,7 @@ public class Theseus extends TimedRobot {
         // Repulsor main update loop (minimal integration)
         if (m_robotContainer != null && m_robotContainer.repulsor != null) {
             m_robotContainer.repulsor.update();
+            m_robotContainer.periodicUpdate();
         }
     }
 
