@@ -167,24 +167,24 @@ public final class Constants {
          */
         public static class ClimbPositions {
             public static final Pose2d BLUE_AUDIENCE_SIDE = new Pose2d(
-                Units.inchesToMeters(144.0), // placeholder — tune to your bar
-                Units.inchesToMeters(66.0),  // audience side: y < field midpoint
-                Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
+                1.1, // placeholder — tune to your bar
+                4.519,  // audience side: y < field midpoint
+                Rotation2d.fromDegrees(270)   // placeholder — tune to face the bar
             );
             public static final Pose2d BLUE_SCORING_SIDE = new Pose2d(
-                Units.inchesToMeters(144.0), // placeholder — tune to your bar
-                Units.inchesToMeters(198.0), // scoring side: y > field midpoint
-                Rotation2d.fromDegrees(270)  // placeholder — tune to face the bar
+                1.1, // placeholder — tune to your bar
+                2.931, // scoring side: y > field midpoint
+                Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
             public static final Pose2d RED_AUDIENCE_SIDE = new Pose2d(
-                Units.inchesToMeters(507.22), // placeholder — tune to your bar
-                Units.inchesToMeters(66.0),   // audience side: y < field midpoint
-                Rotation2d.fromDegrees(90)    // placeholder — tune to face the bar
+                15.523, // placeholder — tune to your bar
+                2.931,   // audience side: y < field midpoint
+                Rotation2d.fromDegrees(270)    // placeholder — tune to face the bar
             );
             public static final Pose2d RED_SCORING_SIDE = new Pose2d(
-                Units.inchesToMeters(507.22), // placeholder — tune to your bar
-                Units.inchesToMeters(198.0),  // scoring side: y > field midpoint
-                Rotation2d.fromDegrees(270)   // placeholder — tune to face the bar
+                15.523, // placeholder — tune to your bar
+                4.519,  // scoring side: y > field midpoint
+                Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
             );
         }
     }
