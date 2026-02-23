@@ -157,6 +157,40 @@ public class ClimberSubsystem extends SubsystemBase {
     return positionSignal.getValueAsDouble();
   }
 
+  /**
+   * Returns a {@link Command} that drives the climber to full extension and then
+   * holds position. Intended for use in the automated climb sequence — call this
+   * before driving under the bar.
+   *
+   * <p>The command runs {@link #climb()} until the position reaches
+   * {@code CLIMBER_FULL_EXTENSION_ROTATIONS}, then calls {@link #stopClimber()} to
+   * latch the hold controller at that position.</p>
+   */
+  public Command raiseToFull() {
+    return this.run(() -> climb())
+        .until(() -> getPositionRotations()
+            >= ClimberSubsystemConstants.CLIMBER_FULL_EXTENSION_ROTATIONS
+               - ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)
+        .withTimeout(20.0)
+        .andThen(this.runOnce(() -> stopClimber()));
+  }
+
+  /**
+   * Returns a {@link Command} that lowers the climber back to the homed (zero)
+   * position. Intended for use after the robot has driven under the bar — lowering
+   * engages the hooks on the bar.
+   *
+   * <p>The command runs {@link #lower()} until the encoder reads near zero, then
+   * calls {@link #stopClimber()} to engage the hold controller.</p>
+   */
+  public Command lowerOntoBar() {
+    return this.run(() -> lower())
+        .until(() -> getPositionRotations()
+            <= ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)
+        .withTimeout(20.0)
+        .andThen(this.runOnce(() -> stopClimber()));
+  }
+
   public Command idle() {
     return this.run(() -> {
       climberMotor.set(0);

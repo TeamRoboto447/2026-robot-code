@@ -79,6 +79,27 @@ public class ShipOfTheseus {
         ).withDefaultShouldFlip()
         .withPoseReset(swerveSubsystem::resetPose);
 
+    /**
+     * Path-following builder used for mid-game commands (e.g. automated climb).
+     * Unlike {@link #pathBuilder}, this builder does NOT reset the robot's odometry
+     * at the start of the path — the robot navigates from wherever it currently is.
+     *
+     * <p>Alliance flipping is intentionally disabled here because the climbing bar
+     * is at the center of the field and is the same physical location for both
+     * alliances. If your climb target is alliance-specific, switch this to
+     * {@code .withDefaultShouldFlip()}.</p>
+     */
+    FollowPath.Builder noResetPathBuilder = new FollowPath.Builder(
+        swerveSubsystem,
+        swerveSubsystem::getPose,
+        swerveSubsystem::getChassisSpeeds,
+        swerveSubsystem::driveWithChassisSpeeds,
+        new PIDController(5.0, 0.0, 0.0),
+        new PIDController(3.0, 0.0, 0.0),
+        new PIDController(2.0, 0.0, 0.0)
+        ).withShouldFlip(() -> false) // center-field target: same for both alliances
+        .withPoseReset(pose -> {}); // no-op: preserve current odometry
+
     public ShipOfTheseus() {
 
         this.turretSubsystem = new TurretSubsystem(swerveSubsystem);
@@ -143,6 +164,11 @@ public class ShipOfTheseus {
         // Driver: Climber
         DriverController.leftBumper().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
         DriverController.rightBumper().whileTrue(climberSubsystem.run(() -> climberSubsystem.climb()));
+
+        // Driver: Automated climb (A button)
+        // Raises the climber, drives to the bar, then lowers onto it.
+        // Pressing A again (or any command that requires swerve/climber) will cancel.
+        DriverController.a().onTrue(getAutoClimbCommand());
 
         // Driver: Shoot (right trigger)
         // Spin up the flywheel while the trigger is held. Once the flywheel reaches
@@ -410,6 +436,64 @@ public class ShipOfTheseus {
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    /**
+     * Returns a command that fully automates the climb sequence when the driver
+     * presses the climb button:
+     * <ol>
+     *   <li>Raise the climber to full extension.</li>
+     *   <li>Drive to the climbing bar position using BLine path following
+     *       (no odometry reset — navigates from the robot's current pose).</li>
+     *   <li>Lower the climber onto the bar, engaging the hooks.</li>
+     * </ol>
+     *
+     * <p><b>Tuning note:</b> The climb target pose is defined in
+     * {@code Constants.FieldConstants.CLIMB_POSITION}. Adjust the x/y/rotation
+     * values there and in {@code deploy/autos/paths/climb.json} to match your
+     * actual bar location.</p>
+     */
+    public Command getAutoClimbCommand() {
+        return Commands.sequence(
+            // Step 1: raise climber to full extension so it clears the bar
+            climberSubsystem.raiseToFull(),
+            // Step 2: drive to the correct bar position for this alliance + field side,
+            //         determined from the robot's current pose at the moment A is pressed.
+            Commands.defer(() -> {
+                Pose2d target = selectClimbPosition();
+                Path climbPath = new Path(new Path.Waypoint(target));
+                return noResetPathBuilder.build(climbPath);
+            }, java.util.Set.of(swerveSubsystem)),
+            // Step 3: lower onto the bar to engage the hooks
+            climberSubsystem.lowerOntoBar()
+        );
+    }
+
+    /**
+     * Picks the correct climb target pose based on the robot's current alliance
+     * and which side of the field (audience vs scoring) it is on.
+     *
+     * <p>Falls back to the blue audience-side position if the alliance or zone
+     * cannot be determined.</p>
+     */
+    private Pose2d selectClimbPosition() {
+        var alliance = edu.wpi.first.wpilibj.DriverStation.getAlliance();
+        boolean isRed = alliance.isPresent()
+            && alliance.get() == edu.wpi.first.wpilibj.DriverStation.Alliance.Red;
+
+        // Use the robot's current Y to decide audience side (low Y) vs scoring side (high Y).
+        double fieldMidY = frc.robot.Constants.FieldConstants.FIELD_WIDTH_METERS / 2.0;
+        boolean isScoringside = swerveSubsystem.getPose().getY() >= fieldMidY;
+
+        if (isRed) {
+            return isScoringside
+                ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_SCORING_SIDE
+                : frc.robot.Constants.FieldConstants.ClimbPositions.RED_AUDIENCE_SIDE;
+        } else {
+            return isScoringside
+                ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_SCORING_SIDE
+                : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_AUDIENCE_SIDE;
+        }
     }
 
     /**

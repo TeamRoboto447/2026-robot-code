@@ -7,7 +7,9 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -151,6 +153,39 @@ public final class Constants {
             public static final Translation3d BLUE_HUB = new Translation3d(4.623, 4.035, 1.83);
             public static final Translation3d BLUE_LEFT_CORNER = new Translation3d(1, 7.07, 0);
             public static final Translation3d BLUE_RIGHT_CORNER = new Translation3d(1, 1, 0);
+        }
+
+        /**
+         * Target poses the robot drives to during an automated climb, one per
+         * alliance-side combination.
+         *
+         * <p>All coordinates use the blue-alliance origin (standard WPILib convention).
+         * X/Y are in meters; rotation is the heading the robot should face when it
+         * arrives so that the side-mounted hooks engage the bar correctly.
+         *
+         * <p><b>TODO: Tune all four poses to match the actual bar locations on your field.</b>
+         */
+        public static class ClimbPositions {
+            public static final Pose2d BLUE_AUDIENCE_SIDE = new Pose2d(
+                Units.inchesToMeters(144.0), // placeholder — tune to your bar
+                Units.inchesToMeters(66.0),  // audience side: y < field midpoint
+                Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
+            );
+            public static final Pose2d BLUE_SCORING_SIDE = new Pose2d(
+                Units.inchesToMeters(144.0), // placeholder — tune to your bar
+                Units.inchesToMeters(198.0), // scoring side: y > field midpoint
+                Rotation2d.fromDegrees(270)  // placeholder — tune to face the bar
+            );
+            public static final Pose2d RED_AUDIENCE_SIDE = new Pose2d(
+                Units.inchesToMeters(507.22), // placeholder — tune to your bar
+                Units.inchesToMeters(66.0),   // audience side: y < field midpoint
+                Rotation2d.fromDegrees(90)    // placeholder — tune to face the bar
+            );
+            public static final Pose2d RED_SCORING_SIDE = new Pose2d(
+                Units.inchesToMeters(507.22), // placeholder — tune to your bar
+                Units.inchesToMeters(198.0),  // scoring side: y > field midpoint
+                Rotation2d.fromDegrees(270)   // placeholder — tune to face the bar
+            );
         }
     }
 
