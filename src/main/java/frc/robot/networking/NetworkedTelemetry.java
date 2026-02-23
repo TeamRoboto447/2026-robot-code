@@ -269,65 +269,59 @@ public class NetworkedTelemetry {
         public static final BooleanEntry resSwerveRotateCCW   = resultsTable.getBooleanTopic("Swerve: Rotate CCW").getEntry(false);
         public static final StringEntry  resOverall      = resultsTable.getStringTopic("Overall").getEntry("NOT RUN");
 
-        /** Resets all result entries to false and overall to {@code "RUNNING"}. */
-        public static void resetResults() {
-            resHoodHoming.set(false);
-            resHoodAngle.set(false);
-            resTurretFwd.set(false);
-            resTurretRev.set(false);
-            resTurretReturn.set(false);
-            resFlywheel2k.set(false);
-            resFlywheel3k.set(false);
-            resFlywheel4k.set(false);
-            resFlywheel5k.set(false);
-            resIntakeDrop.set(false);
-            resIntakeRoller.set(false);
-            resIntakeLift.set(false);
-            resIndexer.set(false);
-            resClimberHome.set(false);
-            resClimberExt.set(false);
-            resClimberRet.set(false);
-            resSwerveNoFaults.set(false);
-            resSwerveForward.set(false);
-            resSwerveBackward.set(false);
-            resSwerveLeft.set(false);
-            resSwerveRight.set(false);
-            resSwerveRotateCW.set(false);
-            resSwerveRotateCCW.set(false);
+        /** Resets result entries to {@code false} only for <em>enabled</em> systems,
+         *  leaving results for skipped systems unchanged. Also sets overall to
+         *  {@code "RUNNING"}.
+         *
+         * @param hood     whether the hood check is enabled this run
+         * @param turret   whether the turret check is enabled this run
+         * @param flywheel whether the flywheel check is enabled this run
+         * @param intake   whether the intake check is enabled this run
+         * @param indexer  whether the indexer check is enabled this run
+         * @param climber  whether the climber check is enabled this run
+         * @param swerve   whether the swerve check is enabled this run
+         */
+        public static void resetResults(
+                boolean hood, boolean turret, boolean flywheel,
+                boolean intake, boolean indexer, boolean climber, boolean swerve) {
+            if (hood)     { resHoodHoming.set(false);  resHoodAngle.set(false); }
+            if (turret)   { resTurretFwd.set(false);   resTurretRev.set(false); resTurretReturn.set(false); }
+            if (flywheel) { resFlywheel2k.set(false);  resFlywheel3k.set(false);
+                            resFlywheel4k.set(false);  resFlywheel5k.set(false); }
+            if (intake)   { resIntakeDrop.set(false);  resIntakeRoller.set(false); resIntakeLift.set(false); }
+            if (indexer)  { resIndexer.set(false); }
+            if (climber)  { resClimberHome.set(false); resClimberExt.set(false); resClimberRet.set(false); }
+            if (swerve)   { resSwerveNoFaults.set(false);  resSwerveForward.set(false);
+                            resSwerveBackward.set(false);   resSwerveLeft.set(false);
+                            resSwerveRight.set(false);      resSwerveRotateCW.set(false);
+                            resSwerveRotateCCW.set(false); }
             resOverall.set("RUNNING");
         }
 
         /**
-         * Evaluates all result entries and sets {@code Overall} to {@code "PASSED"}
-         * or {@code "FAILED"}.
+         * Evaluates result entries <em>only for enabled systems</em> and sets
+         * {@code Overall} to {@code "PASSED"} or {@code "FAILED"}.
          *
-         * @return {@code true} if every entry is {@code true}
+         * <p>Systems that were not checked in this run are excluded from the
+         * evaluation entirely — a skipped system never causes a failure.
+         *
+         * @return {@code true} if every checked entry passed
          */
-        public static boolean computeOverall() {
-            boolean allPassed =
-                resHoodHoming.get()   &&
-                resHoodAngle.get()    &&
-                resTurretFwd.get()    &&
-                resTurretRev.get()    &&
-                resTurretReturn.get() &&
-                resFlywheel2k.get()   &&
-                resFlywheel3k.get()   &&
-                resFlywheel4k.get()   &&
-                resFlywheel5k.get()   &&
-                resIntakeDrop.get()   &&
-                resIntakeRoller.get() &&
-                resIntakeLift.get()   &&
-                resIndexer.get()      &&
-                resClimberHome.get()  &&
-                resClimberExt.get()   &&
-                resClimberRet.get()   &&
-                resSwerveNoFaults.get()   &&
-                resSwerveForward.get()    &&
-                resSwerveBackward.get()   &&
-                resSwerveLeft.get()       &&
-                resSwerveRight.get()      &&
-                resSwerveRotateCW.get()   &&
-                resSwerveRotateCCW.get();
+        public static boolean computeOverall(
+                boolean hood, boolean turret, boolean flywheel,
+                boolean intake, boolean indexer, boolean climber, boolean swerve) {
+            boolean allPassed = true;
+            if (hood)     allPassed &= resHoodHoming.get()    && resHoodAngle.get();
+            if (turret)   allPassed &= resTurretFwd.get()     && resTurretRev.get() && resTurretReturn.get();
+            if (flywheel) allPassed &= resFlywheel2k.get()    && resFlywheel3k.get()
+                                    && resFlywheel4k.get()    && resFlywheel5k.get();
+            if (intake)   allPassed &= resIntakeDrop.get()    && resIntakeRoller.get() && resIntakeLift.get();
+            if (indexer)  allPassed &= resIndexer.get();
+            if (climber)  allPassed &= resClimberHome.get()   && resClimberExt.get() && resClimberRet.get();
+            if (swerve)   allPassed &= resSwerveNoFaults.get() && resSwerveForward.get()
+                                    && resSwerveBackward.get() && resSwerveLeft.get()
+                                    && resSwerveRight.get()    && resSwerveRotateCW.get()
+                                    && resSwerveRotateCCW.get();
             resOverall.set(allPassed ? "PASSED" : "FAILED");
             return allPassed;
         }

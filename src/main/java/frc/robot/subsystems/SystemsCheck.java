@@ -83,11 +83,25 @@ public class SystemsCheck {
      * @return the systems-check command (non-null, safe to schedule)
      */
     public static Command build(ShipOfTheseus robot) {
+        // Snapshot the enable flags at the moment build() is called (i.e. when test
+        // mode starts).  These same flags are used to selectively reset only the
+        // entries that will actually be exercised this run, and to evaluate only
+        // those entries in the final pass/fail summary.
+        final boolean chkHood     = NetworkedConfig.SystemsCheck.isCheckHood();
+        final boolean chkTurret   = NetworkedConfig.SystemsCheck.isCheckTurret();
+        final boolean chkFlywheel = NetworkedConfig.SystemsCheck.isCheckFlywheel();
+        final boolean chkIntake   = NetworkedConfig.SystemsCheck.isCheckIntake();
+        final boolean chkIndexer  = NetworkedConfig.SystemsCheck.isCheckIndexer();
+        final boolean chkClimber  = NetworkedConfig.SystemsCheck.isCheckClimber();
+        final boolean chkSwerve   = NetworkedConfig.SystemsCheck.isCheckSwerve();
+
         return Commands.sequence(
-            // Reset NT state and switch to the systems-check Elastic tab
+            // Reset NT state only for systems being checked this run, then switch tab
             Commands.runOnce(() -> {
                 sequenceAborted = false;
-                NetworkedTelemetry.SystemsCheck.resetResults();
+                NetworkedTelemetry.SystemsCheck.resetResults(
+                    chkHood, chkTurret, chkFlywheel,
+                    chkIntake, chkIndexer, chkClimber, chkSwerve);
                 Elastic.sendNotification(new Notification(
                     NotificationLevel.INFO,
                     "Systems Check",
@@ -256,7 +270,9 @@ public class SystemsCheck {
                 NetworkedTelemetry.SystemsCheck.resSwerveRotateCCW),
 
             // Final summary
-            Commands.runOnce(SystemsCheck::publishFinalResult)
+            Commands.runOnce(() -> publishFinalResult(
+                chkHood, chkTurret, chkFlywheel,
+                chkIntake, chkIndexer, chkClimber, chkSwerve))
         );
     }
 
@@ -419,8 +435,11 @@ public class SystemsCheck {
 
     // Final result
 
-    private static void publishFinalResult() {
-        boolean allPassed = NetworkedTelemetry.SystemsCheck.computeOverall();
+    private static void publishFinalResult(
+            boolean hood, boolean turret, boolean flywheel,
+            boolean intake, boolean indexer, boolean climber, boolean swerve) {
+        boolean allPassed = NetworkedTelemetry.SystemsCheck.computeOverall(
+            hood, turret, flywheel, intake, indexer, climber, swerve);
         if (allPassed) {
             Elastic.sendNotification(new Notification(
                 NotificationLevel.INFO,
