@@ -70,7 +70,6 @@ public class TurretSubsystem extends SubsystemBase {
     private double prevReadingTimestamp = Double.NaN;
     private double currentVelocityToTarget = 0;
     private ControlTarget currentControlTarget = new ControlTarget();
-    @SuppressWarnings("unused")
     private boolean hoodLimitSet = false;
     private final Trigger hoodLowerLimitTrigger;
     private final Trigger feedTrigger;
@@ -313,6 +312,66 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
+     * Returns a {@link Command} that homes the hood by slowly driving it toward
+     * the lower hard stop and zeroing the encoder when a current-based stall is
+     * detected.
+     *
+     * <p>The hood is a NEO 550 on a SparkMax with a 301:1 effective gear ratio
+     * (16:1 gearbox driving a 16-tooth pinion on a 301-tooth ring gear).  The
+     * command drives the motor at {@code HOOD_HOMING_SPEED} (a small open-loop
+     * output toward the lower mechanical stop) until the SparkMax output current
+     * exceeds {@code HOOD_HOMING_STALL_AMPS} for at least
+     * {@code HOOD_HOMING_STALL_DURATION_S} continuous seconds.  It then zeros
+     * the built-in relative encoder and sets {@code hoodLimitSet = true},
+     * unlocking normal closed-loop angle control.</p>
+     *
+     * <p>The NEO 550 free-run current is roughly 1 A; stall is roughly 8 A.
+     * The default threshold of 4 A sits comfortably in between and will trip
+     * well before the motor reaches its thermal stall point at the slow homing
+     * speed.</p>
+     *
+     * @return the homing command
+     */
+    public Command homeHood() {
+        Timer stallTimer = new Timer();
+
+        return this.runOnce(() -> {
+                    // Stop any ongoing closed-loop hood command and start the timer.
+                    hoodMotor.set(0);
+                    stallTimer.restart();
+                })
+                .andThen(this.run(() -> {
+                    // Drive slowly toward the lower hard stop.
+                    hoodMotor.set(TurretSubsystemConstants.HOOD_HOMING_SPEED);
+
+                    // Keep the stall timer reset while current is below the threshold
+                    // so it only accumulates time for *continuous* over-current periods.
+                    if (hoodMotor.getOutputCurrent() < TurretSubsystemConstants.HOOD_HOMING_STALL_AMPS) {
+                    stallTimer.restart();
+                    }
+                }))
+                .until(() ->
+                    hoodMotor.getOutputCurrent() >= TurretSubsystemConstants.HOOD_HOMING_STALL_AMPS
+                    && stallTimer.hasElapsed(TurretSubsystemConstants.HOOD_HOMING_STALL_DURATION_S))
+                .finallyDo((interrupted) -> {
+                    hoodMotor.set(0);
+                    stallTimer.stop();
+
+                    if (!interrupted) {
+                        // Hard stop confirmed — zero the relative encoder and allow
+                        // setHoodAngle() to accept commands.
+                        hoodEncoder.setPosition(0);
+                        hoodLimitSet = true;
+                    }
+                })
+                .unless(() -> hoodLimitSet);
+    }
+
+    /** Returns true once the hood has been successfully homed. */
+    public boolean isHoodHomed() {
+        return hoodLimitSet;
+    }
+    /**
      * Stops the kicker.
      */
     public void stopKicker() {
@@ -365,7 +424,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @param newAngle The new angle for the hood to move to.
      */
     public void setHoodAngle(Angle newAngle) {
-        if (/*(!hoodLimitSet) || */
+        if ((!hoodLimitSet) ||
                 (newAngle.compareTo(TurretSubsystemConstants.MAX_HOOD_ANGLE) > 0) ||
                 (newAngle.compareTo(TurretSubsystemConstants.MIN_HOOD_ANGLE) < 0)) {
             return;

@@ -88,6 +88,8 @@ public class ShipOfTheseus {
         this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
         this.climberSubsystem = new ClimberSubsystem();
 
+        this.climberSubsystem.setDefaultCommand(this.climberSubsystem.idle());
+
         SmartDashboard.putData("Field", field);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -107,7 +109,15 @@ public class ShipOfTheseus {
         RepulsorDriverStationBootstrap.useDefaultNt();
     }
 
+    public void runSensorlessHoming() {
+        climberSubsystem.homeClimber().schedule();
+        turretSubsystem.homeHood().schedule();
+    }
+
     private void configureBindings() {
+        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
+        RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
+
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         swerveSubsystem.setDefaultCommand(

@@ -188,6 +188,17 @@ public final class Constants {
         public static final double TURRET_DEGREES_PER_ROTATION = 29.17;
         public static final double TURRET_ANGLE_TOLERANCE_DEGREES = 0.5;
 
+        
+        /** Open-loop output used while homing toward the lower hard stop. Negative = lower. */
+        public static final double HOOD_HOMING_SPEED = -0.1;
+        /**
+         * Output-current threshold (amps) above which the NEO 550 is considered stalled.
+         * NEO 550 free current ≈ 1 A; stall ≈ 8 A. 4 A gives comfortable headroom.
+         */
+        public static final double HOOD_HOMING_STALL_AMPS = 4.0;
+        /** How long (seconds) current must exceed the threshold before homing is accepted. */
+        public static final double HOOD_HOMING_STALL_DURATION_S = 0.1;
+
         public static final Transform3d TURRET_TO_ROBOT = new Transform3d(
             new Translation3d(Units.inchesToMeters(-7.5), Units.inchesToMeters(-6.5), Units.inchesToMeters(20)),
             new Rotation3d(0, 0, 0));
@@ -222,5 +233,18 @@ public final class Constants {
         public static final double CLIMBER_HOLD_KS = 0.0;
 
         public static final double CLIMBER_HOLD_TOLERANCE_ROTATIONS = 0.5;
+
+        // Climber homing constants (TalonFX / Kraken X60, 64:1 gearbox, ~7 in travel).
+        // Homing drives slowly downward to the lower hard stop and zeros when stall is detected.
+        /** Open-loop output while homing toward the lower hard stop. Negative = retract/lower. */
+        public static final double CLIMBER_HOMING_SPEED = -1;
+        /**
+         * Stator-current threshold (amps) above which the climber is considered stalled.
+         * Kraken X60 stall current is ~200 A; 20 A provides a conservative safe threshold
+         * before the mechanical stop applies significant force.
+         */
+        public static final double CLIMBER_HOMING_STALL_AMPS = 15.0;
+        /** How long (seconds) current must exceed the threshold before homing is accepted. */
+        public static final double CLIMBER_HOMING_STALL_DURATION_S = 0.1;
     }
 }

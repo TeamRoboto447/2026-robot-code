@@ -36,27 +36,33 @@ public class GameState extends StaticState {
   private Alert noGameDataAlert = new Alert("No Game Data Read", AlertType.kWarning);
 
   private void updateAlliance() {
-    noAllianceAlert.set(false);
     Optional<DriverStation.Alliance> readAlliance = DriverStation.getAlliance();
     if (alliance.isEmpty() && readAlliance.isPresent()) {
       alliance = readAlliance;
-    } else {
-      noAllianceAlert.set(true);
+      // Alliance successfully read — clear the alert only if it was active.
+      if (noAllianceAlert.get()) noAllianceAlert.set(false);
+    } else if (alliance.isEmpty()) {
+      // Still no alliance — raise the alert only if it wasn't already raised.
+      if (!noAllianceAlert.get()) noAllianceAlert.set(true);
     }
   }
 
   private void updateGameData() {
     String gameData = DriverStation.getGameSpecificMessage();
-    noGameDataAlert.set(true);
-    if (gameData.length() > 0) {
-      if (gameData.charAt(0) == 'B' || gameData.charAt(0) == 'R') {
-        noGameDataAlert.set(false);
-      }
+    boolean validGameData = gameData.length() > 0
+        && (gameData.charAt(0) == 'B' || gameData.charAt(0) == 'R');
+
+    // Only call Alert.set() when the state actually changes.
+    // Alert internally modifies a TreeSet on every set() call regardless of
+    // whether the value changed; doing so while SmartDashboard is iterating
+    // that same set causes a ConcurrentModificationException.
+    if (noGameDataAlert.get() == validGameData) {
+      noGameDataAlert.set(!validGameData);
     }
 
-    if (inactiveFirst.isEmpty() && !noGameDataAlert.get()) {
+    if (inactiveFirst.isEmpty() && validGameData) {
       inactiveFirst =
-          Optional.of((gameData == "B") ? DriverStation.Alliance.Blue : DriverStation.Alliance.Red);
+          Optional.of((gameData.equals("B")) ? DriverStation.Alliance.Blue : DriverStation.Alliance.Red);
     }
   }
 
