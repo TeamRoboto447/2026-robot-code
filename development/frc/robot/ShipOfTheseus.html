@@ -152,16 +152,28 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAutonomousCommand()" class="member-name-link">getAutonomousCommand</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAutoClimbCommand()" class="member-name-link">getAutoClimbCommand</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns a command that fully automates the climb sequence when the driver
+ presses the climb button:
+ 
+   Raise the climber to full extension.
+   Drive to the climbing bar position using BLine path following
+       (no odometry reset — navigates from the robot's current pose).
+   Lower the climber onto the bar, engaging the hooks.
+ </div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSystemsCheckCommand()" class="member-name-link">getSystemsCheckCommand</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAutonomousCommand()" class="member-name-link">getAutonomousCommand</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSystemsCheckCommand()" class="member-name-link">getSystemsCheckCommand</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the automated systems-check command to be scheduled during test mode.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#runSensorlessHoming()" class="member-name-link">runSensorlessHoming</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#runSensorlessHoming()" class="member-name-link">runSensorlessHoming</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -253,6 +265,25 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getAutonomousCommand()">
 <h3>getAutonomousCommand</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">getAutonomousCommand</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getAutoClimbCommand()">
+<h3>getAutoClimbCommand</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">getAutoClimbCommand</span>()</div>
+<div class="block">Returns a command that fully automates the climb sequence when the driver
+ presses the climb button:
+ <ol>
+   <li>Raise the climber to full extension.</li>
+   <li>Drive to the climbing bar position using BLine path following
+       (no odometry reset — navigates from the robot's current pose).</li>
+   <li>Lower the climber onto the bar, engaging the hooks.</li>
+ </ol>
+
+ <p><b>Tuning note:</b> The climb target pose is defined in
+ <code>Constants.FieldConstants.CLIMB_POSITION</code>. Adjust the x/y/rotation
+ values there and in <code>deploy/autos/paths/climb.json</code> to match your
+ actual bar location.</p></div>
 </section>
 </li>
 <li>
