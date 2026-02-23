@@ -155,6 +155,18 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the trigger that indicates when the shooter is at target velocity.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#homeHood()" class="member-name-link">homeHood</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns a <code>Command</code> that homes the hood by slowly driving it toward
+ the lower hard stop and zeroing the encoder when a current-based stall is
+ detected.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isHoodHomed()" class="member-name-link">isHoodHomed</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns true once the hood has been successfully homed.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#kick(double)" class="member-name-link">kick</a><wbr>(double&nbsp;strength)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -329,6 +341,40 @@ loadScripts(document, 'script');</script>
 <h3>stopHood</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopHood</span>()</div>
 <div class="block">Stops the hood.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="homeHood()">
+<h3>homeHood</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">homeHood</span>()</div>
+<div class="block">Returns a <code>Command</code> that homes the hood by slowly driving it toward
+ the lower hard stop and zeroing the encoder when a current-based stall is
+ detected.
+
+ <p>The hood is a NEO 550 on a SparkMax with a 301:1 effective gear ratio
+ (16:1 gearbox driving a 16-tooth pinion on a 301-tooth ring gear).  The
+ command drives the motor at <code>HOOD_HOMING_SPEED</code> (a small open-loop
+ output toward the lower mechanical stop) until the SparkMax output current
+ exceeds <code>HOOD_HOMING_STALL_AMPS</code> for at least
+ <code>HOOD_HOMING_STALL_DURATION_S</code> continuous seconds.  It then zeros
+ the built-in relative encoder and sets <code>hoodLimitSet = true</code>,
+ unlocking normal closed-loop angle control.</p>
+
+ <p>The NEO 550 free-run current is roughly 1 A; stall is roughly 8 A.
+ The default threshold of 4 A sits comfortably in between and will trip
+ well before the motor reaches its thermal stall point at the slow homing
+ speed.</p></div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the homing command</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isHoodHomed()">
+<h3>isHoodHomed</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isHoodHomed</span>()</div>
+<div class="block">Returns true once the hood has been successfully homed.</div>
 </section>
 </li>
 <li>

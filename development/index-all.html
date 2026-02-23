@@ -679,6 +679,18 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.ClimberSubsystemConstants.html#CLIMBER_HOLD_TOLERANCE_ROTATIONS" class="member-name-link">CLIMBER_HOLD_TOLERANCE_ROTATIONS</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.ClimberSubsystemConstants.html" title="class in frc.robot">Constants.ClimberSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.ClimberSubsystemConstants.html#CLIMBER_HOMING_SPEED" class="member-name-link">CLIMBER_HOMING_SPEED</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.ClimberSubsystemConstants.html" title="class in frc.robot">Constants.ClimberSubsystemConstants</a></dt>
+<dd>
+<div class="block">Open-loop output while homing toward the lower hard stop.</div>
+</dd>
+<dt><a href="frc/robot/Constants.ClimberSubsystemConstants.html#CLIMBER_HOMING_STALL_AMPS" class="member-name-link">CLIMBER_HOMING_STALL_AMPS</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.ClimberSubsystemConstants.html" title="class in frc.robot">Constants.ClimberSubsystemConstants</a></dt>
+<dd>
+<div class="block">Stator-current threshold (amps) above which the climber is considered stalled.</div>
+</dd>
+<dt><a href="frc/robot/Constants.ClimberSubsystemConstants.html#CLIMBER_HOMING_STALL_DURATION_S" class="member-name-link">CLIMBER_HOMING_STALL_DURATION_S</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.ClimberSubsystemConstants.html" title="class in frc.robot">Constants.ClimberSubsystemConstants</a></dt>
+<dd>
+<div class="block">How long (seconds) current must exceed the threshold before homing is accepted.</div>
+</dd>
 <dt><a href="frc/robot/Constants.ClimberSubsystemConstants.html#CLIMBER_MOTOR_ID" class="member-name-link">CLIMBER_MOTOR_ID</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.ClimberSubsystemConstants.html" title="class in frc.robot">Constants.ClimberSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Simulation/ClimberSim.html" class="type-name-link" title="class in frc.robot.libraries.Repulsor.Simulation">ClimberSim</a> - Class in <a href="frc/robot/libraries/Repulsor/Simulation/package-summary.html">frc.robot.libraries.Repulsor.Simulation</a></dt>
@@ -3085,8 +3097,32 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Collect/FieldTrackerCollectObjectiveMath.html#holdSForDist(double)" class="member-name-link">holdSForDist(double)</a> - Static method in class frc.robot.libraries.Repulsor.Tracking.Collect.<a href="frc/robot/libraries/Repulsor/Tracking/Collect/FieldTrackerCollectObjectiveMath.html" title="class in frc.robot.libraries.Repulsor.Tracking.Collect">FieldTrackerCollectObjectiveMath</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/ClimberSubsystem.html#homeClimber()" class="member-name-link">homeClimber()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/ClimberSubsystem.html" title="class in frc.robot.subsystems">ClimberSubsystem</a></dt>
+<dd>
+<div class="block">Returns a <code>Command</code> that homes the climber by slowly retracting to the
+ lower hard stop, detecting the stall via stator current, zeroing the encoder,
+ and then engaging the position-hold at zero.</div>
+</dd>
+<dt><a href="frc/robot/subsystems/TurretSubsystem.html#homeHood()" class="member-name-link">homeHood()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></dt>
+<dd>
+<div class="block">Returns a <code>Command</code> that homes the hood by slowly driving it toward
+ the lower hard stop and zeroing the encoder when a current-based stall is
+ detected.</div>
+</dd>
 <dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#HOOD_DEGREES_ROTATION_RATIO" class="member-name-link">HOOD_DEGREES_ROTATION_RATIO</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#HOOD_HOMING_SPEED" class="member-name-link">HOOD_HOMING_SPEED</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
+<dd>
+<div class="block">Open-loop output used while homing toward the lower hard stop.</div>
+</dd>
+<dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#HOOD_HOMING_STALL_AMPS" class="member-name-link">HOOD_HOMING_STALL_AMPS</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
+<dd>
+<div class="block">Output-current threshold (amps) above which the NEO 550 is considered stalled.</div>
+</dd>
+<dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#HOOD_HOMING_STALL_DURATION_S" class="member-name-link">HOOD_HOMING_STALL_DURATION_S</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
+<dd>
+<div class="block">How long (seconds) current must exceed the threshold before homing is accepted.</div>
+</dd>
 <dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#HOOD_KD" class="member-name-link">HOOD_KD</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#HOOD_KI" class="member-name-link">HOOD_KI</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
@@ -3135,6 +3171,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="frc/robot/libraries/Repulsor/Predictive/Model/DynamicObject.html#id" class="member-name-link">id</a> - Variable in class frc.robot.libraries.Repulsor.Predictive.Model.<a href="frc/robot/libraries/Repulsor/Predictive/Model/DynamicObject.html" title="class in frc.robot.libraries.Repulsor.Predictive.Model">DynamicObject</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Internal/TrackedObj.html#id" class="member-name-link">id</a> - Variable in class frc.robot.libraries.Repulsor.Tracking.Internal.<a href="frc/robot/libraries/Repulsor/Tracking/Internal/TrackedObj.html" title="class in frc.robot.libraries.Repulsor.Tracking.Internal">TrackedObj</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/ClimberSubsystem.html#idle()" class="member-name-link">idle()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/ClimberSubsystem.html" title="class in frc.robot.subsystems">ClimberSubsystem</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Collect/Runtime/FieldTrackerCollectPassCandidateResult.html#immediatePose()" class="member-name-link">immediatePose()</a> - Method in record class frc.robot.libraries.Repulsor.Tracking.Collect.Runtime.<a href="frc/robot/libraries/Repulsor/Tracking/Collect/Runtime/FieldTrackerCollectPassCandidateResult.html" title="class in frc.robot.libraries.Repulsor.Tracking.Collect.Runtime">FieldTrackerCollectPassCandidateResult</a></dt>
 <dd>
@@ -3319,6 +3357,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="frc/robot/libraries/Repulsor/Simulation/FeedforwardTestConfig.html#isEstimateKg()" class="member-name-link">isEstimateKg()</a> - Method in class frc.robot.libraries.Repulsor.Simulation.<a href="frc/robot/libraries/Repulsor/Simulation/FeedforwardTestConfig.html" title="class in frc.robot.libraries.Repulsor.Simulation">FeedforwardTestConfig</a></dt>
 <dd>
 <div class="block">Returns whether gravity estimation is enabled.</div>
+</dd>
+<dt><a href="frc/robot/subsystems/ClimberSubsystem.html#isHomed()" class="member-name-link">isHomed()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/ClimberSubsystem.html" title="class in frc.robot.subsystems">ClimberSubsystem</a></dt>
+<dd>
+<div class="block">Returns true once the climber has been successfully homed.</div>
+</dd>
+<dt><a href="frc/robot/subsystems/TurretSubsystem.html#isHoodHomed()" class="member-name-link">isHoodHomed()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></dt>
+<dd>
+<div class="block">Returns true once the hood has been successfully homed.</div>
 </dd>
 <dt><a href="frc/robot/libraries/Repulsor/State/GameState.html#isHubActive()" class="member-name-link">isHubActive()</a> - Method in class frc.robot.libraries.Repulsor.State.<a href="frc/robot/libraries/Repulsor/State/GameState.html" title="class in frc.robot.libraries.Repulsor.State">GameState</a></dt>
 <dd>&nbsp;</dd>
@@ -4970,6 +5016,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Contains the code to run every iteration.</div>
 </dd>
+<dt><a href="frc/robot/ShipOfTheseus.html#runSensorlessHoming()" class="member-name-link">runSensorlessHoming()</a> - Method in class frc.robot.<a href="frc/robot/ShipOfTheseus.html" title="class in frc.robot">ShipOfTheseus</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/DriveRepulsor.html#runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)" class="member-name-link">runVelocity(ChassisSpeeds)</a> - Method in interface frc.robot.libraries.Repulsor.<a href="frc/robot/libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/TankDriveImpl.html#runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)" class="member-name-link">runVelocity(ChassisSpeeds)</a> - Method in class frc.robot.libraries.Repulsor.<a href="frc/robot/libraries/Repulsor/TankDriveImpl.html" title="class in frc.robot.libraries.Repulsor">TankDriveImpl</a></dt>
