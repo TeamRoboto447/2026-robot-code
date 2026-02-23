@@ -115,6 +115,111 @@ public class ShipOfTheseus {
     }
 
     private void configureBindings() {
+        configureProductionBindings();
+        // configureDevBindings();
+    }
+
+    private void configureProductionBindings() {
+        // Run homing commands on initialization - If already homed, the command immediately cancels itself
+        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
+        RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
+
+        // ── Swerve Drive ────────────────────────────────────────────────────────────
+        swerveSubsystem.setDefaultCommand(
+            swerveSubsystem.applyRequest(() ->
+                drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed)
+                    .withVelocityY(-DriverController.getLeftX() * MaxSpeed)
+                    .withRotationalRate(-DriverController.getRightX() * MaxAngularRate)
+            )
+        );
+
+        // Neutral mode while disabled
+        final var idle = new SwerveRequest.Idle();
+        RobotModeTriggers.disabled().whileTrue(
+            swerveSubsystem.applyRequest(() -> idle).ignoringDisable(true)
+        );
+
+        swerveSubsystem.registerTelemetry(logger::telemeterize);
+
+        // ── Driver: Climber ──────────────────────────────────────────────────────────
+        DriverController.leftBumper().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
+        DriverController.rightBumper().whileTrue(climberSubsystem.run(() -> climberSubsystem.climb()));
+
+        // ── Driver: Shoot (right trigger) ────────────────────────────────────────────
+        // Spin up the flywheel while the trigger is held. Once the flywheel reaches
+        // target speed (feedTrigger goes high), the kicker and spindexer activate to
+        // feed the shooter. Requires a valid trajectory — does nothing otherwise.
+        DriverController.rightTrigger().and(turretSubsystem::hasValidTarget)
+            .whileTrue(
+                turretSubsystem.run(() -> turretSubsystem.shoot())
+            );
+
+        turretSubsystem.getFeedTrigger().and(DriverController.rightTrigger())
+            .and(turretSubsystem::hasValidTarget)
+            .whileTrue(Commands.parallel(
+                indexerSubsystem.run(() -> indexerSubsystem.spin()),
+                turretSubsystem.run(() -> turretSubsystem.kick(0.35))
+            ));
+
+        DriverController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
+            turretSubsystem.stopShooter();
+            turretSubsystem.stopKicker();
+        }));
+        
+        DriverController.rightTrigger().onFalse(indexerSubsystem.stop());
+
+        // ── Driver: Intake (left trigger) ────────────────────────────────────────────
+        // Lower the intake if it isn't already, then run the intake roller.
+        DriverController.leftTrigger().onTrue(
+            intakeSubsystem.runOnce(() -> {
+                if (!intakeSubsystem.isIntakeDown()) intakeSubsystem.dropIntake();
+            })
+        );
+        DriverController.leftTrigger().whileTrue(
+            intakeSubsystem.run(() -> intakeSubsystem.intake(0.8))
+        );
+        DriverController.leftTrigger().onFalse(
+            intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
+        );
+
+        // ── Operator: Shoot (right trigger) ──────────────────────────────────────────
+        // Same logic as the driver shoot binding.
+        OperatorController.rightTrigger().and(turretSubsystem::hasValidTarget)
+            .whileTrue(
+                turretSubsystem.run(() -> turretSubsystem.shoot())
+            );
+        turretSubsystem.getFeedTrigger().and(OperatorController.rightTrigger())
+            .and(turretSubsystem::hasValidTarget)
+            .whileTrue(Commands.parallel(
+                indexerSubsystem.run(() -> indexerSubsystem.spin()),
+                turretSubsystem.run(() -> turretSubsystem.kick(0.35))
+            ));
+        OperatorController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
+            turretSubsystem.stopShooter();
+            turretSubsystem.stopKicker();
+        }));
+        OperatorController.rightTrigger().onFalse(indexerSubsystem.stop());
+
+        // ── Operator: Intake (left trigger) ──────────────────────────────────────────
+        OperatorController.leftTrigger().onTrue(
+            intakeSubsystem.runOnce(() -> {
+                if (!intakeSubsystem.isIntakeDown()) intakeSubsystem.dropIntake();
+            })
+        );
+        OperatorController.leftTrigger().whileTrue(
+            intakeSubsystem.run(() -> intakeSubsystem.intake(0.8))
+        );
+        OperatorController.leftTrigger().onFalse(
+            intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
+        );
+
+        // ── Operator: Intake lift (dpad) ──────────────────────────────────────────────
+        OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
+        OperatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
+    }
+    
+    @SuppressWarnings("unused") // Suppress warnings for unused bindings in dev mode
+    private void configureDevBindings() {
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
 
@@ -125,7 +230,7 @@ public class ShipOfTheseus {
             swerveSubsystem.applyRequest(() ->
                 drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
                     .withVelocityY(-DriverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(-DriverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left) //TODO: re-enable rotation
+                    .withRotationalRate(-DriverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -286,7 +391,7 @@ public class ShipOfTheseus {
         // Reset the field-centric heading on left bumper press.
         // joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
 
-    swerveSubsystem.registerTelemetry(logger::telemeterize);
+        swerveSubsystem.registerTelemetry(logger::telemeterize);
     }
 
     private void fillAutoChooser() {

@@ -74,8 +74,6 @@ public class Repulsor {
 
   private double robot_x;
   private double robot_y;
-  private double algae_offset;
-  private double coral_offset;
 
   private Supplier<Double> shooterReleaseHeightMeters = () -> 0.0;
 
@@ -194,8 +192,6 @@ public class Repulsor {
     this.m_usageType = usageType;
     this.robot_x = robot_x;
     this.robot_y = robot_y;
-    this.coral_offset = coral_offset;
-    this.algae_offset = algae_offset;
     this.m_hasPiece = hasPiece;
 
     m_planner = new FieldPlanner(new Rebuilt2026(), new DriveTuningHeat(() -> m_drive.getPose()));

@@ -102,6 +102,7 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public void dropIntake() {
             this.liftMotor.setControl(new PositionVoltage(NetworkedConfig.Intake.getLiftPosition())); // TODO: Fine-tune value
+            isIntakeOut = true;
     }
 
     /**
@@ -109,6 +110,14 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     public void liftIntake() {
         this.liftMotor.setControl(new PositionVoltage(0));
+        isIntakeOut = false;
+    }
+
+    /**
+     * Returns true if the intake is currently in the lowered (extended) position.
+     */
+    public boolean isIntakeDown() {
+        return isIntakeOut;
     }
 
     /**

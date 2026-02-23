@@ -377,6 +377,11 @@ public class TurretSubsystem extends SubsystemBase {
     public boolean isHoodHomed() {
         return hoodLimitSet;
     }
+
+    /** Returns true when the coprocessor has computed a valid shot trajectory. */
+    public boolean hasValidTarget() {
+        return NetworkedConfig.Turret.hasValidTrajectory();
+    }
     /**
      * Stops the kicker.
      */
