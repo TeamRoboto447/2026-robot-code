@@ -97,6 +97,13 @@ public class TurretSubsystem extends SubsystemBase {
     
     private boolean runFlywheel = false;
     private final boolean hoodMotorInverted = false;
+
+    /**
+     * When {@code true}, {@link #periodic()} skips the trajectory-tracking override
+     * (hood angle, turret angle, flywheel idle) so the systems-check commands have
+     * exclusive control of the mechanism. Set via {@link #setSystemsCheckMode(boolean)}.
+     */
+    private boolean systemsCheckMode = false;
     /* SysId routine for profiling the shooter (flywheel) */
     private final SysIdRoutine m_sysIdRoutineFlywheel;
     /**
@@ -278,18 +285,20 @@ public class TurretSubsystem extends SubsystemBase {
         updateNetworkTables();
 
 
-        double targetRPS = runFlywheel ? NetworkedConfig.Turret.hasValidTrajectory() ? NetworkedConfig.Turret.getTargetRPM()/60 : 0 : 0;
-        if (targetRPS > 16) // Approx 1000 RPM
-            rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
-        else
-            rightShooterMotor.set(0);
+        if (!systemsCheckMode) {
+            double targetRPS = runFlywheel ? NetworkedConfig.Turret.hasValidTrajectory() ? NetworkedConfig.Turret.getTargetRPM()/60 : 0 : 0;
+            if (targetRPS > 16) // Approx 1000 RPM
+                rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
+            else
+                rightShooterMotor.set(0);
 
-        if(NetworkedConfig.Turret.hasValidTrajectory()) {
-            this.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
-            this.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
-        } else {
-            this.stopHood();
-            this.stopTurret();
+            if(NetworkedConfig.Turret.hasValidTrajectory()) {
+                this.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
+                this.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
+            } else {
+                this.stopHood();
+                this.stopTurret();
+            }
         }
     }
 
@@ -380,6 +389,18 @@ public class TurretSubsystem extends SubsystemBase {
     /** Returns true when the coprocessor has computed a valid shot trajectory. */
     public boolean hasValidTarget() {
         return NetworkedConfig.Turret.hasValidTrajectory();
+    }
+
+    /**
+     * Enables or disables systems-check mode. While enabled, {@link #periodic()}
+     * will not apply the trajectory-tracking overrides (hood/turret angle targeting,
+     * idle flywheel spin-up), giving the systems-check commands exclusive control
+     * of the mechanism.
+     *
+     * @param enabled {@code true} to enter systems-check mode, {@code false} to resume normal operation
+     */
+    public void setSystemsCheckMode(boolean enabled) {
+        systemsCheckMode = enabled;
     }
 
     /**

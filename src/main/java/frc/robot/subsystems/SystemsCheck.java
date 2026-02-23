@@ -96,9 +96,12 @@ public class SystemsCheck {
         final boolean chkSwerve   = NetworkedConfig.SystemsCheck.isCheckSwerve();
 
         return Commands.sequence(
-            // Reset NT state only for systems being checked this run, then switch tab
+            // Reset NT state only for systems being checked this run, then switch tab.
+            // Also put the turret into systems-check mode so periodic() does not
+            // override hood/turret positions with trajectory-tracking values.
             Commands.runOnce(() -> {
                 sequenceAborted = false;
+                robot.turretSubsystem.setSystemsCheckMode(true);
                 NetworkedTelemetry.SystemsCheck.resetResults(
                     chkHood, chkTurret, chkFlywheel,
                     chkIntake, chkIndexer, chkClimber, chkSwerve);
@@ -171,12 +174,12 @@ public class SystemsCheck {
             step(robot, NetworkedConfig.SystemsCheck::isCheckIntake,
                 "Intake: Drop",
                 robot.intakeSubsystem.runOnce(() -> robot.intakeSubsystem.dropIntake())
-                    .andThen(Commands.waitSeconds(1.0)),
+                    .andThen(Commands.waitSeconds(3.0)),
                 NetworkedTelemetry.SystemsCheck.resIntakeDrop),
 
             step(robot, NetworkedConfig.SystemsCheck::isCheckIntake,
                 "Intake: Roller",
-                robot.intakeSubsystem.run(() -> robot.intakeSubsystem.intake(0.5))
+                robot.intakeSubsystem.run(() -> robot.intakeSubsystem.intake(1))
                     .withTimeout(INTAKE_ROLLER_RUN_S)
                     .andThen(robot.intakeSubsystem.runOnce(() -> robot.intakeSubsystem.stopIntake())),
                 NetworkedTelemetry.SystemsCheck.resIntakeRoller),
@@ -184,7 +187,7 @@ public class SystemsCheck {
             step(robot, NetworkedConfig.SystemsCheck::isCheckIntake,
                 "Intake: Lift",
                 robot.intakeSubsystem.runOnce(() -> robot.intakeSubsystem.liftIntake())
-                    .andThen(Commands.waitSeconds(1.0)),
+                    .andThen(Commands.waitSeconds(3.0)),
                 NetworkedTelemetry.SystemsCheck.resIntakeLift),
 
             // Indexer
@@ -273,7 +276,7 @@ public class SystemsCheck {
             Commands.runOnce(() -> publishFinalResult(
                 chkHood, chkTurret, chkFlywheel,
                 chkIntake, chkIndexer, chkClimber, chkSwerve))
-        );
+        ).finallyDo(() -> robot.turretSubsystem.setSystemsCheckMode(false));
     }
 
     // Private helpers
@@ -297,8 +300,7 @@ public class SystemsCheck {
                     Elastic.sendNotification(new Notification(
                         NotificationLevel.ERROR,
                         "Check Failed: " + name,
-                        "Step did not complete within the allowed time.",
-                        6000));
+                        "Step did not complete within the allowed time."));
                 }
                 if (NetworkedConfig.SystemsCheck.isAbortOnFailure()) {
                     sequenceAborted = true;
