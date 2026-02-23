@@ -382,6 +382,27 @@ public class TurretSubsystem extends SubsystemBase {
     public boolean hasValidTarget() {
         return NetworkedConfig.Turret.hasValidTrajectory();
     }
+
+    /** Returns the current turret rotation angle in degrees (from the cached position signal). */
+    public double getTurretAngleDegrees() {
+        return anglePositionSignal.getValueAsDouble();
+    }
+
+    /**
+     * Returns the current hood angle in degrees (absolute, offset from MIN_HOOD_ANGLE),
+     * derived from the SparkMax relative encoder.
+     */
+    public double getHoodAngleDegrees() {
+        return TurretSubsystemConstants.MIN_HOOD_ANGLE
+            .plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO
+                .times(hoodEncoder.getPosition()))
+            .magnitude();
+    }
+
+    /** Returns the current flywheel speed in RPM. */
+    public double getFlywheelRPM() {
+        return shooterVelocitySignal.getValueAsDouble() * 60.0;
+    }
     /**
      * Stops the kicker.
      */

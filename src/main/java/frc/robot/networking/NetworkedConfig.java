@@ -154,6 +154,11 @@ public class NetworkedConfig {
         public static double getTargetRPM() {
             return targetRPM.get();
         }
+
+        /** Sets the target RPM for the shooter (used by systems check to override). */
+        public static void setTargetRPM(double rpm) {
+            targetRPM.set(rpm);
+        }
         
         // Hood
         /** Gets the kP for the hood's PID. */
@@ -488,6 +493,55 @@ public class NetworkedConfig {
     }
     
     /**
+     * Systems check configuration — controls which subsystems participate in the
+     * automated test-mode check and whether a failure aborts the sequence.
+     */
+    public static class SystemsCheck {
+        private static final NetworkTable checkTable =
+            defaultNTInstance.getTable("SystemsCheck").getSubTable("config");
+
+        // Abort behaviour
+        private static final BooleanEntry abortOnFailure =
+            checkTable.getBooleanTopic("abort_on_failure").getEntry(false);
+
+        // Subsystem enable toggles
+        private static final BooleanEntry checkHood =
+            checkTable.getBooleanTopic("check_hood").getEntry(true);
+        private static final BooleanEntry checkTurret =
+            checkTable.getBooleanTopic("check_turret").getEntry(true);
+        private static final BooleanEntry checkFlywheel =
+            checkTable.getBooleanTopic("check_flywheel").getEntry(true);
+        private static final BooleanEntry checkIntake =
+            checkTable.getBooleanTopic("check_intake").getEntry(true);
+        private static final BooleanEntry checkIndexer =
+            checkTable.getBooleanTopic("check_indexer").getEntry(true);
+        private static final BooleanEntry checkClimber =
+            checkTable.getBooleanTopic("check_climber").getEntry(true);
+        private static final BooleanEntry checkSwerve =
+            checkTable.getBooleanTopic("check_swerve").getEntry(true);
+
+        public static void initializeDefaults() {
+            abortOnFailure.set(false);
+            checkHood.set(true);
+            checkTurret.set(true);
+            checkFlywheel.set(true);
+            checkIntake.set(true);
+            checkIndexer.set(true);
+            checkClimber.set(true);
+            checkSwerve.set(true);
+        }
+
+        public static boolean isAbortOnFailure() { return abortOnFailure.get(); }
+        public static boolean isCheckHood()      { return checkHood.get(); }
+        public static boolean isCheckTurret()    { return checkTurret.get(); }
+        public static boolean isCheckFlywheel()  { return checkFlywheel.get(); }
+        public static boolean isCheckIntake()    { return checkIntake.get(); }
+        public static boolean isCheckIndexer()   { return checkIndexer.get(); }
+        public static boolean isCheckClimber()   { return checkClimber.get(); }
+        public static boolean isCheckSwerve()    { return checkSwerve.get(); }
+    }
+
+    /**
      * Initialize all default values in NetworkTables.
      * Should be called once during robot initialization.
      */
@@ -497,5 +551,6 @@ public class NetworkedConfig {
         Intake.initializeDefaults();
         Climber.initializeDefaults();
         Debug.initializeDefaults();
+        SystemsCheck.initializeDefaults();
     }
 }

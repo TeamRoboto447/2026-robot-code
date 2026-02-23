@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
@@ -230,6 +231,105 @@ public class NetworkedTelemetry {
 
         public static void setCTValidTrajectory(boolean valid) {
             controlTargetValidTrajectory.set(valid);
+        }
+    }
+
+    /**
+     * Systems-check telemetry — owns all NetworkTables result entries for the
+     * automated test-mode sequence. Command-building logic lives in
+     * {@code frc.robot.SystemsCheck}; this class only handles NT reads/writes
+     * so that the networking layer stays free of subsystem dependencies.
+     */
+    public static class SystemsCheck {
+        private static final NetworkTable resultsTable =
+            defaultNTInstance.getTable("SystemsCheck").getSubTable("results");
+
+        public static final BooleanEntry resHoodHoming   = resultsTable.getBooleanTopic("Hood: Homing").getEntry(false);
+        public static final BooleanEntry resHoodAngle    = resultsTable.getBooleanTopic("Hood: Angle Control").getEntry(false);
+        public static final BooleanEntry resTurretFwd    = resultsTable.getBooleanTopic("Turret: Move Forward").getEntry(false);
+        public static final BooleanEntry resTurretRev    = resultsTable.getBooleanTopic("Turret: Move Reverse").getEntry(false);
+        public static final BooleanEntry resTurretReturn = resultsTable.getBooleanTopic("Turret: Return to Zero").getEntry(false);
+        public static final BooleanEntry resFlywheel2k   = resultsTable.getBooleanTopic("Flywheel: 2000 RPM").getEntry(false);
+        public static final BooleanEntry resFlywheel3k   = resultsTable.getBooleanTopic("Flywheel: 3000 RPM").getEntry(false);
+        public static final BooleanEntry resFlywheel4k   = resultsTable.getBooleanTopic("Flywheel: 4000 RPM").getEntry(false);
+        public static final BooleanEntry resFlywheel5k   = resultsTable.getBooleanTopic("Flywheel: 5000 RPM").getEntry(false);
+        public static final BooleanEntry resIntakeDrop   = resultsTable.getBooleanTopic("Intake: Drop").getEntry(false);
+        public static final BooleanEntry resIntakeRoller = resultsTable.getBooleanTopic("Intake: Roller").getEntry(false);
+        public static final BooleanEntry resIntakeLift   = resultsTable.getBooleanTopic("Intake: Lift").getEntry(false);
+        public static final BooleanEntry resIndexer      = resultsTable.getBooleanTopic("Indexer: Spin").getEntry(false);
+        public static final BooleanEntry resClimberHome  = resultsTable.getBooleanTopic("Climber: Homing").getEntry(false);
+        public static final BooleanEntry resClimberExt   = resultsTable.getBooleanTopic("Climber: Full Extension").getEntry(false);
+        public static final BooleanEntry resClimberRet   = resultsTable.getBooleanTopic("Climber: Retract").getEntry(false);
+        public static final BooleanEntry resSwerveNoFaults    = resultsTable.getBooleanTopic("Swerve: No Faults").getEntry(false);
+        public static final BooleanEntry resSwerveForward     = resultsTable.getBooleanTopic("Swerve: Forward").getEntry(false);
+        public static final BooleanEntry resSwerveBackward    = resultsTable.getBooleanTopic("Swerve: Backward").getEntry(false);
+        public static final BooleanEntry resSwerveLeft        = resultsTable.getBooleanTopic("Swerve: Left").getEntry(false);
+        public static final BooleanEntry resSwerveRight       = resultsTable.getBooleanTopic("Swerve: Right").getEntry(false);
+        public static final BooleanEntry resSwerveRotateCW    = resultsTable.getBooleanTopic("Swerve: Rotate CW").getEntry(false);
+        public static final BooleanEntry resSwerveRotateCCW   = resultsTable.getBooleanTopic("Swerve: Rotate CCW").getEntry(false);
+        public static final StringEntry  resOverall      = resultsTable.getStringTopic("Overall").getEntry("NOT RUN");
+
+        /** Resets all result entries to false and overall to {@code "RUNNING"}. */
+        public static void resetResults() {
+            resHoodHoming.set(false);
+            resHoodAngle.set(false);
+            resTurretFwd.set(false);
+            resTurretRev.set(false);
+            resTurretReturn.set(false);
+            resFlywheel2k.set(false);
+            resFlywheel3k.set(false);
+            resFlywheel4k.set(false);
+            resFlywheel5k.set(false);
+            resIntakeDrop.set(false);
+            resIntakeRoller.set(false);
+            resIntakeLift.set(false);
+            resIndexer.set(false);
+            resClimberHome.set(false);
+            resClimberExt.set(false);
+            resClimberRet.set(false);
+            resSwerveNoFaults.set(false);
+            resSwerveForward.set(false);
+            resSwerveBackward.set(false);
+            resSwerveLeft.set(false);
+            resSwerveRight.set(false);
+            resSwerveRotateCW.set(false);
+            resSwerveRotateCCW.set(false);
+            resOverall.set("RUNNING");
+        }
+
+        /**
+         * Evaluates all result entries and sets {@code Overall} to {@code "PASSED"}
+         * or {@code "FAILED"}.
+         *
+         * @return {@code true} if every entry is {@code true}
+         */
+        public static boolean computeOverall() {
+            boolean allPassed =
+                resHoodHoming.get()   &&
+                resHoodAngle.get()    &&
+                resTurretFwd.get()    &&
+                resTurretRev.get()    &&
+                resTurretReturn.get() &&
+                resFlywheel2k.get()   &&
+                resFlywheel3k.get()   &&
+                resFlywheel4k.get()   &&
+                resFlywheel5k.get()   &&
+                resIntakeDrop.get()   &&
+                resIntakeRoller.get() &&
+                resIntakeLift.get()   &&
+                resIndexer.get()      &&
+                resClimberHome.get()  &&
+                resClimberExt.get()   &&
+                resClimberRet.get()   &&
+                resSwerveNoFaults.get()   &&
+                resSwerveForward.get()    &&
+                resSwerveBackward.get()   &&
+                resSwerveLeft.get()       &&
+                resSwerveRight.get()      &&
+                resSwerveRotateCW.get()   &&
+                resSwerveRotateCCW.get();
+            resOverall.set(allPassed ? "PASSED" : "FAILED");
+            return allPassed;
         }
     }
 }

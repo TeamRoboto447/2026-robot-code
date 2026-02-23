@@ -187,6 +187,7 @@ public final class Constants {
 
         public static final double TURRET_DEGREES_PER_ROTATION = 29.17;
         public static final double TURRET_ANGLE_TOLERANCE_DEGREES = 0.5;
+        public static final double HOOD_ANGLE_TOLERANCE_DEGREES = 0.25;
 
         
         /** Open-loop output used while homing toward the lower hard stop. Negative = lower. */
@@ -246,5 +247,22 @@ public final class Constants {
         public static final double CLIMBER_HOMING_STALL_AMPS = 15.0;
         /** How long (seconds) current must exceed the threshold before homing is accepted. */
         public static final double CLIMBER_HOMING_STALL_DURATION_S = 0.1;
+
+        /**
+         * Winch drum radius (inches). Used to convert linear travel to motor rotations.
+         * Full extension = CLIMBER_TRAVEL_INCHES / (2π × CLIMBER_DRUM_RADIUS_INCHES) × CLIMBER_GEARBOX_RATIO
+         * Tune this if the climber overshoots or undershoots during the systems check.
+         */
+        public static final double CLIMBER_DRUM_RADIUS_INCHES = 0.75;
+        public static final double CLIMBER_GEARBOX_RATIO = 64.0;
+        public static final double CLIMBER_TRAVEL_INCHES = 7.0;
+
+        /**
+         * Motor rotations required to reach full extension.
+         * = travel / circumference × gear ratio
+         */
+        public static final double CLIMBER_FULL_EXTENSION_ROTATIONS =
+            (CLIMBER_TRAVEL_INCHES / (2.0 * Math.PI * CLIMBER_DRUM_RADIUS_INCHES))
+            * CLIMBER_GEARBOX_RATIO;
     }
 }

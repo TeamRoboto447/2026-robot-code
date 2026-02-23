@@ -152,6 +152,11 @@ public class ClimberSubsystem extends SubsystemBase {
     return isHomed;
   }
 
+  /** Returns the current climber position in motor rotations (from the cached position signal). */
+  public double getPositionRotations() {
+    return positionSignal.getValueAsDouble();
+  }
+
   public Command idle() {
     return this.run(() -> {
       climberMotor.set(0);

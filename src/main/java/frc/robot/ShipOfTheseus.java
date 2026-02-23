@@ -33,6 +33,7 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
+import frc.robot.subsystems.SystemsCheck;
 
 import frc.robot.lib.BLine.*;
 import frc.robot.networking.NetworkedConfig;
@@ -121,7 +122,7 @@ public class ShipOfTheseus {
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
 
-        // ── Swerve Drive ────────────────────────────────────────────────────────────
+        // Swerve Drive
         swerveSubsystem.setDefaultCommand(
             swerveSubsystem.applyRequest(() ->
                 drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed)
@@ -138,11 +139,11 @@ public class ShipOfTheseus {
 
         swerveSubsystem.registerTelemetry(logger::telemeterize);
 
-        // ── Driver: Climber ──────────────────────────────────────────────────────────
+        // Driver: Climber
         DriverController.leftBumper().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
         DriverController.rightBumper().whileTrue(climberSubsystem.run(() -> climberSubsystem.climb()));
 
-        // ── Driver: Shoot (right trigger) ────────────────────────────────────────────
+        // Driver: Shoot (right trigger)
         // Spin up the flywheel while the trigger is held. Once the flywheel reaches
         // target speed (feedTrigger goes high), the kicker and spindexer activate to
         // feed the shooter. Requires a valid trajectory — does nothing otherwise.
@@ -165,7 +166,7 @@ public class ShipOfTheseus {
 
         DriverController.rightTrigger().onFalse(indexerSubsystem.stop());
 
-        // ── Driver: Intake (left trigger) ────────────────────────────────────────────
+        // Driver: Intake (left trigger)
         // Lower the intake if it isn't already, then run the intake roller.
         DriverController.leftTrigger().onTrue(
             intakeSubsystem.runOnce(() -> {
@@ -179,7 +180,7 @@ public class ShipOfTheseus {
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
         );
 
-        // ── Operator: Shoot (right trigger) ──────────────────────────────────────────
+        // Operator: Shoot (right trigger)
         // Same logic as the driver shoot binding.
         OperatorController.rightTrigger().and(turretSubsystem::hasValidTarget)
             .whileTrue(
@@ -197,7 +198,7 @@ public class ShipOfTheseus {
         }));
         OperatorController.rightTrigger().onFalse(indexerSubsystem.stop());
 
-        // ── Operator: Intake (left trigger) ──────────────────────────────────────────
+        // Operator: Intake (left trigger)
         OperatorController.leftTrigger().onTrue(
             intakeSubsystem.runOnce(() -> {
                 if (!intakeSubsystem.isIntakeDown()) intakeSubsystem.dropIntake();
@@ -210,7 +211,7 @@ public class ShipOfTheseus {
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
         );
 
-        // ── Operator: Intake lift (dpad) ──────────────────────────────────────────────
+        // Operator: Intake lift (dpad)
         OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
         OperatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
     }
@@ -408,5 +409,14 @@ public class ShipOfTheseus {
 
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
+    }
+
+    /**
+     * Returns the automated systems-check command to be scheduled during test mode.
+     *
+     * @return the systems-check command built by {@link SystemsCheck}
+     */
+    public Command getSystemsCheckCommand() {
+        return SystemsCheck.build(this);
     }
 }
