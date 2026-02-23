@@ -464,16 +464,29 @@ public class ShipOfTheseus {
     public Command getAutoClimbCommand() {
         return Commands.sequence(
             // Step 1: raise climber to full extension so it clears the bar
-            climberSubsystem.raiseToFull(),
-            // Step 2: drive to the correct bar position for this alliance + field side,
-            //         determined from the robot's current pose at the moment A is pressed.
+            // climberSubsystem.raiseToFull(),
+            // Step 2: drive staging → final at reduced speed so the climber slots
+            //         onto the tower cleanly. Both poses are selected from the
+            //         robot's current alliance + field side at the moment A is pressed.
             Commands.defer(() -> {
-                Pose2d target = selectClimbPosition();
-                Path climbPath = new Path(new Path.Waypoint(target));
+                Pose2d staging = selectStagingPosition();
+                Pose2d target  = selectClimbPosition();
+                Path climbPath = new Path(
+                    java.util.List.of(
+                        new Path.Waypoint(staging,
+                            frc.robot.Constants.FieldConstants.ClimbPositions.STAGING_HANDOFF_RADIUS_METERS),
+                        new Path.Waypoint(target, frc.robot.Constants.FieldConstants.ClimbPositions.FINAL_APPROACH_RADIUS_METERS)
+                    ),
+                    new Path.PathConstraints()
+                        .setMaxVelocityMetersPerSec(
+                            frc.robot.Constants.FieldConstants.ClimbPositions.APPROACH_SPEED_MPS),
+                    null   // use global defaults for everything else
+                );
                 return noResetPathBuilder.build(climbPath);
             }, java.util.Set.of(swerveSubsystem)),
-            // Step 3: lower onto the bar to engage the hooks
-            climberSubsystem.lowerOntoBar()
+            // Step 3: lower onto the bar to engage the clamp
+            // climberSubsystem.lowerOntoBar()
+            Commands.print("Climb!")
         );
     }
 
@@ -501,6 +514,32 @@ public class ShipOfTheseus {
             return isScoringside
                 ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_SCORING_SIDE
                 : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_AUDIENCE_SIDE;
+        }
+    }
+
+    /**
+     * Picks the correct staging pose for the climb — the pre-alignment position the
+     * robot drives to before slotting onto the tower.
+     *
+     * <p>Uses the same alliance + field-side logic as {@link #selectClimbPosition()}
+     * so both poses are always consistent.</p>
+     */
+    private Pose2d selectStagingPosition() {
+        var alliance = edu.wpi.first.wpilibj.DriverStation.getAlliance();
+        boolean isRed = alliance.isPresent()
+            && alliance.get() == edu.wpi.first.wpilibj.DriverStation.Alliance.Red;
+
+        double fieldMidY = frc.robot.Constants.FieldConstants.FIELD_WIDTH_METERS / 2.0;
+        boolean isScoringside = swerveSubsystem.getPose().getY() >= fieldMidY;
+
+        if (isRed) {
+            return isScoringside
+                ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_SCORING_SIDE_STAGING
+                : frc.robot.Constants.FieldConstants.ClimbPositions.RED_AUDIENCE_SIDE_STAGING;
+        } else {
+            return isScoringside
+                ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_SCORING_SIDE_STAGING
+                : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_AUDIENCE_SIDE_STAGING;
         }
     }
 

@@ -146,11 +146,11 @@ public final class Constants {
         }
 
         public static class TurretTargetPoints {
-            public static final Translation3d RED_HUB = new Translation3d(11.92, 4.035, 1.83);
+            public static final Translation3d RED_HUB = new Translation3d(11.950, 4.035, 1.83);
             public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.54, 7.07, 0);
             public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.54, 1, 0);
             
-            public static final Translation3d BLUE_HUB = new Translation3d(4.623, 4.035, 1.83);
+            public static final Translation3d BLUE_HUB = new Translation3d(4.595, 4.035, 1.83);
             public static final Translation3d BLUE_LEFT_CORNER = new Translation3d(1, 7.07, 0);
             public static final Translation3d BLUE_RIGHT_CORNER = new Translation3d(1, 1, 0);
         }
@@ -163,9 +163,38 @@ public final class Constants {
          * X/Y are in meters; rotation is the heading the robot should face when it
          * arrives so that the side-mounted hooks engage the bar correctly.
          *
-         * <p><b>TODO: Tune all four poses to match the actual bar locations on your field.</b>
+         * <p>Each alliance+side has two poses:
+         * <ul>
+         *   <li><b>Staging</b> — where the robot stops to align before slotting onto
+         *       the tower. It should be in front of (but not touching) the bar,
+         *       facing the correct direction, with the climber already raised.</li>
+         *   <li><b>Final</b>   — the precise position where the hooks engage the bar.
+         *       The robot approaches this from the staging pose at reduced speed.</li>
+         * </ul>
+         *
+         * <p><b>TODO: Tune all eight poses to match the actual bar locations on your field.</b>
          */
         public static class ClimbPositions {
+            /**
+             * Maximum drive speed (m/s) while approaching the bar.
+             * Applied to the entire climb path so the robot slows down before
+             * slotting onto the tower.
+             */
+            public static final double APPROACH_SPEED_MPS = 1.0;
+
+            /**
+             * How close the robot must get to the staging waypoint (meters) before
+             * BLine hands off to the final bar pose. Smaller = tighter alignment
+             */
+            public static final double STAGING_HANDOFF_RADIUS_METERS = Units.inchesToMeters(5);
+
+            /**
+             * How close the robot must get to the final waypoint (meters) before
+             * BLine considers the path complete. Smaller = tighter alignment
+             */
+            public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(1);
+
+            // ── Final (hook-engagement) positions ──────────────────────────────
             public static final Pose2d BLUE_AUDIENCE_SIDE = new Pose2d(
                 1.1, // placeholder — tune to your bar
                 4.519,  // audience side: y < field midpoint
@@ -178,13 +207,37 @@ public final class Constants {
             );
             public static final Pose2d RED_AUDIENCE_SIDE = new Pose2d(
                 15.523, // placeholder — tune to your bar
-                2.931,   // audience side: y < field midpoint
+                3.6,   // audience side: y < field midpoint
                 Rotation2d.fromDegrees(270)    // placeholder — tune to face the bar
             );
             public static final Pose2d RED_SCORING_SIDE = new Pose2d(
                 15.523, // placeholder — tune to your bar
-                4.519,  // scoring side: y > field midpoint
+                5.1,  // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
+            );
+
+            // ── Staging (pre-alignment) positions ──────────────────────────────
+            // These should be positioned a short distance back from the final poses,
+            // with the same heading, so the robot can align before slotting in.
+            public static final Pose2d BLUE_AUDIENCE_SIDE_STAGING = new Pose2d(
+                1.5, // TODO: tune — offset from final pose
+                4.9,
+                Rotation2d.fromDegrees(270)
+            );
+            public static final Pose2d BLUE_SCORING_SIDE_STAGING = new Pose2d(
+                1.5, // TODO: tune — offset from final pose
+                2.5,
+                Rotation2d.fromDegrees(90)
+            );
+            public static final Pose2d RED_AUDIENCE_SIDE_STAGING = new Pose2d(
+                15.123, // TODO: tune — offset from final pose
+                3,
+                Rotation2d.fromDegrees(270)
+            );
+            public static final Pose2d RED_SCORING_SIDE_STAGING = new Pose2d(
+                15.123, // TODO: tune — offset from final pose
+                4.9,
+                Rotation2d.fromDegrees(90)
             );
         }
     }
