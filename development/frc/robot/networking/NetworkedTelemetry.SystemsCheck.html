@@ -211,15 +211,28 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#computeOverall()" class="member-name-link">computeOverall</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#computeOverall(boolean,boolean,boolean,boolean,boolean,boolean,boolean)" class="member-name-link">computeOverall</a><wbr>(boolean&nbsp;hood,
+ boolean&nbsp;turret,
+ boolean&nbsp;flywheel,
+ boolean&nbsp;intake,
+ boolean&nbsp;indexer,
+ boolean&nbsp;climber,
+ boolean&nbsp;swerve)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Evaluates all result entries and sets <code>Overall</code> to <code>"PASSED"</code>
- or <code>"FAILED"</code>.</div>
+<div class="block">Evaluates result entries <em>only for enabled systems</em> and sets
+ <code>Overall</code> to <code>"PASSED"</code> or <code>"FAILED"</code>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resetResults()" class="member-name-link">resetResults</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resetResults(boolean,boolean,boolean,boolean,boolean,boolean,boolean)" class="member-name-link">resetResults</a><wbr>(boolean&nbsp;hood,
+ boolean&nbsp;turret,
+ boolean&nbsp;flywheel,
+ boolean&nbsp;intake,
+ boolean&nbsp;indexer,
+ boolean&nbsp;climber,
+ boolean&nbsp;swerve)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Resets all result entries to false and overall to <code>"RUNNING"</code>.</div>
+<div class="block">Resets result entries to <code>false</code> only for <em>enabled</em> systems,
+  leaving results for skipped systems unchanged.</div>
 </div>
 </div>
 </div>
@@ -405,21 +418,48 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="resetResults()">
+<section class="detail" id="resetResults(boolean,boolean,boolean,boolean,boolean,boolean,boolean)">
 <h3>resetResults</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">resetResults</span>()</div>
-<div class="block">Resets all result entries to false and overall to <code>"RUNNING"</code>.</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">resetResults</span><wbr><span class="parameters">(boolean&nbsp;hood,
+ boolean&nbsp;turret,
+ boolean&nbsp;flywheel,
+ boolean&nbsp;intake,
+ boolean&nbsp;indexer,
+ boolean&nbsp;climber,
+ boolean&nbsp;swerve)</span></div>
+<div class="block">Resets result entries to <code>false</code> only for <em>enabled</em> systems,
+  leaving results for skipped systems unchanged. Also sets overall to
+  <code>"RUNNING"</code>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>hood</code> - whether the hood check is enabled this run</dd>
+<dd><code>turret</code> - whether the turret check is enabled this run</dd>
+<dd><code>flywheel</code> - whether the flywheel check is enabled this run</dd>
+<dd><code>intake</code> - whether the intake check is enabled this run</dd>
+<dd><code>indexer</code> - whether the indexer check is enabled this run</dd>
+<dd><code>climber</code> - whether the climber check is enabled this run</dd>
+<dd><code>swerve</code> - whether the swerve check is enabled this run</dd>
+</dl>
 </section>
 </li>
 <li>
-<section class="detail" id="computeOverall()">
+<section class="detail" id="computeOverall(boolean,boolean,boolean,boolean,boolean,boolean,boolean)">
 <h3>computeOverall</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">computeOverall</span>()</div>
-<div class="block">Evaluates all result entries and sets <code>Overall</code> to <code>"PASSED"</code>
- or <code>"FAILED"</code>.</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">computeOverall</span><wbr><span class="parameters">(boolean&nbsp;hood,
+ boolean&nbsp;turret,
+ boolean&nbsp;flywheel,
+ boolean&nbsp;intake,
+ boolean&nbsp;indexer,
+ boolean&nbsp;climber,
+ boolean&nbsp;swerve)</span></div>
+<div class="block">Evaluates result entries <em>only for enabled systems</em> and sets
+ <code>Overall</code> to <code>"PASSED"</code> or <code>"FAILED"</code>.
+
+ <p>Systems that were not checked in this run are excluded from the
+ evaluation entirely — a skipped system never causes a failure.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd><code>true</code> if every entry is <code>true</code></dd>
+<dd><code>true</code> if every checked entry passed</dd>
 </dl>
 </section>
 </li>

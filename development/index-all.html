@@ -1070,10 +1070,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Collect/FieldTrackerCollectObjectiveLoop.html#computeFrozenDriveTarget(edu.wpi.first.math.geometry.Translation2d,edu.wpi.first.math.geometry.Translation2d,double,java.util.function.Function,java.util.function.Predicate,java.util.function.Predicate,java.util.function.Function)" class="member-name-link">computeFrozenDriveTarget(Translation2d, Translation2d, double, Function&lt;Translation2d, Translation2d&gt;, Predicate&lt;Translation2d&gt;, Predicate&lt;Translation2d&gt;, Function&lt;Translation2d, Translation2d&gt;)</a> - Method in class frc.robot.libraries.Repulsor.Tracking.Collect.<a href="frc/robot/libraries/Repulsor/Tracking/Collect/FieldTrackerCollectObjectiveLoop.html" title="class in frc.robot.libraries.Repulsor.Tracking.Collect">FieldTrackerCollectObjectiveLoop</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html#computeOverall()" class="member-name-link">computeOverall()</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html" title="class in frc.robot.networking">NetworkedTelemetry.SystemsCheck</a></dt>
+<dt><a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html#computeOverall(boolean,boolean,boolean,boolean,boolean,boolean,boolean)" class="member-name-link">computeOverall(boolean, boolean, boolean, boolean, boolean, boolean, boolean)</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html" title="class in frc.robot.networking">NetworkedTelemetry.SystemsCheck</a></dt>
 <dd>
-<div class="block">Evaluates all result entries and sets <code>Overall</code> to <code>"PASSED"</code>
- or <code>"FAILED"</code>.</div>
+<div class="block">Evaluates result entries <em>only for enabled systems</em> and sets
+ <code>Overall</code> to <code>"PASSED"</code> or <code>"FAILED"</code>.</div>
 </dd>
 <dt><a href="frc/robot/libraries/Repulsor/Reasoning/RuleReasoner.Rule.html#condition" class="member-name-link">condition</a> - Variable in class frc.robot.libraries.Repulsor.Reasoning.<a href="frc/robot/libraries/Repulsor/Reasoning/RuleReasoner.Rule.html" title="class in frc.robot.libraries.Repulsor.Reasoning">RuleReasoner.Rule</a></dt>
 <dd>&nbsp;</dd>
@@ -5045,9 +5045,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/FieldTrackerCore.html#resetInstance(frc.robot.libraries.Repulsor.Fields.FieldLayoutProvider)" class="member-name-link">resetInstance(FieldLayoutProvider)</a> - Static method in class frc.robot.libraries.Repulsor.Tracking.<a href="frc/robot/libraries/Repulsor/Tracking/FieldTrackerCore.html" title="class in frc.robot.libraries.Repulsor.Tracking">FieldTrackerCore</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html#resetResults()" class="member-name-link">resetResults()</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html" title="class in frc.robot.networking">NetworkedTelemetry.SystemsCheck</a></dt>
+<dt><a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html#resetResults(boolean,boolean,boolean,boolean,boolean,boolean,boolean)" class="member-name-link">resetResults(boolean, boolean, boolean, boolean, boolean, boolean, boolean)</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html" title="class in frc.robot.networking">NetworkedTelemetry.SystemsCheck</a></dt>
 <dd>
-<div class="block">Resets all result entries to false and overall to <code>"RUNNING"</code>.</div>
+<div class="block">Resets result entries to <code>false</code> only for <em>enabled</em> systems,
+  leaving results for skipped systems unchanged.</div>
 </dd>
 <dt><a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html#resFlywheel2k" class="member-name-link">resFlywheel2k</a> - Static variable in class frc.robot.networking.<a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html" title="class in frc.robot.networking">NetworkedTelemetry.SystemsCheck</a></dt>
 <dd>&nbsp;</dd>
