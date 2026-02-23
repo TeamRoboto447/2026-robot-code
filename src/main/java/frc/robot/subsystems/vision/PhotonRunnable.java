@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -42,8 +41,7 @@ public class PhotonRunnable implements Runnable {
         AprilTagFieldLayout layout = AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
         layout.setOrigin(OriginPosition.kBlueAllianceWallRightSide);
         if (this.photonCamera != null) {
-            poseEstimator = new PhotonPoseEstimator(layout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, robotToCamera);
-            poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+            poseEstimator = new PhotonPoseEstimator(layout, robotToCamera);
         }
         this.photonPoseEstimator = poseEstimator;
     }
@@ -55,15 +53,26 @@ public class PhotonRunnable implements Runnable {
     public void run() {
         if (this.photonPoseEstimator != null && this.photonCamera != null) {
             List<PhotonPipelineResult> photonResults = this.photonCamera.getAllUnreadResults();
-            for(PhotonPipelineResult result : photonResults) {
-                if (result.hasTargets() && (result.targets.size() > 1 || result.targets.get(0).getPoseAmbiguity() > APRILTAG_AMBIGUITY_THRESHOLD)) {
-                    this.photonPoseEstimator.update(result).ifPresent(estimatedRobotPose -> {
-                        Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
-                        if (MathUtils.withinRange(estimatedPose.getX(), 0, FieldConstants.FIELD_LENGTH_METERS) && MathUtils.withinRange(estimatedPose.getY(), 0, FieldConstants.FIELD_WIDTH_METERS)) {
-                            atomicEstimatedRobotPose.set(estimatedRobotPose);
-                        }
-                    });
+            for (PhotonPipelineResult result : photonResults) {
+                if (!result.hasTargets()) continue;
+
+                // Prefer coprocessor multi-tag; fall back to lowest-ambiguity single-tag.
+                // Both methods are the non-deprecated direct estimation API in photonlib 2026.
+                var estimation = photonPoseEstimator.estimateCoprocMultiTagPose(result);
+                if (estimation.isEmpty()) {
+                    if (result.targets.size() == 1
+                            && result.targets.get(0).getPoseAmbiguity() <= APRILTAG_AMBIGUITY_THRESHOLD) {
+                        estimation = photonPoseEstimator.estimateLowestAmbiguityPose(result);
+                    }
                 }
+
+                estimation.ifPresent(estimatedRobotPose -> {
+                    Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
+                    if (MathUtils.withinRange(estimatedPose.getX(), 0, FieldConstants.FIELD_LENGTH_METERS)
+                            && MathUtils.withinRange(estimatedPose.getY(), 0, FieldConstants.FIELD_WIDTH_METERS)) {
+                        atomicEstimatedRobotPose.set(estimatedRobotPose);
+                    }
+                });
             }
         }
     }

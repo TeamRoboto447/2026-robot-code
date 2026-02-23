@@ -15,10 +15,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.networking.NetworkedTelemetry;
 
@@ -56,14 +56,14 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Creates a new notifier command.
-     * @return The created command
+     * Creates a new notifier command that continues running while the robot is disabled,
+     * ensuring vision pose estimation remains active in all robot states.
      */
-    private NotifierCommand createNotifierCommand(PoseEstimatorSubsystem peSubsystem) {
+    private Command createNotifierCommand(PoseEstimatorSubsystem peSubsystem) {
         return new NotifierCommand(() -> {
             frontCamera.run();
             backCamera.run();
-        }, 0.02, peSubsystem);
+        }, 0.02, peSubsystem).ignoringDisable(true);
     }
 
     /**
@@ -134,15 +134,10 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             NetworkedTelemetry.Vision.setHasValidAprilTags(false);
             return;
         }
-        
+
         NetworkedTelemetry.Vision.setHasValidAprilTags(true);
         Pose2d pose2d = cameraPose.estimatedPose.toPose2d();
-        if (RobotState.isDisabled()) {
-            System.out.println("Setting position");
-            swerveSubsystem.resetPose(pose2d);
-        } else {
-            swerveSubsystem.addVisionMeasurement(pose2d, cameraPose.timestampSeconds,
-                confidenceCalculator(cameraPose));
-        }
+        swerveSubsystem.addVisionMeasurement(pose2d, cameraPose.timestampSeconds,
+            confidenceCalculator(cameraPose));
     }
 }
