@@ -102,7 +102,16 @@ loadScripts(document, 'script');</script>
  X/Y are in meters; rotation is the heading the robot should face when it
  arrives so that the side-mounted hooks engage the bar correctly.
 
- <p><b>TODO: Tune all four poses to match the actual bar locations on your field.</b></div>
+ <p>Each alliance+side has two poses:
+ <ul>
+   <li><b>Staging</b> — where the robot stops to align before slotting onto
+       the tower. It should be in front of (but not touching) the bar,
+       facing the correct direction, with the climber already raised.</li>
+   <li><b>Final</b>   — the precise position where the hooks engage the bar.
+       The robot approaches this from the staging pose at reduced speed.</li>
+ </ul>
+
+ <p><b>TODO: Tune all eight poses to match the actual bar locations on your field.</b></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -115,18 +124,47 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#APPROACH_SPEED_MPS" class="member-name-link">APPROACH_SPEED_MPS</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Maximum drive speed (m/s) while approaching the bar.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final edu.wpi.first.math.geometry.Pose2d</code></div>
+<div class="col-second odd-row-color"><code><a href="#BLUE_AUDIENCE_SIDE" class="member-name-link">BLUE_AUDIENCE_SIDE</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final edu.wpi.first.math.geometry.Pose2d</code></div>
-<div class="col-second even-row-color"><code><a href="#BLUE_AUDIENCE_SIDE" class="member-name-link">BLUE_AUDIENCE_SIDE</a></code></div>
+<div class="col-second even-row-color"><code><a href="#BLUE_AUDIENCE_SIDE_STAGING" class="member-name-link">BLUE_AUDIENCE_SIDE_STAGING</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final edu.wpi.first.math.geometry.Pose2d</code></div>
 <div class="col-second odd-row-color"><code><a href="#BLUE_SCORING_SIDE" class="member-name-link">BLUE_SCORING_SIDE</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final edu.wpi.first.math.geometry.Pose2d</code></div>
+<div class="col-second even-row-color"><code><a href="#BLUE_SCORING_SIDE_STAGING" class="member-name-link">BLUE_SCORING_SIDE_STAGING</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#FINAL_APPROACH_RADIUS_METERS" class="member-name-link">FINAL_APPROACH_RADIUS_METERS</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">How close the robot must get to the final waypoint (meters) before
+ BLine considers the path complete.</div>
+</div>
+<div class="col-first even-row-color"><code>static final edu.wpi.first.math.geometry.Pose2d</code></div>
 <div class="col-second even-row-color"><code><a href="#RED_AUDIENCE_SIDE" class="member-name-link">RED_AUDIENCE_SIDE</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final edu.wpi.first.math.geometry.Pose2d</code></div>
-<div class="col-second odd-row-color"><code><a href="#RED_SCORING_SIDE" class="member-name-link">RED_SCORING_SIDE</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#RED_AUDIENCE_SIDE_STAGING" class="member-name-link">RED_AUDIENCE_SIDE_STAGING</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final edu.wpi.first.math.geometry.Pose2d</code></div>
+<div class="col-second even-row-color"><code><a href="#RED_SCORING_SIDE" class="member-name-link">RED_SCORING_SIDE</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final edu.wpi.first.math.geometry.Pose2d</code></div>
+<div class="col-second odd-row-color"><code><a href="#RED_SCORING_SIDE_STAGING" class="member-name-link">RED_SCORING_SIDE_STAGING</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#STAGING_HANDOFF_RADIUS_METERS" class="member-name-link">STAGING_HANDOFF_RADIUS_METERS</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">How close the robot must get to the staging waypoint (meters) before
+ BLine hands off to the final bar pose.</div>
+</div>
 </div>
 </section>
 </li>
@@ -162,6 +200,39 @@ loadScripts(document, 'script');</script>
 <h2>Field Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="APPROACH_SPEED_MPS">
+<h3>APPROACH_SPEED_MPS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">APPROACH_SPEED_MPS</span></div>
+<div class="block">Maximum drive speed (m/s) while approaching the bar.
+ Applied to the entire climb path so the robot slows down before
+ slotting onto the tower.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.FieldConstants.ClimbPositions.APPROACH_SPEED_MPS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="STAGING_HANDOFF_RADIUS_METERS">
+<h3>STAGING_HANDOFF_RADIUS_METERS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">STAGING_HANDOFF_RADIUS_METERS</span></div>
+<div class="block">How close the robot must get to the staging waypoint (meters) before
+ BLine hands off to the final bar pose. Smaller = tighter alignment</div>
+</section>
+</li>
+<li>
+<section class="detail" id="FINAL_APPROACH_RADIUS_METERS">
+<h3>FINAL_APPROACH_RADIUS_METERS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">FINAL_APPROACH_RADIUS_METERS</span></div>
+<div class="block">How close the robot must get to the final waypoint (meters) before
+ BLine considers the path complete. Smaller = tighter alignment</div>
+</section>
+</li>
+<li>
 <section class="detail" id="BLUE_AUDIENCE_SIDE">
 <h3>BLUE_AUDIENCE_SIDE</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Pose2d</span>&nbsp;<span class="element-name">BLUE_AUDIENCE_SIDE</span></div>
@@ -183,6 +254,30 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="RED_SCORING_SIDE">
 <h3>RED_SCORING_SIDE</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Pose2d</span>&nbsp;<span class="element-name">RED_SCORING_SIDE</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="BLUE_AUDIENCE_SIDE_STAGING">
+<h3>BLUE_AUDIENCE_SIDE_STAGING</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Pose2d</span>&nbsp;<span class="element-name">BLUE_AUDIENCE_SIDE_STAGING</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="BLUE_SCORING_SIDE_STAGING">
+<h3>BLUE_SCORING_SIDE_STAGING</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Pose2d</span>&nbsp;<span class="element-name">BLUE_SCORING_SIDE_STAGING</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="RED_AUDIENCE_SIDE_STAGING">
+<h3>RED_AUDIENCE_SIDE_STAGING</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Pose2d</span>&nbsp;<span class="element-name">RED_AUDIENCE_SIDE_STAGING</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="RED_SCORING_SIDE_STAGING">
+<h3>RED_SCORING_SIDE_STAGING</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Pose2d</span>&nbsp;<span class="element-name">RED_SCORING_SIDE_STAGING</span></div>
 </section>
 </li>
 </ul>
