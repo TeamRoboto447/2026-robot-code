@@ -67,7 +67,6 @@ public class TurretSubsystem extends SubsystemBase {
     
     private final File lookupTable;
     private double prevReading = Double.NaN;
-    private double prevReadingTimestamp = Double.NaN;
     private double currentVelocityToTarget = 0;
     private ControlTarget currentControlTarget = new ControlTarget();
     private boolean hoodLimitSet = false;
