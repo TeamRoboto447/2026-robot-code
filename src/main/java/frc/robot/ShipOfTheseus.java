@@ -110,7 +110,7 @@ public class ShipOfTheseus {
     }
 
     public void runSensorlessHoming() {
-        climberSubsystem.homeClimber().schedule();
+        // climberSubsystem.homeClimber().schedule();
         turretSubsystem.homeHood().schedule();
     }
 

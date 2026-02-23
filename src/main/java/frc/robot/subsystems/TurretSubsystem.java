@@ -264,6 +264,12 @@ public class TurretSubsystem extends SubsystemBase {
         NetworkedConfig.Turret.setTargetX((int) Units.metersToInches(currentTargetPose.getX()));
         NetworkedConfig.Turret.setTargetY((int) Units.metersToInches(currentTargetPose.getY()));
         NetworkedConfig.Turret.setTargetHeight((int) Units.metersToInches(currentTargetPose.getZ()));
+
+        // Horizontal (floor-projected) distance from the turret to the target in inches.
+        double dxMeters = currentTargetPose.getX() - turretX;
+        double dyMeters = currentTargetPose.getY() - turretY;
+        double distanceInches = Units.metersToInches(Math.hypot(dxMeters, dyMeters));
+        NetworkedConfig.Turret.setDistanceToTarget(distanceInches);
        
 
         // prevReading = targetDist;

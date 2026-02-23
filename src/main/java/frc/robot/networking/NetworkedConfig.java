@@ -83,6 +83,8 @@ public class NetworkedConfig {
             .getDoubleTopic("target_y").getEntry(-1);
         private static final DoubleEntry targetHeight = turretTargettingTable
             .getDoubleTopic("target_height").getEntry(-1);
+        private static final DoubleEntry distanceToTarget = turretTargettingTable
+            .getDoubleTopic("target_distance").getEntry(-1);
         
         // Telemetry
         private static final DoubleEntry turretAngle = rotationTable
@@ -101,21 +103,20 @@ public class NetworkedConfig {
          * Initializes the NetworkTables entries for the turret subsystem.
          */
         public static void initializeDefaults() {
-            // Entries have defaults declared already, simply verify they are created on initialization
-            shooterKP.get();
-            shooterKI.get();
-            shooterKD.get();
-            shooterKV.get();
+            shooterKP.set(TurretSubsystemConstants.SHOOTER_KP);
+            shooterKI.set(TurretSubsystemConstants.SHOOTER_KI);
+            shooterKD.set(TurretSubsystemConstants.SHOOTER_KD);
+            shooterKV.set(TurretSubsystemConstants.SHOOTER_KV);
             targetRPM.set(3400);
-            hoodKP.get();
-            hoodKI.get();
-            hoodKD.get();
+            hoodKP.set(TurretSubsystemConstants.HOOD_KP);
+            hoodKI.set(TurretSubsystemConstants.HOOD_KI);
+            hoodKD.set(TurretSubsystemConstants.HOOD_KD);
             targetHoodAngle.set(17);
             turretKP.set(TurretSubsystemConstants.TURRET_KP);
             turretKI.set(TurretSubsystemConstants.TURRET_KI);
             turretKD.set(TurretSubsystemConstants.TURRET_KD);
             targetTurretAngle.set(0);
-            validTarget.get();
+            validTarget.set(false);
             robotX.set(-1);
             robotY.set(-1);
             robotAngle.set(-1);
@@ -124,6 +125,7 @@ public class NetworkedConfig {
             targetX.set(-1);
             targetY.set(-1);
             targetHeight.set(-1);
+            distanceToTarget.set(-1);
         }
         
         // Launcher
@@ -241,6 +243,11 @@ public class NetworkedConfig {
             targetHeight.set(height);
         }
 
+        /** Set the horizontal distance from the turret to the target (in inches) */
+        public static void setDistanceToTarget(double distanceInches) {
+            distanceToTarget.set(distanceInches);
+        }
+
         // Telemetry
 
         /** Sends a value as the current turret angle. */
@@ -295,12 +302,11 @@ public class NetworkedConfig {
          * Initializes the NetworkTables entries for the indexer subsystem.
          */
         public static void initializeDefaults() {
-            // Entries have defaults declared already, simply verify they are created on initialization
-            spinnerKP.get();
-            spinnerKI.get();
-            spinnerKD.get();
-            spinnerKV.get();
-            targetSpeed.get();
+            spinnerKP.set(IndexerSubsystemConstants.SPINNER_KP);
+            spinnerKI.set(IndexerSubsystemConstants.SPINNER_KI);
+            spinnerKD.set(IndexerSubsystemConstants.SPINNER_KD);
+            spinnerKV.set(IndexerSubsystemConstants.SPINNER_KV);
+            targetSpeed.set(0.43);
         }
         
         // Spinner
@@ -428,15 +434,15 @@ public class NetworkedConfig {
             .getDoubleTopic("Open Loop Speed").getEntry(1);
 
         public static void initializeDefaults() {
-            climberKP.get();
-            climberKI.get();
-            climberKD.get();
-            climberKFF.get();
-            climberIZone.get();
-            climberMaxOutput.get();
-            targetPosition.get();
-            currentPosition.get();
-            openLoopOutput.set(1);
+            climberKP.set(0.0);
+            climberKI.set(0.0);
+            climberKD.set(0.0);
+            climberKFF.set(0.0);
+            climberIZone.set(0.0);
+            climberMaxOutput.set(1.0);
+            targetPosition.set(0.0);
+            currentPosition.set(0.0);
+            openLoopOutput.set(1.0);
         }
 
         // PID accessors (for future closed-loop control)
@@ -462,9 +468,9 @@ public class NetworkedConfig {
         private static final DoubleEntry newPoseRotation = debugTable.getDoubleTopic("New Pose Rotation").getEntry(0);
 
         public static void initializeDefaults() {
-            newPoseX.get();
-            newPoseY.get();
-            newPoseRotation.get();
+            newPoseX.set(0);
+            newPoseY.set(0);
+            newPoseRotation.set(0);
         }
         
         public static double getNewPoseX() {

@@ -307,9 +307,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // Publish field zone rectangle visualization
         NetworkedTelemetry.Pose.publishFieldZoneRectangle(getFieldZone());
 
+        // TODO: Re-add these once lookup table can handle velocities
+        // NetworkedConfig.Turret.setRobotVX(Units.metersToInches(this.getChassisSpeeds().vxMetersPerSecond));
+        // NetworkedConfig.Turret.setRobotVY(Units.metersToInches(this.getChassisSpeeds().vyMetersPerSecond));
 
-        NetworkedConfig.Turret.setRobotVX(Units.metersToInches(this.getChassisSpeeds().vxMetersPerSecond));
-        NetworkedConfig.Turret.setRobotVY(Units.metersToInches(this.getChassisSpeeds().vyMetersPerSecond));
+        NetworkedConfig.Turret.setRobotVX(0);
+        NetworkedConfig.Turret.setRobotVY(0);
     }
 
     private void startSimThread() {
