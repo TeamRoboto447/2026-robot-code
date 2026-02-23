@@ -33,7 +33,6 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
-import frc.robot.subsystems.MotorTestingSubsystem;
 
 import frc.robot.lib.BLine.*;
 import frc.robot.networking.NetworkedConfig;
@@ -59,8 +58,6 @@ public class ShipOfTheseus {
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
-    // TODO: MotorTestingSubsystem is for local testing only — remove before merging to main
-    public final MotorTestingSubsystem motorTestingSubsystem = new MotorTestingSubsystem();
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
     public final IntakeSubsystem intakeSubsystem;
@@ -165,7 +162,7 @@ public class ShipOfTheseus {
             turretSubsystem.stopShooter();
             turretSubsystem.stopKicker();
         }));
-        
+
         DriverController.rightTrigger().onFalse(indexerSubsystem.stop());
 
         // ── Driver: Intake (left trigger) ────────────────────────────────────────────
