@@ -106,14 +106,19 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="../Constants.FieldConstants.FieldZone.html" title="enum class in frc.robot">Constants.FieldConstants.FieldZone</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getFieldZone()" class="member-name-link">getFieldZone</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>edu.wpi.first.math.kinematics.ChassisSpeeds</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getChassisSpeeds()" class="member-name-link">getChassisSpeeds</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Gets the current chassis speeds of the robot (field-relative).</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="../Constants.FieldConstants.FieldZone.html" title="enum class in frc.robot">Constants.FieldConstants.FieldZone</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getFieldZone()" class="member-name-link">getFieldZone</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Gets the current field zone the robot is located in.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>edu.wpi.first.math.geometry.Pose2d</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getPose()" class="member-name-link">getPose</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>edu.wpi.first.math.geometry.Pose2d</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getPose()" class="member-name-link">getPose</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Gets the current estimated pose of the robot on the field.</div>
 </div>
 </div>
@@ -149,6 +154,18 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>The FieldZone enum representing the robot's current zone</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getChassisSpeeds()">
+<h3>getChassisSpeeds</h3>
+<div class="member-signature"><span class="return-type">edu.wpi.first.math.kinematics.ChassisSpeeds</span>&nbsp;<span class="element-name">getChassisSpeeds</span>()</div>
+<div class="block">Gets the current chassis speeds of the robot (field-relative).
+ Used for turret rotation compensation during robot yaw motion.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>The robot's current <code>ChassisSpeeds</code></dd>
 </dl>
 </section>
 </li>

@@ -196,7 +196,9 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#kick(double)" class="member-name-link">kick</a><wbr>(double&nbsp;strength)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Runs the kicker motor if the flywheel is close to its target speed.</div>
+<div class="block">Runs the kicker motor only when the flywheel is within
+ <a href="../Constants.TurretSubsystemConstants.html#FLYWHEEL_READY_TOLERANCE_RPS"><code>Constants.TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS</code></a> of its target
+ speed AND the coprocessor has a valid trajectory.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
@@ -495,7 +497,10 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="kick(double)">
 <h3>kick</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">kick</span><wbr><span class="parameters">(double&nbsp;strength)</span></div>
-<div class="block">Runs the kicker motor if the flywheel is close to its target speed.</div>
+<div class="block">Runs the kicker motor only when the flywheel is within
+ <a href="../Constants.TurretSubsystemConstants.html#FLYWHEEL_READY_TOLERANCE_RPS"><code>Constants.TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS</code></a> of its target
+ speed AND the coprocessor has a valid trajectory. Stops the kicker otherwise
+ so a game piece is never fed into an under-speed flywheel.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>strength</code> - The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).</dd>

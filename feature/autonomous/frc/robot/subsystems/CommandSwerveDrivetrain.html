@@ -201,7 +201,9 @@ implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems"
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.kinematics.ChassisSpeeds</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getChassisSpeeds()" class="member-name-link">getChassisSpeeds</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets the current chassis speeds of the robot (field-relative).</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../Constants.FieldConstants.FieldZone.html" title="enum class in frc.robot">Constants.FieldConstants.FieldZone</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFieldZone()" class="member-name-link">getFieldZone</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -511,6 +513,15 @@ implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems"
 <section class="detail" id="getChassisSpeeds()">
 <h3>getChassisSpeeds</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.math.kinematics.ChassisSpeeds</span>&nbsp;<span class="element-name">getChassisSpeeds</span>()</div>
+<div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="PoseProvider.html#getChassisSpeeds()">PoseProvider</a></code></span></div>
+<div class="block">Gets the current chassis speeds of the robot (field-relative).
+ Used for turret rotation compensation during robot yaw motion.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="PoseProvider.html#getChassisSpeeds()">getChassisSpeeds</a></code>&nbsp;in interface&nbsp;<code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code></dd>
+<dt>Returns:</dt>
+<dd>The robot's current <code>ChassisSpeeds</code></dd>
+</dl>
 </section>
 </li>
 <li>

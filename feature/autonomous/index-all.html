@@ -1459,7 +1459,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/subsystems/IntakeSubsystem.html#dropIntake()" class="member-name-link">dropIntake()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
 <dd>
-<div class="block">Drops the intake to the extended position.</div>
+<div class="block">Drops the intake to the extended (lowered) position.</div>
 </dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Collect/Runtime/FieldTrackerCollectPassContext.html#dt()" class="member-name-link">dt()</a> - Method in record class frc.robot.libraries.Repulsor.Tracking.Collect.Runtime.<a href="frc/robot/libraries/Repulsor/Tracking/Collect/Runtime/FieldTrackerCollectPassContext.html" title="class in frc.robot.libraries.Repulsor.Tracking.Collect.Runtime">FieldTrackerCollectPassContext</a></dt>
 <dd>
@@ -1965,6 +1965,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Profiler/Profiler.html#flushNow(java.lang.String)" class="member-name-link">flushNow(String)</a> - Static method in class frc.robot.libraries.Repulsor.Profiler.<a href="frc/robot/libraries/Repulsor/Profiler/Profiler.html" title="class in frc.robot.libraries.Repulsor.Profiler">Profiler</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#FLYWHEEL_READY_TOLERANCE_RPS" class="member-name-link">FLYWHEEL_READY_TOLERANCE_RPS</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
+<dd>
+<div class="block">How close (in RPS) the flywheel must be to its target speed before the
+ kicker is allowed to run.</div>
+</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Units/ShooterUnits.html#flywheelRpmToMetersPerSecond(double,double)" class="member-name-link">flywheelRpmToMetersPerSecond(double, double)</a> - Static method in class frc.robot.libraries.Repulsor.Units.<a href="frc/robot/libraries/Repulsor/Units/ShooterUnits.html" title="class in frc.robot.libraries.Repulsor.Units">ShooterUnits</a></dt>
 <dd>
 <div class="block">Converts flywheel RPM directly to tangential exit velocity (m/s) at the rim.</div>
@@ -2306,6 +2311,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#getChassisSpeeds()" class="member-name-link">getChassisSpeeds()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/PoseProvider.html#getChassisSpeeds()" class="member-name-link">getChassisSpeeds()</a> - Method in interface frc.robot.subsystems.<a href="frc/robot/subsystems/PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></dt>
+<dd>
+<div class="block">Gets the current chassis speeds of the robot (field-relative).</div>
+</dd>
 <dt><a href="frc/robot/networking/NetworkedConfig.Climber.html#getClimberIZone()" class="member-name-link">getClimberIZone()</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Climber.html" title="class in frc.robot.networking">NetworkedConfig.Climber</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/networking/NetworkedConfig.Climber.html#getClimberKD()" class="member-name-link">getClimberKD()</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Climber.html" title="class in frc.robot.networking">NetworkedConfig.Climber</a></dt>
@@ -2617,7 +2626,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Gets the kP for the lift's PID.</div>
 </dd>
-<dt><a href="frc/robot/networking/NetworkedConfig.Intake.html#getLiftPosition()" class="member-name-link">getLiftPosition()</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Intake.html" title="class in frc.robot.networking">NetworkedConfig.Intake</a></dt>
+<dt><a href="frc/robot/networking/NetworkedConfig.Intake.html#getLiftLoweredPosition()" class="member-name-link">getLiftLoweredPosition()</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Intake.html" title="class in frc.robot.networking">NetworkedConfig.Intake</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/TankDriveImpl.html#getLinearDeadband()" class="member-name-link">getLinearDeadband()</a> - Method in class frc.robot.libraries.Repulsor.<a href="frc/robot/libraries/Repulsor/TankDriveImpl.html" title="class in frc.robot.libraries.Repulsor">TankDriveImpl</a></dt>
 <dd>&nbsp;</dd>
@@ -2993,6 +3002,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Gets the kP for the turret's PID.</div>
 </dd>
+<dt><a href="frc/robot/networking/NetworkedConfig.Turret.html#getTurretKS()" class="member-name-link">getTurretKS()</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Turret.html" title="class in frc.robot.networking">NetworkedConfig.Turret</a></dt>
+<dd>
+<div class="block">Gets the kS (static friction feedforward) for the turret's PID.</div>
+</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Model/GameObject.html#getType()" class="member-name-link">getType()</a> - Method in class frc.robot.libraries.Repulsor.Tracking.Model.<a href="frc/robot/libraries/Repulsor/Tracking/Model/GameObject.html" title="class in frc.robot.libraries.Repulsor.Tracking.Model">GameObject</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Simulation/MechanismSimBase.html#getVelocity()" class="member-name-link">getVelocity()</a> - Method in class frc.robot.libraries.Repulsor.Simulation.<a href="frc/robot/libraries/Repulsor/Simulation/MechanismSimBase.html" title="class in frc.robot.libraries.Repulsor.Simulation">MechanismSimBase</a></dt>
@@ -3228,6 +3241,12 @@ loadScripts(document, 'script');</script>
  the lower hard stop and zeroing the encoder when a current-based stall is
  detected.</div>
 </dd>
+<dt><a href="frc/robot/subsystems/IntakeSubsystem.html#homeLift()" class="member-name-link">homeLift()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
+<dd>
+<div class="block">Returns a <code>Command</code> that homes the lift by slowly driving it upward
+ toward the upper hard stop, detecting the stall via stator current, and
+ zeroing the encoder when the stall is confirmed.</div>
+</dd>
 <dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#HOOD_ANGLE_TOLERANCE_DEGREES" class="member-name-link">HOOD_ANGLE_TOLERANCE_DEGREES</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#HOOD_DEGREES_ROTATION_RATIO" class="member-name-link">HOOD_DEGREES_ROTATION_RATIO</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
@@ -3292,8 +3311,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="frc/robot/libraries/Repulsor/Predictive/Model/DynamicObject.html#id" class="member-name-link">id</a> - Variable in class frc.robot.libraries.Repulsor.Predictive.Model.<a href="frc/robot/libraries/Repulsor/Predictive/Model/DynamicObject.html" title="class in frc.robot.libraries.Repulsor.Predictive.Model">DynamicObject</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Internal/TrackedObj.html#id" class="member-name-link">id</a> - Variable in class frc.robot.libraries.Repulsor.Tracking.Internal.<a href="frc/robot/libraries/Repulsor/Tracking/Internal/TrackedObj.html" title="class in frc.robot.libraries.Repulsor.Tracking.Internal">TrackedObj</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="frc/robot/subsystems/ClimberSubsystem.html#idle()" class="member-name-link">idle()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/ClimberSubsystem.html" title="class in frc.robot.subsystems">ClimberSubsystem</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Collect/Runtime/FieldTrackerCollectPassCandidateResult.html#immediatePose()" class="member-name-link">immediatePose()</a> - Method in record class frc.robot.libraries.Repulsor.Tracking.Collect.Runtime.<a href="frc/robot/libraries/Repulsor/Tracking/Collect/Runtime/FieldTrackerCollectPassCandidateResult.html" title="class in frc.robot.libraries.Repulsor.Tracking.Collect.Runtime">FieldTrackerCollectPassCandidateResult</a></dt>
 <dd>
@@ -3523,10 +3540,18 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/subsystems/IntakeSubsystem.html#isIntakeDown()" class="member-name-link">isIntakeDown()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
 <dd>
-<div class="block">Returns true if the intake is currently in the lowered (extended) position.</div>
+<div class="block">Returns true if the lift is within tolerance of the fully-lowered position.</div>
+</dd>
+<dt><a href="frc/robot/subsystems/IntakeSubsystem.html#isIntakeUp()" class="member-name-link">isIntakeUp()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
+<dd>
+<div class="block">Returns true if the lift is within tolerance of the stowed (zero) position.</div>
 </dd>
 <dt><a href="frc/robot/libraries/Repulsor/Predictive/Runtime/PredictiveCollectScoringRuntime.html#isInvalidFuelBand(frc.robot.libraries.Repulsor.Predictive.PredictiveFieldStateOps,edu.wpi.first.math.geometry.Translation2d)" class="member-name-link">isInvalidFuelBand(PredictiveFieldStateOps, Translation2d)</a> - Static method in class frc.robot.libraries.Repulsor.Predictive.Runtime.<a href="frc/robot/libraries/Repulsor/Predictive/Runtime/PredictiveCollectScoringRuntime.html" title="class in frc.robot.libraries.Repulsor.Predictive.Runtime">PredictiveCollectScoringRuntime</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/IntakeSubsystem.html#isLiftHomed()" class="member-name-link">isLiftHomed()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
+<dd>
+<div class="block">Returns true once the lift has been successfully homed.</div>
+</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Simulation/MechanismSimBase.html#isLowerLimitTriggered()" class="member-name-link">isLowerLimitTriggered()</a> - Method in class frc.robot.libraries.Repulsor.Simulation.<a href="frc/robot/libraries/Repulsor/Simulation/MechanismSimBase.html" title="class in frc.robot.libraries.Repulsor.Simulation">MechanismSimBase</a></dt>
 <dd>
 <div class="block">Returns whether the lower limit is triggered.</div>
@@ -3605,7 +3630,9 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/subsystems/TurretSubsystem.html#kick(double)" class="member-name-link">kick(double)</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></dt>
 <dd>
-<div class="block">Runs the kicker motor if the flywheel is close to its target speed.</div>
+<div class="block">Runs the kicker motor only when the flywheel is within
+ <a href="frc/robot/Constants.TurretSubsystemConstants.html#FLYWHEEL_READY_TOLERANCE_RPS"><code>Constants.TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS</code></a> of its target
+ speed AND the coprocessor has a valid trajectory.</div>
 </dd>
 <dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#KICKER_MOTOR_ID" class="member-name-link">KICKER_MOTOR_ID</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
@@ -3726,17 +3753,39 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_GEARBOX_RATIO" class="member-name-link">LIFT_GEARBOX_RATIO</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_HOMING_SPEED" class="member-name-link">LIFT_HOMING_SPEED</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
+<dd>
+<div class="block">Open-loop output used while homing toward the upper hard stop.</div>
+</dd>
+<dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_HOMING_STALL_AMPS" class="member-name-link">LIFT_HOMING_STALL_AMPS</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
+<dd>
+<div class="block">Stator-current threshold (amps) above which the lift motor is considered stalled.</div>
+</dd>
+<dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_HOMING_STALL_DURATION_S" class="member-name-link">LIFT_HOMING_STALL_DURATION_S</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
+<dd>
+<div class="block">How long (seconds) current must exceed the threshold before homing is accepted.</div>
+</dd>
 <dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_KD" class="member-name-link">LIFT_KD</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_KI" class="member-name-link">LIFT_KI</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_KP" class="member-name-link">LIFT_KP</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_LOWERED_ROTATIONS" class="member-name-link">LIFT_LOWERED_ROTATIONS</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
+<dd>
+<div class="block">Rotations (output shaft) the lift travels from the stowed position (0)
+ to the fully-lowered intake position.</div>
+</dd>
 <dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_MOTOR_ID" class="member-name-link">LIFT_MOTOR_ID</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.IntakeSubsystemConstants.html#LIFT_POSITION_TOLERANCE_ROTATIONS" class="member-name-link">LIFT_POSITION_TOLERANCE_ROTATIONS</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.IntakeSubsystemConstants.html" title="class in frc.robot">Constants.IntakeSubsystemConstants</a></dt>
+<dd>
+<div class="block">Tolerance (rotations) used by <code>isIntakeDown()</code> and <code>isIntakeUp()</code>
+ when comparing the lift's actual position against the target endpoints.</div>
+</dd>
 <dt><a href="frc/robot/subsystems/IntakeSubsystem.html#liftIntake()" class="member-name-link">liftIntake()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
 <dd>
-<div class="block">Lifts the intake to the starting position.</div>
+<div class="block">Lifts the intake back to the stowed (zero) position.</div>
 </dd>
 <dt><a href="frc/robot/libraries/Repulsor/Simulation/MechanismSimParams.html#linear(edu.wpi.first.math.system.plant.DCMotor,double,double,double)" class="member-name-link">linear(DCMotor, double, double, double)</a> - Static method in class frc.robot.libraries.Repulsor.Simulation.<a href="frc/robot/libraries/Repulsor/Simulation/MechanismSimParams.html" title="class in frc.robot.libraries.Repulsor.Simulation">MechanismSimParams</a></dt>
 <dd>
@@ -5173,9 +5222,9 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Vision/Test/AgentRole.html#ROAMER" class="member-name-link">ROAMER</a> - Enum constant in enum class frc.robot.libraries.Repulsor.Vision.Test.<a href="frc/robot/libraries/Repulsor/Vision/Test/AgentRole.html" title="enum class in frc.robot.libraries.Repulsor.Vision.Test">AgentRole</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="frc/robot/Constants.VisionConstants.html#ROBOT_TO_BACK_CAM" class="member-name-link">ROBOT_TO_BACK_CAM</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.VisionConstants.html" title="class in frc.robot">Constants.VisionConstants</a></dt>
+<dt><a href="frc/robot/Constants.VisionConstants.html#ROBOT_TO_BACK_LEFT_CAM" class="member-name-link">ROBOT_TO_BACK_LEFT_CAM</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.VisionConstants.html" title="class in frc.robot">Constants.VisionConstants</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="frc/robot/Constants.VisionConstants.html#ROBOT_TO_FRONT_CAM" class="member-name-link">ROBOT_TO_FRONT_CAM</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.VisionConstants.html" title="class in frc.robot">Constants.VisionConstants</a></dt>
+<dt><a href="frc/robot/Constants.VisionConstants.html#ROBOT_TO_BACK_RIGHT_CAM" class="member-name-link">ROBOT_TO_BACK_RIGHT_CAM</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.VisionConstants.html" title="class in frc.robot">Constants.VisionConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Behaviours/BehaviourContext.html#robot_x" class="member-name-link">robot_x</a> - Variable in class frc.robot.libraries.Repulsor.Behaviours.<a href="frc/robot/libraries/Repulsor/Behaviours/BehaviourContext.html" title="class in frc.robot.libraries.Repulsor.Behaviours">BehaviourContext</a></dt>
 <dd>&nbsp;</dd>
@@ -6570,6 +6619,11 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#TURRET_KS" class="member-name-link">TURRET_KS</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#TURRET_ROTATION_FF" class="member-name-link">TURRET_ROTATION_FF</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
+<dd>
+<div class="block">Feed-forward gain for robot-rotation compensation (degrees of turret offset
+ per degree-per-second of robot yaw rate).</div>
+</dd>
 <dt><a href="frc/robot/Constants.TurretSubsystemConstants.html#TURRET_TO_ROBOT" class="member-name-link">TURRET_TO_ROBOT</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.TurretSubsystemConstants.html" title="class in frc.robot">Constants.TurretSubsystemConstants</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/ShipOfTheseus.html#turretSubsystem" class="member-name-link">turretSubsystem</a> - Variable in class frc.robot.<a href="frc/robot/ShipOfTheseus.html" title="class in frc.robot">ShipOfTheseus</a></dt>
