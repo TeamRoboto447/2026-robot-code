@@ -130,32 +130,54 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dropIntake()" class="member-name-link">dropIntake</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Drops the intake to the extended position.</div>
+<div class="block">Drops the intake to the extended (lowered) position.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#intake(double)" class="member-name-link">intake</a><wbr>(double&nbsp;speed)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#homeLift()" class="member-name-link">homeLift</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Runs the intake.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isIntakeDown()" class="member-name-link">isIntakeDown</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns true if the intake is currently in the lowered (extended) position.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#liftIntake()" class="member-name-link">liftIntake</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Lifts the intake to the starting position.</div>
+<div class="block">Returns a <code>Command</code> that homes the lift by slowly driving it upward
+ toward the upper hard stop, detecting the stall via stator current, and
+ zeroing the encoder when the stall is confirmed.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#intake(double)" class="member-name-link">intake</a><wbr>(double&nbsp;speed)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Updates the subsystem's various elements.</div>
+<div class="block">Runs the intake.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isIntakeDown()" class="member-name-link">isIntakeDown</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns true if the lift is within tolerance of the fully-lowered position.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isIntakeUp()" class="member-name-link">isIntakeUp</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns true if the lift is within tolerance of the stowed (zero) position.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isLiftHomed()" class="member-name-link">isLiftHomed</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns true once the lift has been successfully homed.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#liftIntake()" class="member-name-link">liftIntake</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Lifts the intake back to the stowed (zero) position.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pullNetworkTableData()" class="member-name-link">pullNetworkTableData</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates the subsystem's various elements.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pullNetworkTableData()" class="member-name-link">pullNetworkTableData</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Pulls data from the NetworkTables.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetLiftHoming()" class="member-name-link">resetLiftHoming</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Clears the lift-homed flag, forcing a re-home on the next homing command.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#reverseIntake(double)" class="member-name-link">reverseIntake</a><wbr>(double&nbsp;speed)</code></div>
@@ -258,21 +280,64 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dropIntake()">
 <h3>dropIntake</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dropIntake</span>()</div>
-<div class="block">Drops the intake to the extended position.</div>
+<div class="block">Drops the intake to the extended (lowered) position.
+ No-ops until the lift has been homed.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="liftIntake()">
 <h3>liftIntake</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">liftIntake</span>()</div>
-<div class="block">Lifts the intake to the starting position.</div>
+<div class="block">Lifts the intake back to the stowed (zero) position.
+ No-ops until the lift has been homed.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="isIntakeDown()">
 <h3>isIntakeDown</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isIntakeDown</span>()</div>
-<div class="block">Returns true if the intake is currently in the lowered (extended) position.</div>
+<div class="block">Returns true if the lift is within tolerance of the fully-lowered position.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isIntakeUp()">
+<h3>isIntakeUp</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isIntakeUp</span>()</div>
+<div class="block">Returns true if the lift is within tolerance of the stowed (zero) position.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isLiftHomed()">
+<h3>isLiftHomed</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isLiftHomed</span>()</div>
+<div class="block">Returns true once the lift has been successfully homed.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="resetLiftHoming()">
+<h3>resetLiftHoming</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">resetLiftHoming</span>()</div>
+<div class="block">Clears the lift-homed flag, forcing a re-home on the next homing command.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="homeLift()">
+<h3>homeLift</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">homeLift</span>()</div>
+<div class="block">Returns a <code>Command</code> that homes the lift by slowly driving it upward
+ toward the upper hard stop, detecting the stall via stator current, and
+ zeroing the encoder when the stall is confirmed.
+
+ <p>The lift motor drives at <code>LIFT_HOMING_SPEED</code> (positive = raise)
+ until the stator current exceeds <code>LIFT_HOMING_STALL_AMPS</code> for at least
+ <code>LIFT_HOMING_STALL_DURATION_S</code> continuous seconds, indicating the
+ mechanism has hit the hard stop. The encoder is then zeroed so that 0 is the
+ stowed position and <a href="../Constants.IntakeSubsystemConstants.html#LIFT_LOWERED_ROTATIONS"><code>Constants.IntakeSubsystemConstants.LIFT_LOWERED_ROTATIONS</code></a>
+ is the fully-lowered position.</p></div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the homing command</dd>
+</dl>
 </section>
 </li>
 <li>
