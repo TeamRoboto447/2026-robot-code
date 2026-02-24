@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 // (removed unused imports)
@@ -136,8 +135,8 @@ public class ShipOfTheseus {
     }
 
     private void configureBindings() {
-        // configureProductionBindings();
-        configureDevBindings();
+        configureProductionBindings();
+        // configureDevBindings();
     }
 
     private void configureProductionBindings() {
@@ -163,8 +162,8 @@ public class ShipOfTheseus {
         swerveSubsystem.registerTelemetry(logger::telemeterize);
 
         // Driver: Climber
-        DriverController.leftBumper().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
-        DriverController.rightBumper().whileTrue(climberSubsystem.run(() -> climberSubsystem.climb()));
+        DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
+        DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull());
 
         // Driver: Automated climb (A button)
         // Raises the climber, drives to the bar, then lowers onto it.
@@ -233,21 +232,25 @@ public class ShipOfTheseus {
         OperatorController.rightTrigger().onFalse(indexerSubsystem.stop());
 
         // Operator: Intake (left trigger)
-        OperatorController.leftTrigger().onTrue(
+        OperatorController.a().onTrue(
             intakeSubsystem.runOnce(() -> {
                 if (!intakeSubsystem.isIntakeDown()) intakeSubsystem.dropIntake();
             })
         );
-        OperatorController.leftTrigger().whileTrue(
+        OperatorController.a().whileTrue(
             intakeSubsystem.run(() -> intakeSubsystem.intake(0.8))
         );
-        OperatorController.leftTrigger().onFalse(
+        OperatorController.a().onFalse(
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
         );
 
-        // Operator: Intake lift (dpad)
-        OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
-        OperatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
+        // Operator: Intake lift
+        OperatorController.leftBumper().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
+        OperatorController.rightBumper().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
+
+        // Operator: Climber Control
+        OperatorController.povUp().onTrue(climberSubsystem.raiseToFull());
+        OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
     }
     
     @SuppressWarnings("unused") // Suppress warnings for unused bindings in dev mode
@@ -266,9 +269,6 @@ public class ShipOfTheseus {
             )
         );
 
-        // Default command for testing motor — right joystick Y drives the TalonFX.
-        // TODO: Remove this testing binding and the MotorTestingSubsystem before merging to main
-        // motorTestingSubsystem.setDefaultCommand(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(joystick.getRightY())));
         OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(1)));
         OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(1)));
         OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));

@@ -24,7 +24,6 @@ public class Theseus extends TimedRobot {
 
     public Theseus() {
         m_robotContainer = new ShipOfTheseus();
-        SignalLogger.setPath("/media/sda1/ctre-logs");
     }
 
     @Override
@@ -54,6 +53,7 @@ public class Theseus extends TimedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
         }
+        CommandScheduler.getInstance().schedule(Commands.runOnce(() -> m_robotContainer.pullAllNetworkedConfigs()));
     }
 
     @Override
@@ -67,6 +67,7 @@ public class Theseus extends TimedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
+        CommandScheduler.getInstance().schedule(Commands.runOnce(() -> m_robotContainer.pullAllNetworkedConfigs()));
     }
 
     @Override

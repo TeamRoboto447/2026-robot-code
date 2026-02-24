@@ -230,7 +230,14 @@ public class TurretSubsystem extends SubsystemBase {
         // this.leftShooterMotor.optimizeBusUtilization();
         // this.angleMotor.optimizeBusUtilization();
 
-        this.feedTrigger = new Trigger(() -> this.shooterVelocitySignal.isNear(currentControlTarget.getRPS(), 0.8));
+        this.feedTrigger = new Trigger(() -> {
+            double targetRPS = NetworkedConfig.Turret.getTargetRPM() / 60.0;
+            // Only consider "ready" if the flywheel is actually commanded to spin
+            // (runFlywheel=true) and is within tolerance of the NT target speed.
+            // When targetRPS is 0 or runFlywheel is false we are NOT ready.
+            if (!runFlywheel || targetRPS < 16) return false;
+            return shooterVelocitySignal.isNear(targetRPS, TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS);
+        });
 
     }
 
@@ -304,8 +311,8 @@ public class TurretSubsystem extends SubsystemBase {
 
 
         if (!systemsCheckMode) {
-            double targetRPS = runFlywheel ? NetworkedConfig.Turret.hasValidTrajectory() ? NetworkedConfig.Turret.getTargetRPM()/60 : 0 : 0;
-            if (targetRPS > 16) // Approx 1000 RPM
+            double targetRPS = runFlywheel ? NetworkedConfig.Turret.getTargetRPM() / 60.0 : 0;
+            if (targetRPS > 16) // Approx 1000 RPM — spin up whenever commanded, regardless of trajectory validity
                 rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
             else
                 rightShooterMotor.setControl(coastReq); // coast freely — don't brake against the spinning flywheel
@@ -326,7 +333,9 @@ public class TurretSubsystem extends SubsystemBase {
                 this.turnToAngle(Degrees.of(compensatedTargetDeg));
             } else {
                 this.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE);
-                this.stopTurret();
+                // Do not call stopTurret() here — that writes open-loop set(0) which fights
+                // against the closed-loop position hold from the last turnToAngle() call.
+                // Simply doing nothing lets the motor hold its last commanded position.
             }
         }
     }
@@ -336,6 +345,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public void shoot() {
         shooting = true;
+        runFlywheel = true;
         // double targetRPS = currentControlTarget.getRPS();
         double targetRPS = NetworkedConfig.Turret.getTargetRPM()/60;
         rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));

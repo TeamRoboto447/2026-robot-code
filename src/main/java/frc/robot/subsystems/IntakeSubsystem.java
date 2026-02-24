@@ -87,7 +87,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param speed The speed to intake at
      */
     public void intake(double speed) {
-        intakeMotor.set(speed);
+        intakeMotor.set(-speed);
     }
 
     /**
@@ -96,7 +96,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param speed The speed to reverse at
      */
     public void reverseIntake(double speed) {
-        intakeMotor.set(-speed);
+        intakeMotor.set(speed);
     }
 
     /**
