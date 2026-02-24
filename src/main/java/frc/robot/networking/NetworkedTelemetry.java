@@ -253,10 +253,12 @@ public class NetworkedTelemetry {
         public static final BooleanEntry resFlywheel3k   = resultsTable.getBooleanTopic("Flywheel: 3000 RPM").getEntry(false);
         public static final BooleanEntry resFlywheel4k   = resultsTable.getBooleanTopic("Flywheel: 4000 RPM").getEntry(false);
         public static final BooleanEntry resFlywheel5k   = resultsTable.getBooleanTopic("Flywheel: 5000 RPM").getEntry(false);
+        public static final BooleanEntry resIntakeHoming = resultsTable.getBooleanTopic("Intake: Homing").getEntry(false);
         public static final BooleanEntry resIntakeDrop   = resultsTable.getBooleanTopic("Intake: Drop").getEntry(false);
         public static final BooleanEntry resIntakeRoller = resultsTable.getBooleanTopic("Intake: Roller").getEntry(false);
         public static final BooleanEntry resIntakeLift   = resultsTable.getBooleanTopic("Intake: Lift").getEntry(false);
         public static final BooleanEntry resIndexer      = resultsTable.getBooleanTopic("Indexer: Spin").getEntry(false);
+        public static final BooleanEntry resFeeder       = resultsTable.getBooleanTopic("Feeder: Run").getEntry(false);
         public static final BooleanEntry resClimberHome  = resultsTable.getBooleanTopic("Climber: Homing").getEntry(false);
         public static final BooleanEntry resClimberExt   = resultsTable.getBooleanTopic("Climber: Full Extension").getEntry(false);
         public static final BooleanEntry resClimberRet   = resultsTable.getBooleanTopic("Climber: Retract").getEntry(false);
@@ -283,13 +285,14 @@ public class NetworkedTelemetry {
          */
         public static void resetResults(
                 boolean hood, boolean turret, boolean flywheel,
-                boolean intake, boolean indexer, boolean climber, boolean swerve) {
+                boolean intake, boolean indexer, boolean feeder, boolean climber, boolean swerve) {
             if (hood)     { resHoodHoming.set(false);  resHoodAngle.set(false); }
             if (turret)   { resTurretFwd.set(false);   resTurretRev.set(false); resTurretReturn.set(false); }
             if (flywheel) { resFlywheel2k.set(false);  resFlywheel3k.set(false);
                             resFlywheel4k.set(false);  resFlywheel5k.set(false); }
-            if (intake)   { resIntakeDrop.set(false);  resIntakeRoller.set(false); resIntakeLift.set(false); }
+            if (intake)   { resIntakeHoming.set(false); resIntakeDrop.set(false);  resIntakeRoller.set(false); resIntakeLift.set(false); }
             if (indexer)  { resIndexer.set(false); }
+            if (feeder)   { resFeeder.set(false); }
             if (climber)  { resClimberHome.set(false); resClimberExt.set(false); resClimberRet.set(false); }
             if (swerve)   { resSwerveNoFaults.set(false);  resSwerveForward.set(false);
                             resSwerveBackward.set(false);   resSwerveLeft.set(false);
@@ -309,14 +312,15 @@ public class NetworkedTelemetry {
          */
         public static boolean computeOverall(
                 boolean hood, boolean turret, boolean flywheel,
-                boolean intake, boolean indexer, boolean climber, boolean swerve) {
+                boolean intake, boolean indexer, boolean feeder, boolean climber, boolean swerve) {
             boolean allPassed = true;
             if (hood)     allPassed &= resHoodHoming.get()    && resHoodAngle.get();
             if (turret)   allPassed &= resTurretFwd.get()     && resTurretRev.get() && resTurretReturn.get();
             if (flywheel) allPassed &= resFlywheel2k.get()    && resFlywheel3k.get()
                                     && resFlywheel4k.get()    && resFlywheel5k.get();
-            if (intake)   allPassed &= resIntakeDrop.get()    && resIntakeRoller.get() && resIntakeLift.get();
+            if (intake)   allPassed &= resIntakeHoming.get() && resIntakeDrop.get() && resIntakeRoller.get() && resIntakeLift.get();
             if (indexer)  allPassed &= resIndexer.get();
+            if (feeder)   allPassed &= resFeeder.get();
             if (climber)  allPassed &= resClimberHome.get()   && resClimberExt.get() && resClimberRet.get();
             if (swerve)   allPassed &= resSwerveNoFaults.get() && resSwerveForward.get()
                                     && resSwerveBackward.get() && resSwerveLeft.get()

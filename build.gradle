@@ -102,6 +102,12 @@ deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
 wpi.java.configureTestTasks(test)
 
+// Cap the JVM heap so it doesn't compete with the OS and native libraries for
+// the roboRIO 2's 256 MB RAM. Without this limit the JVM will grow until the
+// OS OOM-kills it (errno=12).
+deployArtifact.jvmArgs.add("-Xmx80m")
+deployArtifact.jvmArgs.add("-Xms16m")
+
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'

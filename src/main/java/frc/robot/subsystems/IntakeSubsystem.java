@@ -153,6 +153,11 @@ public class IntakeSubsystem extends SubsystemBase {
         return isLiftHomed;
     }
 
+    /** Clears the lift-homed flag, forcing a re-home on the next homing command. */
+    public void resetLiftHoming() {
+        isLiftHomed = false;
+    }
+
     /**
      * Returns a {@link Command} that homes the lift by slowly driving it upward
      * toward the upper hard stop, detecting the stall via stator current, and

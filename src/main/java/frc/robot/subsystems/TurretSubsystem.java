@@ -342,6 +342,18 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
+     * Spins the flywheel directly at the given RPM, bypassing NetworkTables.
+     * Intended for use in systems checks and other automated sequences that
+     * need to target a specific speed without mutating shared NT state.
+     *
+     * @param rpm The target flywheel speed in RPM.
+     */
+    public void spinFlywheelAtRPM(double rpm) {
+        shooting = true;
+        rightShooterMotor.setControl(velocityReq.withVelocity(rpm / 60.0));
+    }
+
+    /**
      * Stops the shooter. Does not immediately stop due to inertia.
      */
     public void stopShooter() {
@@ -417,6 +429,11 @@ public class TurretSubsystem extends SubsystemBase {
         return hoodLimitSet;
     }
 
+    /** Clears the hood-homed flag, forcing a re-home on the next homing command. */
+    public void resetHoodHoming() {
+        hoodLimitSet = false;
+    }
+
     /** Returns true when the coprocessor has computed a valid shot trajectory. */
     public boolean hasValidTarget() {
         return NetworkedConfig.Turret.hasValidTrajectory();
@@ -470,6 +487,16 @@ public class TurretSubsystem extends SubsystemBase {
     public void stopKicker() {
         this.kickerMotor.set(0);
     }
+
+    /**
+     * Drives the kicker motor directly at {@code strength} without checking flywheel
+     * speed or trajectory validity. Intended for systems-check use only.
+     *
+     * @param strength Motor output on [-1, 1].
+     */
+    public void runKickerRaw(double strength) {
+        this.kickerMotor.set(strength);
+    }
     /**
      * Stops the turret.
      */
@@ -486,13 +513,10 @@ public class TurretSubsystem extends SubsystemBase {
         if (newAngle.lt(TurretSubsystemConstants.MIN_TURRET_ANGLE) || newAngle.gt(TurretSubsystemConstants.MAX_TURRET_ANGLE)) {
             return;
         }
-        
-        double errorDeg = Math.abs(newAngle.in(Degrees) - anglePositionSignal.getValueAsDouble());
-        if (errorDeg > TurretSubsystemConstants.TURRET_ANGLE_TOLERANCE_DEGREES) {
-            angleMotor.setControl(anglePositionReq.withPosition(newAngle));
-        } else {
-            angleMotor.set(0);
-        }
+        // Always issue the closed-loop position request — even when within tolerance
+        // this keeps the motor actively holding position instead of going open-loop (set(0))
+        // which would allow the mechanism to drift under gravity or mechanism compliance.
+        angleMotor.setControl(anglePositionReq.withPosition(newAngle));
     }
 
     public void turnRaw(double power) {
@@ -513,9 +537,9 @@ public class TurretSubsystem extends SubsystemBase {
             <= TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS;
 
         if (NetworkedConfig.Turret.hasValidTrajectory() && flywheelReady)
-            kickerMotor.set(strength);
+            runKickerRaw(strength);
         else
-            kickerMotor.set(0);
+            runKickerRaw(0);
     }
 
     /**

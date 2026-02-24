@@ -305,12 +305,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
             });
         }
 
-        field.setRobotPose(getState().Pose);
         periodicLoopCount++;
 
         // Rate-limit dashboard-only visualizations to 10 Hz — SmartDashboard and
         // NT field-zone publishing don't need to run at the full 50 Hz control rate.
         if (periodicLoopCount % TELEMETRY_LOOP_DIVISOR == 0) {
+            field.setRobotPose(getState().Pose);
             SmartDashboard.putString("Drivetrain/Current Zone", getFieldZone().toString());
             NetworkedTelemetry.Pose.publishFieldZoneRectangle(getFieldZone());
         }

@@ -152,6 +152,11 @@ public class ClimberSubsystem extends SubsystemBase {
     return isHomed;
   }
 
+  /** Clears the homed flag, forcing a re-home on the next homing command. */
+  public void resetHoming() {
+    isHomed = false;
+  }
+
   /** Returns the current climber position in motor rotations (from the cached position signal). */
   public double getPositionRotations() {
     return positionSignal.getValueAsDouble();

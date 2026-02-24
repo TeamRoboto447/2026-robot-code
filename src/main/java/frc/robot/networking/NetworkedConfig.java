@@ -486,15 +486,32 @@ public class NetworkedConfig {
         private static final BooleanEntry bypassHubLock =
             debugTable.getBooleanTopic("Bypass Hub Lock").getEntry(false);
 
+        /**
+         * When toggled to {@code true}, resets the homed state of all subsystems that
+         * require homing, then automatically clears itself back to {@code false}.
+         * Intended for development only.
+         */
+        private static final BooleanEntry resetHomedPositions =
+            debugTable.getBooleanTopic("Reset Homed Positions").getEntry(false);
+
         public static void initializeDefaults() {
             newPoseX.set(0);
             newPoseY.set(0);
             newPoseRotation.set(0);
             bypassHubLock.set(false);
+            resetHomedPositions.set(false);
         }
 
         public static boolean isBypassHubLock() {
             return bypassHubLock.get();
+        }
+
+        public static boolean shouldResetHomedPositions() {
+            return resetHomedPositions.get();
+        }
+
+        public static void clearResetHomedPositions() {
+            resetHomedPositions.set(false);
         }
         
         public static double getNewPoseX() {
@@ -534,6 +551,8 @@ public class NetworkedConfig {
             checkTable.getBooleanTopic("check_intake").getEntry(true);
         private static final BooleanEntry checkIndexer =
             checkTable.getBooleanTopic("check_indexer").getEntry(true);
+        private static final BooleanEntry checkFeeder =
+            checkTable.getBooleanTopic("check_feeder").getEntry(true);
         private static final BooleanEntry checkClimber =
             checkTable.getBooleanTopic("check_climber").getEntry(true);
         private static final BooleanEntry checkSwerve =
@@ -546,6 +565,7 @@ public class NetworkedConfig {
             checkFlywheel.set(true);
             checkIntake.set(true);
             checkIndexer.set(true);
+            checkFeeder.set(true);
             checkClimber.set(true);
             checkSwerve.set(true);
         }
@@ -556,6 +576,7 @@ public class NetworkedConfig {
         public static boolean isCheckFlywheel()  { return checkFlywheel.get(); }
         public static boolean isCheckIntake()    { return checkIntake.get(); }
         public static boolean isCheckIndexer()   { return checkIndexer.get(); }
+        public static boolean isCheckFeeder()    { return checkFeeder.get(); }
         public static boolean isCheckClimber()   { return checkClimber.get(); }
         public static boolean isCheckSwerve()    { return checkSwerve.get(); }
     }

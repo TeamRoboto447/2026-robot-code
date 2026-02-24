@@ -431,15 +431,19 @@ public class ShipOfTheseus {
         swerveSubsystem.registerTelemetry(logger::telemeterize);
     }
 
+    public void pullAllNetworkedConfigs() {
+        turretSubsystem.pullNetworkTableData();
+        indexerSubsystem.pullNetworkTableData();
+        intakeSubsystem.pullNetworkTableData();
+    }
+
     private void fillAutoChooser() {
 
         Path testPath = new Path("Square Test");
         Path climbLeft = new Path("GoToLeftClimb");
         Path climbRight = new Path("GoToRightClimb");
 
-        FollowPath.registerEventTrigger("testLog", new InstantCommand(() -> {
-            System.out.println("YEET!");
-        }));
+        FollowPath.registerEventTrigger("testLog", Commands.print("YEET!"));
 
         autoChooser.addOption("Square Test", Commands.sequence(
             pathBuilder.build(testPath)
@@ -571,6 +575,13 @@ public class ShipOfTheseus {
                 edu.wpi.first.wpilibj.DriverStation.getMatchTime(),
                 gs.isHubActive()
             );
+        }
+
+        if (NetworkedConfig.Debug.shouldResetHomedPositions()) {
+            turretSubsystem.resetHoodHoming();
+            climberSubsystem.resetHoming();
+            intakeSubsystem.resetLiftHoming();
+            NetworkedConfig.Debug.clearResetHomedPositions();
         }
     }
 

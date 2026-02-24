@@ -10,6 +10,7 @@ import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class Theseus extends TimedRobot {
     private Command m_autonomousCommand;
@@ -77,6 +78,7 @@ public class Theseus extends TimedRobot {
     @Override
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
+        CommandScheduler.getInstance().schedule(Commands.runOnce(() -> m_robotContainer.pullAllNetworkedConfigs()));
         CommandScheduler.getInstance().schedule(m_robotContainer.getSystemsCheckCommand());
     }
 

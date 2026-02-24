@@ -52,7 +52,7 @@ public class SystemsCheck {
     private static final double HOOD_TEST_ANGLE_DEG = 33.5;
 
     /** Seconds allowed for a position/speed target to be reached. */
-    private static final double POSITION_TIMEOUT_S = 5.0;
+    private static final double POSITION_TIMEOUT_S = 2.0;
 
     /** Seconds allowed for the flywheel to reach target speed. */
     private static final double FLYWHEEL_SPINUP_TIMEOUT_S = 8.0;
@@ -62,6 +62,9 @@ public class SystemsCheck {
 
     /** How long to run the indexer during its check. */
     private static final double INDEXER_RUN_S = 1.0;
+
+    /** How long to run the feeder/kicker during its check. */
+    private static final double FEEDER_RUN_S = 3.0;
 
     /** How long to drive in each swerve direction during its check. */
     private static final double SWERVE_MOTION_RUN_S = 1.0;
@@ -92,6 +95,7 @@ public class SystemsCheck {
         final boolean chkFlywheel = NetworkedConfig.SystemsCheck.isCheckFlywheel();
         final boolean chkIntake   = NetworkedConfig.SystemsCheck.isCheckIntake();
         final boolean chkIndexer  = NetworkedConfig.SystemsCheck.isCheckIndexer();
+        final boolean chkFeeder   = NetworkedConfig.SystemsCheck.isCheckFeeder();
         final boolean chkClimber  = NetworkedConfig.SystemsCheck.isCheckClimber();
         final boolean chkSwerve   = NetworkedConfig.SystemsCheck.isCheckSwerve();
 
@@ -104,7 +108,7 @@ public class SystemsCheck {
                 robot.turretSubsystem.setSystemsCheckMode(true);
                 NetworkedTelemetry.SystemsCheck.resetResults(
                     chkHood, chkTurret, chkFlywheel,
-                    chkIntake, chkIndexer, chkClimber, chkSwerve);
+                    chkIntake, chkIndexer, chkFeeder, chkClimber, chkSwerve);
                 Elastic.sendNotification(new Notification(
                     NotificationLevel.INFO,
                     "Systems Check",
@@ -153,12 +157,10 @@ public class SystemsCheck {
 
             step(robot, NetworkedConfig.SystemsCheck::isCheckTurret,
                 "Turret: Return to Zero",
-                Commands.sequence(
-                    robot.turretSubsystem.run(
-                        () -> robot.turretSubsystem.turnToAngle(Degrees.of(0.0)))
-                        .until(() -> turretAtTarget(robot, 0.0))
-                        .withTimeout(POSITION_TIMEOUT_S),
-                    robot.turretSubsystem.runOnce(() -> robot.turretSubsystem.stopTurret())),
+                robot.turretSubsystem.run(
+                    () -> robot.turretSubsystem.turnToAngle(Degrees.of(0.0)))
+                    .until(() -> turretAtTarget(robot, 0.0))
+                    .withTimeout(POSITION_TIMEOUT_S),
                 NetworkedTelemetry.SystemsCheck.resTurretReturn),
 
             // Flywheel (4 speed targets)
@@ -172,9 +174,16 @@ public class SystemsCheck {
 
             // Intake
             step(robot, NetworkedConfig.SystemsCheck::isCheckIntake,
+                "Intake: Homing",
+                robot.intakeSubsystem.homeLift()
+                    .withTimeout(4.0),
+                NetworkedTelemetry.SystemsCheck.resIntakeHoming),
+
+            step(robot, NetworkedConfig.SystemsCheck::isCheckIntake,
                 "Intake: Drop",
-                robot.intakeSubsystem.runOnce(() -> robot.intakeSubsystem.dropIntake())
-                    .andThen(Commands.waitSeconds(3.0)),
+                robot.intakeSubsystem.run(() -> robot.intakeSubsystem.dropIntake())
+                    .until(() -> robot.intakeSubsystem.isIntakeDown())
+                    .withTimeout(POSITION_TIMEOUT_S),
                 NetworkedTelemetry.SystemsCheck.resIntakeDrop),
 
             step(robot, NetworkedConfig.SystemsCheck::isCheckIntake,
@@ -186,8 +195,9 @@ public class SystemsCheck {
 
             step(robot, NetworkedConfig.SystemsCheck::isCheckIntake,
                 "Intake: Lift",
-                robot.intakeSubsystem.runOnce(() -> robot.intakeSubsystem.liftIntake())
-                    .andThen(Commands.waitSeconds(3.0)),
+                robot.intakeSubsystem.run(() -> robot.intakeSubsystem.liftIntake())
+                    .until(() -> robot.intakeSubsystem.isIntakeUp())
+                    .withTimeout(POSITION_TIMEOUT_S),
                 NetworkedTelemetry.SystemsCheck.resIntakeLift),
 
             // Indexer
@@ -197,6 +207,14 @@ public class SystemsCheck {
                     .withTimeout(INDEXER_RUN_S)
                     .andThen(robot.indexerSubsystem.stop()),
                 NetworkedTelemetry.SystemsCheck.resIndexer),
+
+            // Feeder
+            step(robot, NetworkedConfig.SystemsCheck::isCheckFeeder,
+                "Feeder: Run",
+                robot.turretSubsystem.run(() -> robot.turretSubsystem.runKickerRaw(0.5))
+                    .withTimeout(FEEDER_RUN_S)
+                    .andThen(robot.turretSubsystem.runOnce(() -> robot.turretSubsystem.stopKicker())),
+                NetworkedTelemetry.SystemsCheck.resFeeder),
 
             // Climber
             step(robot, NetworkedConfig.SystemsCheck::isCheckClimber,
@@ -275,7 +293,7 @@ public class SystemsCheck {
             // Final summary
             Commands.runOnce(() -> publishFinalResult(
                 chkHood, chkTurret, chkFlywheel,
-                chkIntake, chkIndexer, chkClimber, chkSwerve))
+                chkIntake, chkIndexer, chkFeeder, chkClimber, chkSwerve))
         ).finallyDo(() -> robot.turretSubsystem.setSystemsCheckMode(false));
     }
 
@@ -327,23 +345,18 @@ public class SystemsCheck {
      */
     private static Command flywheelStep(ShipOfTheseus robot, double targetRPM, BooleanEntry resultEntry) {
         String name = "Flywheel: " + (int) targetRPM + " RPM";
-        double[] prevRPM = {0};
 
         Command inner = Commands.sequence(
-            Commands.runOnce(() -> {
-                prevRPM[0] = NetworkedConfig.Turret.getTargetRPM();
-                NetworkedConfig.Turret.setTargetRPM(targetRPM);
-            }),
-            robot.turretSubsystem.run(() -> robot.turretSubsystem.shoot())
+            // Spin up to the requested RPM directly — no NT mutation needed.
+            robot.turretSubsystem.run(() -> robot.turretSubsystem.spinFlywheelAtRPM(targetRPM))
                 .until(() -> Math.abs(robot.turretSubsystem.getFlywheelRPM() - targetRPM)
                             < FLYWHEEL_RPM_TOLERANCE)
                 .withTimeout(FLYWHEEL_SPINUP_TIMEOUT_S),
-            robot.turretSubsystem.run(() -> robot.turretSubsystem.shoot())
+            // Hold at speed briefly to confirm it's stable.
+            robot.turretSubsystem.run(() -> robot.turretSubsystem.spinFlywheelAtRPM(targetRPM))
                 .withTimeout(0.75),
-            robot.turretSubsystem.runOnce(() -> {
-                robot.turretSubsystem.stopShooter();
-                NetworkedConfig.Turret.setTargetRPM(prevRPM[0]);
-            }),
+            // Stop and wait for coast-down before the next step.
+            robot.turretSubsystem.runOnce(() -> robot.turretSubsystem.stopShooter()),
             Commands.waitUntil(() -> robot.turretSubsystem.getFlywheelRPM() < targetRPM * 0.3)
                 .withTimeout(5.0)
         );
@@ -439,15 +452,14 @@ public class SystemsCheck {
 
     private static void publishFinalResult(
             boolean hood, boolean turret, boolean flywheel,
-            boolean intake, boolean indexer, boolean climber, boolean swerve) {
+            boolean intake, boolean indexer, boolean feeder, boolean climber, boolean swerve) {
         boolean allPassed = NetworkedTelemetry.SystemsCheck.computeOverall(
-            hood, turret, flywheel, intake, indexer, climber, swerve);
+            hood, turret, flywheel, intake, indexer, feeder, climber, swerve);
         if (allPassed) {
             Elastic.sendNotification(new Notification(
                 NotificationLevel.INFO,
                 "Systems Check Passed",
-                "All enabled subsystem checks completed successfully.",
-                8000));
+                "All enabled subsystem checks completed successfully."));
         } else {
             Elastic.sendNotification(new Notification(
                 NotificationLevel.ERROR,

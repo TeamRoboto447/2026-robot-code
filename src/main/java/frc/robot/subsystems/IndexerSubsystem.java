@@ -74,7 +74,7 @@ public class IndexerSubsystem extends SubsystemBase {
      * @return A {@link Command} that stops the motor.
      */
     public Command stop() {
-        return this.run(() -> spinnerMotor.set(0));
+        return this.runOnce(() -> spinnerMotor.set(0));
     }
 
     /**
