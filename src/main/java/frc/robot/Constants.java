@@ -75,10 +75,10 @@ public final class Constants {
 
         public static final boolean USE_VISION = true;
 
-        public static final Transform3d ROBOT_TO_FRONT_CAM = new Transform3d(
-        new Translation3d(Units.inchesToMeters(12.375), Units.inchesToMeters(-1.5), Units.inchesToMeters(5)),
-        new Rotation3d(0, Units.degreesToRadians(-5), 0));
-        public static final Transform3d ROBOT_TO_BACK_CAM = new Transform3d(
+        public static final Transform3d ROBOT_TO_BACK_LEFT_CAM = new Transform3d(
+        new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
+        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(135)));
+        public static final Transform3d ROBOT_TO_BACK_RIGHT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(230.24)));
 
@@ -146,7 +146,7 @@ public final class Constants {
         }
 
         public static class TurretTargetPoints {
-            public static final Translation3d RED_HUB = new Translation3d(11.950, 4.035, 1.83);
+            public static final Translation3d RED_HUB = new Translation3d(12.4, 4.4, 1.83);
             public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.54, 7.07, 0);
             public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.54, 1, 0);
             
@@ -180,19 +180,19 @@ public final class Constants {
              * Applied to the entire climb path so the robot slows down before
              * slotting onto the tower.
              */
-            public static final double APPROACH_SPEED_MPS = 1.0;
+            public static final double APPROACH_SPEED_MPS = .25;
 
             /**
              * How close the robot must get to the staging waypoint (meters) before
              * BLine hands off to the final bar pose. Smaller = tighter alignment
              */
-            public static final double STAGING_HANDOFF_RADIUS_METERS = Units.inchesToMeters(5);
+            public static final double STAGING_HANDOFF_RADIUS_METERS = Units.inchesToMeters(.5);
 
             /**
              * How close the robot must get to the final waypoint (meters) before
              * BLine considers the path complete. Smaller = tighter alignment
              */
-            public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(1);
+            public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(.5);
 
             // ── Final (hook-engagement) positions ──────────────────────────────
             public static final Pose2d BLUE_AUDIENCE_SIDE = new Pose2d(
@@ -206,12 +206,12 @@ public final class Constants {
                 Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
             public static final Pose2d RED_AUDIENCE_SIDE = new Pose2d(
-                15.523, // placeholder — tune to your bar
-                3.6,   // audience side: y < field midpoint
+                15.3, // placeholder — tune to your bar
+                3.639,   // audience side: y < field midpoint
                 Rotation2d.fromDegrees(270)    // placeholder — tune to face the bar
             );
             public static final Pose2d RED_SCORING_SIDE = new Pose2d(
-                15.523, // placeholder — tune to your bar
+                15.516, // placeholder — tune to your bar
                 5.1,  // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
             );
@@ -257,11 +257,29 @@ public final class Constants {
         public static final double HOOD_KP = 0.05;
         public static final double HOOD_KI = 0;
         public static final double HOOD_KD = 0;
-
-        public static final double TURRET_KP = 40;
-        public static final double TURRET_KD = 0;
+        
+        public static final double TURRET_KP = 80;
+        public static final double TURRET_KD = 0.5;
         public static final double TURRET_KI = 0;
-        public static final double TURRET_KS = 0.5;
+        public static final double TURRET_KS = 0.15;
+
+        /**
+         * Feed-forward gain for robot-rotation compensation (degrees of turret offset
+         * per degree-per-second of robot yaw rate). When the robot rotates, the turret
+         * target angle is shifted by {@code omega_deg_per_s * TURRET_ROTATION_FF} so
+         * the turret leads the motion rather than lagging behind.
+         * Start at 1.0 (one-to-one compensation) and tune by watching turret lag
+         * during a spin: increase if still lagging, decrease if it overshoots.
+         */
+        public static final double TURRET_ROTATION_FF = 1.0;
+
+        /**
+         * How close (in RPS) the flywheel must be to its target speed before the
+         * kicker is allowed to run. At 50 RPS (~3000 RPM) this is ±3%, which is
+         * tight enough to ensure a consistent shot without being unreachably precise.
+         * Increase if the kicker rarely fires; decrease if shot consistency is poor.
+         */
+        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 1.5;
 
         public static final int LOOKUP_TABLE_VEL_STEP = 1;
         public static final int LOOKUP_TABLE_DIST_STEP = 1;
@@ -270,7 +288,7 @@ public final class Constants {
         public static final Angle MAX_HOOD_ANGLE = Degrees.of(44);
         public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(1);
 
-        public static final Angle MIN_TURRET_ANGLE = Degrees.of(-90);
+        public static final Angle MIN_TURRET_ANGLE = Degrees.of(-100);
         public static final Angle MAX_TURRET_ANGLE = Degrees.of(80);
 
         public static final double TURRET_DEGREES_PER_ROTATION = 29.17;
@@ -302,6 +320,30 @@ public final class Constants {
         public static final double LIFT_KP = 0.25;
         public static final double LIFT_KI = 0;
         public static final double LIFT_KD = 0;
+
+        /**
+         * Rotations (output shaft) the lift travels from the stowed position (0)
+         * to the fully-lowered intake position. Negative because the motor must
+         * turn in the negative direction to lower.
+         */
+        public static final double LIFT_LOWERED_ROTATIONS = -25;
+
+        /**
+         * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}
+         * when comparing the lift's actual position against the target endpoints.
+         */
+        public static final double LIFT_POSITION_TOLERANCE_ROTATIONS = 1.0;
+
+        /** Open-loop output used while homing toward the upper hard stop. Positive = raise. */
+        public static final double LIFT_HOMING_SPEED = 0.1;
+        /**
+         * Stator-current threshold (amps) above which the lift motor is considered stalled.
+         * Kraken/Falcon stall is ~200 A; 15 A gives a conservative threshold against the
+         * upper hard stop at the slow homing speed.
+         */
+        public static final double LIFT_HOMING_STALL_AMPS = 25.0;
+        /** How long (seconds) current must exceed the threshold before homing is accepted. */
+        public static final double LIFT_HOMING_STALL_DURATION_S = 0.1;
     }
 
     public static class IndexerSubsystemConstants {
@@ -341,7 +383,7 @@ public final class Constants {
          * Full extension = CLIMBER_TRAVEL_INCHES / (2π × CLIMBER_DRUM_RADIUS_INCHES) × CLIMBER_GEARBOX_RATIO
          * Tune this if the climber overshoots or undershoots during the systems check.
          */
-        public static final double CLIMBER_DRUM_RADIUS_INCHES = 0.75;
+        public static final double CLIMBER_DRUM_RADIUS_INCHES = 0.25;
         public static final double CLIMBER_GEARBOX_RATIO = 64.0;
         public static final double CLIMBER_TRAVEL_INCHES = 7.0;
 

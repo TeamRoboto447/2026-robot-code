@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -47,6 +48,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
     private double m_lastSimTime;
 
     private Field2d field;
+
+    /** Counts 20ms loops; used to rate-limit low-priority dashboard publishing. */
+    private int periodicLoopCount = 0;
+    /** Publish dashboard-only visuals at 10 Hz (every 5 loops × 20 ms). */
+    private static final int TELEMETRY_LOOP_DIVISOR = 5;
 
     /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
@@ -300,17 +306,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
         }
 
         field.setRobotPose(getState().Pose);
-        SmartDashboard.putString("Drivetrain/Current Zone", getFieldZone().toString());
+        periodicLoopCount++;
 
-        // Publish field zone rectangle visualization
-        NetworkedTelemetry.Pose.publishFieldZoneRectangle(getFieldZone());
+        // Rate-limit dashboard-only visualizations to 10 Hz — SmartDashboard and
+        // NT field-zone publishing don't need to run at the full 50 Hz control rate.
+        if (periodicLoopCount % TELEMETRY_LOOP_DIVISOR == 0) {
+            SmartDashboard.putString("Drivetrain/Current Zone", getFieldZone().toString());
+            NetworkedTelemetry.Pose.publishFieldZoneRectangle(getFieldZone());
+        }
 
         // TODO: Re-add these once lookup table can handle velocities
-        // NetworkedConfig.Turret.setRobotVX(Units.metersToInches(this.getChassisSpeeds().vxMetersPerSecond));
-        // NetworkedConfig.Turret.setRobotVY(Units.metersToInches(this.getChassisSpeeds().vyMetersPerSecond));
+        NetworkedConfig.Turret.setRobotVX(Units.metersToInches(this.getChassisSpeeds().vxMetersPerSecond));
+        NetworkedConfig.Turret.setRobotVY(Units.metersToInches(this.getChassisSpeeds().vyMetersPerSecond));
 
-        NetworkedConfig.Turret.setRobotVX(0);
-        NetworkedConfig.Turret.setRobotVY(0);
+        // NetworkedConfig.Turret.setRobotVX(0);
+        // NetworkedConfig.Turret.setRobotVY(0);
     }
 
     private void startSimThread() {

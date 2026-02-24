@@ -35,8 +35,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     public PoseEstimatorSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
         if (USE_VISION) {
-            this.frontCamera = new PhotonRunnable(new PhotonCamera("FrontCam"), VisionConstants.ROBOT_TO_FRONT_CAM);
-            this.backCamera = new PhotonRunnable(new PhotonCamera("BackCam"), VisionConstants.ROBOT_TO_BACK_CAM);
+            this.frontCamera = new PhotonRunnable(new PhotonCamera("FrontCam"), VisionConstants.ROBOT_TO_BACK_LEFT_CAM);
+            this.backCamera = new PhotonRunnable(new PhotonCamera("BackCam"), VisionConstants.ROBOT_TO_BACK_RIGHT_CAM);
             this.setDefaultCommand(this.createNotifierCommand(this));
         } else {
             this.frontCamera = null;

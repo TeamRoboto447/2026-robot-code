@@ -58,6 +58,8 @@ public class NetworkedConfig {
             .getDoubleTopic("kI").getEntry(TurretSubsystemConstants.TURRET_KI);
         private static final DoubleEntry turretKD = rotationTable
             .getDoubleTopic("kD").getEntry(TurretSubsystemConstants.TURRET_KD);
+        private static final DoubleEntry turretKS = rotationTable
+            .getDoubleTopic("kS").getEntry(TurretSubsystemConstants.TURRET_KS);
         private static final DoubleEntry targetTurretAngle = rotationTable
             .getDoubleTopic("Target Turret Angle").getEntry(0);
 
@@ -113,6 +115,7 @@ public class NetworkedConfig {
             turretKP.set(TurretSubsystemConstants.TURRET_KP);
             turretKI.set(TurretSubsystemConstants.TURRET_KI);
             turretKD.set(TurretSubsystemConstants.TURRET_KD);
+            turretKS.set(TurretSubsystemConstants.TURRET_KS);
             targetTurretAngle.set(0);
             validTarget.set(false);
             robotX.set(-1);
@@ -195,6 +198,11 @@ public class NetworkedConfig {
             return turretKD.get();
         }
 
+        /** Gets the kS (static friction feedforward) for the turret's PID. */
+        public static double getTurretKS() {
+            return turretKS.get();
+        }
+
         /** Gets the target angle for the turret. */
         public static double getTargetTurretAngle() {
             return targetTurretAngle.get();
@@ -223,12 +231,12 @@ public class NetworkedConfig {
         
         /** Set the robot VX position (in inches) */
         public static void setRobotVX(double vx) {
-            robotVX.set(vx);
+            robotVX.set((int) vx);
         }
         
         /** Set the robot VY position (in inches) */
         public static void setRobotVY(double vy) {
-            robotVY.set(vy);
+            robotVY.set((int)vy);
         }
         
         /** Set the target X position (in inches) */
@@ -361,7 +369,7 @@ public class NetworkedConfig {
             .getDoubleTopic("Lift kD").getEntry(IntakeSubsystemConstants.LIFT_KD);
         
         private static final DoubleEntry liftPosition = intakeTable
-            .getDoubleTopic("Lift Position").getEntry(25);
+            .getDoubleTopic("Lift Lowered Position").getEntry(IntakeSubsystemConstants.LIFT_LOWERED_ROTATIONS);
         
         // Telemetry entries
         private static final DoubleEntry intakeSpeed = intakeTable
@@ -376,7 +384,7 @@ public class NetworkedConfig {
             liftKI.set(IntakeSubsystemConstants.LIFT_KI);
             liftKD.set(IntakeSubsystemConstants.LIFT_KD);
 
-            liftPosition.set(25);
+            liftPosition.set(IntakeSubsystemConstants.LIFT_LOWERED_ROTATIONS);
         }
         
         // Lift
@@ -396,7 +404,7 @@ public class NetworkedConfig {
             return liftKD.get();
         }
 
-        public static double getLiftPosition() {
+        public static double getLiftLoweredPosition() {
             return liftPosition.get();
         }
         

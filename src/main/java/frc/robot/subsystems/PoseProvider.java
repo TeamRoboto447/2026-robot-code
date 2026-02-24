@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants.FieldConstants.FieldZone;
 
 /**
@@ -20,4 +21,12 @@ public interface PoseProvider {
      * @return The FieldZone enum representing the robot's current zone
      */
     FieldZone getFieldZone();
+
+    /**
+     * Gets the current chassis speeds of the robot (field-relative).
+     * Used for turret rotation compensation during robot yaw motion.
+     *
+     * @return The robot's current {@link ChassisSpeeds}
+     */
+    ChassisSpeeds getChassisSpeeds();
 }

@@ -11,6 +11,7 @@ import java.util.Objects;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -21,11 +22,13 @@ import edu.wpi.first.wpilibj.Timer;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -53,8 +56,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.TurretTarget;
-import frc.robot.Constants.FieldConstants.TurretTargetPoints;
-import frc.robot.networking.NetworkedConfig;
+import frc.robot.Constants.FieldConstants.TurretTargetPoints;import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.TargettingUtils.ControlTarget;
 
@@ -91,12 +93,20 @@ public class TurretSubsystem extends SubsystemBase {
     public TurretTarget turretTarget = TurretTarget.NONE;
     private TalonFXConfiguration ShooterFxConfigs = new TalonFXConfiguration();
     private final VelocityVoltage velocityReq = new VelocityVoltage(0).withSlot(0);
+    /** Sent to the shooter motors when we want them to coast to a stop, not brake. */
+    private final NeutralOut coastReq = new NeutralOut();
 
     private TalonFXConfiguration AngleFxConfigs = new TalonFXConfiguration();
     private final PositionVoltage anglePositionReq = new PositionVoltage(0).withSlot(0);
     
     private boolean runFlywheel = false;
+    private boolean shooting = false;
     private final boolean hoodMotorInverted = false;
+
+    /** Counts 20ms loops; used to rate-limit low-priority dashboard publishing. */
+    private int periodicLoopCount = 0;
+    /** How many 20ms loops between dashboard-visualization updates (5 = 10 Hz). */
+    private static final int TELEMETRY_LOOP_DIVISOR = 5;
 
     /**
      * When {@code true}, {@link #periodic()} skips the trajectory-tracking override
@@ -132,7 +142,14 @@ public class TurretSubsystem extends SubsystemBase {
         shooterSlot0config.kD = TurretSubsystemConstants.SHOOTER_KD;
         shooterSlot0config.kV = TurretSubsystemConstants.SHOOTER_KV;
         shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
-        
+        // Coast when no control request is active so the flywheel spins down freely
+        // instead of being actively braked (which would fight the follower motor).
+        ShooterFxConfigs.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+        // Never allow reverse output — the PID must not spin the flywheel backwards
+        // while trying to correct overspeed. Clamped at the firmware level so it
+        // applies regardless of which control request is active.
+        ShooterFxConfigs.MotorOutput.PeakReverseDutyCycle = 0.0;
+
         this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
 
         this.leftShooterMotor = new TalonFX(TurretSubsystemConstants.LEFT_SHOOTER_MOTOR_ID);
@@ -203,15 +220,15 @@ public class TurretSubsystem extends SubsystemBase {
         // Reduce update frequencies to 20 Hz for telemetry-only signals.
         // These values are only used for dashboard display and targeting decisions
         // that run at the 20 ms robot loop rate, so 50 Hz is wasteful.
-        this.shooterVelocitySignal.setUpdateFrequency(20);
+        // this.shooterVelocitySignal.setUpdateFrequency(20);
         this.anglePositionSignal.setUpdateFrequency(20);
 
         // Silence all other status frames on these motors that we never read.
         // Phoenix 6 motors broadcast many signals by default; this tells the firmware
         // to suppress any frame not explicitly configured above.
-        this.rightShooterMotor.optimizeBusUtilization();
-        this.leftShooterMotor.optimizeBusUtilization();
-        this.angleMotor.optimizeBusUtilization();
+        // this.rightShooterMotor.optimizeBusUtilization();
+        // this.leftShooterMotor.optimizeBusUtilization();
+        // this.angleMotor.optimizeBusUtilization();
 
         this.feedTrigger = new Trigger(() -> this.shooterVelocitySignal.isNear(currentControlTarget.getRPS(), 0.8));
 
@@ -282,6 +299,7 @@ public class TurretSubsystem extends SubsystemBase {
         // prevReadingTimestamp = targetDistTimestamp;
 
         updateTurretTarget();
+        periodicLoopCount++;
         updateNetworkTables();
 
 
@@ -290,13 +308,24 @@ public class TurretSubsystem extends SubsystemBase {
             if (targetRPS > 16) // Approx 1000 RPM
                 rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
             else
-                rightShooterMotor.set(0);
+                rightShooterMotor.setControl(coastReq); // coast freely — don't brake against the spinning flywheel
 
-            if(NetworkedConfig.Turret.hasValidTrajectory()) {
+            if(NetworkedConfig.Turret.hasValidTrajectory() && shooting) {
                 this.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
-                this.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
+
+                // Compensate for robot rotation: when the robot yaws, the target angle
+                // in robot-frame shifts at the same rate. We add a lead offset so the
+                // turret tracks ahead instead of lagging behind.
+                // omega is in rad/s; convert to deg/s, then scale by the FF gain.
+                double omegaDegPerSec = Units.radiansToDegrees(
+                    poseProvider.getChassisSpeeds().omegaRadiansPerSecond);
+                double baseTargetDeg = NetworkedConfig.Turret.getTargetTurretAngle();
+                double compensatedTargetDeg = baseTargetDeg
+                    - omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02; // 0.02 s = one 20 ms loop
+
+                this.turnToAngle(Degrees.of(compensatedTargetDeg));
             } else {
-                this.stopHood();
+                this.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE);
                 this.stopTurret();
             }
         }
@@ -306,6 +335,7 @@ public class TurretSubsystem extends SubsystemBase {
      * Tells the flywheel to spin at a specific speed, taken from the control target.
      */
     public void shoot() {
+        shooting = true;
         // double targetRPS = currentControlTarget.getRPS();
         double targetRPS = NetworkedConfig.Turret.getTargetRPM()/60;
         rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
@@ -315,6 +345,7 @@ public class TurretSubsystem extends SubsystemBase {
      * Stops the shooter. Does not immediately stop due to inertia.
      */
     public void stopShooter() {
+        shooting = false;
         this.runFlywheel = false;
     }
 
@@ -469,12 +500,19 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * Runs the kicker motor if the flywheel is close to its target speed.
-     * 
+     * Runs the kicker motor only when the flywheel is within
+     * {@link TurretSubsystemConstants#FLYWHEEL_READY_TOLERANCE_RPS} of its target
+     * speed AND the coprocessor has a valid trajectory. Stops the kicker otherwise
+     * so a game piece is never fed into an under-speed flywheel.
+     *
      * @param strength The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).
      */
     public void kick(double strength) {
-        if(NetworkedConfig.Turret.hasValidTrajectory())
+        double targetRPS = NetworkedConfig.Turret.getTargetRPM() / 60.0;
+        boolean flywheelReady = Math.abs(shooterVelocitySignal.getValueAsDouble() - targetRPS)
+            <= TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS;
+
+        if (NetworkedConfig.Turret.hasValidTrajectory() && flywheelReady)
             kickerMotor.set(strength);
         else
             kickerMotor.set(0);
@@ -501,23 +539,28 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * Updates the data posted to the NetworkTables. 
+     * Updates the data posted to the NetworkTables.
+     * Control-critical values (turret angle, hood angle, flywheel speed) are
+     * published every loop at 50 Hz. Dashboard-only visualizations (target circle,
+     * control-target debug values) are throttled to every
+     * {@link #TELEMETRY_LOOP_DIVISOR} loops (~10 Hz) to reduce NT bus load.
      */
     private void updateNetworkTables() {
         // Use cached signals refreshed at the top of periodic() — no additional CAN reads here.
-        // NetworkedConfig.Turret.setTurretAngle((TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION.times(anglePositionSignal.getValueAsDouble())).magnitude());
         NetworkedConfig.Turret.setTurretAngle(anglePositionSignal.getValueAsDouble());
         NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
         NetworkedConfig.Turret.setFlywheelSpeed(shooterVelocitySignal.getValueAsDouble() * 60);
-
         NetworkedConfig.Turret.setTurretTarget(this.turretTarget.toString());
-        
-        Translation3d targetPosition = getTargetFromEnum(this.turretTarget);
-        NetworkedTelemetry.Pose.publishTargetCircle(targetPosition, Units.inchesToMeters(12));
 
-        NetworkedTelemetry.Turret.setCTHoodAngle(currentControlTarget.hoodAngle);
-        NetworkedTelemetry.Turret.setCTFlywheelRPM(currentControlTarget.rpm);
-        NetworkedTelemetry.Turret.setCTValidTrajectory(currentControlTarget.properlySet);
+        // Rate-limit pure visualization data — dashboards don't need 50 Hz updates.
+        if (periodicLoopCount % TELEMETRY_LOOP_DIVISOR == 0) {
+            Translation3d targetPosition = getTargetFromEnum(this.turretTarget);
+            NetworkedTelemetry.Pose.publishTargetCircle(targetPosition, Units.inchesToMeters(12));
+
+            NetworkedTelemetry.Turret.setCTHoodAngle(currentControlTarget.hoodAngle);
+            NetworkedTelemetry.Turret.setCTFlywheelRPM(currentControlTarget.rpm);
+            NetworkedTelemetry.Turret.setCTValidTrajectory(currentControlTarget.properlySet);
+        }
     }
 
     /**
@@ -592,7 +635,7 @@ public class TurretSubsystem extends SubsystemBase {
         angleSlot0config.kP = NetworkedConfig.Turret.getTurretKP();
         angleSlot0config.kI = NetworkedConfig.Turret.getTurretKI();
         angleSlot0config.kD = NetworkedConfig.Turret.getTurretKD();
-        angleSlot0config.kS = 0.5;
+        angleSlot0config.kS = NetworkedConfig.Turret.getTurretKS();
         angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);

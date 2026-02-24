@@ -57,7 +57,7 @@ public class ClimberSubsystem extends SubsystemBase {
   public void periodic() {
     BaseStatusSignal.refreshAll(positionSignal, statorCurrentSignal);
 
-    if (climberDir == 1 || (climberDir == -1 && positionSignal.getValueAsDouble() > 0)) {
+    if (climberDir == 1 || (climberDir == -1)) {
       // Normal open-loop drive (climb or lower).
       climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * climberDir);
     } else if (climberDir == 0) {
@@ -189,11 +189,5 @@ public class ClimberSubsystem extends SubsystemBase {
             <= ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)
         .withTimeout(20.0)
         .andThen(this.runOnce(() -> stopClimber()));
-  }
-
-  public Command idle() {
-    return this.run(() -> {
-      climberMotor.set(0);
-    });
   }
 }

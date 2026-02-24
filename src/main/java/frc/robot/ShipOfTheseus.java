@@ -110,8 +110,6 @@ public class ShipOfTheseus {
         this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
         this.climberSubsystem = new ClimberSubsystem();
 
-        this.climberSubsystem.setDefaultCommand(this.climberSubsystem.idle());
-
         SmartDashboard.putData("Field", field);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -132,13 +130,14 @@ public class ShipOfTheseus {
     }
 
     public void runSensorlessHoming() {
-        // CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber());
+        CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber());
         CommandScheduler.getInstance().schedule(turretSubsystem.homeHood());
+        CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
 
     private void configureBindings() {
-        configureProductionBindings();
-        // configureDevBindings();
+        // configureProductionBindings();
+        configureDevBindings();
     }
 
     private void configureProductionBindings() {
@@ -261,8 +260,8 @@ public class ShipOfTheseus {
         swerveSubsystem.setDefaultCommand(
             // Drivetrain will execute this command periodically
             swerveSubsystem.applyRequest(() ->
-                drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(-DriverController.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed / 1.75) // Drive forward with negative Y (forward)
+                    .withVelocityY(-DriverController.getLeftX() * MaxSpeed / 1.75) // Drive left with negative X (left)
                     .withRotationalRate(-DriverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
@@ -270,10 +269,10 @@ public class ShipOfTheseus {
         // Default command for testing motor — right joystick Y drives the TalonFX.
         // TODO: Remove this testing binding and the MotorTestingSubsystem before merging to main
         // motorTestingSubsystem.setDefaultCommand(motorTestingSubsystem.run(() -> motorTestingSubsystem.setPercent(joystick.getRightY())));
-        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.8)));
-        OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(0.8)));
-        OperatorController.pov(0).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
-        OperatorController.pov(180).onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
+        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(1)));
+        OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(1)));
+        OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
+        OperatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
 
         OperatorController.pov(-1).whileTrue(intakeSubsystem.run(() -> {
             intakeSubsystem.stopIntake();
@@ -289,7 +288,9 @@ public class ShipOfTheseus {
             swerveSubsystem.applyRequest(() -> idle).ignoringDisable(true)
         );
 
-        DriverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
+        // DriverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
+        DriverController.a().onTrue(getAutoClimbCommand());
+
         DriverController.b().whileTrue(swerveSubsystem.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-DriverController.getLeftY(), -DriverController.getLeftX()))
         ));
@@ -377,6 +378,9 @@ public class ShipOfTheseus {
         DriverController.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.climb()));
         DriverController.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
         DriverController.pov(-1).whileTrue(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
+
+        OperatorController.rightBumper().onTrue(climberSubsystem.raiseToFull());
+        OperatorController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -470,11 +474,22 @@ public class ShipOfTheseus {
             //         robot's current alliance + field side at the moment A is pressed.
             Commands.defer(() -> {
                 Pose2d staging = selectStagingPosition();
-                Pose2d target  = selectClimbPosition();
                 Path climbPath = new Path(
                     java.util.List.of(
                         new Path.Waypoint(staging,
-                            frc.robot.Constants.FieldConstants.ClimbPositions.STAGING_HANDOFF_RADIUS_METERS),
+                            frc.robot.Constants.FieldConstants.ClimbPositions.STAGING_HANDOFF_RADIUS_METERS)
+                    ),
+                    new Path.PathConstraints()
+                        .setMaxVelocityMetersPerSec(
+                            frc.robot.Constants.FieldConstants.ClimbPositions.APPROACH_SPEED_MPS*4),
+                    null   // use global defaults for everything else
+                );
+                return noResetPathBuilder.build(climbPath);
+            }, java.util.Set.of(swerveSubsystem)),
+            Commands.defer(() -> {
+                Pose2d target  = selectClimbPosition();
+                Path climbPath = new Path(
+                    java.util.List.of(
                         new Path.Waypoint(target, frc.robot.Constants.FieldConstants.ClimbPositions.FINAL_APPROACH_RADIUS_METERS)
                     ),
                     new Path.PathConstraints()
@@ -484,6 +499,7 @@ public class ShipOfTheseus {
                 );
                 return noResetPathBuilder.build(climbPath);
             }, java.util.Set.of(swerveSubsystem)),
+            
             // Step 3: lower onto the bar to engage the clamp
             // climberSubsystem.lowerOntoBar()
             Commands.print("Climb!")
