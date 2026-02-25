@@ -15,13 +15,19 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.ClimberSubsystemConstants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.networking.NetworkedConfig;
 
 public class ClimberSubsystem extends SubsystemBase {
+  @SuppressWarnings("unused")
+  private final PoseProvider poseProvider;
   private final TalonFX climberMotor;
   private final PositionTorqueCurrentFOC holdRequest = new PositionTorqueCurrentFOC(0).withSlot(0);
   private final StatusSignal<Angle> positionSignal;
@@ -30,8 +36,23 @@ public class ClimberSubsystem extends SubsystemBase {
   private int climberDir = 0;
   private boolean isHomed = false;
 
+  
+  public final Trigger withinSafeClimberRange;
+
   /** Creates a new ClimberSubsystem. */
-  public ClimberSubsystem() {
+  public ClimberSubsystem(PoseProvider poseProvider) {
+    this.poseProvider = poseProvider;
+    this.withinSafeClimberRange = new Trigger(() -> {
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+        double distanceToAllianceTower;
+        if (alliance.equals(Alliance.Blue)) {
+            distanceToAllianceTower = FieldConstants.RED_TOWER_CENTER.getDistance(poseProvider.getPose().getTranslation());
+        } else {
+            distanceToAllianceTower = FieldConstants.RED_TOWER_CENTER.getDistance(poseProvider.getPose().getTranslation());
+        }
+        return (distanceToAllianceTower < 2);
+    });
+
     this.climberMotor = new TalonFX(ClimberSubsystemConstants.CLIMBER_MOTOR_ID);
 
     TalonFXConfiguration cfg = new TalonFXConfiguration();
@@ -64,7 +85,12 @@ public class ClimberSubsystem extends SubsystemBase {
   public void periodic() {
     BaseStatusSignal.refreshAll(positionSignal, statorCurrentSignal);
 
-    if (climberDir == 1 || (climberDir == -1)) {
+    boolean safeRange = withinSafeClimberRange.getAsBoolean();
+    if (!safeRange && climberMotor.getPosition().getValueAsDouble() > 0) {
+      // Lower if outside safe range
+      climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * -1);
+
+    } else if (safeRange && (climberDir == 1 || climberDir == -1)) {
       // Normal open-loop drive (climb or lower).
       climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * climberDir);
     } else if (climberDir == 0) {

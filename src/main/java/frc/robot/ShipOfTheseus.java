@@ -18,16 +18,15 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+ 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 // (removed unused imports)
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.FieldConstants;
+ 
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
 import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
@@ -48,6 +47,7 @@ import frc.robot.networking.NetworkedTelemetry;
 public class ShipOfTheseus {
     private double MaxSpeed = 0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private boolean autoShoot = false;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric driveFieldOriented = new SwerveRequest.FieldCentric()
@@ -75,22 +75,14 @@ public class ShipOfTheseus {
     public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
     private final AtomicBoolean repulsorHasPiece = new AtomicBoolean(false);
+    
 
     private final Trigger driverControllerPOVActive = new Trigger(() -> !DriverController.povCenter().getAsBoolean());
     private final Trigger operatorControllerRightJoystick = new Trigger(() -> 
             (Math.abs(OperatorController.getRightX()) > 0.1) ||
             (Math.abs(OperatorController.getRightY()) > 0.1)
     );
-    private final Trigger withinSafeClimberRange = new Trigger(() -> {
-        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
-        double distanceToAllianceTower;
-        if (alliance.equals(Alliance.Blue)) {
-            distanceToAllianceTower = FieldConstants.RED_TOWER_CENTER.getDistance(swerveSubsystem.getPose().getTranslation());
-        } else {
-            distanceToAllianceTower = FieldConstants.RED_TOWER_CENTER.getDistance(swerveSubsystem.getPose().getTranslation());
-        }
-        return (distanceToAllianceTower < 2);
-    });
+    private final Trigger autoShootTrigger = new Trigger(() -> this.autoShoot);
 
     FollowPath.Builder pathBuilder = new FollowPath.Builder(
         swerveSubsystem,
@@ -113,7 +105,7 @@ public class ShipOfTheseus {
      * alliances. If your climb target is alliance-specific, switch this to
      * {@code .withDefaultShouldFlip()}.</p>
      */
-    FollowPath.Builder noResetPathBuilder = new FollowPath.Builder(
+    FollowPath.Builder noResetPathBuilderWithoutFlipping = new FollowPath.Builder(
         swerveSubsystem,
         swerveSubsystem::getPose,
         swerveSubsystem::getChassisSpeeds,
@@ -123,6 +115,17 @@ public class ShipOfTheseus {
         new PIDController(2.0, 0.0, 0.0)
         ).withShouldFlip(() -> false) // center-field target: same for both alliances
         .withPoseReset(pose -> {}); // no-op: preserve current odometry
+    
+    FollowPath.Builder noResetPathBuilder = new FollowPath.Builder(
+        swerveSubsystem,
+        swerveSubsystem::getPose,
+        swerveSubsystem::getChassisSpeeds,
+        swerveSubsystem::driveWithChassisSpeeds,
+        new PIDController(5.0, 0.0, 0.0),
+        new PIDController(3.0, 0.0, 0.0),
+        new PIDController(2.0, 0.0, 0.0)
+        ).withDefaultShouldFlip()
+        .withPoseReset(pose -> {}); // no-op: preserve current odometry
 
     public ShipOfTheseus() {
 
@@ -130,7 +133,7 @@ public class ShipOfTheseus {
         this.intakeSubsystem = new IntakeSubsystem();
         this.indexerSubsystem = new IndexerSubsystem();
         this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
-        this.climberSubsystem = new ClimberSubsystem();
+        this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
 
         SmartDashboard.putData("Field", field);
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -138,6 +141,9 @@ public class ShipOfTheseus {
         fillAutoChooser();
         configureBindings();
         NetworkedConfig.initializeAllDefaults();
+
+    // Debug: lightweight path/event prints added in fillAutoChooser to
+    // help diagnose unexpected interruptions during auto.
 
         this.repulsor =
             new Repulsor(
@@ -152,21 +158,26 @@ public class ShipOfTheseus {
     }
 
     public void runSensorlessHoming() {
-        CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber());
+        // CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber());
         CommandScheduler.getInstance().schedule(turretSubsystem.homeHood());
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
 
     // TODO: Verify correct bindings before uploading
     private void configureBindings() {
-        // configureProductionBindings();
-        configureDevBindings();
+        configureProductionBindings();
+        // configureDevBindings();
     }
 
     private void configureProductionBindings() {
         // Run homing commands on initialization - If already homed, the command immediately cancels itself
-        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
-        RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
+        // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
+        RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
+            runSensorlessHoming();
+            autoShoot = false;
+        }));
+
+        climberSubsystem.setDefaultCommand(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
 
         // Swerve Drive
         swerveSubsystem.setDefaultCommand(
@@ -206,29 +217,32 @@ public class ShipOfTheseus {
 
         // Driver: Climber
         DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
-        DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull().onlyIf(withinSafeClimberRange));
+        DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
 
-        withinSafeClimberRange.onFalse(climberSubsystem.lowerOntoBar());
+        // withinSafeClimberRange.onFalse(climberSubsystem.lowerOntoBar());
 
         // Driver: Automated climb (A button)
         // Raises the climber, drives to the bar, then lowers onto it.
         // Pressing A again (or any command that requires swerve/climber) will cancel.
         DriverController.a().onTrue(getAutoClimbCommand());
 
-        // Driver: Shoot (right trigger)
+        // Shoot
         // Spin up the flywheel while the trigger is held. Once the flywheel reaches
         // target speed (feedTrigger goes high), the kicker and spindexer activate to
         // feed the shooter. Requires a valid trajectory — does nothing otherwise.
         // Hub shots are blocked while the hub is inactive; non-hub targets (alliance
         // zone relays) are always allowed.
-        DriverController.rightTrigger().and(turretSubsystem::hasValidTarget)
+        (DriverController.rightTrigger().or(OperatorController.rightTrigger()).or(autoShootTrigger))
+            .and(turretSubsystem::hasValidTarget)
             .and(this::isShotAllowed)
             .whileTrue(
                 turretSubsystem.run(() -> turretSubsystem.shoot())
             );
 
-        turretSubsystem.getFeedTrigger().and(DriverController.rightTrigger())
+        turretSubsystem.getFeedTrigger().and(
+            DriverController.rightTrigger().or(OperatorController.rightTrigger()).or(autoShootTrigger))
             .and(turretSubsystem::hasValidTarget)
+            .and(turretSubsystem::isHoodHomed)
             .and(this::isShotAllowed)
             .whileTrue(Commands.parallel(
                 indexerSubsystem.run(() -> indexerSubsystem.spin()),
@@ -256,25 +270,18 @@ public class ShipOfTheseus {
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
         );
 
-        // Operator: Shoot (right trigger)
-        // Same logic as the driver shoot binding.
-        OperatorController.rightTrigger().and(turretSubsystem::hasValidTarget)
-            .and(this::isShotAllowed)
-            .whileTrue(
-                turretSubsystem.run(() -> turretSubsystem.shoot())
-            );
-        turretSubsystem.getFeedTrigger().and(OperatorController.rightTrigger())
-            .and(turretSubsystem::hasValidTarget)
-            .and(this::isShotAllowed)
-            .whileTrue(Commands.parallel(
-                indexerSubsystem.run(() -> indexerSubsystem.spin()),
-                turretSubsystem.run(() -> turretSubsystem.kick(0.35))
-            ));
-        OperatorController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
-            turretSubsystem.stopShooter();
-            turretSubsystem.stopKicker();
-        }));
-        OperatorController.rightTrigger().onFalse(indexerSubsystem.stop());
+        // turretSubsystem.getFeedTrigger().and(OperatorController.rightTrigger())
+        //     .and(turretSubsystem::hasValidTarget)
+        //     .and(this::isShotAllowed)
+        //     .whileTrue(Commands.parallel(
+        //         indexerSubsystem.run(() -> indexerSubsystem.spin()),
+        //         turretSubsystem.run(() -> turretSubsystem.kick(0.35))
+        //     ));
+        // OperatorController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
+        //     turretSubsystem.stopShooter();
+        //     turretSubsystem.stopKicker();
+        // }));
+        // OperatorController.rightTrigger().onFalse(indexerSubsystem.stop());
 
         // Operator: Intake (left trigger)
         OperatorController.a().onTrue(
@@ -294,13 +301,13 @@ public class ShipOfTheseus {
         OperatorController.rightBumper().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
 
         // Operator: Climber Control
-        OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(withinSafeClimberRange));
+        OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
         OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
     }
     
     @SuppressWarnings("unused") // Suppress warnings for unused bindings in dev mode
     private void configureDevBindings() {
-        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
+        // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
 
         // Note that X is defined as forward according to WPILib convention,
@@ -485,19 +492,62 @@ public class ShipOfTheseus {
     private void fillAutoChooser() {
 
         Path testPath = new Path("Square Test");
-        Path climbLeft = new Path("GoToLeftClimb");
-        Path climbRight = new Path("GoToRightClimb");
+        Path moveToClearShot = new Path("moveToClearShot");
 
         FollowPath.registerEventTrigger("testLog", Commands.print("YEET!"));
+        // NOTE: Do NOT register a BLine event command for "startShooter"; the
+        // BLine event implementation schedules the registered Command which
+        // appears to interrupt the path-following command. Instead we monitor
+        // the robot pose in parallel with the path and set `autoShoot` when the
+        // robot reaches the midway point of the path.
 
         autoChooser.addOption("Square Test", Commands.sequence(
-            pathBuilder.build(testPath)
+            noResetPathBuilder.build(testPath)
         ));
-        autoChooser.addOption("GoToLeftClimb", Commands.sequence(
-            pathBuilder.build(climbLeft)
-        ));
-        autoChooser.addOption("GoToRightClimb", Commands.sequence(
-            pathBuilder.build(climbRight)
+
+        // Compute midpoint of the two path waypoints (t_ratio=0.5 event in JSON).
+        double rawMidX = (3.6832575142160824 + 2.457879772542646) / 2.0;
+        double rawMidY = (7.455958570268074 + 4.050548334687247) / 2.0;
+        // Apply alliance flipping to match BLine's .withDefaultShouldFlip() behavior.
+        var allianceOpt = edu.wpi.first.wpilibj.DriverStation.getAlliance();
+        double midX = rawMidX;
+        double midY = rawMidY;
+        if (allianceOpt.isPresent() && allianceOpt.get() == edu.wpi.first.wpilibj.DriverStation.Alliance.Red) {
+            midX = frc.robot.Constants.FieldConstants.FIELD_LENGTH_METERS - rawMidX;
+            midY = frc.robot.Constants.FieldConstants.FIELD_WIDTH_METERS - rawMidY;
+        }
+        final edu.wpi.first.math.geometry.Translation2d moveMid = new edu.wpi.first.math.geometry.Translation2d(midX, midY);
+        final double triggerRadius = 0.6; // meters
+
+        var shooterMonitor = Commands.run(() -> {
+            try {
+                if (!autoShoot) {
+                    double dist = swerveSubsystem.getPose().getTranslation().getDistance(moveMid);
+                    if (dist <= triggerRadius) {
+                        autoShoot = true;
+                        System.out.println("[Auto] monitor -> autoShoot=true; BatteryV=" + edu.wpi.first.wpilibj.RobotController.getBatteryVoltage());
+                    }
+                }
+            } catch (Exception e) {
+                // defensive: avoid crashing the monitor command
+                System.out.println("[Auto] shooterMonitor error: " + e.getMessage());
+            }
+        }).until(() -> autoShoot);
+
+        autoChooser.setDefaultOption("Shoot and Climb", Commands.sequence(
+            turretSubsystem.homeHood(),
+            Commands.print("Homed Hood"),
+            // Run the path and the shooter-monitor concurrently so the path is
+            // not interrupted by BLine-scheduled event commands.
+            Commands.parallel(
+                noResetPathBuilder.build(moveToClearShot).finallyDo((interrupted) -> System.out.println("[Auto] moveToClearShot ended interrupted=" + interrupted)),
+                shooterMonitor
+            ),
+            Commands.print("Moved to Clear Shot"),
+            getAutoClimbCommand(),
+            Commands.print("Climbed"),
+            Commands.runOnce(() -> autoShoot = false),
+            Commands.print("Stopped Shooter")
         ));
     }
 
@@ -523,7 +573,8 @@ public class ShipOfTheseus {
     public Command getAutoClimbCommand() {
         return Commands.sequence(
             // Step 1: raise climber to full extension so it clears the bar
-            // climberSubsystem.raiseToFull(),
+            climberSubsystem.raiseToFull(),
+            Commands.print("Raise!"),
             // Step 2: drive staging → final at reduced speed so the climber slots
             //         onto the tower cleanly. Both poses are selected from the
             //         robot's current alliance + field side at the moment A is pressed.
@@ -539,7 +590,7 @@ public class ShipOfTheseus {
                             frc.robot.Constants.FieldConstants.ClimbPositions.APPROACH_SPEED_MPS*4),
                     null   // use global defaults for everything else
                 );
-                return noResetPathBuilder.build(climbPath);
+                return noResetPathBuilderWithoutFlipping.build(climbPath);
             }, java.util.Set.of(swerveSubsystem)),
             Commands.defer(() -> {
                 Pose2d target  = selectClimbPosition();
@@ -552,11 +603,11 @@ public class ShipOfTheseus {
                             frc.robot.Constants.FieldConstants.ClimbPositions.APPROACH_SPEED_MPS),
                     null   // use global defaults for everything else
                 );
-                return noResetPathBuilder.build(climbPath);
+                return noResetPathBuilderWithoutFlipping.build(climbPath);
             }, java.util.Set.of(swerveSubsystem)),
             
             // Step 3: lower onto the bar to engage the clamp
-            // climberSubsystem.lowerOntoBar()
+            climberSubsystem.lowerOntoBar(),
             Commands.print("Climb!")
         );
     }
@@ -627,6 +678,8 @@ public class ShipOfTheseus {
                 gs.isHubActive()
             );
         }
+
+        // (Diagnostics removed): path start/end printing is used instead.
 
         if (NetworkedConfig.Debug.shouldResetHomedPositions()) {
             turretSubsystem.resetHoodHoming();

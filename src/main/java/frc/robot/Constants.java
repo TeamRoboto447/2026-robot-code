@@ -80,7 +80,7 @@ public final class Constants {
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(135)));
         public static final Transform3d ROBOT_TO_BACK_RIGHT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
-        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(230.24)));
+        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
 
         public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(), 1,
         1, 1 * Math.PI);
@@ -146,7 +146,7 @@ public final class Constants {
         }
 
         public static class TurretTargetPoints {
-            public static final Translation3d RED_HUB = new Translation3d(12.4, 4.4, 1.83);
+            public static final Translation3d RED_HUB = new Translation3d(11.9, 4.035, 1.83);
             public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.54, 7.07, 0);
             public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.54, 1, 0);
             
@@ -259,7 +259,7 @@ public final class Constants {
         public static final int ANGLE_MOTOR_ID = 43;
         public static final int KICKER_MOTOR_ID = 44;
 
-        public static final double SHOOTER_KP = 0.75;
+        public static final double SHOOTER_KP = 2;
         public static final double SHOOTER_KI = 0;
         public static final double SHOOTER_KD = 0;
         public static final double SHOOTER_KV = 0;
@@ -289,7 +289,7 @@ public final class Constants {
          * tight enough to ensure a consistent shot without being unreachably precise.
          * Increase if the kicker rarely fires; decrease if shot consistency is poor.
          */
-        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 1.5;
+        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 50.0 / 60.0; // 50 RPM tolerance / 60 seconds = RPS
 
         public static final int LOOKUP_TABLE_VEL_STEP = 1;
         public static final int LOOKUP_TABLE_DIST_STEP = 1;
@@ -385,9 +385,9 @@ public final class Constants {
         public static final double SPINNER_KV = 0;
 
         /** Stator current limit (A) for the indexer spinner motor (Kraken X60). */
-        public static final double SPINNER_STATOR_CURRENT_LIMIT_A = 40.0;
+        public static final double SPINNER_STATOR_CURRENT_LIMIT_A = 160.0;
         /** Supply current limit (A) for the indexer spinner motor. */
-        public static final double SPINNER_SUPPLY_CURRENT_LIMIT_A = 30.0;
+        public static final double SPINNER_SUPPLY_CURRENT_LIMIT_A = 80.0;
     }
 
     public static class ClimberSubsystemConstants {

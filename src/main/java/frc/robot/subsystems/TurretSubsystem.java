@@ -250,7 +250,8 @@ public class TurretSubsystem extends SubsystemBase {
             // (runFlywheel=true) and is within tolerance of the NT target speed.
             // When targetRPS is 0 or runFlywheel is false we are NOT ready.
             if (!runFlywheel || targetRPS < 16) return false;
-            return shooterVelocitySignal.isNear(targetRPS, TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS);
+            // return shooterVelocitySignal.isNear(targetRPS, TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS);
+            return this.flywheelAtSpeed();
         });
 
     }
@@ -547,6 +548,13 @@ public class TurretSubsystem extends SubsystemBase {
         angleMotor.set(power);
     }
 
+    public boolean flywheelAtSpeed() {
+        double targetRPS = NetworkedConfig.Turret.getTargetRPM() / 60.0;
+        boolean flywheelReady = Math.abs(shooterVelocitySignal.getValueAsDouble() - targetRPS)
+            <= TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS;
+        return flywheelReady;
+    }
+
     /**
      * Runs the kicker motor only when the flywheel is within
      * {@link TurretSubsystemConstants#FLYWHEEL_READY_TOLERANCE_RPS} of its target
@@ -556,11 +564,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @param strength The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).
      */
     public void kick(double strength) {
-        double targetRPS = NetworkedConfig.Turret.getTargetRPM() / 60.0;
-        boolean flywheelReady = Math.abs(shooterVelocitySignal.getValueAsDouble() - targetRPS)
-            <= TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS;
-
-        if (NetworkedConfig.Turret.hasValidTrajectory() && flywheelReady)
+        if (NetworkedConfig.Turret.hasValidTrajectory() && flywheelAtSpeed())
             runKickerRaw(strength);
         else
             runKickerRaw(0);
