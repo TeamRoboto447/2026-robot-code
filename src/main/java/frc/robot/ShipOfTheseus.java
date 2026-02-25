@@ -157,6 +157,7 @@ public class ShipOfTheseus {
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
 
+    // TODO: Verify correct bindings before uploading
     private void configureBindings() {
         // configureProductionBindings();
         configureDevBindings();

@@ -25,6 +25,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
@@ -98,7 +99,7 @@ public class TurretSubsystem extends SubsystemBase {
     private final NeutralOut coastReq = new NeutralOut();
 
     private TalonFXConfiguration AngleFxConfigs = new TalonFXConfiguration();
-    private final PositionTorqueCurrentFOC anglePositionReq = new PositionTorqueCurrentFOC(0).withSlot(0);
+    private final PositionVoltage anglePositionReq = new PositionVoltage(0).withSlot(0);
     
     private boolean runFlywheel = false;
     private boolean shooting = false;
@@ -219,7 +220,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
         this.angleMotor.getConfigurator().apply(new FeedbackConfigs()
-            .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION));
+            .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_GEAR_RATIO));
         this.angleMotor.setPosition(0);
 
         this.kickerMotor = new SparkMax(TurretSubsystemConstants.KICKER_MOTOR_ID, MotorType.kBrushless);
@@ -687,7 +688,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
         this.angleMotor.getConfigurator().apply(new FeedbackConfigs()
-            .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION));
+            .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_GEAR_RATIO));
         
         SparkMaxConfig hoodConfig = new SparkMaxConfig();
         hoodConfig.inverted(hoodMotorInverted);
