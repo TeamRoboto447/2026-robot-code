@@ -6,9 +6,10 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Current;
@@ -33,7 +34,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final StatusSignal<Current> liftStatorCurrentSignal;
 
     /** Reusable position requests — allocated once to avoid per-loop GC pressure. */
-    private final PositionVoltage liftPositionReq = new PositionVoltage(0).withSlot(0);
+    private final PositionTorqueCurrentFOC liftPositionReq = new PositionTorqueCurrentFOC(0).withSlot(0);
 
     private boolean isLiftHomed = false;
 
@@ -42,11 +43,29 @@ public class IntakeSubsystem extends SubsystemBase {
         liftMotor = new TalonFX(IntakeSubsystemConstants.LIFT_MOTOR_ID);
         intakeMotor = new TalonFX(IntakeSubsystemConstants.INTAKE_MOTOR_ID);
 
+        // Apply current limits to the intake roller motor.
+        // No PID config needed — it runs open-loop only.
+        TalonFXConfiguration intakeFXConfigs = new TalonFXConfiguration();
+        intakeFXConfigs.CurrentLimits
+            .withStatorCurrentLimit(IntakeSubsystemConstants.INTAKE_STATOR_CURRENT_LIMIT_A)
+            .withStatorCurrentLimitEnable(true)
+            .withSupplyCurrentLimit(IntakeSubsystemConstants.INTAKE_SUPPLY_CURRENT_LIMIT_A)
+            .withSupplyCurrentLimitEnable(true);
+        intakeMotor.getConfigurator().apply(intakeFXConfigs);
+
         liftFXConfigs.Slot0
             .withKP(IntakeSubsystemConstants.LIFT_KP)
             .withKI(IntakeSubsystemConstants.LIFT_KI)
             .withKD(IntakeSubsystemConstants.LIFT_KD);
-        
+
+        // Current limits — prevent brownouts and protect motor/wiring.
+        CurrentLimitsConfigs liftCurrentLimits = new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(IntakeSubsystemConstants.LIFT_STATOR_CURRENT_LIMIT_A)
+            .withStatorCurrentLimitEnable(true)
+            .withSupplyCurrentLimit(IntakeSubsystemConstants.LIFT_SUPPLY_CURRENT_LIMIT_A)
+            .withSupplyCurrentLimitEnable(true);
+        liftFXConfigs.CurrentLimits = liftCurrentLimits;
+
         liftMotor.getConfigurator().apply(liftFXConfigs);
         liftMotor.getConfigurator().apply(new FeedbackConfigs()
             .withSensorToMechanismRatio(IntakeSubsystemConstants.LIFT_GEARBOX_RATIO)

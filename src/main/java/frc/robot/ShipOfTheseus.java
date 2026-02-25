@@ -14,16 +14,20 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 // (removed unused imports)
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
 import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
@@ -46,10 +50,13 @@ public class ShipOfTheseus {
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    private final SwerveRequest.FieldCentric driveFieldOriented = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.RobotCentric driveRobotOriented = new SwerveRequest.RobotCentric()
+            .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
@@ -68,6 +75,22 @@ public class ShipOfTheseus {
     public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
     private final AtomicBoolean repulsorHasPiece = new AtomicBoolean(false);
+
+    private final Trigger driverControllerPOVActive = new Trigger(() -> !DriverController.povCenter().getAsBoolean());
+    private final Trigger operatorControllerRightJoystick = new Trigger(() -> 
+            (Math.abs(OperatorController.getRightX()) > 0.1) ||
+            (Math.abs(OperatorController.getRightY()) > 0.1)
+    );
+    private final Trigger withinSafeClimberRange = new Trigger(() -> {
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+        double distanceToAllianceTower;
+        if (alliance.equals(Alliance.Blue)) {
+            distanceToAllianceTower = FieldConstants.RED_TOWER_CENTER.getDistance(swerveSubsystem.getPose().getTranslation());
+        } else {
+            distanceToAllianceTower = FieldConstants.RED_TOWER_CENTER.getDistance(swerveSubsystem.getPose().getTranslation());
+        }
+        return (distanceToAllianceTower < 2);
+    });
 
     FollowPath.Builder pathBuilder = new FollowPath.Builder(
         swerveSubsystem,
@@ -135,8 +158,8 @@ public class ShipOfTheseus {
     }
 
     private void configureBindings() {
-        configureProductionBindings();
-        // configureDevBindings();
+        // configureProductionBindings();
+        configureDevBindings();
     }
 
     private void configureProductionBindings() {
@@ -147,11 +170,30 @@ public class ShipOfTheseus {
         // Swerve Drive
         swerveSubsystem.setDefaultCommand(
             swerveSubsystem.applyRequest(() ->
-                drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed)
+                driveFieldOriented.withVelocityX(-DriverController.getLeftY() * MaxSpeed)
                     .withVelocityY(-DriverController.getLeftX() * MaxSpeed)
                     .withRotationalRate(-DriverController.getRightX() * MaxAngularRate)
             )
         );
+
+        // Driver: Slow, robot-oriented drive (POV)
+        // Moves the robot in a robot-oriented state,
+        // based on the position of the POV.
+        driverControllerPOVActive.whileTrue(swerveSubsystem.applyRequest(() -> {
+            double povX = Math.cos(Units.degreesToRadians(DriverController.getHID().getPOV()));
+            double povY = Math.sin(Units.degreesToRadians(DriverController.getHID().getPOV()));
+
+            return driveRobotOriented
+                .withVelocityX(0.2 * povX * MaxSpeed)   // POV has different X/Y
+                .withVelocityY(0.2 * -povY * MaxSpeed);  // Convention than WPILib
+            }
+        ));
+
+        operatorControllerRightJoystick.whileTrue(swerveSubsystem.applyRequest(() ->
+            driveRobotOriented
+                .withVelocityX(0.2 * -OperatorController.getRightY() * MaxSpeed)
+                .withVelocityY(0.2 * -OperatorController.getRightX() * MaxSpeed)
+            ));
 
         // Neutral mode while disabled
         final var idle = new SwerveRequest.Idle();
@@ -163,7 +205,9 @@ public class ShipOfTheseus {
 
         // Driver: Climber
         DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
-        DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull());
+        DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull().onlyIf(withinSafeClimberRange));
+
+        withinSafeClimberRange.onFalse(climberSubsystem.lowerOntoBar());
 
         // Driver: Automated climb (A button)
         // Raises the climber, drives to the bar, then lowers onto it.
@@ -205,7 +249,7 @@ public class ShipOfTheseus {
             })
         );
         DriverController.leftTrigger().whileTrue(
-            intakeSubsystem.run(() -> intakeSubsystem.intake(0.8))
+            intakeSubsystem.run(() -> intakeSubsystem.intake(0.5))
         );
         DriverController.leftTrigger().onFalse(
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
@@ -238,7 +282,7 @@ public class ShipOfTheseus {
             })
         );
         OperatorController.a().whileTrue(
-            intakeSubsystem.run(() -> intakeSubsystem.intake(0.8))
+            intakeSubsystem.run(() -> intakeSubsystem.intake(0.5))
         );
         OperatorController.a().onFalse(
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
@@ -249,7 +293,7 @@ public class ShipOfTheseus {
         OperatorController.rightBumper().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
 
         // Operator: Climber Control
-        OperatorController.povUp().onTrue(climberSubsystem.raiseToFull());
+        OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(withinSafeClimberRange));
         OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
     }
     
@@ -263,18 +307,18 @@ public class ShipOfTheseus {
         swerveSubsystem.setDefaultCommand(
             // Drivetrain will execute this command periodically
             swerveSubsystem.applyRequest(() ->
-                drive.withVelocityX(-DriverController.getLeftY() * MaxSpeed / 1.75) // Drive forward with negative Y (forward)
+                driveFieldOriented.withVelocityX(-DriverController.getLeftY() * MaxSpeed / 1.75) // Drive forward with negative Y (forward)
                     .withVelocityY(-DriverController.getLeftX() * MaxSpeed / 1.75) // Drive left with negative X (left)
                     .withRotationalRate(-DriverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
-        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(1)));
+        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.5)));
         OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(1)));
         OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
         OperatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
 
-        OperatorController.pov(-1).whileTrue(intakeSubsystem.run(() -> {
+        OperatorController.pov(-1).onTrue(intakeSubsystem.run(() -> {
             intakeSubsystem.stopIntake();
         }));
 
@@ -447,6 +491,12 @@ public class ShipOfTheseus {
 
         autoChooser.addOption("Square Test", Commands.sequence(
             pathBuilder.build(testPath)
+        ));
+        autoChooser.addOption("GoToLeftClimb", Commands.sequence(
+            pathBuilder.build(climbLeft)
+        ));
+        autoChooser.addOption("GoToRightClimb", Commands.sequence(
+            pathBuilder.build(climbRight)
         ));
     }
 

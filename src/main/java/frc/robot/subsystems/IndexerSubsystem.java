@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 // import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -40,7 +41,13 @@ public class IndexerSubsystem extends SubsystemBase {
         spinnerSlot0config.kD = IndexerSubsystemConstants.SPINNER_KD;
         spinnerSlot0config.kV = IndexerSubsystemConstants.SPINNER_KV;
         spinnerSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
-        
+
+        SpinnerFxConfigs.CurrentLimits = new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(IndexerSubsystemConstants.SPINNER_STATOR_CURRENT_LIMIT_A)
+            .withStatorCurrentLimitEnable(true)
+            .withSupplyCurrentLimit(IndexerSubsystemConstants.SPINNER_SUPPLY_CURRENT_LIMIT_A)
+            .withSupplyCurrentLimitEnable(true);
+
         this.spinnerMotor.getConfigurator().apply(SpinnerFxConfigs);
 
         // Cache and configure the spinner velocity signal at 20 Hz (telemetry only).

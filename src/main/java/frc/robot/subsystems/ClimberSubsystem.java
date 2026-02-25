@@ -6,9 +6,10 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -22,7 +23,7 @@ import frc.robot.networking.NetworkedConfig;
 
 public class ClimberSubsystem extends SubsystemBase {
   private final TalonFX climberMotor;
-  private final PositionVoltage holdRequest = new PositionVoltage(0).withSlot(0);
+  private final PositionTorqueCurrentFOC holdRequest = new PositionTorqueCurrentFOC(0).withSlot(0);
   private final StatusSignal<Angle> positionSignal;
   private final StatusSignal<Current> statorCurrentSignal;
   private double holdPosition = 0.0;
@@ -35,6 +36,12 @@ public class ClimberSubsystem extends SubsystemBase {
 
     TalonFXConfiguration cfg = new TalonFXConfiguration();
     cfg.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+
+    cfg.CurrentLimits = new CurrentLimitsConfigs()
+        .withStatorCurrentLimit(ClimberSubsystemConstants.CLIMBER_STATOR_CURRENT_LIMIT_A)
+        .withStatorCurrentLimitEnable(true)
+        .withSupplyCurrentLimit(ClimberSubsystemConstants.CLIMBER_SUPPLY_CURRENT_LIMIT_A)
+        .withSupplyCurrentLimitEnable(true);
 
     Slot0Configs slot0 = cfg.Slot0;
     slot0.kP = ClimberSubsystemConstants.CLIMBER_HOLD_KP;

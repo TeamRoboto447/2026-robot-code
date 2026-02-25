@@ -44,7 +44,9 @@ public class Theseus extends TimedRobot {
     public void disabledPeriodic() {}
 
     @Override
-    public void disabledExit() {}
+    public void disabledExit() {
+        m_robotContainer.pullAllNetworkedConfigs();
+    }
 
     @Override
     public void autonomousInit() {
@@ -67,7 +69,7 @@ public class Theseus extends TimedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
-        CommandScheduler.getInstance().schedule(Commands.runOnce(() -> m_robotContainer.pullAllNetworkedConfigs()));
+        m_robotContainer.pullAllNetworkedConfigs();
     }
 
     @Override
@@ -79,7 +81,7 @@ public class Theseus extends TimedRobot {
     @Override
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
-        CommandScheduler.getInstance().schedule(Commands.runOnce(() -> m_robotContainer.pullAllNetworkedConfigs()));
+        m_robotContainer.pullAllNetworkedConfigs();
         CommandScheduler.getInstance().schedule(m_robotContainer.getSystemsCheckCommand());
     }
 

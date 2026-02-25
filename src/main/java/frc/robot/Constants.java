@@ -240,6 +240,16 @@ public final class Constants {
                 Rotation2d.fromDegrees(90)
             );
         }
+
+        public static final Translation2d BLUE_TOWER_CENTER = new Translation2d(
+            1,
+            3.75
+        );
+        
+        public static final Translation2d RED_TOWER_CENTER = new Translation2d(
+            15.55,
+            4.3
+        );
     }
 
     public static class TurretSubsystemConstants {
@@ -309,6 +319,16 @@ public final class Constants {
         public static final Transform3d TURRET_TO_ROBOT = new Transform3d(
             new Translation3d(Units.inchesToMeters(-7.5), Units.inchesToMeters(-6.5), Units.inchesToMeters(20)),
             new Rotation3d(0, 0, 0));
+
+        /** Stator current limit (A) for each flywheel motor (Kraken X60). */
+        public static final double SHOOTER_STATOR_CURRENT_LIMIT_A = 80.0;
+        /** Supply current limit (A) for each flywheel motor. */
+        public static final double SHOOTER_SUPPLY_CURRENT_LIMIT_A = 60.0;
+
+        /** Stator current limit (A) for the turret angle motor (Kraken X60). */
+        public static final double TURRET_STATOR_CURRENT_LIMIT_A = 40.0;
+        /** Supply current limit (A) for the turret angle motor. */
+        public static final double TURRET_SUPPLY_CURRENT_LIMIT_A = 30.0;
     }
     
     public static class IntakeSubsystemConstants {
@@ -317,7 +337,7 @@ public final class Constants {
 
         public static final double LIFT_GEARBOX_RATIO = 4.0*4*4;
 
-        public static final double LIFT_KP = 0.25;
+        public static final double LIFT_KP = 1;
         public static final double LIFT_KI = 0;
         public static final double LIFT_KD = 0;
 
@@ -341,9 +361,19 @@ public final class Constants {
          * Kraken/Falcon stall is ~200 A; 15 A gives a conservative threshold against the
          * upper hard stop at the slow homing speed.
          */
-        public static final double LIFT_HOMING_STALL_AMPS = 25.0;
+        public static final double LIFT_HOMING_STALL_AMPS = 3.0;
         /** How long (seconds) current must exceed the threshold before homing is accepted. */
         public static final double LIFT_HOMING_STALL_DURATION_S = 0.1;
+
+        /** Stator current limit (A) for the intake roller motor (Kraken X60). */
+        public static final double INTAKE_STATOR_CURRENT_LIMIT_A = 60.0;
+        /** Supply current limit (A) for the intake roller motor. */
+        public static final double INTAKE_SUPPLY_CURRENT_LIMIT_A = 40.0;
+
+        /** Stator current limit (A) for the lift motor (Kraken X60). */
+        public static final double LIFT_STATOR_CURRENT_LIMIT_A = 40.0;
+        /** Supply current limit (A) for the lift motor. */
+        public static final double LIFT_SUPPLY_CURRENT_LIMIT_A = 30.0;
     }
 
     public static class IndexerSubsystemConstants {
@@ -353,6 +383,11 @@ public final class Constants {
         public static final double SPINNER_KI = 0;
         public static final double SPINNER_KD = 0;
         public static final double SPINNER_KV = 0;
+
+        /** Stator current limit (A) for the indexer spinner motor (Kraken X60). */
+        public static final double SPINNER_STATOR_CURRENT_LIMIT_A = 40.0;
+        /** Supply current limit (A) for the indexer spinner motor. */
+        public static final double SPINNER_SUPPLY_CURRENT_LIMIT_A = 30.0;
     }
 
     public static class ClimberSubsystemConstants {
@@ -394,5 +429,10 @@ public final class Constants {
         public static final double CLIMBER_FULL_EXTENSION_ROTATIONS =
             (CLIMBER_TRAVEL_INCHES / (2.0 * Math.PI * CLIMBER_DRUM_RADIUS_INCHES))
             * CLIMBER_GEARBOX_RATIO;
+
+        /** Stator current limit (A) for the climber motor (Kraken X60). */
+        public static final double CLIMBER_STATOR_CURRENT_LIMIT_A = 120.0;
+        /** Supply current limit (A) for the climber motor. */
+        public static final double CLIMBER_SUPPLY_CURRENT_LIMIT_A = 80.0;
     }
 }

@@ -19,12 +19,13 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -92,12 +93,12 @@ public class TurretSubsystem extends SubsystemBase {
     /** The current turret target as an enum. */
     public TurretTarget turretTarget = TurretTarget.NONE;
     private TalonFXConfiguration ShooterFxConfigs = new TalonFXConfiguration();
-    private final VelocityVoltage velocityReq = new VelocityVoltage(0).withSlot(0);
+    private final VelocityTorqueCurrentFOC velocityReq = new VelocityTorqueCurrentFOC(0).withSlot(0);
     /** Sent to the shooter motors when we want them to coast to a stop, not brake. */
     private final NeutralOut coastReq = new NeutralOut();
 
     private TalonFXConfiguration AngleFxConfigs = new TalonFXConfiguration();
-    private final PositionVoltage anglePositionReq = new PositionVoltage(0).withSlot(0);
+    private final PositionTorqueCurrentFOC anglePositionReq = new PositionTorqueCurrentFOC(0).withSlot(0);
     
     private boolean runFlywheel = false;
     private boolean shooting = false;
@@ -149,6 +150,12 @@ public class TurretSubsystem extends SubsystemBase {
         // while trying to correct overspeed. Clamped at the firmware level so it
         // applies regardless of which control request is active.
         ShooterFxConfigs.MotorOutput.PeakReverseDutyCycle = 0.0;
+        // Current limits — prevent brownouts from the high-inertia flywheel.
+        ShooterFxConfigs.CurrentLimits = new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(TurretSubsystemConstants.SHOOTER_STATOR_CURRENT_LIMIT_A)
+            .withStatorCurrentLimitEnable(true)
+            .withSupplyCurrentLimit(TurretSubsystemConstants.SHOOTER_SUPPLY_CURRENT_LIMIT_A)
+            .withSupplyCurrentLimitEnable(true);
 
         this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
 
@@ -203,6 +210,12 @@ public class TurretSubsystem extends SubsystemBase {
         angleSlot0config.kD = TurretSubsystemConstants.TURRET_KD;
         angleSlot0config.kS = TurretSubsystemConstants.TURRET_KS;
         angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+
+        AngleFxConfigs.CurrentLimits = new CurrentLimitsConfigs()
+            .withStatorCurrentLimit(TurretSubsystemConstants.TURRET_STATOR_CURRENT_LIMIT_A)
+            .withStatorCurrentLimitEnable(true)
+            .withSupplyCurrentLimit(TurretSubsystemConstants.TURRET_SUPPLY_CURRENT_LIMIT_A)
+            .withSupplyCurrentLimitEnable(true);
 
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
         this.angleMotor.getConfigurator().apply(new FeedbackConfigs()

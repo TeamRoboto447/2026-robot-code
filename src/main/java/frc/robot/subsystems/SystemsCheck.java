@@ -355,11 +355,9 @@ public class SystemsCheck {
             // Hold at speed briefly to confirm it's stable.
             robot.turretSubsystem.run(() -> robot.turretSubsystem.spinFlywheelAtRPM(targetRPM))
                 .withTimeout(0.75),
-            // Stop and wait for coast-down before the next step.
-            robot.turretSubsystem.runOnce(() -> robot.turretSubsystem.stopShooter()),
             Commands.waitUntil(() -> robot.turretSubsystem.getFlywheelRPM() < targetRPM * 0.3)
                 .withTimeout(5.0)
-        );
+        ).finallyDo((interrupted -> robot.turretSubsystem.stopShooter()));
 
         return step(robot, NetworkedConfig.SystemsCheck::isCheckFlywheel, name, inner, resultEntry);
     }
