@@ -259,10 +259,10 @@ public final class Constants {
         public static final int ANGLE_MOTOR_ID = 43;
         public static final int KICKER_MOTOR_ID = 44;
 
-        public static final double SHOOTER_KP = 0.5;
+        public static final double SHOOTER_KP = 0.75;
         public static final double SHOOTER_KI = 0;
         public static final double SHOOTER_KD = 0;
-        public static final double SHOOTER_KV = 0.11;
+        public static final double SHOOTER_KV = 0;
 
         public static final double HOOD_KP = 0.05;
         public static final double HOOD_KI = 0;
