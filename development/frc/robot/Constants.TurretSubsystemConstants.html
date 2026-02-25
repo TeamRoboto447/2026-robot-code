@@ -189,10 +189,20 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color"><code><a href="#SHOOTER_KV" class="member-name-link">SHOOTER_KV</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#SHOOTER_STATOR_CURRENT_LIMIT_A" class="member-name-link">SHOOTER_STATOR_CURRENT_LIMIT_A</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Stator current limit (A) for each flywheel motor (Kraken X60).</div>
+</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#SHOOTER_SUPPLY_CURRENT_LIMIT_A" class="member-name-link">SHOOTER_SUPPLY_CURRENT_LIMIT_A</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Supply current limit (A) for each flywheel motor.</div>
+</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
 <div class="col-second even-row-color"><code><a href="#TURRET_ANGLE_TOLERANCE_DEGREES" class="member-name-link">TURRET_ANGLE_TOLERANCE_DEGREES</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final double</code></div>
-<div class="col-second odd-row-color"><code><a href="#TURRET_DEGREES_PER_ROTATION" class="member-name-link">TURRET_DEGREES_PER_ROTATION</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#TURRET_GEAR_RATIO" class="member-name-link">TURRET_GEAR_RATIO</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final double</code></div>
 <div class="col-second even-row-color"><code><a href="#TURRET_KD" class="member-name-link">TURRET_KD</a></code></div>
@@ -211,6 +221,16 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Feed-forward gain for robot-rotation compensation (degrees of turret offset
  per degree-per-second of robot yaw rate).</div>
+</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#TURRET_STATOR_CURRENT_LIMIT_A" class="member-name-link">TURRET_STATOR_CURRENT_LIMIT_A</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Stator current limit (A) for the turret angle motor (Kraken X60).</div>
+</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#TURRET_SUPPLY_CURRENT_LIMIT_A" class="member-name-link">TURRET_SUPPLY_CURRENT_LIMIT_A</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Supply current limit (A) for the turret angle motor.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final edu.wpi.first.math.geometry.Transform3d</code></div>
 <div class="col-second odd-row-color"><code><a href="#TURRET_TO_ROBOT" class="member-name-link">TURRET_TO_ROBOT</a></code></div>
@@ -570,14 +590,14 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="TURRET_DEGREES_PER_ROTATION">
-<h3>TURRET_DEGREES_PER_ROTATION</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">TURRET_DEGREES_PER_ROTATION</span></div>
+<section class="detail" id="TURRET_GEAR_RATIO">
+<h3>TURRET_GEAR_RATIO</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">TURRET_GEAR_RATIO</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
 <ul class="tag-list">
-<li><a href="../../constant-values.html#frc.robot.Constants.TurretSubsystemConstants.TURRET_DEGREES_PER_ROTATION">Constant Field Values</a></li>
+<li><a href="../../constant-values.html#frc.robot.Constants.TurretSubsystemConstants.TURRET_GEAR_RATIO">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -661,6 +681,66 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="TURRET_TO_ROBOT">
 <h3>TURRET_TO_ROBOT</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Transform3d</span>&nbsp;<span class="element-name">TURRET_TO_ROBOT</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="SHOOTER_STATOR_CURRENT_LIMIT_A">
+<h3>SHOOTER_STATOR_CURRENT_LIMIT_A</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">SHOOTER_STATOR_CURRENT_LIMIT_A</span></div>
+<div class="block">Stator current limit (A) for each flywheel motor (Kraken X60).</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.TurretSubsystemConstants.SHOOTER_STATOR_CURRENT_LIMIT_A">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="SHOOTER_SUPPLY_CURRENT_LIMIT_A">
+<h3>SHOOTER_SUPPLY_CURRENT_LIMIT_A</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">SHOOTER_SUPPLY_CURRENT_LIMIT_A</span></div>
+<div class="block">Supply current limit (A) for each flywheel motor.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.TurretSubsystemConstants.SHOOTER_SUPPLY_CURRENT_LIMIT_A">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="TURRET_STATOR_CURRENT_LIMIT_A">
+<h3>TURRET_STATOR_CURRENT_LIMIT_A</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">TURRET_STATOR_CURRENT_LIMIT_A</span></div>
+<div class="block">Stator current limit (A) for the turret angle motor (Kraken X60).</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.TurretSubsystemConstants.TURRET_STATOR_CURRENT_LIMIT_A">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="TURRET_SUPPLY_CURRENT_LIMIT_A">
+<h3>TURRET_SUPPLY_CURRENT_LIMIT_A</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">TURRET_SUPPLY_CURRENT_LIMIT_A</span></div>
+<div class="block">Supply current limit (A) for the turret angle motor.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.TurretSubsystemConstants.TURRET_SUPPLY_CURRENT_LIMIT_A">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
 </section>
 </li>
 </ul>
