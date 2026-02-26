@@ -86,17 +86,18 @@ public class ClimberSubsystem extends SubsystemBase {
     BaseStatusSignal.refreshAll(positionSignal, statorCurrentSignal);
 
     boolean safeRange = withinSafeClimberRange.getAsBoolean();
-    if (!safeRange && climberMotor.getPosition().getValueAsDouble() > 0) {
-      // Lower if outside safe range
-      climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * -1);
+    //  if (!safeRange && climberMotor.getPosition().getValueAsDouble() > 0) {
+    //   // Lower if outside safe range
+    //   climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * -1);
 
-    } else if (safeRange && (climberDir == 1 || climberDir == -1)) {
+    // } else 
+    if (safeRange && (climberDir == 1 || climberDir == -1)) {
       // Normal open-loop drive (climb or lower).
       climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * climberDir);
     } else if (climberDir == 0) {
       // Hold mode — engage position-hold PID when outside tolerance.
       double error = Math.abs(holdPosition - positionSignal.getValueAsDouble());
-      if (error > ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS) {
+      if (false) {//(error > ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS) {
         climberMotor.setControl(holdRequest.withPosition(holdPosition));
       } else {
         climberMotor.set(0);

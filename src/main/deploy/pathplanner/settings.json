@@ -1,6 +1,6 @@
 {
-  "robotWidth": 0.853,
-  "robotLength": 0.9292,
+  "robotWidth": 0.8572,
+  "robotLength": 0.9398,
   "holonomicMode": true,
   "pathFolders": [],
   "autoFolders": [],
@@ -29,7 +29,8 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Turret\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":-0.27,\"y\":-0.23},\"radius\":0.1778,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Climber Hook\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.36,\"y\":0.11},\"size\":{\"width\":0.1,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
+    "{\"name\":\"Turret\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":-0.17,\"y\":-0.13},\"radius\":0.1778,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Climber Hook\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.16,\"y\":0.0963},\"size\":{\"width\":0.1,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Intake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.6,\"y\":0.0},\"size\":{\"width\":0.5969,\"length\":0.29845},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
   ]
 }

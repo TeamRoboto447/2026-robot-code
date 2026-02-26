@@ -50,8 +50,10 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (VisionConstants.USE_VISION) {
-            estimatorChecker(frontCamera);
-            estimatorChecker(backCamera);
+            boolean anyValid = false;
+            anyValid |= estimatorChecker(frontCamera);
+            anyValid |= estimatorChecker(backCamera);
+            NetworkedTelemetry.Vision.setHasValidAprilTags(anyValid);
         }
     }
 
@@ -127,17 +129,17 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      * Checks if a camera can see any tags and, if so, adds its current measurement to the swerve subsystem.
      * 
      * @param estimator The camera to check
+     * @return true if the camera had a valid pose estimate this cycle
      */
-    public void estimatorChecker(PhotonRunnable estimator) {
+    public boolean estimatorChecker(PhotonRunnable estimator) {
         EstimatedRobotPose cameraPose = estimator.grabLatestEstimatedPose();
         if (cameraPose == null) {
-            NetworkedTelemetry.Vision.setHasValidAprilTags(false);
-            return;
+            return false;
         }
 
-        NetworkedTelemetry.Vision.setHasValidAprilTags(true);
         Pose2d pose2d = cameraPose.estimatedPose.toPose2d();
         swerveSubsystem.addVisionMeasurement(pose2d, cameraPose.timestampSeconds,
             confidenceCalculator(cameraPose));
+        return true;
     }
 }

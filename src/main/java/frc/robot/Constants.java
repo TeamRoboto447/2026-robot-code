@@ -88,11 +88,11 @@ public final class Constants {
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
 
-        // Base std devs when a tag is at close range.
-        // [x (m), y (m), theta (rad)] — lower = trust vision more.
-        // Multi-tag estimates get no extra scaling (already more reliable).
+        // Base std devs for vision measurements. Higher = trust odometry more over vision.
+        // [x (m), y (m), theta (rad)] — lower = trust vision more, higher = trust swerve more.
+        // At 0.9/0.9/1.5, vision gently nudges the pose estimate rather than overriding wheel odometry.
         public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(),
-                0.1, 0.1, 0.2);
+                0.25, 0.25, .5);
 
     }
 
@@ -215,8 +215,8 @@ public final class Constants {
                 Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
             public static final Pose2d RED_AUDIENCE_SIDE = new Pose2d(
-                15.3, // placeholder — tune to your bar
-                3.639,   // audience side: y < field midpoint
+                15.380, // placeholder — tune to your bar
+                3.546,   // audience side: y < field midpoint
                 Rotation2d.fromDegrees(270)    // placeholder — tune to face the bar
             );
             public static final Pose2d RED_SCORING_SIDE = new Pose2d(
@@ -239,12 +239,12 @@ public final class Constants {
                 Rotation2d.fromDegrees(90)
             );
             public static final Pose2d RED_AUDIENCE_SIDE_STAGING = new Pose2d(
-                15.123, // TODO: tune — offset from final pose
-                3,
+                15.378, // TODO: tune — offset from final pose
+                2.5,
                 Rotation2d.fromDegrees(270)
             );
             public static final Pose2d RED_SCORING_SIDE_STAGING = new Pose2d(
-                15.123, // TODO: tune — offset from final pose
+                15.378, // TODO: tune — offset from final pose
                 4.9,
                 Rotation2d.fromDegrees(90)
             );

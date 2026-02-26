@@ -134,7 +134,7 @@ public class ShipOfTheseus {
     }
 
     public void runSensorlessHoming() {
-        // CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber());
+        CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber());
         CommandScheduler.getInstance().schedule(turretSubsystem.homeHood());
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
@@ -513,8 +513,7 @@ public class ShipOfTheseus {
     public Command getAutoClimbCommand() {
         return Commands.sequence(
             // Step 1: raise climber to full extension so it clears the bar
-            climberSubsystem.raiseToFull(),
-            Commands.print("Raise!"),
+            // climberSubsystem.raiseToFull(),
             // Step 2: drive staging → final at reduced speed so the climber slots
             //         onto the tower cleanly. Both poses are selected from the
             //         robot's current alliance + field side at the moment A is pressed.
@@ -528,7 +527,7 @@ public class ShipOfTheseus {
             }, java.util.Set.of(swerveSubsystem)),
             
             // Step 3: lower onto the bar to engage the clamp
-            climberSubsystem.lowerOntoBar(),
+            // climberSubsystem.lowerOntoBar(),
             Commands.print("Climb!")
         );
     }
