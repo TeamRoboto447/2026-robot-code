@@ -80,8 +80,8 @@ public class IndexerSubsystem extends SubsystemBase {
      * Stops the motor in the hopper.
      * @return A {@link Command} that stops the motor.
      */
-    public Command stop() {
-        return this.runOnce(() -> spinnerMotor.set(0));
+    public void stop() {
+        spinnerMotor.set(0);
     }
 
     /**

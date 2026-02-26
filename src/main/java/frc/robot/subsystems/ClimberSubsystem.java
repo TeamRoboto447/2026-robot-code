@@ -106,7 +106,7 @@ public class ClimberSubsystem extends SubsystemBase {
     // periodic() intentionally does nothing in that state.
   }
 
-  public void climb() {
+  public void raise() {
     climberDir = 1;
   }
 
@@ -200,12 +200,12 @@ public class ClimberSubsystem extends SubsystemBase {
    * holds position. Intended for use in the automated climb sequence — call this
    * before driving under the bar.
    *
-   * <p>The command runs {@link #climb()} until the position reaches
+   * <p>The command runs {@link #raise()} until the position reaches
    * {@code CLIMBER_FULL_EXTENSION_ROTATIONS}, then calls {@link #stopClimber()} to
    * latch the hold controller at that position.</p>
    */
   public Command raiseToFull() {
-    return this.run(() -> climb())
+    return this.run(() -> raise())
         .until(() -> getPositionRotations()
             >= ClimberSubsystemConstants.CLIMBER_FULL_EXTENSION_ROTATIONS
                - ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)

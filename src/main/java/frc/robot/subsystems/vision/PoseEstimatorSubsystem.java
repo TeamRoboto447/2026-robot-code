@@ -106,20 +106,20 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
                 smallestDistance = distance;
         }
 
-        double poseAmbiguityFactor = estimation.targetsUsed.size() != 1 ? 1
-            : Math.max(1, estimation.targetsUsed.get(0).getPoseAmbiguity() + VisionConstants.POSE_AMBIGUITY_SHIFTER
-                * VisionConstants.POSE_AMBIGUITY_MULTIPLIER);
+        // Scale std devs up linearly with distance beyond the threshold.
+        double distanceBeyondThreshold = Math.max(0, smallestDistance - VisionConstants.VISION_STD_DEV_SCALE_DISTANCE);
+        double distanceMultiplier = 1.0 + distanceBeyondThreshold * VisionConstants.VISION_STD_DEV_SCALE_FACTOR;
 
-        double confidenceMultiplier = Math.max(
-            1,
-            (Math.max(
-                1,
-                Math.max(0, smallestDistance - VisionConstants.NOISY_DISTANCE_METERS)
-                    * VisionConstants.DISTANCE_WEIGHT)
-                * poseAmbiguityFactor)
-                / (1
-                    + ((estimation.targetsUsed.size() - 1)
-                        * VisionConstants.TAG_PRESENCE_WEIGHT)));
+        // For single-tag estimates, also penalize high pose ambiguity.
+        // Multi-tag estimates are inherently more reliable so no extra penalty.
+        double ambiguityMultiplier = 1.0;
+        if (estimation.targetsUsed.size() == 1) {
+            double ambiguity = estimation.targetsUsed.get(0).getPoseAmbiguity();
+            // Linearly scale from 1x at 0 ambiguity to 3x at the rejection threshold.
+            ambiguityMultiplier = 1.0 + (ambiguity / VisionConstants.APRILTAG_AMBIGUITY_THRESHOLD) * 2.0;
+        }
+
+        double confidenceMultiplier = distanceMultiplier * ambiguityMultiplier;
         return VisionConstants.VISION_MEASUREMENT_STANDARD_DEVIATIONS.times(confidenceMultiplier);
     }
 

@@ -5,21 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "named",
-          "data": {
-            "name": "homeHood"
-          }
-        },
-        {
           "type": "path",
           "data": {
             "pathName": "S1 to Mid-Right"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "startShooter"
           }
         },
         {
@@ -27,17 +15,11 @@
           "data": {
             "pathName": "Mid-Right to Depot Side Bar"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopShooter"
-          }
         }
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

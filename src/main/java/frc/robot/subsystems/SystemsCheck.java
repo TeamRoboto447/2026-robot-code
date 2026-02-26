@@ -205,7 +205,7 @@ public class SystemsCheck {
                 "Indexer: Spin",
                 robot.indexerSubsystem.run(() -> robot.indexerSubsystem.spin())
                     .withTimeout(INDEXER_RUN_S)
-                    .andThen(robot.indexerSubsystem.stop()),
+                    .andThen(robot.indexerSubsystem.runOnce(() -> robot.indexerSubsystem.stop())),
                 NetworkedTelemetry.SystemsCheck.resIndexer),
 
             // Feeder
@@ -226,7 +226,7 @@ public class SystemsCheck {
             step(robot, NetworkedConfig.SystemsCheck::isCheckClimber,
                 "Climber: Full Extension",
                 Commands.sequence(
-                    robot.climberSubsystem.run(() -> robot.climberSubsystem.climb())
+                    robot.climberSubsystem.run(() -> robot.climberSubsystem.raise())
                         .until(() -> robot.climberSubsystem.getPositionRotations()
                                     >= ClimberSubsystemConstants.CLIMBER_FULL_EXTENSION_ROTATIONS
                                        - ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)

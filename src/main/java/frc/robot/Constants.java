@@ -74,6 +74,12 @@ public final class Constants {
         public static final int TAG_PRESENCE_WEIGHT = 0;
 
         public static final boolean USE_VISION = true;
+        // How many meters away a tag needs to be before its std dev starts scaling up.
+        // At this distance the multiplier is 1x; beyond it, it grows linearly.
+        public static final double VISION_STD_DEV_SCALE_DISTANCE = 1.0; // meters
+        // How quickly std devs grow with distance beyond VISION_STD_DEV_SCALE_DISTANCE.
+        // e.g. 0.3 means +0.3 to the multiplier per extra meter.
+        public static final double VISION_STD_DEV_SCALE_FACTOR = 1;
 
         public static final Transform3d ROBOT_TO_BACK_LEFT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
@@ -82,8 +88,11 @@ public final class Constants {
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
 
-        public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(), 1,
-        1, 1 * Math.PI);
+        // Base std devs when a tag is at close range.
+        // [x (m), y (m), theta (rad)] — lower = trust vision more.
+        // Multi-tag estimates get no extra scaling (already more reliable).
+        public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(),
+                0.1, 0.1, 0.2);
 
     }
 

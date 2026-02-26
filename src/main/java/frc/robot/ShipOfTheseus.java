@@ -141,8 +141,25 @@ public class ShipOfTheseus {
 
     // TODO: Verify correct bindings before uploading
     private void configureBindings() {
+        configureAutonomousBindings();
+        
         configureProductionBindings();
         // configureDevBindings();
+    }
+
+    private void configureAutonomousBindings() {
+        autoShootTrigger.and(turretSubsystem::hasValidTarget)
+            .and(turretSubsystem::isHoodHomed)
+            .and(this::isShotAllowed)
+            .whileTrue(Commands.parallel(
+                Commands.run(() -> indexerSubsystem.spin()),
+                Commands.run(() -> turretSubsystem.kick(0.35)),
+                Commands.run(() -> turretSubsystem.shoot())
+            ));
+        autoShootTrigger.onFalse(Commands.runOnce(() -> {
+            turretSubsystem.stopAll();
+            indexerSubsystem.stop();
+        }));
     }
 
     private void configureProductionBindings() {
@@ -195,6 +212,7 @@ public class ShipOfTheseus {
         // Driver: Climber
         DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
         DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
+        DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
 
         // withinSafeClimberRange.onFalse(climberSubsystem.lowerOntoBar());
 
@@ -216,11 +234,8 @@ public class ShipOfTheseus {
                 turretSubsystem.run(() -> turretSubsystem.shoot())
             );
 
-        autoShootTrigger.and(turretSubsystem::hasValidTarget).whileTrue(turretSubsystem.run(() -> turretSubsystem.shoot()));
-        autoShootTrigger.onFalse(this.turretSubsystem.runOnce(() -> turretSubsystem.stopAll()));
-
         turretSubsystem.getFeedTrigger().and(
-            DriverController.rightTrigger().or(OperatorController.rightTrigger()).or(autoShootTrigger))
+            DriverController.rightTrigger().or(OperatorController.rightTrigger()))
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
             .and(this::isShotAllowed)
@@ -234,7 +249,7 @@ public class ShipOfTheseus {
             turretSubsystem.stopKicker();
         }));
 
-        DriverController.rightTrigger().onFalse(indexerSubsystem.stop());
+        DriverController.rightTrigger().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
 
         // Driver: Intake (left trigger)
         // Lower the intake if it isn't already, then run the intake roller.
@@ -395,7 +410,7 @@ public class ShipOfTheseus {
         DriverController.leftTrigger().whileTrue(indexerSubsystem.run(() -> {
             indexerSubsystem.spin();
         }));
-        DriverController.leftTrigger().onFalse(indexerSubsystem.stop());
+        DriverController.leftTrigger().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
 
         DriverController.start().onTrue(indexerSubsystem.runOnce(() -> {
             indexerSubsystem.pullNetworkTableData();
@@ -407,7 +422,7 @@ public class ShipOfTheseus {
             new Rotation2d(NetworkedConfig.Debug.getNewPoseRotation())
         ))));
 
-        DriverController.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.climb()));
+        DriverController.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
         DriverController.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
         DriverController.pov(-1).whileTrue(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
 
