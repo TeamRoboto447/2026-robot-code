@@ -150,7 +150,7 @@ public class ShipOfTheseus {
         // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
             runSensorlessHoming();
-            autoShoot = false;
+            this.autoShoot = false;
         }));
 
         climberSubsystem.setDefaultCommand(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
@@ -209,15 +209,23 @@ public class ShipOfTheseus {
         // feed the shooter. Requires a valid trajectory — does nothing otherwise.
         // Hub shots are blocked while the hub is inactive; non-hub targets (alliance
         // zone relays) are always allowed.
-        (DriverController.rightTrigger().or(OperatorController.rightTrigger()).or(autoShootTrigger))
+        DriverController.rightTrigger().or(OperatorController.rightTrigger())
             .and(turretSubsystem::hasValidTarget)
             .and(this::isShotAllowed)
             .whileTrue(
                 turretSubsystem.run(() -> turretSubsystem.shoot())
             );
 
+        autoShootTrigger.and(turretSubsystem::hasValidTarget).whileTrue(turretSubsystem.run(() -> turretSubsystem.shoot()));
+        autoShootTrigger.onFalse(this.turretSubsystem.runOnce(() -> turretSubsystem.stopAll()));
+
+        autoShootTrigger.and(turretSubsystem.getFeedTrigger()).and(turretSubsystem::hasValidTarget).whileTrue(Commands.parallel(
+                indexerSubsystem.run(() -> indexerSubsystem.spin()),
+                turretSubsystem.run(() -> turretSubsystem.kick(0.35))
+            ));
+
         turretSubsystem.getFeedTrigger().and(
-            DriverController.rightTrigger().or(OperatorController.rightTrigger()).or(autoShootTrigger))
+            DriverController.rightTrigger().or(OperatorController.rightTrigger()))
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
             .and(this::isShotAllowed)
@@ -467,10 +475,8 @@ public class ShipOfTheseus {
     }
 
     private void initializedNamedCommands() {
-        NamedCommands.registerCommand("startShooter", Commands.runOnce(() -> {
-            System.out.println("Hello!");
-            this.autoShoot = true;
-        }));
+        NamedCommands.registerCommand("homeHood", turretSubsystem.homeHood());
+        NamedCommands.registerCommand("startShooter", Commands.runOnce(() -> this.autoShoot = true));
         NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
 
     }

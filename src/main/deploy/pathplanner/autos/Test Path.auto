@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "homeHood"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "S1 to Mid-Right"
@@ -17,9 +23,21 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Mid-Right to Depot Side Bar"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopShooter"
           }
         }
       ]

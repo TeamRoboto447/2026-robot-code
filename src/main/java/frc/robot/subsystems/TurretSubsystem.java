@@ -393,6 +393,13 @@ public class TurretSubsystem extends SubsystemBase {
         this.hoodMotor.set(0);
     }
 
+    public void stopAll() {
+        this.stopHood();
+        this.stopKicker();
+        this.stopTurret();
+        this.stopShooter();
+    }
+
     /**
      * Returns a {@link Command} that homes the hood by slowly driving it toward
      * the lower hard stop and zeroing the encoder when a current-based stall is
