@@ -219,13 +219,8 @@ public class ShipOfTheseus {
         autoShootTrigger.and(turretSubsystem::hasValidTarget).whileTrue(turretSubsystem.run(() -> turretSubsystem.shoot()));
         autoShootTrigger.onFalse(this.turretSubsystem.runOnce(() -> turretSubsystem.stopAll()));
 
-        autoShootTrigger.and(turretSubsystem.getFeedTrigger()).and(turretSubsystem::hasValidTarget).whileTrue(Commands.parallel(
-                indexerSubsystem.run(() -> indexerSubsystem.spin()),
-                turretSubsystem.run(() -> turretSubsystem.kick(0.35))
-            ));
-
         turretSubsystem.getFeedTrigger().and(
-            DriverController.rightTrigger().or(OperatorController.rightTrigger()))
+            DriverController.rightTrigger().or(OperatorController.rightTrigger()).or(autoShootTrigger))
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
             .and(this::isShotAllowed)
