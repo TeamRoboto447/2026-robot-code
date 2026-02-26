@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Mid-Right to Depot Side Bar"

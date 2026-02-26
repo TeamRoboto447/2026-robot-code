@@ -110,10 +110,10 @@ public class ShipOfTheseus {
 
         SmartDashboard.putData("Field", field);
 
+        initializedNamedCommands();
+
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
-
-        initializedNamedCommands();
         
         configureBindings();
         NetworkedConfig.initializeAllDefaults();
