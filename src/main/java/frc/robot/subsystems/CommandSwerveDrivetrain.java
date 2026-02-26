@@ -10,6 +10,11 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
@@ -31,7 +36,9 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
 import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
+import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants.FieldZone;
+import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.libraries.Repulsor.DriveRepulsor;
 
@@ -65,6 +72,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
     private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization = new SwerveRequest.SysIdSwerveSteerGains();
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
+    private final SwerveRequest.ApplyRobotSpeeds driveRobotRequest = new SwerveRequest.ApplyRobotSpeeds();
 
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
@@ -151,6 +159,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
         }
 
         field = fieldImport;
+
+        configureAutoBuilder();
     }
 
     /**
@@ -176,6 +186,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
         }
 
         field = fieldImport;
+
+        configureAutoBuilder();
     }
 
     /**
@@ -430,5 +442,59 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
     @Override
     public PIDController getOmegaPID() {
         return omegaPid;
+    }
+
+    public void driveRobotOriented(ChassisSpeeds chassisSpeeds) {
+        this.setControl(
+            driveRobotRequest.withSpeeds(chassisSpeeds)
+        );
+    }
+    
+    public Command driveToPose(Pose2d targetPose) {
+        PathConstraints constraints = new PathConstraints(
+        0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond), 4.0,
+        RotationsPerSecond.of(0.75).in(RadiansPerSecond), Units.degreesToRadians(720));
+
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        return AutoBuilder.pathfindToPose(
+            targetPose,
+            constraints,
+            edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
+        );
+    }
+
+    private void configureAutoBuilder() {
+        try {
+            var config = RobotConfig.fromGUISettings();
+            AutoBuilder.configure(
+            this::getPose, 
+            this::resetPose,
+            this::getChassisSpeeds,
+            (speeds, feedforwards) -> setControl(
+                driveRobotRequest.withSpeeds(speeds)
+                    .withWheelForceFeedforwardsX(feedforwards.robotRelativeForcesXNewtons())
+                    .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
+            ),
+            new PPHolonomicDriveController(
+                new PIDConstants(3, 0.00, 0.1),
+                new PIDConstants(2.0, 0, 0)
+            ),
+            config, 
+            () -> {
+              // Boolean supplier that controls when the path will be mirrored for the red alliance
+              // This will flip the path being followed to the red side of the field.
+              // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this);
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        }
+        
     }
 }

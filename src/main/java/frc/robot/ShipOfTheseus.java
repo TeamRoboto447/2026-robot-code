@@ -6,9 +6,13 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathfindThenFollowPath;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -21,7 +25,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
- 
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 // (removed unused imports)
@@ -40,7 +44,6 @@ import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
 import frc.robot.subsystems.SystemsCheck;
 
-import frc.robot.lib.BLine.*;
 import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 
@@ -65,7 +68,7 @@ public class ShipOfTheseus {
     private final CommandXboxController OperatorController = new CommandXboxController(1);
 
     private final Field2d field = new Field2d();
-    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+    private final SendableChooser<Command> autoChooser;
 
     public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
     public final TurretSubsystem turretSubsystem;
@@ -84,48 +87,17 @@ public class ShipOfTheseus {
     );
     private final Trigger autoShootTrigger = new Trigger(() -> this.autoShoot);
 
-    FollowPath.Builder pathBuilder = new FollowPath.Builder(
-        swerveSubsystem,
-        swerveSubsystem::getPose,
-        swerveSubsystem::getChassisSpeeds,
-        swerveSubsystem::driveWithChassisSpeeds,
-        new PIDController(5.0, 0.0, 0.0),
-        new PIDController(3.0, 0.0, 0.0),
-        new PIDController(2.0, 0.0, 0.0)
-        ).withDefaultShouldFlip()
-        .withPoseReset(swerveSubsystem::resetPose);
-
-    /**
-     * Path-following builder used for mid-game commands (e.g. automated climb).
-     * Unlike {@link #pathBuilder}, this builder does NOT reset the robot's odometry
-     * at the start of the path — the robot navigates from wherever it currently is.
-     *
-     * <p>Alliance flipping is intentionally disabled here because the climbing bar
-     * is at the center of the field and is the same physical location for both
-     * alliances. If your climb target is alliance-specific, switch this to
-     * {@code .withDefaultShouldFlip()}.</p>
-     */
-    FollowPath.Builder noResetPathBuilderWithoutFlipping = new FollowPath.Builder(
-        swerveSubsystem,
-        swerveSubsystem::getPose,
-        swerveSubsystem::getChassisSpeeds,
-        swerveSubsystem::driveWithChassisSpeeds,
-        new PIDController(5.0, 0.0, 0.0),
-        new PIDController(3.0, 0.0, 0.0),
-        new PIDController(2.0, 0.0, 0.0)
-        ).withShouldFlip(() -> false) // center-field target: same for both alliances
-        .withPoseReset(pose -> {}); // no-op: preserve current odometry
+    // /**
+    //  * Path-following builder used for mid-game commands (e.g. automated climb).
+    //  * Unlike {@link #pathBuilder}, this builder does NOT reset the robot's odometry
+    //  * at the start of the path — the robot navigates from wherever it currently is.
+    //  *
+    //  * <p>Alliance flipping is intentionally disabled here because the climbing bar
+    //  * is at the center of the field and is the same physical location for both
+    //  * alliances. If your climb target is alliance-specific, switch this to
+    //  * {@code .withDefaultShouldFlip()}.</p>
+    //  */
     
-    FollowPath.Builder noResetPathBuilder = new FollowPath.Builder(
-        swerveSubsystem,
-        swerveSubsystem::getPose,
-        swerveSubsystem::getChassisSpeeds,
-        swerveSubsystem::driveWithChassisSpeeds,
-        new PIDController(5.0, 0.0, 0.0),
-        new PIDController(3.0, 0.0, 0.0),
-        new PIDController(2.0, 0.0, 0.0)
-        ).withDefaultShouldFlip()
-        .withPoseReset(pose -> {}); // no-op: preserve current odometry
 
     public ShipOfTheseus() {
 
@@ -135,10 +107,14 @@ public class ShipOfTheseus {
         this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
         this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
 
+
         SmartDashboard.putData("Field", field);
+
+        autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
+
+        initializedNamedCommands();
         
-        fillAutoChooser();
         configureBindings();
         NetworkedConfig.initializeAllDefaults();
 
@@ -178,6 +154,7 @@ public class ShipOfTheseus {
         }));
 
         climberSubsystem.setDefaultCommand(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
+        DriverController.x().onTrue(Commands.defer(() -> getAutoClimbCommand(), Set.of(swerveSubsystem, climberSubsystem)));
 
         // Swerve Drive
         swerveSubsystem.setDefaultCommand(
@@ -489,66 +466,13 @@ public class ShipOfTheseus {
         intakeSubsystem.pullNetworkTableData();
     }
 
-    private void fillAutoChooser() {
+    private void initializedNamedCommands() {
+        NamedCommands.registerCommand("startShooter", Commands.runOnce(() -> {
+            System.out.println("Hello!");
+            this.autoShoot = true;
+        }));
+        NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
 
-        Path testPath = new Path("Square Test");
-        Path moveToClearShot = new Path("moveToClearShot");
-
-        FollowPath.registerEventTrigger("testLog", Commands.print("YEET!"));
-        // NOTE: Do NOT register a BLine event command for "startShooter"; the
-        // BLine event implementation schedules the registered Command which
-        // appears to interrupt the path-following command. Instead we monitor
-        // the robot pose in parallel with the path and set `autoShoot` when the
-        // robot reaches the midway point of the path.
-
-        autoChooser.addOption("Square Test", Commands.sequence(
-            noResetPathBuilder.build(testPath)
-        ));
-
-        // Compute midpoint of the two path waypoints (t_ratio=0.5 event in JSON).
-        double rawMidX = (3.6832575142160824 + 2.457879772542646) / 2.0;
-        double rawMidY = (7.455958570268074 + 4.050548334687247) / 2.0;
-        // Apply alliance flipping to match BLine's .withDefaultShouldFlip() behavior.
-        var allianceOpt = edu.wpi.first.wpilibj.DriverStation.getAlliance();
-        double midX = rawMidX;
-        double midY = rawMidY;
-        if (allianceOpt.isPresent() && allianceOpt.get() == edu.wpi.first.wpilibj.DriverStation.Alliance.Red) {
-            midX = frc.robot.Constants.FieldConstants.FIELD_LENGTH_METERS - rawMidX;
-            midY = frc.robot.Constants.FieldConstants.FIELD_WIDTH_METERS - rawMidY;
-        }
-        final edu.wpi.first.math.geometry.Translation2d moveMid = new edu.wpi.first.math.geometry.Translation2d(midX, midY);
-        final double triggerRadius = 0.6; // meters
-
-        var shooterMonitor = Commands.run(() -> {
-            try {
-                if (!autoShoot) {
-                    double dist = swerveSubsystem.getPose().getTranslation().getDistance(moveMid);
-                    if (dist <= triggerRadius) {
-                        autoShoot = true;
-                        System.out.println("[Auto] monitor -> autoShoot=true; BatteryV=" + edu.wpi.first.wpilibj.RobotController.getBatteryVoltage());
-                    }
-                }
-            } catch (Exception e) {
-                // defensive: avoid crashing the monitor command
-                System.out.println("[Auto] shooterMonitor error: " + e.getMessage());
-            }
-        }).until(() -> autoShoot);
-
-        autoChooser.setDefaultOption("Shoot and Climb", Commands.sequence(
-            turretSubsystem.homeHood(),
-            Commands.print("Homed Hood"),
-            // Run the path and the shooter-monitor concurrently so the path is
-            // not interrupted by BLine-scheduled event commands.
-            Commands.parallel(
-                noResetPathBuilder.build(moveToClearShot).finallyDo((interrupted) -> System.out.println("[Auto] moveToClearShot ended interrupted=" + interrupted)),
-                shooterMonitor
-            ),
-            Commands.print("Moved to Clear Shot"),
-            getAutoClimbCommand(),
-            Commands.print("Climbed"),
-            Commands.runOnce(() -> autoShoot = false),
-            Commands.print("Stopped Shooter")
-        ));
     }
 
     public Command getAutonomousCommand() {
@@ -580,30 +504,11 @@ public class ShipOfTheseus {
             //         robot's current alliance + field side at the moment A is pressed.
             Commands.defer(() -> {
                 Pose2d staging = selectStagingPosition();
-                Path climbPath = new Path(
-                    java.util.List.of(
-                        new Path.Waypoint(staging,
-                            frc.robot.Constants.FieldConstants.ClimbPositions.STAGING_HANDOFF_RADIUS_METERS)
-                    ),
-                    new Path.PathConstraints()
-                        .setMaxVelocityMetersPerSec(
-                            frc.robot.Constants.FieldConstants.ClimbPositions.APPROACH_SPEED_MPS*4),
-                    null   // use global defaults for everything else
-                );
-                return noResetPathBuilderWithoutFlipping.build(climbPath);
+                return swerveSubsystem.driveToPose(staging);
             }, java.util.Set.of(swerveSubsystem)),
             Commands.defer(() -> {
                 Pose2d target  = selectClimbPosition();
-                Path climbPath = new Path(
-                    java.util.List.of(
-                        new Path.Waypoint(target, frc.robot.Constants.FieldConstants.ClimbPositions.FINAL_APPROACH_RADIUS_METERS)
-                    ),
-                    new Path.PathConstraints()
-                        .setMaxVelocityMetersPerSec(
-                            frc.robot.Constants.FieldConstants.ClimbPositions.APPROACH_SPEED_MPS),
-                    null   // use global defaults for everything else
-                );
-                return noResetPathBuilderWithoutFlipping.build(climbPath);
+                return swerveSubsystem.driveToPose(target);
             }, java.util.Set.of(swerveSubsystem)),
             
             // Step 3: lower onto the bar to engage the clamp

@@ -694,14 +694,14 @@ public class TurretSubsystem extends SubsystemBase {
         this.angleMotor.getConfigurator().apply(new FeedbackConfigs()
             .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_GEAR_RATIO));
         
-        SparkMaxConfig hoodConfig = new SparkMaxConfig();
-        hoodConfig.inverted(hoodMotorInverted);
-        hoodConfig.closedLoop
-            .p(NetworkedConfig.Turret.getHoodKP())
-            .i(NetworkedConfig.Turret.getHoodKI())
-            .d(NetworkedConfig.Turret.getHoodKD());
+        // SparkMaxConfig hoodConfig = new SparkMaxConfig();
+        // hoodConfig.inverted(hoodMotorInverted);
+        // hoodConfig.closedLoop
+        //     .p(NetworkedConfig.Turret.getHoodKP())
+        //     .i(NetworkedConfig.Turret.getHoodKI())
+        //     .d(NetworkedConfig.Turret.getHoodKD());
         
-        this.hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // this.hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         System.out.println("Updated Turret PIDs.");
         

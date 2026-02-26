@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
+import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,6 +24,11 @@ public class Theseus extends TimedRobot {
 
     public Theseus() {
         m_robotContainer = new ShipOfTheseus();
+    }
+
+    @Override
+    public void robotInit() {
+        CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
     }
 
     @Override
