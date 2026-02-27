@@ -49,7 +49,7 @@ class TurretLookupGenerator:
             print(f"Error saving data: {e}")
     
     def calculate_flight_time(self, distance_inches, angle_from_vertical, rpm, 
-                             target_height_inches=104, robot_height_inches=24):
+                             target_height_inches=72, robot_height_inches=20):
         """
         Calculate estimated flight time for projectile.
         
@@ -57,7 +57,7 @@ class TurretLookupGenerator:
             distance_inches: Horizontal distance to target
             angle_from_vertical: Hood angle from vertical plane (0° = up, 90° = horizontal)
             rpm: Shooter wheel RPM
-            target_height_inches: Target height (default 104" for high goal)
+            target_height_inches: Target height (default 72" for high goal)
             robot_height_inches: Height of shooter on robot
         
         Returns:
@@ -112,7 +112,7 @@ class TurretLookupGenerator:
         
         return time_estimate
     
-    def suggest_starting_values(self, distance_inches, target_height_inches=104):
+    def suggest_starting_values(self, distance_inches, target_height_inches=72):
         """
         Suggest starting RPM and angle values based on collected data or physics
         
@@ -186,8 +186,8 @@ class TurretLookupGenerator:
         print("="*60)
         
         # Get target height
-        target_height = input("Target height in inches (default 104 for high goal): ").strip()
-        target_height = float(target_height) if target_height else 104.0
+        target_height = input("Target height in inches (default 72 for high goal): ").strip()
+        target_height = float(target_height) if target_height else 72.0
         
         # Static testing only - vpar will be calculated later for shoot-on-fly
         vpar = 0.0  # Robot velocity parallel to target (static = 0)

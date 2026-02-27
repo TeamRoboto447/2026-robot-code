@@ -91,3 +91,8 @@ At the current setting that's **+500 RPM at 60 in/s (5 ft/s)**.
 | Stationary shots are off         | Do **not** touch this — retune `turret_data.json` instead |
 
 After changing the value, re-run steps 2–4 to regenerate and redeploy the table.
+
+### IF YOU NEED TO RETUNE `turret_data.json`
+- Make a backup of the current one
+- Delete the contents
+- Choose option 1. (collect new data point) and follow it's prompts
