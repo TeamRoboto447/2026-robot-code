@@ -96,3 +96,4 @@ After changing the value, re-run steps 2–4 to regenerate and redeploy the tabl
 - Make a backup of the current one
 - Delete the contents
 - Choose option 1. (collect new data point) and follow it's prompts
+    - Repeat for as many data points as needed (4-5 data points recommended)
