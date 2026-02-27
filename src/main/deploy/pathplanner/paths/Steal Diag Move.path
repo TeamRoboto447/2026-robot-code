@@ -1,0 +1,180 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.0,
+        "y": 7.316758036629099
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.3638371077068365,
+        "y": 7.316758036629099
+      },
+      "isLocked": false,
+      "linkedName": "Depot Side Stage"
+    },
+    {
+      "anchor": {
+        "x": 8.72,
+        "y": 7.05
+      },
+      "prevControl": {
+        "x": 8.606444063780739,
+        "y": 7.571486712346312
+      },
+      "nextControl": {
+        "x": 8.882052521926768,
+        "y": 6.305800800022957
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.595,
+        "y": 4.54
+      },
+      "prevControl": {
+        "x": 8.782213781519129,
+        "y": 4.372963869376944
+      },
+      "nextControl": {
+        "x": 6.230166013776899,
+        "y": 4.732026568045593
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.112515977200804,
+        "y": 7.34
+      },
+      "prevControl": {
+        "x": 6.733977385824647,
+        "y": 6.798299378967495
+      },
+      "nextControl": {
+        "x": 5.924059840219998,
+        "y": 7.504268939347254
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.23,
+        "y": 7.316758036629099
+      },
+      "prevControl": {
+        "x": 5.172346354406788,
+        "y": 7.239212984171871
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.3152877202643171,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.8957254955947133,
+      "rotationDegrees": -126.91700000000002
+    },
+    {
+      "waypointRelativePos": 2.342896475770926,
+      "rotationDegrees": -135.0
+    },
+    {
+      "waypointRelativePos": 3.655258810572689,
+      "rotationDegrees": 0.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Starting Constraint",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.3438239820075751,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 270.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Ending Constraint",
+      "minWaypointRelativePos": 2.885505445075759,
+      "maxWaypointRelativePos": 4.0,
+      "constraints": {
+        "maxVelocity": 1.5,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 270.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Lower Intake",
+      "waypointRelativePos": 0.46877959280303066,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Lower Intake"
+        }
+      }
+    },
+    {
+      "name": "Intake",
+      "waypointRelativePos": 0.797674005681818,
+      "endWaypointRelativePos": 2.4914032907196977,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Run Intake"
+        }
+      }
+    },
+    {
+      "name": "Raise Intake",
+      "waypointRelativePos": 2.8220140861742404,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Raise Intake"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 6.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 270.0,
+    "maxAngularAcceleration": 360.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": false
+}

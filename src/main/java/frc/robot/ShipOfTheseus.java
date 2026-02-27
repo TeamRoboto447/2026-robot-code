@@ -110,7 +110,7 @@ public class ShipOfTheseus {
 
         SmartDashboard.putData("Field", field);
 
-        initializedNamedCommands();
+        initializeNamedCommands();
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -491,11 +491,16 @@ public class ShipOfTheseus {
         intakeSubsystem.pullNetworkTableData();
     }
 
-    private void initializedNamedCommands() {
+    private void initializeNamedCommands() {
         NamedCommands.registerCommand("homeHood", turretSubsystem.homeHood());
         NamedCommands.registerCommand("startShooter", Commands.runOnce(() -> this.autoShoot = true));
         NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
+        NamedCommands.registerCommand("runAutoShoot", Commands.startEnd(() -> this.autoShoot = true, () -> this.autoShoot = false));
         NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
+
+        NamedCommands.registerCommand("Lower Intake", Commands.runOnce(() -> intakeSubsystem.dropIntake()));
+        NamedCommands.registerCommand("Run Intake", intakeSubsystem.runEnd(() -> intakeSubsystem.intake(0.6), () -> intakeSubsystem.stopIntake()));
+        NamedCommands.registerCommand("Raise Intake", Commands.runOnce(() -> intakeSubsystem.liftIntake()));
     }
 
     public Command getAutonomousCommand() {
