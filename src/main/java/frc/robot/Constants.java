@@ -83,7 +83,7 @@ public final class Constants {
 
         public static final Transform3d ROBOT_TO_BACK_LEFT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
-        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(135)));
+        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(142)));
         public static final Transform3d ROBOT_TO_BACK_RIGHT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
@@ -195,13 +195,13 @@ public final class Constants {
              * How close the robot must get to the staging waypoint (meters) before
              * BLine hands off to the final bar pose. Smaller = tighter alignment
              */
-            public static final double STAGING_HANDOFF_RADIUS_METERS = Units.inchesToMeters(.5);
+            public static final double STAGING_HANDOFF_RADIUS_METERS = Units.inchesToMeters(.25);
 
             /**
              * How close the robot must get to the final waypoint (meters) before
              * BLine considers the path complete. Smaller = tighter alignment
              */
-            public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(.5);
+            public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(.25);
 
             // ── Final (hook-engagement) positions ──────────────────────────────
             public static final Pose2d BLUE_AUDIENCE_SIDE = new Pose2d(
@@ -214,14 +214,18 @@ public final class Constants {
                 2.931, // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
-            public static final Pose2d RED_AUDIENCE_SIDE = new Pose2d(
-                15.380, // placeholder — tune to your bar
-                3.546,   // audience side: y < field midpoint
+
+            private static final double RED_DEPOT_X = 15.5;
+            private static final double RED_OUTPOST_X = 15.716;
+
+            public static final Pose2d RED_DEPOT_SIDE = new Pose2d(
+                RED_DEPOT_X, // placeholder — tune to your bar
+                3.65,   // audience side: y < field midpoint
                 Rotation2d.fromDegrees(270)    // placeholder — tune to face the bar
             );
-            public static final Pose2d RED_SCORING_SIDE = new Pose2d(
-                15.516, // placeholder — tune to your bar
-                5.1,  // scoring side: y > field midpoint
+            public static final Pose2d RED_OUTPOST_SIDE = new Pose2d(
+                RED_OUTPOST_X, // placeholder — tune to your bar
+                5,  // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
             );
 
@@ -238,14 +242,14 @@ public final class Constants {
                 2.5,
                 Rotation2d.fromDegrees(90)
             );
-            public static final Pose2d RED_AUDIENCE_SIDE_STAGING = new Pose2d(
-                15.378, // TODO: tune — offset from final pose
-                2.5,
+            public static final Pose2d RED_DEPOT_SIDE_STAGING = new Pose2d(
+                RED_DEPOT_X, // TODO: tune — offset from final pose
+                2.8,
                 Rotation2d.fromDegrees(270)
             );
-            public static final Pose2d RED_SCORING_SIDE_STAGING = new Pose2d(
-                15.378, // TODO: tune — offset from final pose
-                4.9,
+            public static final Pose2d RED_OUTPOST_SIDE_STAGING = new Pose2d(
+                RED_OUTPOST_X, // TODO: tune — offset from final pose
+                6,
                 Rotation2d.fromDegrees(90)
             );
         }

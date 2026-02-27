@@ -11,9 +11,9 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Mid-Right to Depot Side Bar"
+            "name": "autoClimb"
           }
         }
       ]

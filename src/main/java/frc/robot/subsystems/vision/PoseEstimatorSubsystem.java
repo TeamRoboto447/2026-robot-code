@@ -28,18 +28,18 @@ import frc.robot.networking.NetworkedTelemetry;
 public class PoseEstimatorSubsystem extends SubsystemBase {
 
     private final CommandSwerveDrivetrain swerveSubsystem;
-    private final PhotonRunnable frontCamera;
+    private final PhotonRunnable backLeftCamera;
     private final PhotonRunnable backCamera;
 
     /** Creates a new PoseEstimatorSubsystem. */
     public PoseEstimatorSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
         if (USE_VISION) {
-            this.frontCamera = new PhotonRunnable(new PhotonCamera("FrontCam"), VisionConstants.ROBOT_TO_BACK_LEFT_CAM);
+            this.backLeftCamera = new PhotonRunnable(new PhotonCamera("FrontCam"), VisionConstants.ROBOT_TO_BACK_LEFT_CAM);
             this.backCamera = new PhotonRunnable(new PhotonCamera("BackCam"), VisionConstants.ROBOT_TO_BACK_RIGHT_CAM);
             this.setDefaultCommand(this.createNotifierCommand(this));
         } else {
-            this.frontCamera = null;
+            this.backLeftCamera = null;
             this.backCamera = null;
         }
     }
@@ -51,7 +51,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     public void periodic() {
         if (VisionConstants.USE_VISION) {
             boolean anyValid = false;
-            anyValid |= estimatorChecker(frontCamera);
+            anyValid |= estimatorChecker(backLeftCamera);
             anyValid |= estimatorChecker(backCamera);
             NetworkedTelemetry.Vision.setHasValidAprilTags(anyValid);
         }
@@ -63,7 +63,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      */
     private Command createNotifierCommand(PoseEstimatorSubsystem peSubsystem) {
         return new NotifierCommand(() -> {
-            frontCamera.run();
+            backLeftCamera.run();
             backCamera.run();
         }, 0.02, peSubsystem).ignoringDisable(true);
     }

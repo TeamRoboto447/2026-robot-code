@@ -495,7 +495,7 @@ public class ShipOfTheseus {
         NamedCommands.registerCommand("homeHood", turretSubsystem.homeHood());
         NamedCommands.registerCommand("startShooter", Commands.runOnce(() -> this.autoShoot = true));
         NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
-
+        NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
     }
 
     public Command getAutonomousCommand() {
@@ -526,11 +526,11 @@ public class ShipOfTheseus {
             //         robot's current alliance + field side at the moment A is pressed.
             Commands.defer(() -> {
                 Pose2d staging = selectStagingPosition();
-                return swerveSubsystem.driveToPose(staging);
+                return swerveSubsystem.driveToPose(staging, 0.4 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
             }, java.util.Set.of(swerveSubsystem)),
             Commands.defer(() -> {
                 Pose2d target  = selectClimbPosition();
-                return swerveSubsystem.driveToPose(target);
+                return swerveSubsystem.driveToPose(target, 0.15 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
             }, java.util.Set.of(swerveSubsystem)),
             
             // Step 3: lower onto the bar to engage the clamp
@@ -557,8 +557,8 @@ public class ShipOfTheseus {
 
         if (isRed) {
             return isScoringside
-                ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_SCORING_SIDE
-                : frc.robot.Constants.FieldConstants.ClimbPositions.RED_AUDIENCE_SIDE;
+                ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_OUTPOST_SIDE
+                : frc.robot.Constants.FieldConstants.ClimbPositions.RED_DEPOT_SIDE;
         } else {
             return isScoringside
                 ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_SCORING_SIDE
@@ -583,8 +583,8 @@ public class ShipOfTheseus {
 
         if (isRed) {
             return isScoringside
-                ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_SCORING_SIDE_STAGING
-                : frc.robot.Constants.FieldConstants.ClimbPositions.RED_AUDIENCE_SIDE_STAGING;
+                ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_OUTPOST_SIDE_STAGING
+                : frc.robot.Constants.FieldConstants.ClimbPositions.RED_DEPOT_SIDE_STAGING;
         } else {
             return isScoringside
                 ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_SCORING_SIDE_STAGING

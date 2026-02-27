@@ -450,9 +450,9 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
         );
     }
     
-    public Command driveToPose(Pose2d targetPose) {
+    public Command driveToPose(Pose2d targetPose, double maxSpeed) {
         PathConstraints constraints = new PathConstraints(
-        0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond), 4.0,
+        maxSpeed, 4.0,
         RotationsPerSecond.of(0.75).in(RadiansPerSecond), Units.degreesToRadians(720));
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands
