@@ -144,41 +144,42 @@ public class ClimberSubsystem extends SubsystemBase {
     // each invocation gets its own independent timer.
     Timer stallTimer = new Timer();
 
-    return this.runOnce(() -> {
-          // Disable the normal hold loop while homing.
-          climberDir = -2; // sentinel: "homing in progress"
-          stallTimer.restart();
-        })
-        .andThen(this.run(() -> {
-          // Drive slowly toward the lower hard stop.
-          climberMotor.set(ClimberSubsystemConstants.CLIMBER_HOMING_SPEED);
+    return this.runOnce(() -> this.isHomed = true); // TODO: uncomment this
+    // return this.runOnce(() -> {
+    //       // Disable the normal hold loop while homing.
+    //       climberDir = -2; // sentinel: "homing in progress"
+    //       stallTimer.restart();
+    //     })
+    //     .andThen(this.run(() -> {
+    //       // Drive slowly toward the lower hard stop.
+    //       climberMotor.set(ClimberSubsystemConstants.CLIMBER_HOMING_SPEED);
 
-          double amps = statorCurrentSignal.getValueAsDouble();
-          if (Math.abs(amps) < ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS) {
-            // Not yet stalled — restart the timer so it only counts
-            // *continuous* time above the threshold.
-            stallTimer.restart();
-          }
-          System.out.println(statorCurrentSignal.getValueAsDouble());
-        }))
-        .until(() ->
-            Math.abs(statorCurrentSignal.getValueAsDouble()) >= ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS
-            && stallTimer.hasElapsed(ClimberSubsystemConstants.CLIMBER_HOMING_STALL_DURATION_S))
-        .finallyDo((interrupted) -> {
-          climberMotor.set(0);
-          stallTimer.stop();
+    //       double amps = statorCurrentSignal.getValueAsDouble();
+    //       if (Math.abs(amps) < ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS) {
+    //         // Not yet stalled — restart the timer so it only counts
+    //         // *continuous* time above the threshold.
+    //         stallTimer.restart();
+    //       }
+    //       System.out.println(statorCurrentSignal.getValueAsDouble());
+    //     }))
+    //     .until(() ->
+    //         Math.abs(statorCurrentSignal.getValueAsDouble()) >= ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS
+    //         && stallTimer.hasElapsed(ClimberSubsystemConstants.CLIMBER_HOMING_STALL_DURATION_S))
+    //     .finallyDo((interrupted) -> {
+    //       climberMotor.set(0);
+    //       stallTimer.stop();
 
-          if (!interrupted) {
-            // Hard stop confirmed — zero the position sensor.
-            climberMotor.setPosition(0);
-            holdPosition = 0.0;
-            isHomed = true;
-            System.out.println("Homed Climber Position");
-          }
-          // Return to normal hold mode (climberDir = 0).
-          climberDir = 0;
-        })
-        .unless(() -> isHomed);
+    //       if (!interrupted) {
+    //         // Hard stop confirmed — zero the position sensor.
+    //         climberMotor.setPosition(0);
+    //         holdPosition = 0.0;
+    //         isHomed = true;
+    //         System.out.println("Homed Climber Position");
+    //       }
+    //       // Return to normal hold mode (climberDir = 0).
+    //       climberDir = 0;
+    //     })
+    //     .unless(() -> isHomed);
   }
 
   /** Returns true once the climber has been successfully homed. */
@@ -210,7 +211,7 @@ public class ClimberSubsystem extends SubsystemBase {
         .until(() -> getPositionRotations()
             >= ClimberSubsystemConstants.CLIMBER_FULL_EXTENSION_ROTATIONS
                - ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)
-        .withTimeout(20.0)
+        .withTimeout(5.0)
         .andThen(this.runOnce(() -> stopClimber()));
   }
 
@@ -226,7 +227,7 @@ public class ClimberSubsystem extends SubsystemBase {
     return this.run(() -> lower())
         .until(() -> getPositionRotations()
             <= ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)
-        .withTimeout(20.0)
+        .withTimeout(5.0)
         .andThen(this.runOnce(() -> stopClimber()));
   }
 }

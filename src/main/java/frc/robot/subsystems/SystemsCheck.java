@@ -55,7 +55,7 @@ public class SystemsCheck {
     private static final double POSITION_TIMEOUT_S = 2.0;
 
     /** Seconds allowed for the flywheel to reach target speed. */
-    private static final double FLYWHEEL_SPINUP_TIMEOUT_S = 8.0;
+    private static final double FLYWHEEL_SPINUP_TIMEOUT_S = 5.0;
 
     /** How long to hold the intake roller on during its check. */
     private static final double INTAKE_ROLLER_RUN_S = 1.0;
@@ -67,7 +67,7 @@ public class SystemsCheck {
     private static final double FEEDER_RUN_S = 3.0;
 
     /** How long to drive in each swerve direction during its check. */
-    private static final double SWERVE_MOTION_RUN_S = 1.0;
+    private static final double SWERVE_MOTION_RUN_S = 2.0;
 
     // Per-run abort flag
 

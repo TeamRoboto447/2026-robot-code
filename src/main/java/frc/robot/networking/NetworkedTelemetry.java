@@ -353,14 +353,23 @@ public class NetworkedTelemetry {
             gameStateTable.getBooleanTopic("Hub Active").getEntry(false);
 
         /**
+         * Seconds until the hub next becomes active for this alliance.
+         * 0.0 when the hub is already active or game data is unavailable.
+         */
+        private static final DoubleEntry hubActiveCountdown =
+            gameStateTable.getDoubleTopic("Hub Active Countdown").getEntry(0.0);
+
+        /**
          * Publishes game-state values to NetworkTables.
          *
-         * @param matchTimeSecs   Remaining match time in seconds
-         * @param isHubActive     Whether the hub is active for this alliance
+         * @param matchTimeSecs        Remaining match time in seconds
+         * @param isHubActive          Whether the hub is active for this alliance
+         * @param hubActiveCountdownSecs Seconds until the hub next becomes active; 0 if already active
          */
-        public static void publish(double matchTimeSecs, boolean isHubActive) {
+        public static void publish(double matchTimeSecs, boolean isHubActive, double hubActiveCountdownSecs) {
             matchTime.set(matchTimeSecs);
             hubActive.set(isHubActive);
+            hubActiveCountdown.set(hubActiveCountdownSecs);
         }
     }
 }

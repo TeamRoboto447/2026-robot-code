@@ -48,7 +48,7 @@ import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 
 public class ShipOfTheseus {
-    private double MaxSpeed = 0.25 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxSpeed = 0.33 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private boolean autoShoot = false;
 
@@ -227,7 +227,7 @@ public class ShipOfTheseus {
         // feed the shooter. Requires a valid trajectory — does nothing otherwise.
         // Hub shots are blocked while the hub is inactive; non-hub targets (alliance
         // zone relays) are always allowed.
-        DriverController.rightTrigger().or(OperatorController.rightTrigger())
+        DriverController.start().or(OperatorController.rightTrigger())
             .and(turretSubsystem::hasValidTarget)
             .and(this::isShotAllowed)
             .whileTrue(
@@ -235,7 +235,7 @@ public class ShipOfTheseus {
             );
 
         turretSubsystem.getFeedTrigger().and(
-            DriverController.rightTrigger().or(OperatorController.rightTrigger()))
+            DriverController.start().or(OperatorController.rightTrigger()))
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
             .and(this::isShotAllowed)
@@ -244,12 +244,19 @@ public class ShipOfTheseus {
                 turretSubsystem.run(() -> turretSubsystem.kick(0.35))
             ));
 
-        DriverController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
+        DriverController.start().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();
             turretSubsystem.stopKicker();
         }));
 
-        DriverController.rightTrigger().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
+        DriverController.start().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
+
+        OperatorController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
+            turretSubsystem.stopShooter();
+            turretSubsystem.stopKicker();
+        }));
+
+        OperatorController.rightTrigger().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
 
         // Driver: Intake (left trigger)
         // Lower the intake if it isn't already, then run the intake roller.
@@ -593,9 +600,14 @@ public class ShipOfTheseus {
     public void periodicUpdate() {
         GameState gs = StateManager.getState(GameState.class);
         if (gs != null) {
+            // Countdown is only meaningful when the hub is inactive — how long until it flips active.
+            // When already active (or game data not yet available), publish 0.
+            // double countdown = (!gs.isHubActive()) ? Math.max(0.0, gs.getRemainingShiftTime()) : 0.0;
+            double countdown = gs.getRemainingShiftTime();
             NetworkedTelemetry.GameState.publish(
                 edu.wpi.first.wpilibj.DriverStation.getMatchTime(),
-                gs.isHubActive()
+                gs.isHubActive(),
+                countdown
             );
         }
 

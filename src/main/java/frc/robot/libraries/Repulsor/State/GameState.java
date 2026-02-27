@@ -68,7 +68,7 @@ public class GameState extends StaticState {
 
   private double getMatchTime() {
     double gameTime = DriverStation.getMatchTime();
-    if (DriverStation.isFMSAttached()) {
+    if (DriverStation.isFMSAttached() || DriverStation.getMatchType() == DriverStation.MatchType.Practice) {
       gameTime = TELEOP_GAME_LENGTH - gameTime;
     }
     return gameTime;
