@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "S1 to Mid-Left"
+            "pathName": "Right Steal Diag Move"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Clear Right Hub Edge"
           }
         },
         {
@@ -15,11 +21,17 @@
           "data": {
             "name": "autoClimb"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopShooter"
+          }
         }
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }
