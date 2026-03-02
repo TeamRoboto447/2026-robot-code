@@ -73,7 +73,7 @@
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Trench"
     }
   ],
   "rotationTargets": [
@@ -136,7 +136,7 @@
       }
     },
     {
-      "name": "Intake",
+      "name": "Run Intake",
       "waypointRelativePos": 0.797674005681818,
       "endWaypointRelativePos": 2.4914032907196977,
       "command": {

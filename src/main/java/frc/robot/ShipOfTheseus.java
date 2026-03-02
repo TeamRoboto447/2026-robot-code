@@ -48,7 +48,7 @@ import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 
 public class ShipOfTheseus {
-    private double MaxSpeed = 0.33 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxSpeed = 0.70 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private boolean autoShoot = false;
 
@@ -266,7 +266,7 @@ public class ShipOfTheseus {
             })
         );
         DriverController.leftTrigger().whileTrue(
-            intakeSubsystem.run(() -> intakeSubsystem.intake(0.5))
+            intakeSubsystem.run(() -> intakeSubsystem.intake(0.7))
         );
         DriverController.leftTrigger().onFalse(
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
@@ -292,7 +292,7 @@ public class ShipOfTheseus {
             })
         );
         OperatorController.a().whileTrue(
-            intakeSubsystem.run(() -> intakeSubsystem.intake(0.5))
+            intakeSubsystem.run(() -> intakeSubsystem.intake(0.7))
         );
         OperatorController.a().onFalse(
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
@@ -323,7 +323,7 @@ public class ShipOfTheseus {
             )
         );
 
-        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.5)));
+        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.7)));
         OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(1)));
         OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
         OperatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
@@ -499,7 +499,7 @@ public class ShipOfTheseus {
         NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
 
         NamedCommands.registerCommand("Lower Intake", Commands.runOnce(() -> intakeSubsystem.dropIntake()));
-        NamedCommands.registerCommand("Run Intake", intakeSubsystem.runEnd(() -> intakeSubsystem.intake(0.6), () -> intakeSubsystem.stopIntake()));
+        NamedCommands.registerCommand("Run Intake", intakeSubsystem.runEnd(() -> intakeSubsystem.intake(0.7), () -> intakeSubsystem.stopIntake()));
         NamedCommands.registerCommand("Raise Intake", Commands.runOnce(() -> intakeSubsystem.liftIntake()));
     }
 
