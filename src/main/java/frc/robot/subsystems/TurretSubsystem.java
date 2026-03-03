@@ -4,19 +4,14 @@
 
 package frc.robot.subsystems;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Objects;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -31,10 +26,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MappingJsonFactory;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -58,7 +49,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.TurretTarget;
-import frc.robot.Constants.FieldConstants.TurretTargetPoints;import frc.robot.networking.NetworkedConfig;
+import frc.robot.Constants.FieldConstants.TurretTargetPoints;
+import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.TargettingUtils.ControlTarget;
 
@@ -69,9 +61,6 @@ import frc.robot.utils.TargettingUtils.ControlTarget;
 public class TurretSubsystem extends SubsystemBase {
     private final PoseProvider poseProvider;
     
-    private final File lookupTable;
-    private double prevReading = Double.NaN;
-    private double currentVelocityToTarget = 0;
     private ControlTarget currentControlTarget = new ControlTarget();
     private boolean hoodLimitSet = false;
     private final Trigger hoodLowerLimitTrigger;
@@ -135,7 +124,6 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public TurretSubsystem(PoseProvider poseProvider) {
         this.poseProvider = poseProvider;
-        this.lookupTable = new File(Filesystem.getDeployDirectory(), "lookup_table.json");
 
         this.rightShooterMotor = new TalonFX(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID);
         var shooterSlot0config = ShooterFxConfigs.Slot0;
@@ -732,62 +720,6 @@ public class TurretSubsystem extends SubsystemBase {
         return m_sysIdRoutineFlywheel.dynamic(direction);
     }
 
-    /**
-     * Gets the current control target - namely the target RPM and hood angle.
-     * 
-     * @return A {@link ControlTarget} with the appropiate data.
-     */
-    public ControlTarget getControlTarget() {
-        JsonFactory factory = new MappingJsonFactory();
-        try (JsonParser parser = factory.createParser(lookupTable)) {
-            Translation3d targetTranslation = getTargetFromEnum(turretTarget);
-            int targetHeight = (int) targetTranslation.getZ();
-
-            int steppedTargetDist = ((int) Math.round(prevReading / TurretSubsystemConstants.LOOKUP_TABLE_DIST_STEP)) * TurretSubsystemConstants.LOOKUP_TABLE_DIST_STEP;
-            int steppedVelocity = ((int) Math.round(currentVelocityToTarget / TurretSubsystemConstants.LOOKUP_TABLE_VEL_STEP)) * TurretSubsystemConstants.LOOKUP_TABLE_VEL_STEP;
-
-            JsonNode velocityNode = null;
-            parser.nextToken();
-            while (parser.nextToken() != null) {
-                String heightName = parser.currentName();
-                if (!(heightName == null) && (!heightName.equals(String.valueOf(targetHeight)))) {
-                    parser.nextToken();
-                    parser.skipChildren();
-                } else {
-                    while (parser.nextToken() != null) {
-                        String distName = parser.currentName();
-                        if(!distName.equals(String.valueOf(steppedTargetDist))) {
-                            parser.nextToken();
-                            parser.skipChildren();
-                        } else {
-                            velocityNode = parser.readValueAsTree();
-                        }
-                    }
-                }
-            }
-            if (Objects.isNull(velocityNode)) {
-                return new ControlTarget();
-            }
-            try {
-                JsonNode dataNode = velocityNode
-                    .get(String.valueOf(steppedVelocity));
-                if (dataNode.isNull()) {
-                    return new ControlTarget();
-                } else {
-                    int rpm = dataNode.get("rpm").asInt();
-                    double hoodAngle = dataNode.get("angle_deg").asDouble();
-                    return new ControlTarget(rpm, hoodAngle);
-                }
-            } catch (NullPointerException error) {
-                DriverStation.reportError("Velocity Node is null: " + error.getMessage(), error.getStackTrace());
-                return new ControlTarget();
-            }
-            
-        } catch (IOException e) {
-            DriverStation.reportError("Error reading lookup table JSON: " + e.getMessage(), e.getStackTrace());
-            return new ControlTarget();
-        }
-    }
 
     /**
      * Gets the coordinates of the current target from an enum.
