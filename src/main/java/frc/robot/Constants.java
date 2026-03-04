@@ -215,7 +215,7 @@ public final class Constants {
                 Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
 
-            private static final double RED_DEPOT_X = 15.5;
+            private static final double RED_DEPOT_X = 15.325;
             private static final double RED_OUTPOST_X = 15.716;
 
             public static final Pose2d RED_DEPOT_SIDE = new Pose2d(

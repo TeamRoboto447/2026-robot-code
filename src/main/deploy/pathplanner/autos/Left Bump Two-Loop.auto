@@ -7,32 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Steal Diag Move"
+            "pathName": "Left Bump Steal Diag"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Clear Left Hub Edge"
+            "pathName": "Clear Left Hub Edge All Bump"
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "autoClimb"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "startShooter"
-                }
-              }
-            ]
+            "name": "autoClimb"
           }
         },
         {

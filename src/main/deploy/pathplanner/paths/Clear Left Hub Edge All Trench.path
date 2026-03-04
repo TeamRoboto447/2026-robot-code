@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.23,
-        "y": 7.316758036629099
+        "x": 3.22,
+        "y": 7.31
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.925307003717271,
-        "y": 7.248035790469164
+        "x": 3.995867469879531,
+        "y": 7.383049192286563
       },
       "isLocked": false,
-      "linkedName": "Left Trench"
+      "linkedName": "Left Trench Shooting"
     },
     {
       "anchor": {
@@ -20,28 +20,28 @@
         "y": 7.316758036629099
       },
       "prevControl": {
-        "x": 5.575843037531383,
-        "y": 7.612863565061787
+        "x": 5.687411807647997,
+        "y": 7.556565101406114
       },
       "nextControl": {
-        "x": 6.896569810235098,
-        "y": 6.3220827656426835
+        "x": 6.904808342956732,
+        "y": 6.031327025779001
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.878818181818182,
+        "x": 5.93,
         "y": 3.5505795454545455
       },
       "prevControl": {
-        "x": 5.799761240313973,
-        "y": 3.3134087209419194
+        "x": 5.8226179478409055,
+        "y": 3.3248161851099103
       },
       "nextControl": {
-        "x": 6.146795454545454,
-        "y": 4.354511363636364
+        "x": 6.17910626883352,
+        "y": 4.074308299040366
       },
       "isLocked": false,
       "linkedName": null
@@ -52,28 +52,28 @@
         "y": 7.316758036629099
       },
       "prevControl": {
-        "x": 6.690050284048025,
-        "y": 6.9079318167914225
+        "x": 6.015777247749604,
+        "y": 6.900844566860509
       },
       "nextControl": {
-        "x": 5.3992633488764055,
-        "y": 7.558433124458559
+        "x": 5.800624368341133,
+        "y": 7.554214827506758
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.23,
-        "y": 7.316758036629099
+        "x": 3.22,
+        "y": 7.31
       },
       "prevControl": {
-        "x": 3.9805724523667063,
-        "y": 7.299849503823421
+        "x": 2.872542137884375,
+        "y": 7.276647337946937
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Trench"
+      "linkedName": "Left Trench Shooting"
     }
   ],
   "rotationTargets": [
@@ -90,31 +90,44 @@
       "rotationDegrees": -90.0
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Starting Constraints",
+      "minWaypointRelativePos": 0.0,
+      "maxWaypointRelativePos": 0.5265392781316333,
+      "constraints": {
+        "maxVelocity": 0.5,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 270.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Lower Intake",
-      "waypointRelativePos": 0.8295254833040403,
+      "name": "stopShooter",
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "stopShooter"
+        }
+      }
     },
     {
       "name": "Run Intake",
-      "waypointRelativePos": 1.0826010544815505,
-      "endWaypointRelativePos": 2.031634446397196,
-      "command": null
-    },
-    {
-      "name": "Raise Intake",
-      "waypointRelativePos": 2.397188049209133,
-      "endWaypointRelativePos": null,
+      "waypointRelativePos": 1.08,
+      "endWaypointRelativePos": 2.03,
       "command": null
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 1.5,
+    "maxAcceleration": 1.5,
     "maxAngularVelocity": 270.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,

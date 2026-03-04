@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Steal Diag Move"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Clear Right Hub Edge"
+            "pathName": "Depot Collect"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "autoClimb"
+            "name": "Stop Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Raise Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
           }
         },
         {

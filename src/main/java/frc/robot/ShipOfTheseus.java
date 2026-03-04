@@ -51,6 +51,7 @@ public class ShipOfTheseus {
     private double MaxSpeed = 0.70 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private boolean autoShoot = false;
+    private boolean autoIntake = false;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric driveFieldOriented = new SwerveRequest.FieldCentric()
@@ -86,6 +87,7 @@ public class ShipOfTheseus {
             (Math.abs(OperatorController.getRightY()) > 0.1)
     );
     private final Trigger autoShootTrigger = new Trigger(() -> this.autoShoot);
+    private final Trigger autoIntakeTrigger = new Trigger(() -> this.autoIntake);
 
     // /**
     //  * Path-following builder used for mid-game commands (e.g. automated climb).
@@ -150,12 +152,13 @@ public class ShipOfTheseus {
     private void configureAutonomousBindings() {
         autoShootTrigger.and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
-            .and(this::isShotAllowed)
+            // .and(this::isShotAllowed)
             .whileTrue(Commands.parallel(
                 Commands.run(() -> indexerSubsystem.spin()),
                 Commands.run(() -> turretSubsystem.kick(0.35)),
                 Commands.run(() -> turretSubsystem.shoot())
             ));
+
         autoShootTrigger.onFalse(Commands.runOnce(() -> {
             turretSubsystem.stopAll();
             indexerSubsystem.stop();
@@ -168,6 +171,7 @@ public class ShipOfTheseus {
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
             runSensorlessHoming();
             this.autoShoot = false;
+            this.autoIntake = false;
         }));
 
         climberSubsystem.setDefaultCommand(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
@@ -265,10 +269,10 @@ public class ShipOfTheseus {
                 if (!intakeSubsystem.isIntakeDown()) intakeSubsystem.dropIntake();
             })
         );
-        DriverController.leftTrigger().whileTrue(
+        DriverController.leftTrigger().or(autoIntakeTrigger).whileTrue(
             intakeSubsystem.run(() -> intakeSubsystem.intake(0.7))
         );
-        DriverController.leftTrigger().onFalse(
+        DriverController.leftTrigger().or(autoIntakeTrigger).onFalse(
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
         );
 
@@ -492,14 +496,16 @@ public class ShipOfTheseus {
     }
 
     private void initializeNamedCommands() {
-        NamedCommands.registerCommand("homeHood", turretSubsystem.homeHood());
+        NamedCommands.registerCommand("homeHood", Commands.defer(() -> turretSubsystem.homeHood(), Set.of()));
         NamedCommands.registerCommand("startShooter", Commands.runOnce(() -> this.autoShoot = true));
         NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
         NamedCommands.registerCommand("runAutoShoot", Commands.startEnd(() -> this.autoShoot = true, () -> this.autoShoot = false));
         NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
 
-        NamedCommands.registerCommand("Lower Intake", Commands.runOnce(() -> intakeSubsystem.dropIntake()));
-        NamedCommands.registerCommand("Run Intake", intakeSubsystem.runEnd(() -> intakeSubsystem.intake(0.7), () -> intakeSubsystem.stopIntake()));
+        NamedCommands.registerCommand("Lower Intake", Commands.defer(() -> Commands.runOnce(() -> intakeSubsystem.dropIntake()), Set.of()));
+        NamedCommands.registerCommand("Start Intake", Commands.runOnce(() -> this.autoIntake = true));
+        NamedCommands.registerCommand("Stop Intake", Commands.runOnce(() -> this.autoIntake = false));
+        NamedCommands.registerCommand("Run Intake", Commands.runEnd(() -> this.autoIntake = true, () -> this.autoIntake = false));
         NamedCommands.registerCommand("Raise Intake", Commands.runOnce(() -> intakeSubsystem.liftIntake()));
     }
 
