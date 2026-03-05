@@ -505,6 +505,8 @@ public class ShipOfTheseus {
         NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
         NamedCommands.registerCommand("runAutoShoot", Commands.startEnd(() -> this.autoShoot = true, () -> this.autoShoot = false));
         NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
+        NamedCommands.registerCommand("Raise Climber", Commands.defer(() -> climberSubsystem.raiseToFull(), Set.of(climberSubsystem)));
+        NamedCommands.registerCommand("Lower Climber", Commands.defer(() -> climberSubsystem.lowerOntoBar(), Set.of(climberSubsystem)));
 
         NamedCommands.registerCommand("Lower Intake", Commands.defer(() -> Commands.runOnce(() -> intakeSubsystem.dropIntake()), Set.of()));
         NamedCommands.registerCommand("Start Intake", Commands.runOnce(() -> this.autoIntake = true));
@@ -517,7 +519,8 @@ public class ShipOfTheseus {
         return Commands.defer(() -> {
             Command homingSequence = Commands.parallel(
                 turretSubsystem.homeHood(),
-                intakeSubsystem.homeLift()
+                intakeSubsystem.homeLift(),
+                climberSubsystem.homeClimber()
             );
 
             Command autoProxy = Commands.defer(
@@ -550,7 +553,7 @@ public class ShipOfTheseus {
     public Command getAutoClimbCommand() {
         return Commands.sequence(
             // Step 1: raise climber to full extension so it clears the bar
-            // climberSubsystem.raiseToFull(),
+            climberSubsystem.raiseToFull(),
             // Step 2: drive staging → final at reduced speed so the climber slots
             //         onto the tower cleanly. Both poses are selected from the
             //         robot's current alliance + field side at the moment A is pressed.
@@ -564,7 +567,7 @@ public class ShipOfTheseus {
             }, java.util.Set.of(swerveSubsystem)),
             
             // Step 3: lower onto the bar to engage the clamp
-            // climberSubsystem.lowerOntoBar(),
+            climberSubsystem.lowerOntoBar(),
             Commands.print("Climb!")
         );
     }

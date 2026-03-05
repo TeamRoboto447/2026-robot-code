@@ -104,12 +104,12 @@ private double getMatchTime() {
 
   public boolean isHubActive() {
     if (!(inactiveFirst.isPresent() && alliance.isPresent())) {
-      return false;
+      return true;
     }
 
     int shiftDiscriminant = (inactiveFirst.get() == alliance.get()) ? 1 : 0;
     int gamePeriodNumber = getGamePeriodNumber();
-    boolean isActive = false;
+    boolean isActive = true;
     if (gamePeriodNumber == 0) {
       isActive = true;
     } else {

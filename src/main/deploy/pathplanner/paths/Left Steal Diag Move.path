@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.06112579950973,
-        "y": 7.242459001977552
+        "x": 4.073759036144579,
+        "y": 7.2368192771084345
       },
       "isLocked": false,
       "linkedName": "Depot Side Stage"
@@ -49,15 +49,15 @@
     {
       "anchor": {
         "x": 6.112515977200804,
-        "y": 7.34
+        "y": 7.25
       },
       "prevControl": {
         "x": 6.886280836299151,
-        "y": 6.799689152072262
+        "y": 6.709689152072262
       },
       "nextControl": {
         "x": 5.76828387995656,
-        "y": 7.5803732014435425
+        "y": 7.490373201443543
       },
       "isLocked": false,
       "linkedName": null
@@ -65,11 +65,11 @@
     {
       "anchor": {
         "x": 3.22,
-        "y": 7.31
+        "y": 7.29
       },
       "prevControl": {
-        "x": 3.4194308747064284,
-        "y": 7.1592441503163835
+        "x": 3.48366265060241,
+        "y": 7.291457831325301
       },
       "nextControl": null,
       "isLocked": false,
@@ -104,7 +104,7 @@
       "minWaypointRelativePos": 0.0,
       "maxWaypointRelativePos": 0.3438239820075751,
       "constraints": {
-        "maxVelocity": 0.5,
+        "maxVelocity": 1.0,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 270.0,
         "maxAngularAcceleration": 360.0,
@@ -117,7 +117,7 @@
       "minWaypointRelativePos": 3.25,
       "maxWaypointRelativePos": 3.55,
       "constraints": {
-        "maxVelocity": 0.5,
+        "maxVelocity": 1.0,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 270.0,
         "maxAngularAcceleration": 360.0,

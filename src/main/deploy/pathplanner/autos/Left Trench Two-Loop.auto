@@ -17,9 +17,27 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Raise Intake"
+          }
+        },
+        {
           "type": "wait",
           "data": {
-            "waitTime": 2.5
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lower Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
           }
         },
         {
@@ -29,15 +47,21 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "autoClimb"
+            "pathName": "Left Climb Staging from Trench"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Climb from Staging"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "stopShooter"
+            "name": "Lower Climber"
           }
         }
       ]
