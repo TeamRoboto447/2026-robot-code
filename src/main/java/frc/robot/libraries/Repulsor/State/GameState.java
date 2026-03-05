@@ -66,13 +66,22 @@ public class GameState extends StaticState {
     }
   }
 
-  private double getMatchTime() {
+  private Boolean isCountingDown = null;
+  private double lastMatchTime = -1;
+
+private double getMatchTime() {
     double gameTime = DriverStation.getMatchTime();
-    if (DriverStation.isFMSAttached() || DriverStation.getMatchType() == DriverStation.MatchType.Practice) {
-      gameTime = TELEOP_GAME_LENGTH - gameTime;
+    // Auto-detect direction on first tick of a new period
+    if (isCountingDown == null && lastMatchTime >= 0) {
+        isCountingDown = gameTime < lastMatchTime;
     }
-    return gameTime;
-  }
+    lastMatchTime = gameTime;
+
+    if (Boolean.TRUE.equals(isCountingDown)) {
+        return gameTime; // Practice mode: already time remaining
+    }
+    return TELEOP_GAME_LENGTH - gameTime; // Plain DS: convert elapsed → remaining
+}
 
   private int getGamePeriodNumber() {
     double gameTime = getMatchTime();
