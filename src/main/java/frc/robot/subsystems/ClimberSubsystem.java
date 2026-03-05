@@ -15,6 +15,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
@@ -29,6 +30,7 @@ public class ClimberSubsystem extends SubsystemBase {
   @SuppressWarnings("unused")
   private final PoseProvider poseProvider;
   private final TalonFX climberMotor;
+  private final DigitalInput climberLimitSwitch;
   private final PositionTorqueCurrentFOC holdRequest = new PositionTorqueCurrentFOC(0).withSlot(0);
   private final StatusSignal<Angle> positionSignal;
   private final StatusSignal<Current> statorCurrentSignal;
@@ -72,6 +74,8 @@ public class ClimberSubsystem extends SubsystemBase {
 
     this.climberMotor.getConfigurator().apply(cfg);
 
+    this.climberLimitSwitch = new DigitalInput(0);
+
     this.positionSignal = climberMotor.getPosition();
     this.positionSignal.setUpdateFrequency(20);
 
@@ -93,7 +97,12 @@ public class ClimberSubsystem extends SubsystemBase {
     // } else 
     if (safeRange && (climberDir == 1 || climberDir == -1)) {
       // Normal open-loop drive (climb or lower).
-      climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * climberDir);
+      if (climberDir == -1 && !climberLimitSwitch.get()) {
+        climberMotor.set(0);
+      } else {
+        climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * climberDir);
+      }
+
     } else if (climberDir == 0) {
       // Hold mode — engage position-hold PID when outside tolerance.
       double error = Math.abs(holdPosition - positionSignal.getValueAsDouble());
@@ -105,6 +114,9 @@ public class ClimberSubsystem extends SubsystemBase {
     }
     // climberDir == -2 means a homeClimber() command is running and owns the motor directly.
     // periodic() intentionally does nothing in that state.
+
+
+    NetworkedConfig.Climber.setCurrentLimitState(!climberLimitSwitch.get());
   }
 
   public void raise() {
@@ -138,35 +150,61 @@ public class ClimberSubsystem extends SubsystemBase {
    *
    * @return the homing command
    */
-  public Command homeClimber() {
-    // A Timer local to this command instance tracks how long current has been
-    // above the stall threshold. It is created inside the factory method so
-    // each invocation gets its own independent timer.
-    Timer stallTimer = new Timer();
+  // public Command homeClimber() {
+  //   // A Timer local to this command instance tracks how long current has been
+  //   // above the stall threshold. It is created inside the factory method so
+  //   // each invocation gets its own independent timer.
+  //   Timer stallTimer = new Timer();
 
-    // return this.runOnce(() -> this.isHomed = true); // TODO: uncomment this
+  //   return this.runOnce(() -> {
+  //         // Disable the normal hold loop while homing.
+  //         climberDir = -2; // sentinel: "homing in progress"
+  //         stallTimer.restart();
+  //       })
+  //       .andThen(this.run(() -> {
+  //         // Drive slowly toward the lower hard stop.
+  //         climberMotor.set(ClimberSubsystemConstants.CLIMBER_HOMING_SPEED);
+
+  //         double amps = statorCurrentSignal.getValueAsDouble();
+  //         if (Math.abs(amps) < ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS) {
+  //           // Not yet stalled — restart the timer so it only counts
+  //           // *continuous* time above the threshold.
+  //           stallTimer.restart();
+  //         }
+  //       }))
+  //       .until(() ->
+  //           Math.abs(statorCurrentSignal.getValueAsDouble()) >= ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS
+  //           && stallTimer.hasElapsed(ClimberSubsystemConstants.CLIMBER_HOMING_STALL_DURATION_S))
+  //       .finallyDo((interrupted) -> {
+  //         climberMotor.set(0);
+  //         stallTimer.stop();
+
+  //         if (!interrupted) {
+  //           // Hard stop confirmed — zero the position sensor.
+  //           climberMotor.setPosition(0);
+  //           holdPosition = 0.0;
+  //           isHomed = true;
+  //           System.out.println("Homed Climber Position");
+  //         }
+  //         // Return to normal hold mode (climberDir = 0).
+  //         climberDir = 0;
+  //       })
+  //       .unless(() -> isHomed);
+  // }
+
+  public Command homeClimber() {
     return this.runOnce(() -> {
           // Disable the normal hold loop while homing.
           climberDir = -2; // sentinel: "homing in progress"
-          stallTimer.restart();
         })
         .andThen(this.run(() -> {
           // Drive slowly toward the lower hard stop.
           climberMotor.set(ClimberSubsystemConstants.CLIMBER_HOMING_SPEED);
-
-          double amps = statorCurrentSignal.getValueAsDouble();
-          if (Math.abs(amps) < ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS) {
-            // Not yet stalled — restart the timer so it only counts
-            // *continuous* time above the threshold.
-            stallTimer.restart();
-          }
         }))
         .until(() ->
-            Math.abs(statorCurrentSignal.getValueAsDouble()) >= ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS
-            && stallTimer.hasElapsed(ClimberSubsystemConstants.CLIMBER_HOMING_STALL_DURATION_S))
+            !climberLimitSwitch.get())
         .finallyDo((interrupted) -> {
           climberMotor.set(0);
-          stallTimer.stop();
 
           if (!interrupted) {
             // Hard stop confirmed — zero the position sensor.
