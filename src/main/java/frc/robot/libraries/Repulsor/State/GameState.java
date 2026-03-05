@@ -66,8 +66,9 @@ public class GameState extends StaticState {
     }
   }
 
-  private Boolean isCountingDown = null;
-  private double lastMatchTime = -1;
+
+private Boolean isCountingDown = null; // We use a Boolean (capital B) here so that we can set the value to null to represent an 'unknown' state
+private double lastMatchTime = -1;
 
 private double getMatchTime() {
     double gameTime = DriverStation.getMatchTime();
@@ -77,7 +78,7 @@ private double getMatchTime() {
     }
     lastMatchTime = gameTime;
 
-    if (Boolean.TRUE.equals(isCountingDown)) {
+    if (Boolean.TRUE.equals(isCountingDown)) { // Because we are using a Boolean object instead of a boolean primative, we have to use a null-safe comparison
         return gameTime; // Practice mode: already time remaining
     }
     return TELEOP_GAME_LENGTH - gameTime; // Plain DS: convert elapsed → remaining
