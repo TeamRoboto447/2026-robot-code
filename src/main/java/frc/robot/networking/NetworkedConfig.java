@@ -259,6 +259,24 @@ public class NetworkedConfig {
             distanceToTarget.set(distanceInches);
         }
 
+        /**
+         * Publishes the on-RIO solver's valid-shot flag.
+         * Replaces the coprocessor-written {@code has_valid_shot} entry so that
+         * dashboards and the Python visualisation tool can still observe it.
+         */
+        public static void setValidTarget(boolean valid) {
+            validTarget.set(valid);
+        }
+
+        /**
+         * Publishes the hood angle computed by the on-RIO solver (degrees).
+         * Written every loop for telemetry; the subsystem reads from {@code lastSolution}
+         * directly — this is for dashboard visibility only.
+         */
+        public static void setTargetHoodAngle(double angleDeg) {
+            targetHoodAngle.set(angleDeg);
+        }
+
         // Telemetry
 
         /** Sends a value as the current turret angle. */

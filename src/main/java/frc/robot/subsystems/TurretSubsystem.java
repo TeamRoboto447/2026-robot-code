@@ -52,6 +52,8 @@ import frc.robot.Constants.FieldConstants.TurretTarget;
 import frc.robot.Constants.FieldConstants.TurretTargetPoints;
 import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
+import frc.robot.utils.ShooterTable;
+import frc.robot.utils.ShooterTable.ShotSolution;
 import frc.robot.utils.TargettingUtils.ControlTarget;
 
 /**
@@ -82,6 +84,21 @@ public class TurretSubsystem extends SubsystemBase {
 
     /** The current turret target as an enum. */
     public TurretTarget turretTarget = TurretTarget.NONE;
+
+    /**
+     * Firing table loaded from {@code deploy/turret_data.json} at startup.
+     * Provides linear interpolation across static data points and a Newton-method
+     * shoot-on-the-fly solver. Replaces the external Python coprocessor round-trip.
+     */
+    private final ShooterTable shooterTable = new ShooterTable();
+
+    /**
+     * Most-recent shot solution from the on-RIO solver. {@code null} until the
+     * first successful solve. Cached here so {@link #hasValidTarget()} and
+     * {@link #getFeedTrigger()} can inspect it without re-running the solver.
+     */
+    private ShotSolution lastSolution = null;
+
     private TalonFXConfiguration ShooterFxConfigs = new TalonFXConfiguration();
     private final VelocityTorqueCurrentFOC velocityReq = new VelocityTorqueCurrentFOC(0).withSlot(0);
     /** Sent to the shooter motors when we want them to coast to a stop, not brake. */
@@ -233,12 +250,13 @@ public class TurretSubsystem extends SubsystemBase {
         // this.angleMotor.optimizeBusUtilization();
 
         this.feedTrigger = new Trigger(() -> {
-            double targetRPS = NetworkedConfig.Turret.getTargetRPM() / 60.0;
-            // Only consider "ready" if the flywheel is actually commanded to spin
-            // (runFlywheel=true) and is within tolerance of the NT target speed.
-            // When targetRPS is 0 or runFlywheel is false we are NOT ready.
+            // Use the on-RIO solution's RPM if available; otherwise fall back to the
+            // NT-configured value (used for manual/systems-check overrides).
+            double targetRPS = (lastSolution != null)
+                    ? lastSolution.rpm / 60.0
+                    : NetworkedConfig.Turret.getTargetRPM() / 60.0;
+            // Only "ready" when the flywheel is commanded to spin AND within tolerance.
             if (!runFlywheel || targetRPS < 16) return false;
-            // return shooterVelocitySignal.isNear(targetRPS, TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS);
             return this.flywheelAtSpeed();
         });
 
@@ -260,97 +278,128 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * Updates the subsystem's various elements, 
-     * including its networktables, the current target, and the turret control data.
+     * Updates the subsystem's various elements, including the on-RIO shot solver,
+     * motor setpoints, and NetworkTables telemetry.
+     *
+     * <h3>Aiming pipeline (runs every 20 ms, zero NT round-trip)</h3>
+     * <ol>
+     *   <li>Compute the turret pivot position in field coordinates (robot pose +
+     *       rotated TURRET_TO_ROBOT offset).</li>
+     *   <li>Look up the current target 3-D position from {@link #turretTarget}.</li>
+     *   <li>Feed the displacement vector and robot chassis velocity (in inches) into
+     *       {@link ShooterTable#solve}, which runs a Newton TOF-recursion to produce
+     *       a field-relative aim bearing and interpolated hood angle / RPM.</li>
+     *   <li>Convert the aim bearing to a robot-frame turret angle, apply a yaw-rate
+     *       feed-forward lead, and command the motor.</li>
+     * </ol>
      */
     @Override
     public void periodic() {
-        // Refresh all cached TalonFX signals in a single batched CAN read.
-        // This replaces multiple individual .getVelocity()/.getPosition() calls that
-        // would each generate a separate CAN request at their own update rate.
+        // ── 1. Refresh CAN signals ────────────────────────────────────────────
+        // Single batched read — avoids creating new signal objects every loop.
         BaseStatusSignal.refreshAll(shooterVelocitySignal, anglePositionSignal);
 
-        Translation3d currentTargetPose = getTargetFromEnum(turretTarget);
+        // ── 2. Geometry: turret pivot position in field frame ─────────────────
         Pose2d currentPose = poseProvider.getPose();
-        // // double targetDistX = targetFlatTranslation.getX()
-        // double targetDistTimestamp = Timer.getFPGATimestamp();
 
-        // if (!Double.isNaN(prevReading)) {
-        //     double deltaDistX = targetDistX - prevReading;
-        //     double deltaTime = targetDistTimestamp - prevReadingTimestamp;
-        //     currentVelocityToTarget = deltaDist / deltaTime;
-        // }
-
-        // Offset robot pose by the turret's position relative to the robot center,
-        // rotated to match the robot's current heading.
+        // Offset robot centre by the turret mount point, rotated to field frame.
         Translation2d turretOffset = new Translation2d(
             TurretSubsystemConstants.TURRET_TO_ROBOT.getX(),
             TurretSubsystemConstants.TURRET_TO_ROBOT.getY()
         ).rotateBy(currentPose.getRotation());
-        double turretX = currentPose.getX() + turretOffset.getX();
-        double turretY = currentPose.getY() + turretOffset.getY();
+        double turretXm = currentPose.getX() + turretOffset.getX();
+        double turretYm = currentPose.getY() + turretOffset.getY();
 
-        NetworkedConfig.Turret.setRobotX((int) Units.metersToInches(turretX));
-        NetworkedConfig.Turret.setRobotY((int) Units.metersToInches(turretY));
+        // ── 3. Target position ────────────────────────────────────────────────
+        Translation3d currentTargetPose = getTargetFromEnum(turretTarget);
+
+        // Displacement from the turret pivot to the target, in inches.
+        double dxIn = Units.metersToInches(currentTargetPose.getX() - turretXm);
+        double dyIn = Units.metersToInches(currentTargetPose.getY() - turretYm);
+        double distanceInches = Math.hypot(dxIn, dyIn);
+
+        // ── 4. Robot velocity in inches/s ─────────────────────────────────────
+        // Include the velocity contribution of the turret pivot offset due to robot
+        // yaw (v_turret = v_robot_centre + ω × r_offset).
+        var chassis = poseProvider.getChassisSpeeds();
+        double omegaRadPerSec = chassis.omegaRadiansPerSecond;
+        double vxIps = Units.metersToInches(chassis.vxMetersPerSecond)
+                       - omegaRadPerSec * Units.metersToInches(turretOffset.getY());
+        double vyIps = Units.metersToInches(chassis.vyMetersPerSecond)
+                       + omegaRadPerSec * Units.metersToInches(turretOffset.getX());
+
+        // ── 5. On-RIO shot solve ──────────────────────────────────────────────
+        ShotSolution sol = null;
+        if (shooterTable.isLoaded() && turretTarget != TurretTarget.NONE && distanceInches > 1.0) {
+            sol = shooterTable.solve(dxIn, dyIn, vxIps, vyIps);
+        }
+        lastSolution = sol;
+
+        // ── 6. Publish NT telemetry (coprocessor now reads these for visualisation) ──
+        NetworkedConfig.Turret.setRobotX(Units.metersToInches(turretXm));
+        NetworkedConfig.Turret.setRobotY(Units.metersToInches(turretYm));
         NetworkedConfig.Turret.setRobotAngle(currentPose.getRotation().getDegrees());
-
-        NetworkedConfig.Turret.setTargetX((int) Units.metersToInches(currentTargetPose.getX()));
-        NetworkedConfig.Turret.setTargetY((int) Units.metersToInches(currentTargetPose.getY()));
-        NetworkedConfig.Turret.setTargetHeight((int) Units.metersToInches(currentTargetPose.getZ()));
-
-        // Horizontal (floor-projected) distance from the turret to the target in inches.
-        double dxMeters = currentTargetPose.getX() - turretX;
-        double dyMeters = currentTargetPose.getY() - turretY;
-        double distanceInches = Units.metersToInches(Math.hypot(dxMeters, dyMeters));
+        NetworkedConfig.Turret.setTargetX(Units.metersToInches(currentTargetPose.getX()));
+        NetworkedConfig.Turret.setTargetY(Units.metersToInches(currentTargetPose.getY()));
+        NetworkedConfig.Turret.setTargetHeight(Units.metersToInches(currentTargetPose.getZ()));
         NetworkedConfig.Turret.setDistanceToTarget(distanceInches);
-       
 
-        // prevReading = targetDist;
-        // prevReadingTimestamp = targetDistTimestamp;
+        boolean validShot = (sol != null);
+        NetworkedConfig.Turret.setValidTarget(validShot);
+        if (validShot) {
+            NetworkedConfig.Turret.setTargetHoodAngle(sol.angleDeg);
+            NetworkedConfig.Turret.setTargetRPM(sol.rpm);
+        }
 
         updateTurretTarget();
         periodicLoopCount++;
         updateNetworkTables();
 
-
+        // ── 7. Actuate ────────────────────────────────────────────────────────
         if (!systemsCheckMode) {
-            double targetRPS = runFlywheel ? NetworkedConfig.Turret.getTargetRPM() / 60.0 : 0;
-            if (targetRPS > 16) // Approx 1000 RPM — spin up whenever commanded, regardless of trajectory validity
+            double targetRPS = (runFlywheel && validShot) ? sol.rpm / 60.0 : 0;
+            if (targetRPS > 16) // ≈ 1000 RPM — spin up whenever a valid shot exists
                 rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
             else
-                rightShooterMotor.setControl(coastReq); // coast freely — don't brake against the spinning flywheel
+                rightShooterMotor.setControl(coastReq); // coast freely
 
-            if(NetworkedConfig.Turret.hasValidTrajectory() && shooting) {
-                this.setHoodAngle(Degrees.of(NetworkedConfig.Turret.getTargetHoodAngle()));
+            if (validShot && shooting) {
+                this.setHoodAngle(Degrees.of(sol.angleDeg));
 
-                // Compensate for robot rotation: when the robot yaws, the target angle
-                // in robot-frame shifts at the same rate. We add a lead offset so the
-                // turret tracks ahead instead of lagging behind.
-                // omega is in rad/s; convert to deg/s, then scale by the FF gain.
-                double omegaDegPerSec = Units.radiansToDegrees(
-                    poseProvider.getChassisSpeeds().omegaRadiansPerSecond);
-                double baseTargetDeg = NetworkedConfig.Turret.getTargetTurretAngle();
-                double compensatedTargetDeg = baseTargetDeg
-                    - omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02; // 0.02 s = one 20 ms loop
+                // Convert field-relative aim bearing to robot-frame turret angle.
+                // Both the bearing and the robot heading are CCW-positive; the turret
+                // convention is CW-positive with 0 pointing toward the back of the robot.
+                // turret_angle = robot_heading - aim_bearing + 180 (then negate for CW).
+                double robotHeadingDeg = currentPose.getRotation().getDegrees();
+                double baseTargetDeg   = robotHeadingDeg - sol.aimBearingDeg + 180.0;
+                // Normalise to [-180, 180]
+                baseTargetDeg = ((baseTargetDeg + 180.0) % 360.0 + 360.0) % 360.0 - 180.0;
 
-                this.turnToAngle(Degrees.of(compensatedTargetDeg));
+                // Yaw-rate feed-forward: lead the turret ahead by one loop worth of
+                // robot rotation so it tracks rather than lagging.
+                double omegaDegPerSec    = Units.radiansToDegrees(omegaRadPerSec);
+                double compensatedTarget = baseTargetDeg
+                    - omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02;
+
+                this.turnToAngle(Degrees.of(compensatedTarget));
             } else {
                 this.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE);
-                // Do not call stopTurret() here — that writes open-loop set(0) which fights
-                // against the closed-loop position hold from the last turnToAngle() call.
-                // Simply doing nothing lets the motor hold its last commanded position.
+                // Do not call stopTurret() — that writes open-loop set(0) which fights
+                // the closed-loop position hold from the last turnToAngle() call.
             }
         }
     }
 
     /**
-     * Tells the flywheel to spin at a specific speed, taken from the control target.
+     * Signals the shooter to spin up. The target RPM comes from the most-recent
+     * {@link ShooterTable} solution computed in {@link #periodic()}; if no solution
+     * is available the flywheel coasts.
      */
     public void shoot() {
         shooting = true;
         runFlywheel = true;
-        // double targetRPS = currentControlTarget.getRPS();
-        double targetRPS = NetworkedConfig.Turret.getTargetRPM()/60;
+        double targetRPS = (lastSolution != null) ? lastSolution.rpm / 60.0
+                                                  : NetworkedConfig.Turret.getTargetRPM() / 60.0;
         rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
     }
 
@@ -454,9 +503,9 @@ public class TurretSubsystem extends SubsystemBase {
         hoodLimitSet = false;
     }
 
-    /** Returns true when the coprocessor has computed a valid shot trajectory. */
+    /** Returns true when the on-RIO solver has computed a valid shot solution this loop. */
     public boolean hasValidTarget() {
-        return NetworkedConfig.Turret.hasValidTrajectory();
+        return lastSolution != null;
     }
 
     /**
@@ -544,10 +593,12 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     public boolean flywheelAtSpeed() {
-        double targetRPS = NetworkedConfig.Turret.getTargetRPM() / 60.0;
-        boolean flywheelReady = Math.abs(shooterVelocitySignal.getValueAsDouble() - targetRPS)
+        // Prefer the on-RIO solution's RPM; fall back to the NT override for manual use.
+        double targetRPS = (lastSolution != null)
+                ? lastSolution.rpm / 60.0
+                : NetworkedConfig.Turret.getTargetRPM() / 60.0;
+        return Math.abs(shooterVelocitySignal.getValueAsDouble() - targetRPS)
             <= TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS;
-        return flywheelReady;
     }
 
     /**
@@ -559,7 +610,7 @@ public class TurretSubsystem extends SubsystemBase {
      * @param strength The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).
      */
     public void kick(double strength) {
-        if (NetworkedConfig.Turret.hasValidTrajectory() && flywheelAtSpeed())
+        if (lastSolution != null && flywheelAtSpeed())
             runKickerRaw(strength);
         else
             runKickerRaw(0);
