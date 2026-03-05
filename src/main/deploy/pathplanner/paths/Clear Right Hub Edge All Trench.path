@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.478084337349397,
+        "x": 3.4290240963855423,
         "y": 0.6255542168674697
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.182807228915664,
-        "y": 0.6255542168674697
+        "x": 5.7675542168674685,
+        "y": 0.5927710843373495
       },
       "isLocked": false,
-      "linkedName": "Right Trench"
+      "linkedName": "Right Trench Shooting"
     },
     {
       "anchor": {
@@ -32,59 +32,97 @@
     },
     {
       "anchor": {
-        "x": 5.8440481927710834,
-        "y": 2.3958433734939764
+        "x": 6.062602409638554,
+        "y": 0.6255542168674697
       },
       "prevControl": {
-        "x": 6.05167469879518,
-        "y": 2.5816144578313263
+        "x": 6.270228915662651,
+        "y": 0.8113253012048196
       },
       "nextControl": {
-        "x": 5.657737864389809,
-        "y": 2.22914465862652
+        "x": 5.876292081257279,
+        "y": 0.4588555020000131
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.980987951807229,
-        "y": 2.6253253012048186
+        "x": 3.4290240963855423,
+        "y": 0.6255542168674697
       },
       "prevControl": {
-        "x": 3.5820120481927713,
-        "y": 2.690891566265061
+        "x": 4.030048192771085,
+        "y": 0.516277108433735
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Right Trench Shooting"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 90.68460705335626
+      "waypointRelativePos": 0.2552727272727288,
+      "rotationDegrees": 0.0
+    },
+    {
+      "waypointRelativePos": 0.5519999999999932,
+      "rotationDegrees": 90.0
     },
     {
       "waypointRelativePos": 1.001454545454526,
       "rotationDegrees": 90.33417893626405
-    },
-    {
-      "waypointRelativePos": 1.8829090909090846,
-      "rotationDegrees": 135.0
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 0,
+      "constraints": {
+        "maxVelocity": 0.5,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 270.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    },
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 2.326114649681549,
+      "maxWaypointRelativePos": 3.0,
+      "constraints": {
+        "maxVelocity": 0.5,
+        "maxAcceleration": 1.5,
+        "maxAngularVelocity": 270.0,
+        "maxAngularAcceleration": 360.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
       "name": "Lower Intake",
-      "waypointRelativePos": 0.19108280254777293,
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "Lower Intake"
+        }
+      }
+    },
+    {
+      "name": "stopShooter",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "stopShooter"
         }
       }
     },
@@ -100,19 +138,8 @@
       }
     },
     {
-      "name": "Raise Intake",
-      "waypointRelativePos": 1.607643312101902,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Raise Intake"
-        }
-      }
-    },
-    {
       "name": "startShooter",
-      "waypointRelativePos": 2.789808917197447,
+      "waypointRelativePos": 3.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -132,13 +159,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 128.08877288097534
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }
