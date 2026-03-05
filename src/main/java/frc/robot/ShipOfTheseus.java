@@ -270,10 +270,14 @@ public class ShipOfTheseus {
             })
         );
         DriverController.leftTrigger().or(autoIntakeTrigger).whileTrue(
-            intakeSubsystem.run(() -> intakeSubsystem.intake(0.7))
+            // Use Commands.run (no subsystem requirement) so that the autoIntakeTrigger
+            // firing during autonomous does not claim intakeSubsystem and cancel the
+            // running path command. The intake motor is purely open-loop — no default
+            // command or closed-loop controller needs exclusive ownership of it.
+            Commands.run(() -> intakeSubsystem.intake(0.7))
         );
         DriverController.leftTrigger().or(autoIntakeTrigger).onFalse(
-            intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
+            Commands.runOnce(() -> intakeSubsystem.stopIntake())
         );
 
         // turretSubsystem.getFeedTrigger().and(OperatorController.rightTrigger())
@@ -509,29 +513,23 @@ public class ShipOfTheseus {
         NamedCommands.registerCommand("Raise Intake", Commands.runOnce(() -> intakeSubsystem.liftIntake()));
     }
 
-    /**
-     * Returns the selected autonomous command, prepended with a parallel homing
-     * sequence so the hood and intake lift are always homed before any path runs.
-     *
-     * <p>Homing runs in parallel (hood + lift at the same time) to minimize the
-     * time penalty. The path does not begin until <em>both</em> homing commands
-     * have finished, which prevents the hood PID from driving into the hard stop
-     * and prevents {@link IntakeSubsystem#dropIntake()} from silently no-oping.</p>
-     *
-     * <p>If either homing command is already done (e.g. the robot was enabled in
-     * test/teleop first), the {@code unless()} guard inside each homing command
-     * short-circuits it immediately, so there is no extra delay.</p>
-     */
     public Command getAutonomousCommand() {
-        Command selectedAuto = autoChooser.getSelected();
-        if (selectedAuto == null) return null;
+        return Commands.defer(() -> {
+            Command homingSequence = Commands.parallel(
+                turretSubsystem.homeHood(),
+                intakeSubsystem.homeLift()
+            );
 
-        Command homingSequence = Commands.parallel(
-            turretSubsystem.homeHood(),
-            intakeSubsystem.homeLift()
-        );
+            Command autoProxy = Commands.defer(
+                () -> {
+                    Command selected = autoChooser.getSelected();
+                    return selected != null ? selected : Commands.none();
+                },
+                Set.of(swerveSubsystem)
+            );
 
-        return Commands.sequence(homingSequence, selectedAuto);
+            return Commands.sequence(homingSequence, autoProxy);
+        }, Set.of(swerveSubsystem));
     }
 
     /**

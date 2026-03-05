@@ -311,8 +311,8 @@ public final class Constants {
         public static final Angle MAX_HOOD_ANGLE = Degrees.of(44);
         public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(1);
 
-        public static final Angle MIN_TURRET_ANGLE = Degrees.of(-100);
-        public static final Angle MAX_TURRET_ANGLE = Degrees.of(80);
+        public static final Angle MIN_TURRET_ANGLE = Degrees.of(-130);
+        public static final Angle MAX_TURRET_ANGLE = Degrees.of(130);
 
         public static final double TURRET_GEAR_RATIO = 29.17;
         public static final double TURRET_ANGLE_TOLERANCE_DEGREES = 0.5;
