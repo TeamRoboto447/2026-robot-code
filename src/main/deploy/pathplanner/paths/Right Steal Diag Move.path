@@ -101,19 +101,34 @@
       "name": "Lower Intake",
       "waypointRelativePos": 0.31592356687896767,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Lower Intake"
+        }
+      }
     },
     {
       "name": "Run Intake",
       "waypointRelativePos": 0.9070063694267025,
       "endWaypointRelativePos": 2.2861995753715183,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Run Intake"
+        }
+      }
     },
     {
       "name": "Raise Intake",
       "waypointRelativePos": 2.87728237791931,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Raise Intake"
+        }
+      }
     }
   ],
   "globalConstraints": {

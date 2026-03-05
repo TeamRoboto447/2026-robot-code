@@ -509,8 +509,29 @@ public class ShipOfTheseus {
         NamedCommands.registerCommand("Raise Intake", Commands.runOnce(() -> intakeSubsystem.liftIntake()));
     }
 
+    /**
+     * Returns the selected autonomous command, prepended with a parallel homing
+     * sequence so the hood and intake lift are always homed before any path runs.
+     *
+     * <p>Homing runs in parallel (hood + lift at the same time) to minimize the
+     * time penalty. The path does not begin until <em>both</em> homing commands
+     * have finished, which prevents the hood PID from driving into the hard stop
+     * and prevents {@link IntakeSubsystem#dropIntake()} from silently no-oping.</p>
+     *
+     * <p>If either homing command is already done (e.g. the robot was enabled in
+     * test/teleop first), the {@code unless()} guard inside each homing command
+     * short-circuits it immediately, so there is no extra delay.</p>
+     */
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        Command selectedAuto = autoChooser.getSelected();
+        if (selectedAuto == null) return null;
+
+        Command homingSequence = Commands.parallel(
+            turretSubsystem.homeHood(),
+            intakeSubsystem.homeLift()
+        );
+
+        return Commands.sequence(homingSequence, selectedAuto);
     }
 
     /**
