@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -127,6 +128,14 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
     /**
      * Checks if a camera can see any tags and, if so, adds its current measurement to the swerve subsystem.
+     *
+     * <p>While the robot is disabled, vision measurements are trusted implicitly by
+     * passing near-zero standard deviations, allowing the pose estimator to fully
+     * snap to the vision-derived pose. This ensures the robot's odometry is
+     * accurately seeded before autonomous begins.</p>
+     *
+     * <p>During enabled operation, the normal {@link #confidenceCalculator} is used
+     * so that vision only gently nudges the wheel-odometry estimate.</p>
      * 
      * @param estimator The camera to check
      * @return true if the camera had a valid pose estimate this cycle
@@ -138,8 +147,14 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         }
 
         Pose2d pose2d = cameraPose.estimatedPose.toPose2d();
-        swerveSubsystem.addVisionMeasurement(pose2d, cameraPose.timestampSeconds,
-            confidenceCalculator(cameraPose));
+
+        // While disabled, trust vision completely so the pose is fully seeded
+        // from AprilTags before autonomous starts.
+        Matrix<N3, N1> stdDevs = DriverStation.isDisabled()
+            ? VisionConstants.VISION_DISABLED_STANDARD_DEVIATIONS
+            : confidenceCalculator(cameraPose);
+
+        swerveSubsystem.addVisionMeasurement(pose2d, cameraPose.timestampSeconds, stdDevs);
         return true;
     }
 }

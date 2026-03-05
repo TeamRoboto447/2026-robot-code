@@ -94,6 +94,13 @@ public final class Constants {
         public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(),
                 0.25, 0.25, .5);
 
+        // Near-zero std devs used while the robot is disabled so vision measurements
+        // are trusted implicitly, fully seeding the pose estimator from AprilTags
+        // before autonomous begins. Values are non-zero to avoid numerical issues
+        // in the Kalman filter.
+        public static final Matrix<N3, N1> VISION_DISABLED_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(),
+                1e-4, 1e-4, 1e-4);
+
     }
 
     /**
