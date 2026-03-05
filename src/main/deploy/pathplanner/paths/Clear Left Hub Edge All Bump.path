@@ -81,31 +81,56 @@
       "name": "stopShooter",
       "waypointRelativePos": 0.3286624203821701,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "stopShooter"
+        }
+      }
     },
     {
       "name": "Lower Intake",
       "waypointRelativePos": 0.7159235668789771,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Lower Intake"
+        }
+      }
     },
     {
       "name": "Run Intake",
       "waypointRelativePos": 1.1643312101910481,
       "endWaypointRelativePos": 2.0458598726114605,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Run Intake"
+        }
+      }
     },
     {
       "name": "Raise Intake",
       "waypointRelativePos": 2.3363057324840986,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Raise Intake"
+        }
+      }
     },
     {
       "name": "startShooter",
       "waypointRelativePos": 2.642038216560521,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "startShooter"
+        }
+      }
     }
   ],
   "globalConstraints": {
