@@ -47,15 +47,15 @@
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Left Climb Staging from Trench"
+            "name": "startShooter"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Left Climb from Staging"
+            "name": "Raise Intake"
           }
         },
         {

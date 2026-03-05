@@ -23,6 +23,14 @@
       "angle": 30.0,
       "rpm": 3400,
       "flight_time": 0.8
+    },
+    {
+      "target_height": 72.0,
+      "distance": 190.6,
+      "vpar": 0.0,
+      "angle": 39.0,
+      "rpm": 4400,
+      "flight_time": 0.8
     }
   ]
 }
