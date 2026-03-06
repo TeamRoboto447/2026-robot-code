@@ -340,6 +340,49 @@ public final class Constants {
             new Translation3d(Units.inchesToMeters(-7.5), Units.inchesToMeters(-6.5), Units.inchesToMeters(20)),
             new Rotation3d(0, 0, 0));
 
+        /**
+         * Maximum drive speed (m/s) enforced while the robot is actively attempting
+         * a shoot-on-the-fly shot.
+         *
+         * <p>At higher speeds the Newton TOF-recursion correction and latency
+         * compensation become less reliable and the flywheel slip factor increases,
+         * so shots become inconsistent.  When the shoot button (or {@code autoShootTrigger})
+         * is active, the drive default command caps the requested velocity magnitude
+         * at this value so the driver can still manoeuvre but cannot accidentally
+         * outrun the shooter's reliable operating envelope.
+         *
+         * <p>Set to {@code MaxSpeed} (the robot's normal top speed) to disable the cap.
+         * Testing showed 1.5 m/s as the upper bound for reliable SOTF shots.
+         */
+        public static final double SOTF_MAX_DRIVE_SPEED_MPS = 1.5;
+
+        /**
+         * Latency compensation for shoot-on-the-fly (seconds).
+         *
+         * <p>The aim-point calculation uses the robot's current pose and velocity, but
+         * by the time the ball actually leaves the robot, the robot has moved.  This
+         * constant projects the turret-pivot position forward in time so the virtual
+         * target is computed from where the robot <em>will be</em> when the ball departs,
+         * not where it <em>was</em> when the sensor frame was captured.
+         *
+         * <p>It accounts for the sum of all pipeline delays:
+         * <ul>
+         *   <li>Camera frame capture → coprocessor processing (PhotonVision): ~10–20 ms</li>
+         *   <li>NT round-trip (coprocessor → RoboRIO): ~5–10 ms</li>
+         *   <li>Robot loop period: up to 20 ms</li>
+         *   <li>Turret PID settling + motor response: ~20–40 ms</li>
+         *   <li>Ball travel through the indexer/shooter: ~20–40 ms</li>
+         * </ul>
+         * Total is typically 75–130 ms.  Starting value of 0.1 s (100 ms) is a
+         * reasonable first guess.
+         *
+         * <p><b>Tuning procedure:</b> Drive in a straight line perpendicular to the
+         * target at constant speed and watch where shots land.  If shots land
+         * consistently in the direction you came from (behind your path), increase
+         * this value.  If they land consistently ahead of your path, decrease it.
+         */
+        public static final double SOTF_LATENCY_COMPENSATION_S = 0.1;
+
         /** Stator current limit (A) for each flywheel motor (Kraken X60). */
         public static final double SHOOTER_STATOR_CURRENT_LIMIT_A = 80.0;
         /** Supply current limit (A) for each flywheel motor. */

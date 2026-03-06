@@ -111,6 +111,14 @@ public class TurretSubsystem extends SubsystemBase {
     private boolean shooting = false;
     private final boolean hoodMotorInverted = false;
 
+    /**
+     * {@code true} while the driver or autonomous logic is actively attempting a
+     * shoot-on-the-fly shot (shoot button held or {@code autoShootTrigger} active).
+     * Read by {@link ShipOfTheseus} to cap drive speed via
+     * {@link frc.robot.Constants.TurretSubsystemConstants#SOTF_MAX_DRIVE_SPEED_MPS}.
+     */
+    private boolean shootingActive = false;
+
     /** Counts 20ms loops; used to rate-limit low-priority dashboard publishing. */
     private int periodicLoopCount = 0;
     /** How many 20ms loops between dashboard-visualization updates (5 = 10 Hz). */
@@ -302,27 +310,41 @@ public class TurretSubsystem extends SubsystemBase {
         // ── 2. Geometry: turret pivot position in field frame ─────────────────
         Pose2d currentPose = poseProvider.getPose();
 
-        // Offset robot centre by the turret mount point, rotated to field frame.
+        // ── 4. Robot velocity in inches/s ─────────────────────────────────────
+        // Read chassis speeds early so we can use them for latency compensation
+        // as well as the omega-offset correction below.
+        var chassis = poseProvider.getChassisSpeeds();
+        double omegaRadPerSec = chassis.omegaRadiansPerSecond;
+
+        // ── Latency compensation ───────────────────────────────────────────────
+        // Project the turret pivot position forward by SOTF_LATENCY_COMPENSATION_S
+        // to account for combined camera, network, loop, and motor-response delays.
+        // This ensures the virtual-target solve uses the robot's expected position at
+        // ball-departure time rather than the stale sensor-capture position.
+        // Tune SOTF_LATENCY_COMPENSATION_S by driving perpendicular to the target:
+        //   shots landing behind your path → increase; ahead of your path → decrease.
+        double latencyS = TurretSubsystemConstants.SOTF_LATENCY_COMPENSATION_S;
+        double projectedRobotX = currentPose.getX() + chassis.vxMetersPerSecond * latencyS;
+        double projectedRobotY = currentPose.getY() + chassis.vyMetersPerSecond * latencyS;
+
+        // Offset the projected robot centre by the turret mount point, rotated to field frame.
         Translation2d turretOffset = new Translation2d(
             TurretSubsystemConstants.TURRET_TO_ROBOT.getX(),
             TurretSubsystemConstants.TURRET_TO_ROBOT.getY()
         ).rotateBy(currentPose.getRotation());
-        double turretXm = currentPose.getX() + turretOffset.getX();
-        double turretYm = currentPose.getY() + turretOffset.getY();
+        double turretXm = projectedRobotX + turretOffset.getX();
+        double turretYm = projectedRobotY + turretOffset.getY();
 
         // ── 3. Target position ────────────────────────────────────────────────
         Translation3d currentTargetPose = getTargetFromEnum(turretTarget);
 
-        // Displacement from the turret pivot to the target, in inches.
+        // Displacement from the projected turret pivot to the target, in inches.
         double dxIn = Units.metersToInches(currentTargetPose.getX() - turretXm);
         double dyIn = Units.metersToInches(currentTargetPose.getY() - turretYm);
         double distanceInches = Math.hypot(dxIn, dyIn);
 
-        // ── 4. Robot velocity in inches/s ─────────────────────────────────────
         // Include the velocity contribution of the turret pivot offset due to robot
         // yaw (v_turret = v_robot_centre + ω × r_offset).
-        var chassis = poseProvider.getChassisSpeeds();
-        double omegaRadPerSec = chassis.omegaRadiansPerSecond;
         double vxIps = Units.metersToInches(chassis.vxMetersPerSecond)
                        - omegaRadPerSec * Units.metersToInches(turretOffset.getY());
         double vyIps = Units.metersToInches(chassis.vyMetersPerSecond)
@@ -336,8 +358,11 @@ public class TurretSubsystem extends SubsystemBase {
         lastSolution = sol;
 
         // ── 6. Publish NT telemetry (coprocessor now reads these for visualisation) ──
-        NetworkedConfig.Turret.setRobotX(Units.metersToInches(turretXm));
-        NetworkedConfig.Turret.setRobotY(Units.metersToInches(turretYm));
+        // Publish the actual (non-projected) turret position for field-visualization accuracy.
+        double actualTurretXm = currentPose.getX() + turretOffset.getX();
+        double actualTurretYm = currentPose.getY() + turretOffset.getY();
+        NetworkedConfig.Turret.setRobotX(Units.metersToInches(actualTurretXm));
+        NetworkedConfig.Turret.setRobotY(Units.metersToInches(actualTurretYm));
         NetworkedConfig.Turret.setRobotAngle(currentPose.getRotation().getDegrees());
         NetworkedConfig.Turret.setTargetX(Units.metersToInches(currentTargetPose.getX()));
         NetworkedConfig.Turret.setTargetY(Units.metersToInches(currentTargetPose.getY()));
@@ -347,8 +372,29 @@ public class TurretSubsystem extends SubsystemBase {
         boolean validShot = (sol != null);
         NetworkedConfig.Turret.setValidTarget(validShot);
         if (validShot) {
+            // Publish the raw LUT solution so both values remain visible on the
+            // dashboard regardless of whether the debug overrides are active.
             NetworkedConfig.Turret.setTargetHoodAngle(sol.angleDeg);
             NetworkedConfig.Turret.setTargetRPM(sol.rpm);
+        }
+
+        // ── Debug / LUT-tuning overrides for actuation ────────────────────────
+        // These replace the solved RPM and/or hood angle sent to the motors while
+        // leaving the NT-published LUT solution untouched, so you can compare the
+        // override value against what the solver computed on the same dashboard.
+        // Enable via Debug.Override RPM/Hood Angle Enabled on SmartDashboard.
+        double actuationRPM     = validShot ? sol.rpm      : 0;
+        double actuationHoodDeg = validShot ? sol.angleDeg : TurretSubsystemConstants.MIN_HOOD_ANGLE.magnitude();
+
+        if (NetworkedConfig.Debug.isOverrideRPMEnabled()) {
+            actuationRPM = NetworkedConfig.Debug.getOverrideRPMValue();
+            // Override is active even without a valid LUT solution so you can spin
+            // up while parked outside the table range.
+            validShot = true;
+        }
+        if (NetworkedConfig.Debug.isOverrideHoodAngleEnabled()) {
+            actuationHoodDeg = NetworkedConfig.Debug.getOverrideHoodAngleValue();
+            validShot = true;
         }
 
         updateTurretTarget();
@@ -357,31 +403,35 @@ public class TurretSubsystem extends SubsystemBase {
 
         // ── 7. Actuate ────────────────────────────────────────────────────────
         if (!systemsCheckMode) {
-            double targetRPS = (runFlywheel && validShot) ? sol.rpm / 60.0 : 0;
+            double targetRPS = (runFlywheel && validShot) ? actuationRPM / 60.0 : 0;
             if (targetRPS > 16) // ≈ 1000 RPM — spin up whenever a valid shot exists
                 rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
             else
                 rightShooterMotor.setControl(coastReq); // coast freely
 
             if (validShot && shooting) {
-                this.setHoodAngle(Degrees.of(sol.angleDeg));
+                this.setHoodAngle(Degrees.of(actuationHoodDeg));
 
                 // Convert field-relative aim bearing to robot-frame turret angle.
                 // Both the bearing and the robot heading are CCW-positive; the turret
                 // convention is CW-positive with 0 pointing toward the back of the robot.
                 // turret_angle = robot_heading - aim_bearing + 180 (then negate for CW).
-                double robotHeadingDeg = currentPose.getRotation().getDegrees();
-                double baseTargetDeg   = robotHeadingDeg - sol.aimBearingDeg + 180.0;
-                // Normalise to [-180, 180]
-                baseTargetDeg = ((baseTargetDeg + 180.0) % 360.0 + 360.0) % 360.0 - 180.0;
+                // When only the RPM/hood are overridden, sol is still used for bearing;
+                // when there is no LUT solution at all (pure override), hold last angle.
+                if (sol != null) {
+                    double robotHeadingDeg = currentPose.getRotation().getDegrees();
+                    double baseTargetDeg   = robotHeadingDeg - sol.aimBearingDeg + 180.0;
+                    // Normalise to [-180, 180]
+                    baseTargetDeg = ((baseTargetDeg + 180.0) % 360.0 + 360.0) % 360.0 - 180.0;
 
-                // Yaw-rate feed-forward: lead the turret ahead by one loop worth of
-                // robot rotation so it tracks rather than lagging.
-                double omegaDegPerSec    = Units.radiansToDegrees(omegaRadPerSec);
-                double compensatedTarget = baseTargetDeg
-                    - omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02;
+                    // Yaw-rate feed-forward: lead the turret ahead by one loop worth of
+                    // robot rotation so it tracks rather than lagging.
+                    double omegaDegPerSec    = Units.radiansToDegrees(omegaRadPerSec);
+                    double compensatedTarget = baseTargetDeg
+                        - omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02;
 
-                this.turnToAngle(Degrees.of(compensatedTarget));
+                    this.turnToAngle(Degrees.of(compensatedTarget));
+                }
             } else {
                 this.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE);
                 // Do not call stopTurret() — that writes open-loop set(0) which fights
@@ -505,7 +555,29 @@ public class TurretSubsystem extends SubsystemBase {
 
     /** Returns true when the on-RIO solver has computed a valid shot solution this loop. */
     public boolean hasValidTarget() {
-        return lastSolution != null;
+        return lastSolution != null && lastSolution.inRange;
+    }
+
+    /**
+     * Signals that the robot is actively attempting a shoot-on-the-fly shot.
+     * Called by {@link frc.robot.ShipOfTheseus} when the shoot button or
+     * autonomous shoot trigger becomes active/inactive.  Read by
+     * {@link #isShootingActive()} to gate the drive-speed cap.
+     *
+     * @param active {@code true} when a shot attempt is in progress
+     */
+    public void setShootingActive(boolean active) {
+        shootingActive = active;
+    }
+
+    /**
+     * Returns {@code true} while a shoot-on-the-fly attempt is in progress.
+     * Used by the drive default command in {@link frc.robot.ShipOfTheseus} to
+     * cap the robot's translational speed at
+     * {@link frc.robot.Constants.TurretSubsystemConstants#SOTF_MAX_DRIVE_SPEED_MPS}.
+     */
+    public boolean isShootingActive() {
+        return shootingActive;
     }
 
     /**
@@ -665,6 +737,23 @@ public class TurretSubsystem extends SubsystemBase {
      * Updates the current turret target.
      */
     public void updateTurretTarget() {
+        // ── Debug / LUT-tuning override ───────────────────────────────────────
+        // If the SmartDashboard chooser has been set to anything other than "AUTO",
+        // skip the field-zone logic and lock the turret to the chosen target.
+        // Reset the chooser to "AUTO" on the dashboard to resume normal targeting.
+        String targetOverride = NetworkedConfig.Debug.getTurretTargetOverride();
+        if (!"AUTO".equals(targetOverride)) {
+            switch (targetOverride) {
+                case "RED_HUB":       this.turretTarget = TurretTarget.RED_HUB;        return;
+                case "BLUE_HUB":      this.turretTarget = TurretTarget.BLUE_HUB;       return;
+                case "AUDIENCE_CORNER": this.turretTarget = TurretTarget.AUDIENCE_CORNER; return;
+                case "SCORING_CORNER":  this.turretTarget = TurretTarget.SCORING_CORNER;  return;
+                case "NONE":          this.turretTarget = TurretTarget.NONE;            return;
+                default: break; // unrecognised string — fall through to auto logic
+            }
+        }
+
+        // ── Normal field-zone-based targeting ─────────────────────────────────
         FieldZone currentFieldZone = this.poseProvider.getFieldZone();
         Alliance currentAlliance = getCurrentAlliance();
 

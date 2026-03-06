@@ -32,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
  
 import frc.robot.generated.TunerConstants;
+import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
 import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
 import frc.robot.libraries.Repulsor.State.GameState;
@@ -70,6 +71,14 @@ public class ShipOfTheseus {
 
     private final Field2d field = new Field2d();
     private final SendableChooser<Command> autoChooser;
+
+    /**
+     * Debug chooser for manually overriding the turret's target during LUT tuning.
+     * Selecting anything other than "AUTO" locks the turret to that target regardless
+     * of field zone / alliance. Resets to "AUTO" on every robot init via
+     * {@link NetworkedConfig#initializeAllDefaults()}.
+     */
+    private final SendableChooser<String> turretTargetChooser = new SendableChooser<>();
 
     public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
     public final TurretSubsystem turretSubsystem;
@@ -116,6 +125,17 @@ public class ShipOfTheseus {
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
+
+        // ── Debug: turret target override chooser ─────────────────────────────
+        // Populate before configureBindings() so the drive default command can
+        // reference it immediately.
+        turretTargetChooser.setDefaultOption("AUTO",           "AUTO");
+        turretTargetChooser.addOption("Red Hub",               "RED_HUB");
+        turretTargetChooser.addOption("Blue Hub",              "BLUE_HUB");
+        turretTargetChooser.addOption("Audience Corner",       "AUDIENCE_CORNER");
+        turretTargetChooser.addOption("Scoring Corner",        "SCORING_CORNER");
+        turretTargetChooser.addOption("None (disable turret)", "NONE");
+        SmartDashboard.putData("Debug/Turret Target Override", turretTargetChooser);
         
         configureBindings();
         NetworkedConfig.initializeAllDefaults();
@@ -159,6 +179,11 @@ public class ShipOfTheseus {
                 Commands.run(() -> turretSubsystem.shoot())
             ));
 
+        // Cap drive speed while the autonomous shoot trigger is active.
+        autoShootTrigger
+            .onTrue(Commands.runOnce(() -> turretSubsystem.setShootingActive(true)))
+            .onFalse(Commands.runOnce(() -> turretSubsystem.setShootingActive(false)));
+
         autoShootTrigger.onFalse(Commands.runOnce(() -> {
             turretSubsystem.stopAll();
             indexerSubsystem.stop();
@@ -178,12 +203,24 @@ public class ShipOfTheseus {
         DriverController.x().onTrue(Commands.defer(() -> getAutoClimbCommand(), Set.of(swerveSubsystem, climberSubsystem)));
 
         // Swerve Drive
+        // When a shoot-on-the-fly attempt is active (shoot button held or autoShootTrigger),
+        // the requested velocity magnitude is capped at SOTF_MAX_DRIVE_SPEED_MPS so the
+        // driver can still steer but cannot exceed the shooter's reliable operating envelope.
+        // The turret-target chooser is also synced to NT every loop here — cheap string write.
         swerveSubsystem.setDefaultCommand(
-            swerveSubsystem.applyRequest(() ->
-                driveFieldOriented.withVelocityX(-DriverController.getLeftY() * MaxSpeed)
-                    .withVelocityY(-DriverController.getLeftX() * MaxSpeed)
-                    .withRotationalRate(-DriverController.getRightX() * MaxAngularRate)
-            )
+            swerveSubsystem.applyRequest(() -> {
+                // Sync the SmartDashboard chooser selection → NetworkedConfig so that
+                // TurretSubsystem.updateTurretTarget() can read it without a direct reference.
+                NetworkedConfig.Debug.setTurretTargetOverride(turretTargetChooser.getSelected());
+
+                double speedCap = turretSubsystem.isShootingActive()
+                    ? TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS
+                    : MaxSpeed;
+                return driveFieldOriented
+                    .withVelocityX(-DriverController.getLeftY() * speedCap)
+                    .withVelocityY(-DriverController.getLeftX() * speedCap)
+                    .withRotationalRate(-DriverController.getRightX() * MaxAngularRate);
+            })
         );
 
         // Driver: Slow, robot-oriented drive (POV)
@@ -232,12 +269,17 @@ public class ShipOfTheseus {
         // feed the shooter. Requires a valid trajectory — does nothing otherwise.
         // Hub shots are blocked while the hub is inactive; non-hub targets (alliance
         // zone relays) are always allowed.
+        // Also caps drive speed at SOTF_MAX_DRIVE_SPEED_MPS for the duration of the hold.
         DriverController.start().or(OperatorController.rightTrigger())
             .and(turretSubsystem::hasValidTarget)
             .and(this::isShotAllowed)
             .whileTrue(
                 turretSubsystem.run(() -> turretSubsystem.shoot())
             );
+
+        DriverController.start().or(OperatorController.rightTrigger())
+            .onTrue(Commands.runOnce(() -> turretSubsystem.setShootingActive(true)))
+            .onFalse(Commands.runOnce(() -> turretSubsystem.setShootingActive(false)));
 
         turretSubsystem.getFeedTrigger().and(
             DriverController.start().or(OperatorController.rightTrigger()))
