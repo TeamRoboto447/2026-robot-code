@@ -424,14 +424,6 @@ public final class Constants {
         // Homing drives slowly downward to the lower hard stop and zeros when stall is detected.
         /** Open-loop output while homing toward the lower hard stop. Negative = retract/lower. */
         public static final double CLIMBER_HOMING_SPEED = -1;
-        /**
-         * Stator-current threshold (amps) above which the climber is considered stalled.
-         * Kraken X60 stall current is ~200 A; 20 A provides a conservative safe threshold
-         * before the mechanical stop applies significant force.
-         */
-        public static final double CLIMBER_HOMING_STALL_AMPS = 15.0;
-        /** How long (seconds) current must exceed the threshold before homing is accepted. */
-        public static final double CLIMBER_HOMING_STALL_DURATION_S = 0.1;
 
         /**
          * Winch drum radius (inches). Used to convert linear travel to motor rotations.
@@ -446,9 +438,7 @@ public final class Constants {
          * Motor rotations required to reach full extension.
          * = travel / circumference × gear ratio
          */
-        public static final double CLIMBER_FULL_EXTENSION_ROTATIONS =
-            (CLIMBER_TRAVEL_INCHES / (2.0 * Math.PI * CLIMBER_DRUM_RADIUS_INCHES))
-            * CLIMBER_GEARBOX_RATIO;
+        public static final double CLIMBER_FULL_EXTENSION_ROTATIONS = 212.38;
 
         /** Stator current limit (A) for the climber motor (Kraken X60). */
         public static final double CLIMBER_STATOR_CURRENT_LIMIT_A = 120.0;

@@ -133,65 +133,6 @@ public class ClimberSubsystem extends SubsystemBase {
     climberDir = 0;
   }
 
-  /**
-   * Returns a {@link Command} that homes the climber by slowly retracting to the
-   * lower hard stop, detecting the stall via stator current, zeroing the encoder,
-   * and then engaging the position-hold at zero.
-   *
-   * <p>The command drives the motor at {@code CLIMBER_HOMING_SPEED} (a small
-   * negative open-loop output) until the stator current exceeds
-   * {@code CLIMBER_HOMING_STALL_AMPS} for at least
-   * {@code CLIMBER_HOMING_STALL_DURATION_S} seconds, indicating contact with
-   * the hard stop. It then zeros the motor's internal position sensor and hands
-   * control back to the normal hold logic.</p>
-   *
-   * <p>This command requires (and therefore interrupts) this subsystem while
-   * running.</p>
-   *
-   * @return the homing command
-   */
-  // public Command homeClimber() {
-  //   // A Timer local to this command instance tracks how long current has been
-  //   // above the stall threshold. It is created inside the factory method so
-  //   // each invocation gets its own independent timer.
-  //   Timer stallTimer = new Timer();
-
-  //   return this.runOnce(() -> {
-  //         // Disable the normal hold loop while homing.
-  //         climberDir = -2; // sentinel: "homing in progress"
-  //         stallTimer.restart();
-  //       })
-  //       .andThen(this.run(() -> {
-  //         // Drive slowly toward the lower hard stop.
-  //         climberMotor.set(ClimberSubsystemConstants.CLIMBER_HOMING_SPEED);
-
-  //         double amps = statorCurrentSignal.getValueAsDouble();
-  //         if (Math.abs(amps) < ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS) {
-  //           // Not yet stalled — restart the timer so it only counts
-  //           // *continuous* time above the threshold.
-  //           stallTimer.restart();
-  //         }
-  //       }))
-  //       .until(() ->
-  //           Math.abs(statorCurrentSignal.getValueAsDouble()) >= ClimberSubsystemConstants.CLIMBER_HOMING_STALL_AMPS
-  //           && stallTimer.hasElapsed(ClimberSubsystemConstants.CLIMBER_HOMING_STALL_DURATION_S))
-  //       .finallyDo((interrupted) -> {
-  //         climberMotor.set(0);
-  //         stallTimer.stop();
-
-  //         if (!interrupted) {
-  //           // Hard stop confirmed — zero the position sensor.
-  //           climberMotor.setPosition(0);
-  //           holdPosition = 0.0;
-  //           isHomed = true;
-  //           System.out.println("Homed Climber Position");
-  //         }
-  //         // Return to normal hold mode (climberDir = 0).
-  //         climberDir = 0;
-  //       })
-  //       .unless(() -> isHomed);
-  // }
-
   public Command homeClimber() {
     return this.runOnce(() -> {
           // Disable the normal hold loop while homing.

@@ -215,8 +215,9 @@ public class ShipOfTheseus {
 
         // Driver: Climber
         DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
-        DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
+        DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull());
         DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
+        DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
 
         // withinSafeClimberRange.onFalse(climberSubsystem.lowerOntoBar());
 
