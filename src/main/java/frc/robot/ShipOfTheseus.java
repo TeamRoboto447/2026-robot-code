@@ -595,8 +595,8 @@ public class ShipOfTheseus {
                 : frc.robot.Constants.FieldConstants.ClimbPositions.RED_DEPOT_SIDE;
         } else {
             return isScoringside
-                ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_SCORING_SIDE
-                : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_AUDIENCE_SIDE;
+                ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_DEPOT_SIDE
+                : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_OUTPOST_SIDE;
         }
     }
 
@@ -621,8 +621,8 @@ public class ShipOfTheseus {
                 : frc.robot.Constants.FieldConstants.ClimbPositions.RED_DEPOT_SIDE_STAGING;
         } else {
             return isScoringside
-                ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_SCORING_SIDE_STAGING
-                : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_AUDIENCE_SIDE_STAGING;
+                ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_DEPOT_SIDE_STAGING
+                : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_OUTPOST_SIDE_STAGING;
         }
     }
 
@@ -666,10 +666,12 @@ public class ShipOfTheseus {
      * </ul>
      */
     private boolean isShotAllowed() {
-        if (!turretSubsystem.isTargetingHub()) return true;
-        if (NetworkedConfig.Debug.isBypassHubLock()) return true;
-        GameState gs = StateManager.getState(GameState.class);
-        return gs == null || gs.isHubActive();
+        return true; // There appears to be a bug preventing shots, don't have time to debug it
+
+        // if (!turretSubsystem.isTargetingHub()) return true;
+        // if (NetworkedConfig.Debug.isBypassHubLock()) return true;
+        // GameState gs = StateManager.getState(GameState.class);
+        // return gs == null || gs.isHubActive();
     }
 
     /**

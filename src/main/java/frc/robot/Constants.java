@@ -79,7 +79,7 @@ public final class Constants {
         public static final double VISION_STD_DEV_SCALE_DISTANCE = 1.0; // meters
         // How quickly std devs grow with distance beyond VISION_STD_DEV_SCALE_DISTANCE.
         // e.g. 0.3 means +0.3 to the multiplier per extra meter.
-        public static final double VISION_STD_DEV_SCALE_FACTOR = 1;
+        public static final double VISION_STD_DEV_SCALE_FACTOR = 0.25;
 
         public static final Transform3d ROBOT_TO_BACK_LEFT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
@@ -92,7 +92,7 @@ public final class Constants {
         // [x (m), y (m), theta (rad)] — lower = trust vision more, higher = trust swerve more.
         // At 0.9/0.9/1.5, vision gently nudges the pose estimate rather than overriding wheel odometry.
         public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(),
-                0.25, 0.25, .5);
+                0.05, 0.05, .1);
 
         // Near-zero std devs used while the robot is disabled so vision measurements
         // are trusted implicitly, fully seeding the pose estimator from AprilTags
@@ -210,43 +210,48 @@ public final class Constants {
              */
             public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(.25);
 
+
+            private static final double BLUE_DEPOT_X = 1.23;
+            private static final double BLUE_OUTPOST_X = 0.9;
+
             // ── Final (hook-engagement) positions ──────────────────────────────
-            public static final Pose2d BLUE_AUDIENCE_SIDE = new Pose2d(
-                1.1, // placeholder — tune to your bar
-                4.519,  // audience side: y < field midpoint
+            public static final Pose2d BLUE_OUTPOST_SIDE = new Pose2d(
+                BLUE_OUTPOST_X, // placeholder — tune to your bar
+                3.090,  // audience side: y < field midpoint
                 Rotation2d.fromDegrees(270)   // placeholder — tune to face the bar
             );
-            public static final Pose2d BLUE_SCORING_SIDE = new Pose2d(
-                1.1, // placeholder — tune to your bar
-                2.931, // scoring side: y > field midpoint
+            public static final Pose2d BLUE_DEPOT_SIDE = new Pose2d(
+                BLUE_DEPOT_X, // placeholder — tune to your bar
+                4.350, // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
 
-            private static final double RED_DEPOT_X = 15.325;
-            private static final double RED_OUTPOST_X = 15.716;
+            private static final double RED_DEPOT_X = 15.3275;
+            private static final double RED_OUTPOST_X = 15.64;
 
             public static final Pose2d RED_DEPOT_SIDE = new Pose2d(
                 RED_DEPOT_X, // placeholder — tune to your bar
-                3.65,   // audience side: y < field midpoint
+                3.726,   // audience side: y < field midpoint
                 Rotation2d.fromDegrees(270)    // placeholder — tune to face the bar
             );
             public static final Pose2d RED_OUTPOST_SIDE = new Pose2d(
                 RED_OUTPOST_X, // placeholder — tune to your bar
-                5,  // scoring side: y > field midpoint
+                4.940,  // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
             );
 
+            
             // ── Staging (pre-alignment) positions ──────────────────────────────
             // These should be positioned a short distance back from the final poses,
             // with the same heading, so the robot can align before slotting in.
-            public static final Pose2d BLUE_AUDIENCE_SIDE_STAGING = new Pose2d(
-                1.5, // TODO: tune — offset from final pose
-                4.9,
+            public static final Pose2d BLUE_OUTPOST_SIDE_STAGING = new Pose2d(
+                BLUE_OUTPOST_X, // TODO: tune — offset from final pose
+                2.5,
                 Rotation2d.fromDegrees(270)
             );
-            public static final Pose2d BLUE_SCORING_SIDE_STAGING = new Pose2d(
-                1.5, // TODO: tune — offset from final pose
-                2.5,
+            public static final Pose2d BLUE_DEPOT_SIDE_STAGING = new Pose2d(
+                BLUE_DEPOT_X, // TODO: tune — offset from final pose
+                5.5,
                 Rotation2d.fromDegrees(90)
             );
             public static final Pose2d RED_DEPOT_SIDE_STAGING = new Pose2d(
