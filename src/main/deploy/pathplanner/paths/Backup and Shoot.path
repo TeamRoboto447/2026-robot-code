@@ -3,47 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.1995421686746988,
-        "y": 7.608361445783132
+        "x": 3.5273734939759036,
+        "y": 4.045927710843373
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.1098773585855977,
-        "y": 7.799957889241776
+        "x": 2.5273734939758947,
+        "y": 4.045927710843373
       },
       "isLocked": false,
-      "linkedName": "Left Trench Shooting"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.216,
-        "y": 5.269
+        "x": 1.9319277108433734,
+        "y": 4.985710843373495
       },
       "prevControl": {
-        "x": 1.6643432588429588,
-        "y": 6.11883260683098
+        "x": 3.1776867469879515,
+        "y": 4.985710843373495
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Climb Stage"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Raise Climber",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Raise Climber"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 1.5,
@@ -54,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

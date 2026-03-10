@@ -11,21 +11,40 @@
           }
         },
         {
-          "type": "path",
+          "type": "wait",
           "data": {
-            "pathName": "Left Steal Diag Move"
+            "waitTime": 0.5
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Raise Intake"
+            "pathName": "Right Steal Diag Move"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "startShooter"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Raise Intake"
+                }
+              }
+            ]
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.0
+            "waitTime": 2.5
           }
         },
         {
@@ -37,19 +56,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 2.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Clear Left Hub Edge All Trench"
+            "pathName": "Outpost from Right Trench"
           }
         },
         {
-          "type": "named",
+          "type": "wait",
           "data": {
-            "name": "startShooter"
+            "waitTime": 1.0
           }
         },
         {
@@ -59,9 +78,15 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "Lower Climber"
+            "name": "Lower Intake"
           }
         }
       ]

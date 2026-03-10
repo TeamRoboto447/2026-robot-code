@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.22,
-        "y": 7.29
+        "x": 3.1995421686746988,
+        "y": 7.608361445783132
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.995867469879531,
-        "y": 7.363049192286564
+        "x": 3.9754096385542295,
+        "y": 7.681410638069695
       },
       "isLocked": false,
       "linkedName": "Left Trench Shooting"
@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 5.7340228245363765,
-        "y": 3.5368616262482178
+        "x": 5.7784819277108435,
+        "y": 4.559530120481927
       },
       "prevControl": {
-        "x": 5.626640772377282,
-        "y": 3.3110982659035826
+        "x": 5.671099875551749,
+        "y": 4.333766760137292
       },
       "nextControl": {
-        "x": 5.983129093369897,
-        "y": 4.060590379834038
+        "x": 6.027588196544364,
+        "y": 5.083258874067748
       },
       "isLocked": false,
       "linkedName": null
@@ -64,12 +64,12 @@
     },
     {
       "anchor": {
-        "x": 3.22,
-        "y": 7.29
+        "x": 3.1995421686746988,
+        "y": 7.608361445783132
       },
       "prevControl": {
-        "x": 2.872542137884375,
-        "y": 7.256647337946937
+        "x": 2.8520843065590737,
+        "y": 7.575008783730069
       },
       "nextControl": null,
       "isLocked": false,
@@ -136,7 +136,7 @@
   ],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 1.5,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 270.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,
@@ -152,5 +152,5 @@
     "velocity": 0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

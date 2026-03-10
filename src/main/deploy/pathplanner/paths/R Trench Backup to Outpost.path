@@ -3,54 +3,49 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.4508795180722887,
-        "y": 0.45071084337349476
+        "x": 3.88,
+        "y": 0.6255542168674697
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5243948735821586,
-        "y": 0.5414036994882244
+        "x": 2.8799999999999972,
+        "y": 0.6255542168674698
       },
       "isLocked": false,
-      "linkedName": "Right Trench Shooting"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.6491298145506419,
-        "y": 0.6255542168674697
+        "x": 0.74,
+        "y": 0.62
       },
       "prevControl": {
-        "x": 1.5683495624902182,
-        "y": 0.6152448527839385
+        "x": 1.74,
+        "y": 0.6199999999999999
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Outpost"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.8603636363636233,
-      "rotationDegrees": 180.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Run Intake",
+      "name": "Lower Intake",
       "waypointRelativePos": 0,
-      "endWaypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "Run Intake"
+          "name": "Lower Intake"
         }
       }
     },
     {
       "name": "startShooter",
-      "waypointRelativePos": 0.0,
+      "waypointRelativePos": 0.9978768577494656,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",

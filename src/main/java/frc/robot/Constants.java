@@ -236,7 +236,7 @@ public final class Constants {
             );
             public static final Pose2d RED_OUTPOST_SIDE = new Pose2d(
                 RED_OUTPOST_X, // placeholder — tune to your bar
-                4.940,  // scoring side: y > field midpoint
+                4.920,  // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
             );
 
