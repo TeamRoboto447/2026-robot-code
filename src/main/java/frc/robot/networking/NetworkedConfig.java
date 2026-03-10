@@ -516,12 +516,64 @@ public class NetworkedConfig {
         private static final BooleanEntry resetHomedPositions =
             debugTable.getBooleanTopic("Reset Homed Positions").getEntry(false);
 
+        // ── Tuning / LUT calibration overrides ────────────────────────────────
+
+        /**
+         * Manual turret-target override for LUT tuning.
+         *
+         * <p>Accepts the name of any {@link frc.robot.Constants.FieldConstants.TurretTarget}
+         * enum value, or {@code "AUTO"} (default) to let the field-zone logic choose
+         * automatically.  Written by the SmartDashboard SendableChooser registered in
+         * {@link frc.robot.ShipOfTheseus}.  Read every loop by
+         * {@link frc.robot.subsystems.TurretSubsystem#updateTurretTarget()}.
+         *
+         * <p>Valid values: {@code "AUTO"}, {@code "RED_HUB"}, {@code "BLUE_HUB"},
+         * {@code "AUDIENCE_CORNER"}, {@code "SCORING_CORNER"}, {@code "NONE"}.
+         */
+        private static final StringEntry turretTargetOverride =
+            debugTable.getStringTopic("Turret Target Override").getEntry("AUTO");
+
+        /**
+         * When {@code true}, the flywheel target RPM computed by the LUT solver is
+         * replaced with {@link #overrideRPMValue} for every shot.  Use while parked at
+         * a known distance to dial in a data point for {@code turret_data.json}.
+         */
+        private static final BooleanEntry overrideRPMEnabled =
+            debugTable.getBooleanTopic("Override RPM Enabled").getEntry(false);
+
+        /**
+         * The RPM value used when {@link #overrideRPMEnabled} is {@code true}.
+         * Default matches the lowest-distance entry in the stock LUT.
+         */
+        private static final DoubleEntry overrideRPMValue =
+            debugTable.getDoubleTopic("Override RPM Value").getEntry(3400);
+
+        /**
+         * When {@code true}, the hood angle computed by the LUT solver is replaced
+         * with {@link #overrideHoodAngleValue} for every shot.  Use together with
+         * {@link #overrideRPMEnabled} while parked at a known distance.
+         */
+        private static final BooleanEntry overrideHoodAngleEnabled =
+            debugTable.getBooleanTopic("Override Hood Angle Enabled").getEntry(false);
+
+        /**
+         * The hood angle (degrees) used when {@link #overrideHoodAngleEnabled} is
+         * {@code true}.  Default matches the lowest-distance entry in the stock LUT.
+         */
+        private static final DoubleEntry overrideHoodAngleValue =
+            debugTable.getDoubleTopic("Override Hood Angle Value").getEntry(30.0);
+
         public static void initializeDefaults() {
             newPoseX.set(0);
             newPoseY.set(0);
             newPoseRotation.set(0);
             bypassHubLock.set(false);
             resetHomedPositions.set(false);
+            turretTargetOverride.set("AUTO");
+            overrideRPMEnabled.set(false);
+            overrideRPMValue.set(3400);
+            overrideHoodAngleEnabled.set(false);
+            overrideHoodAngleValue.set(30.0);
         }
 
         public static boolean isBypassHubLock() {
@@ -546,6 +598,36 @@ public class NetworkedConfig {
         
         public static double getNewPoseRotation() {
             return newPoseRotation.get();
+        }
+
+        /** Returns the current turret-target override string ({@code "AUTO"} = field-zone logic). */
+        public static String getTurretTargetOverride() {
+            return turretTargetOverride.get();
+        }
+
+        /** Sets the turret-target override. Called each loop by the SmartDashboard chooser. */
+        public static void setTurretTargetOverride(String value) {
+            turretTargetOverride.set(value);
+        }
+
+        /** Returns {@code true} when the RPM override is active. */
+        public static boolean isOverrideRPMEnabled() {
+            return overrideRPMEnabled.get();
+        }
+
+        /** Returns the override RPM value. */
+        public static double getOverrideRPMValue() {
+            return overrideRPMValue.get();
+        }
+
+        /** Returns {@code true} when the hood-angle override is active. */
+        public static boolean isOverrideHoodAngleEnabled() {
+            return overrideHoodAngleEnabled.get();
+        }
+
+        /** Returns the override hood angle (degrees). */
+        public static double getOverrideHoodAngleValue() {
+            return overrideHoodAngleValue.get();
         }
         
     }
