@@ -359,7 +359,7 @@ public final class Constants {
          * <p>Set to {@code MaxSpeed} (the robot's normal top speed) to disable the cap.
          * Testing showed 1.5 m/s as the upper bound for reliable SOTF shots.
          */
-        public static final double SOTF_MAX_DRIVE_SPEED_MPS = 1.5;
+        public static final double SOTF_MAX_DRIVE_SPEED_MPS = .5;
 
         /**
          * Latency compensation for shoot-on-the-fly (seconds).
