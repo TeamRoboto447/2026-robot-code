@@ -161,6 +161,10 @@ public class ShipOfTheseus {
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
 
+    public void motorStatusCheck() {
+        turretSubsystem.motorStatusCheck();
+    }
+
     // TODO: Verify correct bindings before uploading
     private void configureBindings() {
         configureAutonomousBindings();

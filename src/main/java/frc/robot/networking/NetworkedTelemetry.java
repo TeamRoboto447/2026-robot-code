@@ -220,6 +220,7 @@ public class NetworkedTelemetry {
         private static final DoubleEntry controlTargetHoodAngle = turretTable.getDoubleTopic("Control Target Hood Angle").getEntry(0);
         private static final DoubleEntry controlTargetFlywheelRPM = turretTable.getDoubleTopic("Control Target Flywheel RPM").getEntry(0);
         private static final BooleanEntry controlTargetValidTrajectory = turretTable.getBooleanTopic("Control Target Valid Trajectory").getEntry(false);
+        private static final BooleanEntry motorCommStatus = turretTable.getBooleanTopic("Motor Comm Status").getEntry(true);
 
         public static void setCTHoodAngle(double angle) {
             controlTargetHoodAngle.set(angle);
@@ -231,6 +232,10 @@ public class NetworkedTelemetry {
 
         public static void setCTValidTrajectory(boolean valid) {
             controlTargetValidTrajectory.set(valid);
+        }
+
+        public static void setMotorCommStatus(boolean status) {
+            motorCommStatus.set(status);
         }
     }
 

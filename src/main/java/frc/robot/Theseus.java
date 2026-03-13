@@ -30,6 +30,8 @@ public class Theseus extends TimedRobot {
     @Override
     public void robotInit() {
         CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
+
+        addPeriodic(() -> m_robotContainer.motorStatusCheck(), 10);
     }
 
     @Override

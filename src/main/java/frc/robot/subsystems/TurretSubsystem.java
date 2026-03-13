@@ -65,6 +65,8 @@ public class TurretSubsystem extends SubsystemBase {
     
     private ControlTarget currentControlTarget = new ControlTarget();
     private boolean hoodLimitSet = false;
+    private boolean rightShooterMotorConnected, leftShooterMotorConnected,
+        angleMotorConnected, hoodMotorConnected;
     private final Trigger hoodLowerLimitTrigger;
     private final Trigger feedTrigger;
 
@@ -140,6 +142,14 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Trigger getFeedTrigger() {
         return feedTrigger;
+    }
+
+    public void motorStatusCheck() {
+        rightShooterMotorConnected = rightShooterMotor.isConnected();
+        leftShooterMotorConnected = leftShooterMotor.isConnected();
+        angleMotorConnected = angleMotor.isConnected();
+
+        hoodMotorConnected = hoodMotor.getFirmwareVersion() != 0; // If response is zero, there is some issue with the controller
     }
     
     /** 
@@ -267,6 +277,8 @@ public class TurretSubsystem extends SubsystemBase {
             if (!runFlywheel || targetRPS < 16) return false;
             return this.flywheelAtSpeed();
         });
+
+        motorStatusCheck();
 
     }
 
@@ -730,6 +742,9 @@ public class TurretSubsystem extends SubsystemBase {
             NetworkedTelemetry.Turret.setCTHoodAngle(currentControlTarget.hoodAngle);
             NetworkedTelemetry.Turret.setCTFlywheelRPM(currentControlTarget.rpm);
             NetworkedTelemetry.Turret.setCTValidTrajectory(currentControlTarget.properlySet);
+            NetworkedTelemetry.Turret.setMotorCommStatus(
+                rightShooterMotorConnected && leftShooterMotorConnected &&
+                angleMotorConnected && hoodMotorConnected);
         }
     }
 
