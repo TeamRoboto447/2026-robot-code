@@ -317,7 +317,7 @@ public class ShipOfTheseus {
             // firing during autonomous does not claim intakeSubsystem and cancel the
             // running path command. The intake motor is purely open-loop — no default
             // command or closed-loop controller needs exclusive ownership of it.
-            Commands.run(() -> intakeSubsystem.intake(0.7))
+            Commands.run(() -> intakeSubsystem.intake(1))
         );
         DriverController.leftTrigger().or(autoIntakeTrigger).onFalse(
             Commands.runOnce(() -> intakeSubsystem.stopIntake())
@@ -552,8 +552,8 @@ public class ShipOfTheseus {
         NamedCommands.registerCommand("Lower Climber", Commands.defer(() -> climberSubsystem.lowerOntoBar(), Set.of(climberSubsystem)));
 
         NamedCommands.registerCommand("Lower Intake", Commands.defer(() -> Commands.runOnce(() -> intakeSubsystem.dropIntake()), Set.of()));
-        NamedCommands.registerCommand("Start Intake", Commands.runOnce(() -> this.autoIntake = true));
-        NamedCommands.registerCommand("Stop Intake", Commands.runOnce(() -> this.autoIntake = false));
+        NamedCommands.registerCommand("Start Intake", Commands.runOnce(() -> {this.autoIntake = true; System.out.println("Intake Start");}));
+        NamedCommands.registerCommand("Stop Intake", Commands.runOnce(() -> {this.autoIntake = false; System.out.println("Intake Stop");}));
         NamedCommands.registerCommand("Run Intake", Commands.runEnd(() -> this.autoIntake = true, () -> this.autoIntake = false));
         NamedCommands.registerCommand("Raise Intake", Commands.runOnce(() -> intakeSubsystem.liftIntake()));
     }
