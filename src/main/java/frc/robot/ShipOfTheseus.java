@@ -32,7 +32,6 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
  
 import frc.robot.generated.TunerConstants;
-import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
 import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
 import frc.robot.libraries.Repulsor.State.GameState;
@@ -213,6 +212,7 @@ public class ShipOfTheseus {
         // When a shoot-on-the-fly attempt is active (shoot button held or autoShootTrigger),
         // the requested velocity magnitude is capped at SOTF_MAX_DRIVE_SPEED_MPS so the
         // driver can still steer but cannot exceed the shooter's reliable operating envelope.
+        // After shooting stops, the speed ramps back to full speed over SOTF_SPEED_RAMP_TIME_S.
         // The turret-target chooser is also synced to NT every loop here — cheap string write.
         swerveSubsystem.setDefaultCommand(
             swerveSubsystem.applyRequest(() -> {
@@ -220,9 +220,7 @@ public class ShipOfTheseus {
                 // TurretSubsystem.updateTurretTarget() can read it without a direct reference.
                 NetworkedConfig.Debug.setTurretTargetOverride(turretTargetChooser.getSelected());
 
-                double speedCap = turretSubsystem.isShootingActive()
-                    ? TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS
-                    : MaxSpeed;
+                double speedCap = turretSubsystem.getRampedSpeedCap(MaxSpeed);
                 if (autoTurningToAngle) {
                     return driveFieldOrientedWithAngle
                         .withVelocityX(-DriverController.getLeftY() * speedCap)

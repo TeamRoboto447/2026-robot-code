@@ -132,6 +132,16 @@ public class TurretSubsystem extends SubsystemBase {
      * exclusive control of the mechanism. Set via {@link #setSystemsCheckMode(boolean)}.
      */
     private boolean systemsCheckMode = false;
+
+    /**
+     * Timestamp (seconds) when the shooting state transitioned from active to inactive.
+     * Used to implement smooth speed ramping: the drive speed gradually increases from
+     * {@link TurretSubsystemConstants#SOTF_MAX_DRIVE_SPEED_MPS} back to full speed
+     * over {@link TurretSubsystemConstants#SOTF_SPEED_RAMP_TIME_S}.
+     * Initialized to -1 to indicate no ramp is in progress.
+     */
+    private double shootingStoppedTime = -1.0;
+
     /* SysId routine for profiling the shooter (flywheel) */
     private final SysIdRoutine m_sysIdRoutineFlywheel;
     /**
@@ -603,6 +613,15 @@ public class TurretSubsystem extends SubsystemBase {
      * @param active {@code true} when a shot attempt is in progress
      */
     public void setShootingActive(boolean active) {
+        // When transitioning from shooting to not shooting, record the current time
+        // to begin the speed ramp-up process.
+        if (shootingActive && !active) {
+            shootingStoppedTime = Timer.getFPGATimestamp();
+        }
+        // When transitioning from not shooting to shooting, reset the ramp timer.
+        else if (!shootingActive && active) {
+            shootingStoppedTime = -1.0;
+        }
         shootingActive = active;
     }
 
@@ -614,6 +633,48 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public boolean isShootingActive() {
         return shootingActive;
+    }
+
+    /**
+     * Returns the current speed cap for the drive system, accounting for SOTF limits
+     * and the ramp-up process after shooting stops.
+     *
+     * <p>While shooting is active, returns {@link TurretSubsystemConstants#SOTF_MAX_DRIVE_SPEED_MPS}.
+     * After shooting stops, linearly interpolates back to the full {@code maxSpeed} over
+     * {@link TurretSubsystemConstants#SOTF_SPEED_RAMP_TIME_S}. Once the ramp completes,
+     * returns the full {@code maxSpeed}.
+     *
+     * @param maxSpeed The robot's maximum speed in m/s when not shooting
+     * @return The current speed cap to apply to drive commands
+     */
+    public double getRampedSpeedCap(double maxSpeed) {
+        // If shooting is currently active, apply the SOTF speed cap with no ramp.
+        if (shootingActive) {
+            shootingStoppedTime = -1.0; // Ensure ramp timer is inactive.
+            return TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS;
+        }
+
+        // If no ramp is in progress, return full speed.
+        if (shootingStoppedTime < 0.0) {
+            return maxSpeed;
+        }
+
+        // Calculate elapsed time since shooting stopped.
+        double elapsedTime = Timer.getFPGATimestamp() - shootingStoppedTime;
+        double rampDuration = TurretSubsystemConstants.SOTF_SPEED_RAMP_TIME_S;
+
+        // If the ramp period has elapsed, return full speed and stop tracking the ramp.
+        if (elapsedTime >= rampDuration) {
+            shootingStoppedTime = -1.0;
+            return maxSpeed;
+        }
+
+        // Linear interpolation: ramp from SOTF_MAX_DRIVE_SPEED_MPS to maxSpeed.
+        double progress = elapsedTime / rampDuration;
+        double rampedSpeed = TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS
+            + (maxSpeed - TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS) * progress;
+
+        return rampedSpeed;
     }
 
     /**

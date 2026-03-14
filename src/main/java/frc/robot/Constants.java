@@ -362,6 +362,17 @@ public final class Constants {
         public static final double SOTF_MAX_DRIVE_SPEED_MPS = .8;
 
         /**
+         * Duration (seconds) over which the drive speed ramps back to full speed
+         * after the shoot button is released.
+         *
+         * <p>When shooting stops, the speed cap is linearly interpolated from
+         * {@link #SOTF_MAX_DRIVE_SPEED_MPS} back to the robot's maximum speed
+         * over this duration. This provides a smooth transition that prevents
+         * the driver from suddenly regaining control and losing handling authority.
+         */
+        public static final double SOTF_SPEED_RAMP_TIME_S = 0.5;
+
+        /**
          * Latency compensation for shoot-on-the-fly (seconds).
          *
          * <p>The aim-point calculation uses the robot's current pose and velocity, but
