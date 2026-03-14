@@ -353,6 +353,28 @@ public class TurretSubsystem extends SubsystemBase {
         // Displacement from the projected turret pivot to the target, in inches.
         double dxIn = Units.metersToInches(currentTargetPose.getX() - turretXm);
         double dyIn = Units.metersToInches(currentTargetPose.getY() - turretYm);
+
+        // Apply an independent radial (toward/away) latency compensation so depth
+        // behavior can be tuned separately from lateral/bearing lead.
+        double rangeLatencyS = TurretSubsystemConstants.SOTF_RANGE_LATENCY_COMPENSATION_S;
+        if (Math.abs(rangeLatencyS) > 1e-9) {
+            double rangeMeters = Math.hypot(currentTargetPose.getX() - turretXm, currentTargetPose.getY() - turretYm);
+            if (rangeMeters > 1e-6) {
+                double toTargetX = (currentTargetPose.getX() - turretXm) / rangeMeters;
+                double toTargetY = (currentTargetPose.getY() - turretYm) / rangeMeters;
+                double radialVelMps = chassis.vxMetersPerSecond * toTargetX + chassis.vyMetersPerSecond * toTargetY;
+                double radialShiftIn = Units.metersToInches(radialVelMps * rangeLatencyS);
+
+                double rangeIn = Math.hypot(dxIn, dyIn);
+                double adjustedRangeIn = Math.max(0.0, rangeIn + radialShiftIn);
+                if (rangeIn > 1e-9) {
+                    double rangeScale = adjustedRangeIn / rangeIn;
+                    dxIn *= rangeScale;
+                    dyIn *= rangeScale;
+                }
+            }
+        }
+
         double distanceInches = Math.hypot(dxIn, dyIn);
 
         // Include the velocity contribution of the turret pivot offset due to robot

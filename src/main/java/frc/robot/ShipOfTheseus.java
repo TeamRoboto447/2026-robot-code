@@ -179,7 +179,7 @@ public class ShipOfTheseus {
             // .and(this::isShotAllowed)
             .whileTrue(Commands.parallel(
                 Commands.run(() -> indexerSubsystem.spin()),
-                Commands.run(() -> turretSubsystem.kick(0.35)),
+                Commands.run(() -> turretSubsystem.kick(0.75)),
                 Commands.run(() -> turretSubsystem.shoot())
             ));
 
@@ -292,7 +292,7 @@ public class ShipOfTheseus {
             .and(this::isShotAllowed)
             .whileTrue(Commands.parallel(
                 indexerSubsystem.run(() -> indexerSubsystem.spin()),
-                turretSubsystem.run(() -> turretSubsystem.kick(0.35))
+                turretSubsystem.run(() -> turretSubsystem.kick(0.75))
             ));
 
         DriverController.start().onFalse(turretSubsystem.runOnce(() -> {
@@ -332,7 +332,7 @@ public class ShipOfTheseus {
         //     .and(this::isShotAllowed)
         //     .whileTrue(Commands.parallel(
         //         indexerSubsystem.run(() -> indexerSubsystem.spin()),
-        //         turretSubsystem.run(() -> turretSubsystem.kick(0.35))
+        //         turretSubsystem.run(() -> turretSubsystem.kick(0.75))
         //     ));
         // OperatorController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
         //     turretSubsystem.stopShooter();
@@ -406,7 +406,7 @@ public class ShipOfTheseus {
 
         DriverController.rightBumper().whileTrue(turretSubsystem.run(() -> {
             turretSubsystem.shoot();
-            turretSubsystem.kick(0.35);
+            turretSubsystem.kick(0.75);
         }));
 
         DriverController.rightBumper().onFalse(turretSubsystem.runOnce(() -> {

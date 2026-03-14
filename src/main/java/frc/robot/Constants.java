@@ -359,7 +359,7 @@ public final class Constants {
          * <p>Set to {@code MaxSpeed} (the robot's normal top speed) to disable the cap.
          * Testing showed 1.5 m/s as the upper bound for reliable SOTF shots.
          */
-        public static final double SOTF_MAX_DRIVE_SPEED_MPS = .5;
+        public static final double SOTF_MAX_DRIVE_SPEED_MPS = .8;
 
         /**
          * Latency compensation for shoot-on-the-fly (seconds).
@@ -387,6 +387,25 @@ public final class Constants {
          * this value.  If they land consistently ahead of your path, decrease it.
          */
         public static final double SOTF_LATENCY_COMPENSATION_S = 0.1;
+
+        /**
+         * Additional radial (toward/away) latency compensation for shoot-on-the-fly
+         * distance solving (seconds).
+         *
+         * <p>{@link #SOTF_LATENCY_COMPENSATION_S} projects the full turret position for
+         * lateral/bearing lead. This constant independently adjusts only the
+         * <em>range</em> component (distance to target) so toward/away misses can be
+         * tuned without disturbing the perpendicular lead that is already correct.
+         *
+         * <p><b>Tuning guide:</b>
+         * <ul>
+         *   <li>If driving toward the target shoots long and driving away shoots short,
+         *       decrease this value.</li>
+         *   <li>If driving toward shoots short and driving away shoots long,
+         *       increase this value.</li>
+         * </ul>
+         */
+        public static final double SOTF_RANGE_LATENCY_COMPENSATION_S = -0.04;
 
         /** Stator current limit (A) for each flywheel motor (Kraken X60). */
         public static final double SHOOTER_STATOR_CURRENT_LIMIT_A = 80.0;
