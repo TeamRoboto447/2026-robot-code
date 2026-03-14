@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 4.325096385542168,
-        "y": 7.422590361445783
+        "y": 7.42
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.4178674698795195,
-        "y": 7.575578313253011
+        "y": 7.572987951807228
       },
       "isLocked": false,
       "linkedName": null
@@ -32,16 +32,16 @@
     },
     {
       "anchor": {
-        "x": 7.54877108433735,
+        "x": 7.54,
         "y": 5.390036144578313
       },
       "prevControl": {
-        "x": 7.54877108433735,
+        "x": 7.54,
         "y": 5.640036144578313
       },
       "nextControl": {
-        "x": 7.54877108433735,
-        "y": 5.140036144578316
+        "x": 7.54,
+        "y": 5.140036144578313
       },
       "isLocked": false,
       "linkedName": null
@@ -52,12 +52,12 @@
         "y": 7.280530120481927
       },
       "prevControl": {
-        "x": 8.207020331704404,
-        "y": 6.666566515769402
+        "x": 8.012051874395514,
+        "y": 6.476323863769644
       },
       "nextControl": {
-        "x": 7.02424096385542,
-        "y": 7.586506024096385
+        "x": 7.231867469879518,
+        "y": 7.5318674698795185
       },
       "isLocked": false,
       "linkedName": null
@@ -65,15 +65,15 @@
     {
       "anchor": {
         "x": 4.325096385542168,
-        "y": 7.542795180722893
+        "y": 7.42
       },
       "prevControl": {
         "x": 5.221168674698795,
-        "y": 7.5318674698795185
+        "y": 7.409072289156626
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Trench Exit"
     }
   ],
   "rotationTargets": [
@@ -154,7 +154,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
+    "velocity": 3.0,
     "rotation": 180.0
   },
   "reversed": false,

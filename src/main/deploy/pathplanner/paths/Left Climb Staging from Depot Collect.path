@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 0.8173012048192771,
+        "y": 5.958277108433736
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.516674698795181,
+        "y": 6.001987951807228
+      },
+      "isLocked": false,
+      "linkedName": "Depot Collect"
+    },
+    {
+      "anchor": {
+        "x": 1.216,
+        "y": 5.269
+      },
+      "prevControl": {
+        "x": 1.3274289905705523,
+        "y": 5.49279361041019
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Left Climb Stage"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 270.0,
+    "maxAngularAcceleration": 360.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 1.5,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

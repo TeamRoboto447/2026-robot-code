@@ -52,7 +52,7 @@ public class ClimberSubsystem extends SubsystemBase {
         } else {
             distanceToAllianceTower = FieldConstants.RED_TOWER_CENTER.getDistance(poseProvider.getPose().getTranslation());
         }
-        return (distanceToAllianceTower < 2);
+        return (distanceToAllianceTower < 3);
     });
 
     this.climberMotor = new TalonFX(ClimberSubsystemConstants.CLIMBER_MOTOR_ID);

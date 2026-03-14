@@ -9,6 +9,61 @@
           "data": {
             "pathName": "Left Slow Clear"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot Collect Stage from Trench"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "startShooter"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "stopShooter"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Collect Depot from Staging"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Climb Staging from Depot Collect"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopShooter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Climb from Staging"
+          }
         }
       ]
     }
