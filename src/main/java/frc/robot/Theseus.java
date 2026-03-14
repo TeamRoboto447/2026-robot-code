@@ -5,9 +5,12 @@
 package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.revrobotics.util.StatusLogger;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -30,6 +33,10 @@ public class Theseus extends TimedRobot {
     @Override
     public void robotInit() {
         CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
+
+        LiveWindow.disableAllTelemetry();
+        StatusLogger.disableAutoLogging();
+        SignalLogger.stop();
 
         addPeriodic(() -> m_robotContainer.motorStatusCheck(), 10);
     }
