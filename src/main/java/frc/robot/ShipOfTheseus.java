@@ -53,6 +53,7 @@ public class ShipOfTheseus {
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private boolean autoShoot = false;
     private boolean autoIntake = false;
+    private boolean autoTurningToAngle = false;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric driveFieldOriented = new SwerveRequest.FieldCentric()
@@ -61,6 +62,8 @@ public class ShipOfTheseus {
     private final SwerveRequest.RobotCentric driveRobotOriented = new SwerveRequest.RobotCentric()
             .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    private final SwerveRequest.FieldCentricFacingAngle driveFieldOrientedWithAngle = new SwerveRequest.FieldCentricFacingAngle()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1);
     // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
@@ -117,7 +120,7 @@ public class ShipOfTheseus {
         this.indexerSubsystem = new IndexerSubsystem();
         this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
         this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
-
+        
 
         SmartDashboard.putData("Field", field);
 
@@ -220,10 +223,17 @@ public class ShipOfTheseus {
                 double speedCap = turretSubsystem.isShootingActive()
                     ? TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS
                     : MaxSpeed;
-                return driveFieldOriented
-                    .withVelocityX(-DriverController.getLeftY() * speedCap)
-                    .withVelocityY(-DriverController.getLeftX() * speedCap)
-                    .withRotationalRate(-DriverController.getRightX() * MaxAngularRate);
+                if (autoTurningToAngle) {
+                    return driveFieldOrientedWithAngle
+                        .withVelocityX(-DriverController.getLeftY() * speedCap)
+                        .withVelocityY(-DriverController.getLeftX() * speedCap)
+                        .withTargetDirection(new Rotation2d(turretSubsystem.getTargetAngleFromPos()));
+                } else {
+                    return driveFieldOriented
+                        .withVelocityX(-DriverController.getLeftY() * speedCap)
+                        .withVelocityY(-DriverController.getLeftX() * speedCap)
+                        .withRotationalRate(-DriverController.getRightX() * MaxAngularRate);                    
+                }
             })
         );
 
@@ -699,6 +709,9 @@ public class ShipOfTheseus {
             intakeSubsystem.resetLiftHoming();
             NetworkedConfig.Debug.clearResetHomedPositions();
         }
+
+        if (turretSubsystem.isShootingActive() && turretSubsystem.getRelativeAngleToTarget().abs(Degrees) > 60) autoTurningToAngle = true;
+        else autoTurningToAngle = false;
     }
 
     /**

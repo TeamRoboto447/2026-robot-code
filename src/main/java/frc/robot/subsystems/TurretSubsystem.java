@@ -935,4 +935,22 @@ public class TurretSubsystem extends SubsystemBase {
             default: return new Translation3d();
         }    
     }
+
+    public Angle getTargetAngleFromPos() {
+        Pose2d currentRobotPose = this.poseProvider.getPose();
+        Translation3d currentTargetPose = getTargetFromEnum(this.turretTarget);
+        double deltaX = currentTargetPose.getX() - currentRobotPose.getX();
+        double deltaY = currentTargetPose.getY() - currentRobotPose.getY();
+        Angle targetAngleFieldRelative = Radians.of(Math.atan2(deltaY, deltaX));
+        return targetAngleFieldRelative/*.minus(currentRobotPose.getRotation().getMeasure())*/;
+    }
+
+    public Angle getRelativeAngleToTarget() {
+        Pose2d currentRobotPose = this.poseProvider.getPose();
+        Translation3d currentTargetPose = getTargetFromEnum(this.turretTarget);
+        double deltaX = currentTargetPose.getX() - currentRobotPose.getX();
+        double deltaY = currentTargetPose.getY() - currentRobotPose.getY();
+        Angle targetAngleFieldRelative = Radians.of(Math.atan2(deltaY, deltaX));
+        return targetAngleFieldRelative.minus(currentRobotPose.getRotation().getMeasure());
+    }
 }
