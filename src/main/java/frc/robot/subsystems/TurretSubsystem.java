@@ -567,7 +567,9 @@ public class TurretSubsystem extends SubsystemBase {
 
     /** Returns true when the on-RIO solver has computed a valid shot solution this loop. */
     public boolean hasValidTarget() {
-        return lastSolution != null && lastSolution.inRange;
+        boolean overrideActive = NetworkedConfig.Debug.isOverrideRPMEnabled()
+            || NetworkedConfig.Debug.isOverrideHoodAngleEnabled();
+        return overrideActive || (lastSolution != null && lastSolution.inRange);
     }
 
     /**
@@ -694,7 +696,9 @@ public class TurretSubsystem extends SubsystemBase {
      * @param strength The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).
      */
     public void kick(double strength) {
-        if (lastSolution != null && flywheelAtSpeed())
+        boolean overrideActive = NetworkedConfig.Debug.isOverrideRPMEnabled()
+            || NetworkedConfig.Debug.isOverrideHoodAngleEnabled();
+        if ((lastSolution != null || overrideActive) && flywheelAtSpeed())
             runKickerRaw(strength);
         else
             runKickerRaw(0);

@@ -2,35 +2,91 @@
   "data_points": [
     {
       "target_height": 72.0,
-      "distance": 73.7,
+      "distance": 69.3,
       "vpar": 0.0,
-      "angle": 30.0,
-      "rpm": 3400,
-      "flight_time": 0.8
-    },
-    {
-      "target_height": 72.0,
-      "distance": 111.0,
-      "vpar": 0.0,
-      "angle": 35.0,
-      "rpm": 3700,
-      "flight_time": 0.8
-    },
-    {
-      "target_height": 72.0,
-      "distance": 177.0,
-      "vpar": 0.0,
-      "angle": 43.0,
+      "angle": 23.0,
       "rpm": 4200,
-      "flight_time": 0.8
+      "flight_time": 1.34
     },
     {
       "target_height": 72.0,
-      "distance": 190.6,
+      "distance": 113.6,
       "vpar": 0.0,
-      "angle": 39.0,
-      "rpm": 4400,
-      "flight_time": 0.8
+      "angle": 29.0,
+      "rpm": 4200,
+      "flight_time": 1.26
+    },
+    {
+      "target_height": 72.0,
+      "distance": 127.7,
+      "vpar": 0.0,
+      "angle": 31.0,
+      "rpm": 4200,
+      "flight_time": 1.25
+    },
+    {
+      "target_height": 72.0,
+      "distance": 223.5,
+      "vpar": 0.0,
+      "angle": 40.0,
+      "rpm": 4500,
+      "flight_time": 1.22
+    },
+    {
+      "target_height": 72.0,
+      "distance": 103.0,
+      "vpar": 0.0,
+      "angle": 29.5,
+      "rpm": 4200,
+      "flight_time": 1.26
+    },
+    {
+      "target_height": 72.0,
+      "distance": 126.6,
+      "vpar": 0.0,
+      "angle": 29.0,
+      "rpm": 4200,
+      "flight_time": 1.26
+    },
+    {
+      "target_height": 72.0,
+      "distance": 42.2,
+      "vpar": 0.0,
+      "angle": 24.0,
+      "rpm": 3900,
+      "flight_time": 1.15
+    },
+    {
+      "target_height": 72.0,
+      "distance": 138.8,
+      "vpar": 0.0,
+      "angle": 32.0,
+      "rpm": 4200,
+      "flight_time": 1.2
+    },
+    {
+      "target_height": 72.0,
+      "distance": 82.5,
+      "vpar": 0.0,
+      "angle": 25.56,
+      "rpm": 4200,
+      "flight_time": 1.39
+    },
+    {
+      "target_height": 72.0,
+      "distance": 54.0,
+      "vpar": 0.0,
+      "angle": 23.5,
+      "rpm": 4000,
+      "flight_time": 1.22
+    },
+    {
+      "target_height": 72.0,
+      "distance": 37.12,
+      "vpar": 0.0,
+      "angle": 23.5,
+      "rpm": 3700,
+      "flight_time": 1.1
     }
   ]
 }
