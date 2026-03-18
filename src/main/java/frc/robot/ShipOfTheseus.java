@@ -48,7 +48,7 @@ import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 
 public class ShipOfTheseus {
-    private double MaxSpeed = 0.30 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxSpeed = 0.70 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private boolean autoShoot = false;
     private boolean autoIntake = false;
@@ -331,7 +331,10 @@ public class ShipOfTheseus {
             // command or closed-loop controller needs exclusive ownership of it.
             Commands.run(() -> intakeSubsystem.intake(1))
         );
-        DriverController.leftTrigger().or(autoIntakeTrigger).onFalse(
+        DriverController.back().whileTrue(
+            Commands.run(() -> intakeSubsystem.reverseIntake(0.5))
+        );
+        DriverController.leftTrigger().or(DriverController.back()).or(autoIntakeTrigger).onFalse(
             Commands.runOnce(() -> intakeSubsystem.stopIntake())
         );
 
