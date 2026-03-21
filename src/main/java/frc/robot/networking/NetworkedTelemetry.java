@@ -1,6 +1,9 @@
 package frc.robot.networking;
 
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -176,6 +179,7 @@ public class NetworkedTelemetry {
         
         private static final BooleanEntry hasValidAprilTags = visionTable
             .getBooleanTopic("Has Valid AprilTags").getEntry(false);
+        // private static final DataPublisher detectedTagPositions = visionTable
         
         /**
          * Sets whether the vision system currently has valid AprilTag detections.
@@ -184,6 +188,11 @@ public class NetworkedTelemetry {
          */
         public static void setHasValidAprilTags(boolean hasValid) {
             hasValidAprilTags.set(hasValid);
+        }
+
+        public static void setDetectedTagPostions(List<Pose3d> positions) {
+            Pose3d[] posArray = positions.toArray(new Pose3d[0]);
+            
         }
         
         /**

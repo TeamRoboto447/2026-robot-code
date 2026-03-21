@@ -11,7 +11,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
-// import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -30,7 +30,7 @@ public class PhotonRunnable implements Runnable {
     private final PhotonPoseEstimator photonPoseEstimator;
     private final PhotonCamera photonCamera;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
-    // private List<PhotonTrackedTarget> detectedTags = List.of();
+    private List<PhotonTrackedTarget> detectedTags = List.of();
 
     /**
      * Creates a new PhotonRunnable.
@@ -56,7 +56,7 @@ public class PhotonRunnable implements Runnable {
         if (this.photonPoseEstimator != null && this.photonCamera != null) {
             List<PhotonPipelineResult> photonResults = this.photonCamera.getAllUnreadResults();
             for (PhotonPipelineResult result : photonResults) {
-                // detectedTags.clear();
+                detectedTags.clear();
 
                 if (!result.hasTargets()) continue;
 
@@ -78,7 +78,7 @@ public class PhotonRunnable implements Runnable {
                     }
                 });
 
-                // detectedTags.addAll(result.getTargets());
+                detectedTags.addAll(result.getTargets());
             }
         }
     }
@@ -91,7 +91,7 @@ public class PhotonRunnable implements Runnable {
         return atomicEstimatedRobotPose.getAndSet(null);
     }
 
-    // public List<PhotonTrackedTarget> grabDetectedTags() {
-    //     return detectedTags;
-    // }
+    public List<PhotonTrackedTarget> grabDetectedTags() {
+        return detectedTags;
+    }
 }
