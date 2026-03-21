@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.325096385542168,
-        "y": 7.42
+        "x": 4.325,
+        "y": 7.717638554216867
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.4564578313253005,
-        "y": 7.343506024096384
+        "x": 2.4563614457831324,
+        "y": 7.641144578313251
       },
       "isLocked": false,
       "linkedName": "Left Trench Exit"
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 0.5,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 270.0,
     "maxAngularAcceleration": 360.0,

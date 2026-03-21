@@ -92,7 +92,7 @@ public final class Constants {
         // [x (m), y (m), theta (rad)] — lower = trust vision more, higher = trust swerve more.
         // At 0.9/0.9/1.5, vision gently nudges the pose estimate rather than overriding wheel odometry.
         public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(),
-                0.05, 0.05, .1);
+                0.2, 0.2, .1);
 
         // Near-zero std devs used while the robot is disabled so vision measurements
         // are trusted implicitly, fully seeding the pose estimator from AprilTags
@@ -226,7 +226,7 @@ public final class Constants {
                 Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
 
-            private static final double RED_DEPOT_X = 15.3275;
+            private static final double RED_DEPOT_X = 15.3021;
             private static final double RED_OUTPOST_X = 15.64;
 
             public static final Pose2d RED_DEPOT_SIDE = new Pose2d(

@@ -55,6 +55,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             anyValid |= estimatorChecker(backLeftCamera);
             anyValid |= estimatorChecker(backCamera);
             NetworkedTelemetry.Vision.setHasValidAprilTags(anyValid);
+
+            // allDetectedTags
         }
     }
 
