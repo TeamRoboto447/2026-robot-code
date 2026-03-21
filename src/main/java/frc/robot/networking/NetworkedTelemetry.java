@@ -14,6 +14,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
 
@@ -179,7 +180,8 @@ public class NetworkedTelemetry {
         
         private static final BooleanEntry hasValidAprilTags = visionTable
             .getBooleanTopic("Has Valid AprilTags").getEntry(false);
-        // private static final DataPublisher detectedTagPositions = visionTable
+        private static final StructArrayPublisher<Pose3d> detectedTagPositions = visionTable
+            .getStructArrayTopic("Detected Tags", Pose3d.struct).publish();
         
         /**
          * Sets whether the vision system currently has valid AprilTag detections.
@@ -192,7 +194,7 @@ public class NetworkedTelemetry {
 
         public static void setDetectedTagPostions(List<Pose3d> positions) {
             Pose3d[] posArray = positions.toArray(new Pose3d[0]);
-            
+            detectedTagPositions.set(posArray);            
         }
         
         /**
