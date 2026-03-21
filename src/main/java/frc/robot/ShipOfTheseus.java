@@ -30,7 +30,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 // (removed unused imports)
 import edu.wpi.first.wpilibj2.command.button.Trigger;
- 
+import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
 import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
@@ -182,7 +182,7 @@ public class ShipOfTheseus {
             .whileTrue(Commands.parallel(
                 Commands.run(() -> indexerSubsystem.spin()),
                 Commands.run(() -> turretSubsystem.kick(0.75)),
-                Commands.run(() -> turretSubsystem.shoot())
+                Commands.run(() -> turretSubsystem.shootAutoTarget())
             ));
 
         // Cap drive speed while the autonomous shoot trigger is active.
@@ -286,15 +286,26 @@ public class ShipOfTheseus {
             .and(turretSubsystem::hasValidTarget)
             .and(this::isShotAllowed)
             .whileTrue(
-                turretSubsystem.run(() -> turretSubsystem.shoot())
+                turretSubsystem.run(() -> turretSubsystem.shootAutoTarget())
             );
 
         DriverController.start().or(OperatorController.rightTrigger())
             .onTrue(Commands.runOnce(() -> turretSubsystem.setShootingActive(true)))
             .onFalse(Commands.runOnce(() -> turretSubsystem.setShootingActive(false)));
 
-        turretSubsystem.getFeedTrigger().and(
-            DriverController.start().or(OperatorController.rightTrigger()))
+        
+        OperatorController.leftTrigger().or(DriverController.y())
+            .and(turretSubsystem::hasValidTarget)
+            .and(this::isShotAllowed)
+            .whileTrue(
+                turretSubsystem.run(() -> turretSubsystem.shootAutoTargetWithRPMOffset(TurretSubsystemConstants.RPM_OFFSET_WHILE_CLIMBED))
+            );
+
+        turretSubsystem.getFeedTrigger()
+            .and(
+                DriverController.start().or(OperatorController.rightTrigger())
+                .or(DriverController.y().or(OperatorController.leftTrigger()))
+            )
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
             .and(this::isShotAllowed)
@@ -371,6 +382,7 @@ public class ShipOfTheseus {
         // Operator: Climber Control
         OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
         OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
+
     }
     
     @SuppressWarnings("unused") // Suppress warnings for unused bindings in dev mode
@@ -416,7 +428,7 @@ public class ShipOfTheseus {
         ));
 
         DriverController.rightBumper().whileTrue(turretSubsystem.run(() -> {
-            turretSubsystem.shoot();
+            turretSubsystem.shootAutoTarget();
             turretSubsystem.kick(0.75);
         }));
 

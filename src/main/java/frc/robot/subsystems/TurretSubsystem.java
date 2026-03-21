@@ -47,6 +47,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.TurretSubsystemConstants;
+import frc.robot.ShipOfTheseus;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.TurretTarget;
 import frc.robot.Constants.FieldConstants.TurretTargetPoints;
@@ -489,12 +490,20 @@ public class TurretSubsystem extends SubsystemBase {
      * {@link ShooterTable} solution computed in {@link #periodic()}; if no solution
      * is available the flywheel coasts.
      */
-    public void shoot() {
+    public void shootAutoTarget() {
+        shootAutoTargetWithRPMOffset(0);
+    }
+
+    public void shootAutoTargetWithRPMOffset(double rpmOffset) {
         shooting = true;
         runFlywheel = true;
-        double targetRPS = (lastSolution != null) ? lastSolution.rpm / 60.0
-                                                  : NetworkedConfig.Turret.getTargetRPM() / 60.0;
-        rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
+        double targetRPM = (lastSolution != null) ? (lastSolution.rpm + rpmOffset)
+                                                  : NetworkedConfig.Turret.getTargetRPM();
+        shootWithRPM(targetRPM);
+    }
+
+    public void shootWithRPM(double rpm) {
+        rightShooterMotor.setControl(velocityReq.withVelocity(rpm / 60.0));
     }
 
     /**

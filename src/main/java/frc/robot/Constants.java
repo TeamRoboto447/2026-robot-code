@@ -427,6 +427,9 @@ public final class Constants {
         public static final double TURRET_STATOR_CURRENT_LIMIT_A = 40.0;
         /** Supply current limit (A) for the turret angle motor. */
         public static final double TURRET_SUPPLY_CURRENT_LIMIT_A = 30.0;
+
+        // 12 inches of distance offset
+        public static final double RPM_OFFSET_WHILE_CLIMBED = -200;
     }
     
     public static class IntakeSubsystemConstants {
