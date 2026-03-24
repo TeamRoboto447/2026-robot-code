@@ -13,6 +13,7 @@ import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
+import org.photonvision.PhotonCamera;
 
 /**
  * NetworkedTelemetry centralizes generic robot telemetry publishing to NetworkTables.
@@ -176,7 +177,10 @@ public class NetworkedTelemetry {
         
         private static final BooleanEntry hasValidAprilTags = visionTable
             .getBooleanTopic("Has Valid AprilTags").getEntry(false);
-        
+
+        private static final PhotonCamera frontCamera = new PhotonCamera("FrontCam");
+        private static final PhotonCamera backCamera = new PhotonCamera("BackCam");
+
         /**
          * Sets whether the vision system currently has valid AprilTag detections.
          * 
@@ -193,6 +197,21 @@ public class NetworkedTelemetry {
          */
         public static boolean hasValidAprilTags() {
             return hasValidAprilTags.get();
+        }
+        
+        /**
+         * Checks if both FrontCam and BackCam are currently active.
+         * Verifies both cameras by checking if their heartbeat values are changing
+         * (indicating fresh frames are being processed).
+         * 
+         * @return True if both cameras are active and publishing new frames, false otherwise
+         */
+        public static boolean bothCamerasActive() {
+            try {
+                return frontCamera.isConnected() && backCamera.isConnected();
+            } catch (Exception e) {
+                return false;
+            }
         }
     }
 

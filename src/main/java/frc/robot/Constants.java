@@ -275,6 +275,13 @@ public final class Constants {
             15.55,
             4.3
         );
+        
+        /**
+         * Tolerance for aligning robot to autonomous starting position.
+         * Used during disabled mode to show if robot is positioned correctly for auto.
+         */
+        public static final double AUTO_POSE_DISTANCE_TOLERANCE_M = 0.3;
+        public static final double AUTO_POSE_HEADING_TOLERANCE_DEG = 10.0;
     }
 
     public static class TurretSubsystemConstants {

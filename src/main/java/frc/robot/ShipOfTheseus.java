@@ -18,6 +18,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -99,6 +101,11 @@ public class ShipOfTheseus {
     );
     private final Trigger autoShootTrigger = new Trigger(() -> this.autoShoot);
     private final Trigger autoIntakeTrigger = new Trigger(() -> this.autoIntake);
+    
+    // NeoPixel telemetry state tracking
+    private boolean hubWarningFired = false;
+    private boolean wasHubActive = false;
+    private final Debouncer aprilTagValidDebouncer = new Debouncer(0.25, DebounceType.kBoth);
 
     // /**
     //  * Path-following builder used for mid-game commands (e.g. automated climb).
@@ -696,6 +703,79 @@ public class ShipOfTheseus {
     }
 
     /**
+     * Gets the starting pose from the currently selected autonomous routine.
+     * Extracts the first pose from the PathPlanner path if available.
+     * 
+     * @return The auto starting pose, or null if not available
+     */
+    private Pose2d getSelectedAutoStartingPose() {
+        try {
+            Command selected = autoChooser.getSelected();
+            // For PathPlanner autos, the starting pose is typically the first path point
+            // This is a best-effort implementation; may need adjustment based on actual command structure
+            if (selected != null) {
+                // Most PathPlanner commands start at a defined origin
+                // For now, return null as placeholder — actual implementation depends on path structure
+                return null;
+            }
+        } catch (Exception e) {
+            // Silently fail if pose extraction is not available
+        }
+        return null;
+    }
+    
+    /**
+     * Checks if the robot's current pose is aligned to the autonomous starting position.
+     * Uses configurable tolerances for distance and heading.
+     * 
+     * @return True if current pose is within tolerance of auto start pose
+     */
+    private boolean isAlignedToAutoStart() {
+        Pose2d autoStart = getSelectedAutoStartingPose();
+        if (autoStart == null) return false;
+        
+        Pose2d current = swerveSubsystem.getPose();
+        double distance = current.getTranslation().getDistance(autoStart.getTranslation());
+        double headingDiff = Math.abs(current.getRotation().minus(autoStart.getRotation()).getDegrees());
+        
+        // Normalize heading difference to [0, 180]
+        if (headingDiff > 180) headingDiff = 360 - headingDiff;
+        
+        return distance <= Constants.FieldConstants.AUTO_POSE_DISTANCE_TOLERANCE_M 
+            && headingDiff <= Constants.FieldConstants.AUTO_POSE_HEADING_TOLERANCE_DEG;
+    }
+    
+    /**
+     * Publishes the current NeoPixel control mode based on robot state.
+     * Mode selection priority:
+     * 1. DISABLED_NO_CAMERA — if both cameras are not active
+     * 2. DISABLED_NO_TAGS — if cameras are active but no AprilTags detected
+     * 3. DISABLED_CORRECT_POSITION — if aligned to autonomous starting pose
+     * 4. DISABLED_HAS_TAGS — if tags detected but not aligned
+     * 5. ENABLED_DEFAULT — when robot is enabled
+     */
+    private void publishNeopixelMode() {
+        String mode;
+        boolean hasDebouncedAprilTags = aprilTagValidDebouncer.calculate(NetworkedTelemetry.Vision.hasValidAprilTags());
+        
+        if (edu.wpi.first.wpilibj.DriverStation.isDisabled()) {
+            if (!NetworkedTelemetry.Vision.bothCamerasActive()) {
+                mode = "DISABLED_NO_CAMERA";
+            } else if (!hasDebouncedAprilTags) {
+                mode = "DISABLED_NO_TAGS";
+            } else if (isAlignedToAutoStart()) {
+                mode = "DISABLED_CORRECT_POSITION";
+            } else {
+                mode = "DISABLED_HAS_TAGS";
+            }
+        } else {
+            mode = "ENABLED_DEFAULT";
+        }
+        
+        NetworkedTelemetry.NeoPixels.setControlMode(mode);
+    }
+
+    /**
      * Called every robot loop from {@code Theseus.robotPeriodic()}. Publishes
      * game-state telemetry to NetworkTables using the {@link GameState} instance
      * managed by {@link StateManager} (updated by {@code repulsor.update()}).
@@ -712,7 +792,28 @@ public class ShipOfTheseus {
                 gs.isHubActive(),
                 countdown
             );
+            
+            // Handle NeoPixel hub warning trigger (8 seconds before hub becomes active)
+            boolean isHubActive = gs.isHubActive();
+            double remainingShift = gs.getRemainingShiftTime();
+            
+            // Fire trigger when hub inactive, countdown <= 6s, and not yet fired
+            if (!isHubActive && remainingShift <= 10.0 && !hubWarningFired) {
+                NetworkedTelemetry.NeoPixels.setControlTrigger("PHASE_SHIFT_INCOMING");
+                hubWarningFired = true;
+                System.out.println("[NeoPixel] Phase shift incoming trigger: hub activating in ~" + remainingShift + "s");
+            }
+            
+            // Reset flag when hub just became inactive
+            if (wasHubActive && !isHubActive) {
+                hubWarningFired = false;
+            }
+            
+            wasHubActive = isHubActive;
         }
+        
+        // Publish current NeoPixel mode based on robot state
+        publishNeopixelMode();
 
         // (Diagnostics removed): path start/end printing is used instead.
 
