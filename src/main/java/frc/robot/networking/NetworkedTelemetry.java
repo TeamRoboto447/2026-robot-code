@@ -377,4 +377,17 @@ public class NetworkedTelemetry {
             hubActiveCountdown.set(hubActiveCountdownSecs);
         }
     }
+
+    public static class NeoPixels {
+        private static final NetworkTable neopixelTable = 
+            defaultNTInstance.getTable("Neopixels");
+        
+        private static final StringEntry controlMode = 
+            neopixelTable.getStringTopic("Control Mode").getEntry("DISABLED_NO_CAMERA");
+        private static final StringEntry controlTrigger = 
+            neopixelTable.getStringTopic("Control Trigger").getEntry("No Control");
+                
+        public static void setControlMode(String mode)          { controlMode.set(mode); }
+        public static void setControlTrigger(String trigger)    { controlTrigger.set(trigger); }
+    }
 }

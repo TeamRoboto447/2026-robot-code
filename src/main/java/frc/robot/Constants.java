@@ -526,4 +526,14 @@ public final class Constants {
         /** Supply current limit (A) for the climber motor. */
         public static final double CLIMBER_SUPPLY_CURRENT_LIMIT_A = 80.0;
     }
+
+    public static class NeopixelConstants {
+        public enum PixelStates {
+            DISABLED_NO_CAMERA,
+            DISABLED_NO_TAGS,
+            DISABLED_HAS_TAGS,
+            DISABLED_CORRECT_POSITION,
+            ENABLED_DEFAULT            
+        }
+    }
 }
