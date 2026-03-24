@@ -385,7 +385,7 @@ public class NetworkedTelemetry {
         private static final StringEntry controlMode = 
             neopixelTable.getStringTopic("Control Mode").getEntry("DISABLED_NO_CAMERA");
         private static final StringEntry controlTrigger = 
-            neopixelTable.getStringTopic("Control Trigger").getEntry("No Control");
+            neopixelTable.getStringTopic("Control Trigger").getEntry("");
                 
         public static void setControlMode(String mode)          { controlMode.set(mode); }
         public static void setControlTrigger(String trigger)    { controlTrigger.set(trigger); }
