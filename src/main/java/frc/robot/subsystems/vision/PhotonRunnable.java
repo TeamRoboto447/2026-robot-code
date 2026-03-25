@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.vision;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,7 +31,7 @@ public class PhotonRunnable implements Runnable {
     private final PhotonPoseEstimator photonPoseEstimator;
     private final PhotonCamera photonCamera;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
-    private List<PhotonTrackedTarget> detectedTags = List.of();
+    private ArrayList<PhotonTrackedTarget> detectedTags = new ArrayList<>();
 
     /**
      * Creates a new PhotonRunnable.

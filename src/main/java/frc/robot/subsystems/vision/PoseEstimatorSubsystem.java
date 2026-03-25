@@ -65,11 +65,11 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             anyValid |= estimatorChecker(backCamera);
             NetworkedTelemetry.Vision.setHasValidAprilTags(anyValid);
 
-            List<PhotonTrackedTarget> allDetectedTags = new ArrayList<PhotonTrackedTarget>();
+            ArrayList<PhotonTrackedTarget> allDetectedTags = new ArrayList<PhotonTrackedTarget>();
             allDetectedTags.addAll(backLeftCamera.grabDetectedTags());
             allDetectedTags.addAll(backCamera.grabDetectedTags());
 
-            List<Pose3d> detectedTagPositions = new ArrayList<Pose3d>();
+            ArrayList<Pose3d> detectedTagPositions = new ArrayList<Pose3d>();
             allDetectedTags.forEach((PhotonTrackedTarget tag) -> {
                 Optional<Pose3d> optionalPose = aprilTagLayout.getTagPose(tag.getFiducialId());
                 if (optionalPose.isPresent()) detectedTagPositions.add(optionalPose.get());
