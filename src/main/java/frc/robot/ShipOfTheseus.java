@@ -206,13 +206,13 @@ public class ShipOfTheseus {
     private void configureProductionBindings() {
         // Run homing commands on initialization - If already homed, the command immediately cancels itself
         // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
+        RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber());
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
             runSensorlessHoming();
             this.autoShoot = false;
             this.autoIntake = false;
         }));
 
-        climberSubsystem.setDefaultCommand(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
         DriverController.x().onTrue(Commands.defer(() -> getAutoClimbCommand(), Set.of(swerveSubsystem, climberSubsystem)));
 
         // Swerve Drive
@@ -228,6 +228,7 @@ public class ShipOfTheseus {
                 NetworkedConfig.Debug.setTurretTargetOverride(turretTargetChooser.getSelected());
 
                 double speedCap = turretSubsystem.getRampedSpeedCap(MaxSpeed);
+                double angularRateCap = turretSubsystem.getRampedAngularRateCap(MaxAngularRate);
                 if (autoTurningToAngle) {
                     return driveFieldOrientedWithAngle
                         .withVelocityX(-DriverController.getLeftY() * speedCap)
@@ -237,7 +238,7 @@ public class ShipOfTheseus {
                     return driveFieldOriented
                         .withVelocityX(-DriverController.getLeftY() * speedCap)
                         .withVelocityY(-DriverController.getLeftX() * speedCap)
-                        .withRotationalRate(-DriverController.getRightX() * MaxAngularRate);                    
+                        .withRotationalRate(-DriverController.getRightX() * angularRateCap);
                 }
             })
         );
@@ -347,7 +348,7 @@ public class ShipOfTheseus {
             // firing during autonomous does not claim intakeSubsystem and cancel the
             // running path command. The intake motor is purely open-loop — no default
             // command or closed-loop controller needs exclusive ownership of it.
-            Commands.run(() -> intakeSubsystem.intake(1))
+            Commands.run(() -> intakeSubsystem.intake(0.7))
         );
         DriverController.back().whileTrue(
             Commands.run(() -> intakeSubsystem.reverseIntake(0.5))
@@ -409,7 +410,7 @@ public class ShipOfTheseus {
         );
 
         OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.7)));
-        OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(1)));
+        OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(0.7)));
         OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
         OperatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
 
@@ -579,6 +580,7 @@ public class ShipOfTheseus {
     private void initializeNamedCommands() {
         NamedCommands.registerCommand("homeHood", Commands.defer(() -> turretSubsystem.homeHood(), Set.of()));
         NamedCommands.registerCommand("startShooter", Commands.runOnce(() -> this.autoShoot = true));
+        // NamedCommands.registerCommand("startShooterFromClimb", turretSubsystem.run(() -> turretSubsystem.shootAutoTargetWithRPMOffset(TurretSubsystemConstants.RPM_OFFSET_WHILE_CLIMBED)))
         NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
         NamedCommands.registerCommand("runAutoShoot", Commands.startEnd(() -> this.autoShoot = true, () -> this.autoShoot = false));
         NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
@@ -824,8 +826,8 @@ public class ShipOfTheseus {
             NetworkedConfig.Debug.clearResetHomedPositions();
         }
 
-        if (turretSubsystem.isShootingActive() && turretSubsystem.getRelativeAngleToTarget().abs(Degrees) > 60) autoTurningToAngle = true;
-        else autoTurningToAngle = false;
+        // if (turretSubsystem.isShootingActive() && turretSubsystem.getRelativeAngleToTarget().abs(Degrees) > 60) autoTurningToAngle = true;
+        // else autoTurningToAngle = false;
     }
 
     /**

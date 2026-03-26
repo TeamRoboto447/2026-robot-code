@@ -60,9 +60,27 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Raise Climber"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Left Climb from Staging"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lower Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
           }
         }
       ]

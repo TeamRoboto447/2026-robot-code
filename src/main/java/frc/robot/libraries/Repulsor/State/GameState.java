@@ -26,8 +26,11 @@ import java.util.Optional;
 public class GameState extends StaticState {
   private final double TELEOP_GAME_LENGTH = 140.0;
   private final double AUTONOMOUS_PERIOD_LENGTH = 20.0;
-  private final double TRANSITION_PERIOD_LENGTH = 10.0;
-  private final double MATCH_SHIFT_LENGTH = 25.0;
+  private final double TRANSITION_END_TIME = 130.0;
+  private final double SHIFT_1_END_TIME = 105.0;
+  private final double SHIFT_2_END_TIME = 80.0;
+  private final double SHIFT_3_END_TIME = 55.0;
+  private final double SHIFT_4_END_TIME = 30.0;
 
   private Optional<DriverStation.Alliance> alliance = Optional.empty();
   private Optional<DriverStation.Alliance> inactiveFirst = Optional.empty();
@@ -61,8 +64,8 @@ public class GameState extends StaticState {
     }
 
     if (inactiveFirst.isEmpty() && validGameData) {
-      inactiveFirst =
-          Optional.of((gameData.equals("B")) ? DriverStation.Alliance.Blue : DriverStation.Alliance.Red);
+      inactiveFirst = Optional.of(
+          (gameData.charAt(0) == 'B') ? DriverStation.Alliance.Blue : DriverStation.Alliance.Red);
     }
   }
 
@@ -84,38 +87,36 @@ private double getMatchTime() {
     return TELEOP_GAME_LENGTH - gameTime; // Plain DS: convert elapsed → remaining
 }
 
-  private int getGamePeriodNumber() {
-    double gameTime = getMatchTime();
-
-    int gamePeriodNumber;
-    if (!DriverStation.isTeleopEnabled()) {
-      gamePeriodNumber = -1;
-    } else {
-      if (gameTime <= 10) {
-        gamePeriodNumber = 0;
-      } else {
-        gamePeriodNumber =
-            (int) Math.ceil((gameTime - TRANSITION_PERIOD_LENGTH) / MATCH_SHIFT_LENGTH);
-      }
+  public boolean isHubActive() {
+    if (DriverStation.isAutonomousEnabled()) {
+      return true;
     }
 
-    return gamePeriodNumber;
-  }
+    // Fail-safe default: keep hub active when not teleop enabled.
+    if (!DriverStation.isTeleopEnabled()) {
+      return true;
+    }
 
-  public boolean isHubActive() {
     if (!(inactiveFirst.isPresent() && alliance.isPresent())) {
       return true;
     }
 
-    int shiftDiscriminant = (inactiveFirst.get() == alliance.get()) ? 1 : 0;
-    int gamePeriodNumber = getGamePeriodNumber();
-    boolean isActive = true;
-    if (gamePeriodNumber == 0) {
-      isActive = true;
-    } else {
-      isActive = !(gamePeriodNumber % 2 == shiftDiscriminant);
+    double matchTime = getMatchTime();
+
+    // Transition and endgame are always active.
+    if (matchTime > TRANSITION_END_TIME || matchTime <= SHIFT_4_END_TIME) {
+      return true;
     }
-    return isActive;
+
+    boolean shift1Active = inactiveFirst.get() != alliance.get();
+    if (matchTime > SHIFT_1_END_TIME) {
+      return shift1Active;
+    } else if (matchTime > SHIFT_2_END_TIME) {
+      return !shift1Active;
+    } else if (matchTime > SHIFT_3_END_TIME) {
+      return shift1Active;
+    }
+    return !shift1Active;
   }
 
   public boolean isHubInactive() {
@@ -123,19 +124,46 @@ private double getMatchTime() {
   }
 
   public double getRemainingShiftTime() {
-    double shiftEndTime;
-    double gameTime = getMatchTime();
-    double shiftNumber = getGamePeriodNumber();
-    if (shiftNumber == -1) {
-      shiftEndTime = AUTONOMOUS_PERIOD_LENGTH;
-    } else if (shiftNumber == 0) {
-      shiftEndTime = TRANSITION_PERIOD_LENGTH;
-    } else {
-      shiftEndTime = shiftNumber * MATCH_SHIFT_LENGTH + TRANSITION_PERIOD_LENGTH;
-      shiftEndTime = (shiftNumber < 5) ? shiftEndTime : shiftEndTime + 5;
+    double previousRawMatchTime = lastMatchTime;
+    double matchTime = getMatchTime();
+    double currentRawMatchTime = lastMatchTime;
+
+    boolean normalizedTimeCountingDown = true;
+    if (previousRawMatchTime >= 0.0) {
+      if (Boolean.TRUE.equals(isCountingDown)) {
+        normalizedTimeCountingDown = true;
+      } else {
+        normalizedTimeCountingDown = currentRawMatchTime > previousRawMatchTime;
+      }
     }
 
-    return shiftEndTime - gameTime;
+    if (normalizedTimeCountingDown) {
+      if (matchTime > TRANSITION_END_TIME) {
+        return matchTime - TRANSITION_END_TIME;
+      } else if (matchTime > SHIFT_1_END_TIME) {
+        return matchTime - SHIFT_1_END_TIME;
+      } else if (matchTime > SHIFT_2_END_TIME) {
+        return matchTime - SHIFT_2_END_TIME;
+      } else if (matchTime > SHIFT_3_END_TIME) {
+        return matchTime - SHIFT_3_END_TIME;
+      } else if (matchTime > SHIFT_4_END_TIME) {
+        return matchTime - SHIFT_4_END_TIME;
+      }
+      return Math.max(0.0, matchTime);
+    }
+
+    if (matchTime <= SHIFT_4_END_TIME) {
+      return SHIFT_4_END_TIME - matchTime;
+    } else if (matchTime <= SHIFT_3_END_TIME) {
+      return SHIFT_3_END_TIME - matchTime;
+    } else if (matchTime <= SHIFT_2_END_TIME) {
+      return SHIFT_2_END_TIME - matchTime;
+    } else if (matchTime <= SHIFT_1_END_TIME) {
+      return SHIFT_1_END_TIME - matchTime;
+    } else if (matchTime <= TRANSITION_END_TIME) {
+      return TRANSITION_END_TIME - matchTime;
+    }
+    return Math.max(0.0, TELEOP_GAME_LENGTH - matchTime);
   }
 
   @Override
