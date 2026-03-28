@@ -29,7 +29,49 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 3.0
+                  "waitTime": 0.75
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Lower Intake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.75
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Raise Intake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.75
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Lower Intake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 0.75
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Raise Intake"
                 }
               }
             ]
@@ -44,25 +86,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Raise Climber"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Climb from Staging"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "stopShooter"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Lower Climber"
+            "name": "autoClimb"
           }
         }
       ]

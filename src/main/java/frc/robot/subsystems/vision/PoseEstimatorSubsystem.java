@@ -60,9 +60,12 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (VisionConstants.USE_VISION) {
-            boolean anyValid = false;
-            anyValid |= estimatorChecker(backLeftCamera);
-            anyValid |= estimatorChecker(backCamera);
+            // boolean anyValid = false
+            // anyValid |= estimatorChecker(backLeftCamera);
+            // anyValid |= estimatorChecker(backCamera);
+            boolean backLeftValid = estimatorChecker(backLeftCamera);
+            boolean backValid = estimatorChecker(backCamera);
+            boolean anyValid = backLeftValid || backValid;
             NetworkedTelemetry.Vision.setHasValidAprilTags(anyValid);
 
             ArrayList<PhotonTrackedTarget> allDetectedTags = new ArrayList<PhotonTrackedTarget>();

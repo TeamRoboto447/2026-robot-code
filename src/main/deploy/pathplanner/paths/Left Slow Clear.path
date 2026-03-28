@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.325,
-        "y": 7.717638554216867
+        "x": 4.33,
+        "y": 7.61
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.340003603826577,
-        "y": 7.561124388023956
+        "x": 5.3450036038265765,
+        "y": 7.453485833807089
       },
       "isLocked": false,
       "linkedName": null
@@ -52,12 +52,12 @@
         "y": 7.575578313253011
       },
       "prevControl": {
-        "x": 8.337667447783776,
-        "y": 7.459213432438887
+        "x": 8.029590361445782,
+        "y": 7.586506024096385
       },
       "nextControl": {
-        "x": 6.554349397590361,
-        "y": 7.684855421686747
+        "x": 6.543493003483222,
+        "y": 7.559952887819798
       },
       "isLocked": false,
       "linkedName": null
@@ -65,11 +65,11 @@
     {
       "anchor": {
         "x": 4.325,
-        "y": 7.717638554216867
+        "y": 7.61
       },
       "prevControl": {
         "x": 5.002518072289156,
-        "y": 7.905999999999999
+        "y": 7.798361445783132
       },
       "nextControl": null,
       "isLocked": false,
@@ -83,7 +83,7 @@
     },
     {
       "waypointRelativePos": 1,
-      "rotationDegrees": -90.0
+      "rotationDegrees": -80.0
     },
     {
       "waypointRelativePos": 1.9985454545454466,
@@ -97,10 +97,10 @@
   "constraintZones": [
     {
       "name": "Slow Pickup Constraint",
-      "minWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 1.1244161358811007,
       "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 1.0,
+        "maxVelocity": 1.5,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 270.0,
         "maxAngularAcceleration": 360.0,
@@ -124,7 +124,7 @@
     },
     {
       "name": "Start Intake",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.65562632696391,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -135,7 +135,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 2.75,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 270.0,
     "maxAngularAcceleration": 360.0,

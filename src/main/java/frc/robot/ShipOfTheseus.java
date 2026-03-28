@@ -12,15 +12,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindThenFollowPath;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -105,7 +109,7 @@ public class ShipOfTheseus {
     // NeoPixel telemetry state tracking
     private boolean hubWarningFired = false;
     private boolean wasHubActive = false;
-    private final Debouncer aprilTagValidDebouncer = new Debouncer(0.25, DebounceType.kBoth);
+    private final Debouncer aprilTagValidDebouncer = new Debouncer(0.25, DebounceType.kFalling);
 
     // /**
     //  * Path-following builder used for mid-game commands (e.g. automated climb).
@@ -176,37 +180,38 @@ public class ShipOfTheseus {
 
     // TODO: Verify correct bindings before uploading
     private void configureBindings() {
-        configureAutonomousBindings();
+        // configureAutonomousBindings();
         
         configureProductionBindings();
         // configureDevBindings();
     }
 
-    private void configureAutonomousBindings() {
-        autoShootTrigger.and(turretSubsystem::hasValidTarget)
-            .and(turretSubsystem::isHoodHomed)
-            // .and(this::isShotAllowed)
-            .whileTrue(Commands.parallel(
-                Commands.run(() -> indexerSubsystem.spin()),
-                Commands.run(() -> turretSubsystem.kick(0.75)),
-                Commands.run(() -> turretSubsystem.shootAutoTarget())
-            ));
+    // private void configureAutonomousBindings() {
+    //     autoShootTrigger.and(turretSubsystem::hasValidTarget)
+    //         .and(turretSubsystem::isHoodHomed)
+    //         // .and(this::isShotAllowed)
+    //         .whileTrue(Commands.parallel(
+    //             Commands.run(() -> indexerSubsystem.spin()),
+    //             Commands.run(() -> turretSubsystem.kick(0.75)),
+    //             Commands.run(() -> turretSubsystem.shootAutoTarget())
+    //         ));
 
-        // Cap drive speed while the autonomous shoot trigger is active.
-        autoShootTrigger
-            .onTrue(Commands.runOnce(() -> turretSubsystem.setShootingActive(true)))
-            .onFalse(Commands.runOnce(() -> turretSubsystem.setShootingActive(false)));
+    //     // Cap drive speed while the autonomous shoot trigger is active.
+    //     autoShootTrigger
+    //         .onTrue(Commands.runOnce(() -> turretSubsystem.setShootingActive(true)))
+    //         .onFalse(Commands.runOnce(() -> turretSubsystem.setShootingActive(false)));
 
-        autoShootTrigger.onFalse(Commands.runOnce(() -> {
-            turretSubsystem.stopAll();
-            indexerSubsystem.stop();
-        }));
-    }
+    //     autoShootTrigger.onFalse(Commands.runOnce(() -> {
+    //         turretSubsystem.stopAll();
+    //         indexerSubsystem.stop();
+    //     }));
+    // }
 
     private void configureProductionBindings() {
         // Run homing commands on initialization - If already homed, the command immediately cancels itself
-        // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
+        RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
         RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber());
+        RobotModeTriggers.teleop().onTrue(climberSubsystem.raiseToFull());
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
             runSensorlessHoming();
             this.autoShoot = false;
@@ -290,14 +295,14 @@ public class ShipOfTheseus {
         // Hub shots are blocked while the hub is inactive; non-hub targets (alliance
         // zone relays) are always allowed.
         // Also caps drive speed at SOTF_MAX_DRIVE_SPEED_MPS for the duration of the hold.
-        DriverController.start().or(OperatorController.rightTrigger())
+        DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
             .and(turretSubsystem::hasValidTarget)
             .and(this::isShotAllowed)
             .whileTrue(
                 turretSubsystem.run(() -> turretSubsystem.shootAutoTarget())
             );
 
-        DriverController.start().or(OperatorController.rightTrigger())
+        DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
             .onTrue(Commands.runOnce(() -> turretSubsystem.setShootingActive(true)))
             .onFalse(Commands.runOnce(() -> turretSubsystem.setShootingActive(false)));
 
@@ -313,6 +318,7 @@ public class ShipOfTheseus {
             .and(
                 DriverController.start().or(OperatorController.rightTrigger())
                 .or(DriverController.y().or(OperatorController.leftTrigger()))
+                .or(autoShootTrigger)
             )
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
@@ -338,17 +344,18 @@ public class ShipOfTheseus {
 
         // Driver: Intake (left trigger)
         // Lower the intake if it isn't already, then run the intake roller.
-        DriverController.leftTrigger().onTrue(
+        DriverController.leftTrigger().or(OperatorController.a()).or(autoIntakeTrigger).onTrue(
             intakeSubsystem.runOnce(() -> {
                 if (!intakeSubsystem.isIntakeDown()) intakeSubsystem.dropIntake();
             })
         );
-        DriverController.leftTrigger().or(autoIntakeTrigger).whileTrue(
+        
+        DriverController.leftTrigger().or(OperatorController.a()).or(autoIntakeTrigger).whileTrue(
             // Use Commands.run (no subsystem requirement) so that the autoIntakeTrigger
             // firing during autonomous does not claim intakeSubsystem and cancel the
             // running path command. The intake motor is purely open-loop — no default
             // command or closed-loop controller needs exclusive ownership of it.
-            Commands.run(() -> intakeSubsystem.intake(0.7))
+            Commands.run(() -> intakeSubsystem.intake(1))
         );
         DriverController.back().whileTrue(
             Commands.run(() -> intakeSubsystem.reverseIntake(0.5))
@@ -371,14 +378,6 @@ public class ShipOfTheseus {
         // OperatorController.rightTrigger().onFalse(indexerSubsystem.stop());
 
         // Operator: Intake (left trigger)
-        OperatorController.a().onTrue(
-            intakeSubsystem.runOnce(() -> {
-                if (!intakeSubsystem.isIntakeDown()) intakeSubsystem.dropIntake();
-            })
-        );
-        OperatorController.a().whileTrue(
-            intakeSubsystem.run(() -> intakeSubsystem.intake(0.7))
-        );
         OperatorController.a().onFalse(
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
         );
@@ -713,12 +712,8 @@ public class ShipOfTheseus {
     private Pose2d getSelectedAutoStartingPose() {
         try {
             Command selected = autoChooser.getSelected();
-            // For PathPlanner autos, the starting pose is typically the first path point
-            // This is a best-effort implementation; may need adjustment based on actual command structure
-            if (selected != null) {
-                // Most PathPlanner commands start at a defined origin
-                // For now, return null as placeholder — actual implementation depends on path structure
-                return null;
+            if (selected != null && selected instanceof PathPlannerAuto) {
+                return ((PathPlannerAuto) selected).getStartingPose();
             }
         } catch (Exception e) {
             // Silently fail if pose extraction is not available
@@ -733,14 +728,24 @@ public class ShipOfTheseus {
      * @return True if current pose is within tolerance of auto start pose
      */
     private boolean isAlignedToAutoStart() {
-        Pose2d autoStart = getSelectedAutoStartingPose();
-        if (autoStart == null) return false;
+        Pose2d autoStartBlue = getSelectedAutoStartingPose();
+        if (autoStartBlue == null) return false;
+
+        Pose2d autoStart;
+        if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
+            autoStart = autoStartBlue.rotateAround(Constants.FieldConstants.FIELD_CENTER, new Rotation2d(Math.PI));
+        } else {
+            autoStart = autoStartBlue;
+        }
+
+
+        NetworkedTelemetry.Pose.publishStartingCircle(autoStart, Constants.FieldConstants.AUTO_POSE_DISTANCE_TOLERANCE_M);
         
         Pose2d current = swerveSubsystem.getPose();
         double distance = current.getTranslation().getDistance(autoStart.getTranslation());
         double headingDiff = Math.abs(current.getRotation().minus(autoStart.getRotation()).getDegrees());
         
-        // Normalize heading difference to [0, 180]
+        // Normalize heading difference to [-180, 180]
         if (headingDiff > 180) headingDiff = 360 - headingDiff;
         
         return distance <= Constants.FieldConstants.AUTO_POSE_DISTANCE_TOLERANCE_M 

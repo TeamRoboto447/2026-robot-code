@@ -4,31 +4,36 @@
     {
       "anchor": {
         "x": 4.325,
-        "y": 7.717638554216867
+        "y": 7.61
       },
       "prevControl": null,
       "nextControl": {
         "x": 3.325,
-        "y": 7.717638554216867
+        "y": 7.61
       },
       "isLocked": false,
       "linkedName": "Left Trench Exit"
     },
     {
       "anchor": {
-        "x": 1.38,
-        "y": 5.29
+        "x": 1.680590361445783,
+        "y": 5.575807228915662
       },
       "prevControl": {
-        "x": 1.38,
-        "y": 6.29
+        "x": 1.680590361445783,
+        "y": 6.575807228915662
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Left Climb Stage"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.25,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
@@ -48,7 +53,7 @@
   "eventMarkers": [
     {
       "name": "startShooter",
-      "waypointRelativePos": 0.7083333333333334,
+      "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -59,7 +64,7 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 2.75,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 270.0,
     "maxAngularAcceleration": 360.0,

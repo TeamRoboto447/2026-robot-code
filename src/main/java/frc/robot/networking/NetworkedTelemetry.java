@@ -45,6 +45,8 @@ public class NetworkedTelemetry {
         // Target position circle visualization
         private static final DoubleArrayPublisher targetCirclePub = poseTable
             .getDoubleArrayTopic("Target").publish();
+        private static final DoubleArrayPublisher startingCirclePub = poseTable
+            .getDoubleArrayTopic("Starting Position").publish();
         
         private static final double[] poseArray = new double[3];
         
@@ -144,6 +146,34 @@ public class NetworkedTelemetry {
             }
             
             targetCirclePub.set(circleArray);
+        }
+
+        /**
+         * Publishes a circle at the starting position for visualization.
+         * The circle is approximated using 17 points, with the last closing the circle.
+         * 
+         * @param pose The starting position
+         * @param radiusMeters The radius of the circle in meters
+         */
+        public static void publishStartingCircle(Pose2d pose, double radiusMeters) {
+            if (pose == null) {
+                // Clear the circle if no target
+                startingCirclePub.set(new double[0]);
+                return;
+            }
+            
+            // Create circle with 16 points
+            int numPoints = 16;
+            double[] circleArray = new double[(numPoints + 1) * 3]; // 16 poses * 3 values each
+            
+            for (int i = 0; i <= numPoints; i++) {
+                double angle = 2 * Math.PI * i / numPoints;
+                circleArray[i * 3] = pose.getX() + radiusMeters * Math.cos(angle);
+                circleArray[i * 3 + 1] = pose.getY() + radiusMeters * Math.sin(angle);
+                circleArray[i * 3 + 2] = 0; // rotation
+            }
+            
+            startingCirclePub.set(circleArray);
         }
         
         /**

@@ -83,10 +83,10 @@ public final class Constants {
 
         public static final Transform3d ROBOT_TO_BACK_LEFT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
-        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(142)));
+        new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(142)));
         public static final Transform3d ROBOT_TO_BACK_RIGHT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
-        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
+        new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(210.24)));
 
         // Base std devs for vision measurements. Higher = trust odometry more over vision.
         // [x (m), y (m), theta (rad)] — lower = trust vision more, higher = trust swerve more.
@@ -109,6 +109,8 @@ public final class Constants {
     public static class FieldConstants {
         public static final double FIELD_LENGTH_METERS = Units.inchesToMeters(651.22);
         public static final double FIELD_WIDTH_METERS = Units.inchesToMeters(317.69);
+
+        public static final Translation2d FIELD_CENTER = new Translation2d(FIELD_LENGTH_METERS / 2.0,  FIELD_WIDTH_METERS / 2.0);
 
         public enum FieldZone {
             RED_ALLIANCE_AUDIENCE_SIDE,
@@ -226,7 +228,7 @@ public final class Constants {
                 Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
 
-            private static final double RED_DEPOT_X = 15.3021;
+            private static final double RED_DEPOT_X = 15.3521;
             private static final double RED_OUTPOST_X = 15.64;
 
             public static final Pose2d RED_DEPOT_SIDE = new Pose2d(
@@ -280,7 +282,7 @@ public final class Constants {
          * Tolerance for aligning robot to autonomous starting position.
          * Used during disabled mode to show if robot is positioned correctly for auto.
          */
-        public static final double AUTO_POSE_DISTANCE_TOLERANCE_M = 0.3;
+        public static final double AUTO_POSE_DISTANCE_TOLERANCE_M = 0.5;
         public static final double AUTO_POSE_HEADING_TOLERANCE_DEG = 10.0;
     }
 
@@ -463,7 +465,7 @@ public final class Constants {
          * to the fully-lowered intake position. Negative because the motor must
          * turn in the negative direction to lower.
          */
-        public static final double LIFT_LOWERED_ROTATIONS = -34;
+        public static final double LIFT_LOWERED_ROTATIONS = -28;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}
@@ -483,9 +485,9 @@ public final class Constants {
         public static final double LIFT_HOMING_STALL_DURATION_S = 0.1;
 
         /** Stator current limit (A) for the intake roller motor (Kraken X60). */
-        public static final double INTAKE_STATOR_CURRENT_LIMIT_A = 60.0;
+        public static final double INTAKE_STATOR_CURRENT_LIMIT_A = 120.0;
         /** Supply current limit (A) for the intake roller motor. */
-        public static final double INTAKE_SUPPLY_CURRENT_LIMIT_A = 40.0;
+        public static final double INTAKE_SUPPLY_CURRENT_LIMIT_A = 60.0;
 
         /** Stator current limit (A) for the lift motor (Kraken X60). */
         public static final double LIFT_STATOR_CURRENT_LIMIT_A = 40.0;

@@ -66,6 +66,9 @@ public class GameState extends StaticState {
     if (inactiveFirst.isEmpty() && validGameData) {
       inactiveFirst = Optional.of(
           (gameData.charAt(0) == 'B') ? DriverStation.Alliance.Blue : DriverStation.Alliance.Red);
+      
+      System.out.print("Inactive first: ");
+      System.out.println(inactiveFirst.get());
     }
   }
 

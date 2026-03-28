@@ -3,24 +3,24 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.3800000000000001,
-        "y": 5.29
+        "x": 1.680590361445783,
+        "y": 5.575807228915662
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.3365879555832678,
-        "y": 5.04379806174695
+        "x": 1.6371783170290506,
+        "y": 5.3296052906626095
       },
       "isLocked": false,
       "linkedName": "Left Climb Stage"
     },
     {
       "anchor": {
-        "x": 1.2,
+        "x": 1.17,
         "y": 4.39
       },
       "prevControl": {
-        "x": 1.2,
+        "x": 1.17,
         "y": 4.67
       },
       "nextControl": null,
@@ -47,7 +47,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
+    "maxVelocity": 2.75,
     "maxAcceleration": 2.0,
     "maxAngularVelocity": 270.0,
     "maxAngularAcceleration": 360.0,
