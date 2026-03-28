@@ -89,13 +89,13 @@ public class ClimberSubsystem extends SubsystemBase {
   public void periodic() {
     BaseStatusSignal.refreshAll(positionSignal, statorCurrentSignal);
 
-    boolean safeRange = withinSafeClimberRange.getAsBoolean();
+    boolean safeRange = true;//withinSafeClimberRange.getAsBoolean();
     //  if (!safeRange && climberMotor.getPosition().getValueAsDouble() > 0) {
     //   // Lower if outside safe range
     //   climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * -1);
 
     // } else 
-    if (safeRange && (climberDir == 1 || climberDir == -1)) {
+    if ((safeRange || DriverStation.isAutonomousEnabled()) && (climberDir == 1 || climberDir == -1)) {
       // Normal open-loop drive (climb or lower).
       if (climberDir == -1 && !climberLimitSwitch.get()) {
         climberMotor.set(0);

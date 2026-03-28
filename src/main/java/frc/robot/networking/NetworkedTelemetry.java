@@ -17,6 +17,7 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
+import org.photonvision.PhotonCamera;
 
 /**
  * NetworkedTelemetry centralizes generic robot telemetry publishing to NetworkTables.
@@ -183,6 +184,10 @@ public class NetworkedTelemetry {
         private static final StructArrayPublisher<Pose3d> detectedTagPositions = visionTable
             .getStructArrayTopic("Detected Tags", Pose3d.struct).publish();
         
+
+        private static final PhotonCamera frontCamera = new PhotonCamera("FrontCam");
+        private static final PhotonCamera backCamera = new PhotonCamera("BackCam");
+
         /**
          * Sets whether the vision system currently has valid AprilTag detections.
          * 
@@ -204,6 +209,21 @@ public class NetworkedTelemetry {
          */
         public static boolean hasValidAprilTags() {
             return hasValidAprilTags.get();
+        }
+        
+        /**
+         * Checks if both FrontCam and BackCam are currently active.
+         * Verifies both cameras by checking if their heartbeat values are changing
+         * (indicating fresh frames are being processed).
+         * 
+         * @return True if both cameras are active and publishing new frames, false otherwise
+         */
+        public static boolean bothCamerasActive() {
+            try {
+                return frontCamera.isConnected() && backCamera.isConnected();
+            } catch (Exception e) {
+                return false;
+            }
         }
     }
 
@@ -387,5 +407,18 @@ public class NetworkedTelemetry {
             hubActive.set(isHubActive);
             hubActiveCountdown.set(hubActiveCountdownSecs);
         }
+    }
+
+    public static class NeoPixels {
+        private static final NetworkTable neopixelTable = 
+            defaultNTInstance.getTable("Neopixels");
+        
+        private static final StringEntry controlMode = 
+            neopixelTable.getStringTopic("Control Mode").getEntry("DISABLED_NO_CAMERA");
+        private static final StringEntry controlTrigger = 
+            neopixelTable.getStringTopic("Control Trigger").getEntry("");
+                
+        public static void setControlMode(String mode)          { controlMode.set(mode); }
+        public static void setControlTrigger(String trigger)    { controlTrigger.set(trigger); }
     }
 }

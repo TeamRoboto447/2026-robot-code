@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Collect Stage from Trench"
+            "pathName": "Left Climb Stage from Left SC Exit"
           }
         },
         {
@@ -23,7 +23,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "startShooter"
+                  "name": "Raise Intake"
                 }
               },
               {
@@ -31,32 +31,8 @@
                 "data": {
                   "waitTime": 3.0
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "stopShooter"
-                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Collect Depot from Staging"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Climb Staging from Depot Collect"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopShooter"
           }
         },
         {
@@ -74,13 +50,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Lower Climber"
+            "name": "stopShooter"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "startShooter"
+            "name": "Lower Climber"
           }
         }
       ]

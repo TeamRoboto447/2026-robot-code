@@ -687,6 +687,46 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
+     * Returns the current angular-rate cap for the drive system, accounting for SOTF
+     * limits and the ramp-up process after shooting stops.
+     *
+     * <p>While shooting is active, returns
+     * {@link TurretSubsystemConstants#SOTF_MAX_ANGULAR_RATE_RAD_PER_SEC}. After
+     * shooting stops, linearly interpolates back to the full {@code maxAngularRate}
+     * over {@link TurretSubsystemConstants#SOTF_SPEED_RAMP_TIME_S}. Once the ramp
+     * completes, returns the full {@code maxAngularRate}.
+     *
+     * @param maxAngularRate The robot's maximum angular rate in rad/s when not shooting
+     * @return The current angular-rate cap to apply to drive commands
+     */
+    public double getRampedAngularRateCap(double maxAngularRate) {
+        if (shootingActive) {
+            shootingStoppedTime = -1.0; // Ensure ramp timer is inactive.
+            return TurretSubsystemConstants.SOTF_MAX_ANGULAR_RATE_RAD_PER_SEC;
+        }
+
+        if (shootingStoppedTime < 0.0) {
+            return maxAngularRate;
+        }
+
+        double elapsedTime = Timer.getFPGATimestamp() - shootingStoppedTime;
+        double rampDuration = TurretSubsystemConstants.SOTF_SPEED_RAMP_TIME_S;
+
+        if (elapsedTime >= rampDuration) {
+            shootingStoppedTime = -1.0;
+            return maxAngularRate;
+        }
+
+        double progress = elapsedTime / rampDuration;
+        double rampedAngularRate = TurretSubsystemConstants.SOTF_MAX_ANGULAR_RATE_RAD_PER_SEC
+            + (maxAngularRate - TurretSubsystemConstants.SOTF_MAX_ANGULAR_RATE_RAD_PER_SEC) * progress;
+
+        return rampedAngularRate;
+    }
+
+    
+
+    /**
      * Enables or disables systems-check mode. While enabled, {@link #periodic()}
      * will not apply the trajectory-tracking overrides (hood/turret angle targeting,
      * idle flywheel spin-up), giving the systems-check commands exclusive control

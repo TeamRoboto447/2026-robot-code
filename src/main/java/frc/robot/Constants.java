@@ -79,7 +79,7 @@ public final class Constants {
         public static final double VISION_STD_DEV_SCALE_DISTANCE = 1.0; // meters
         // How quickly std devs grow with distance beyond VISION_STD_DEV_SCALE_DISTANCE.
         // e.g. 0.3 means +0.3 to the multiplier per extra meter.
-        public static final double VISION_STD_DEV_SCALE_FACTOR = 0.25;
+        public static final double VISION_STD_DEV_SCALE_FACTOR = 0.5;
 
         public static final Transform3d ROBOT_TO_BACK_LEFT_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
@@ -92,7 +92,7 @@ public final class Constants {
         // [x (m), y (m), theta (rad)] — lower = trust vision more, higher = trust swerve more.
         // At 0.9/0.9/1.5, vision gently nudges the pose estimate rather than overriding wheel odometry.
         public static final Matrix<N3, N1> VISION_MEASUREMENT_STANDARD_DEVIATIONS = MatBuilder.fill(Nat.N3(), Nat.N1(),
-                0.2, 0.2, .1);
+                0.5, 0.5, .15);
 
         // Near-zero std devs used while the robot is disabled so vision measurements
         // are trusted implicitly, fully seeding the pose estimator from AprilTags
@@ -163,12 +163,12 @@ public final class Constants {
 
         public static class TurretTargetPoints {
             public static final Translation3d RED_HUB = new Translation3d(11.9, 4.035, 1.83);
-            public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.54, 7.07, 0);
-            public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.54, 1, 0);
+            public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.04, 6.57, 0);
+            public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.04, 1.5, 0);
             
             public static final Translation3d BLUE_HUB = new Translation3d(4.595, 4.035, 1.83);
-            public static final Translation3d BLUE_RIGHT_CORNER = new Translation3d(1, 7.07, 0);
-            public static final Translation3d BLUE_LEFT_CORNER = new Translation3d(1, 1, 0);
+            public static final Translation3d BLUE_RIGHT_CORNER = new Translation3d(1.5, 6.57, 0);
+            public static final Translation3d BLUE_LEFT_CORNER = new Translation3d(1.5, 1.5, 0);
         }
 
         /**
@@ -275,6 +275,13 @@ public final class Constants {
             15.55,
             4.3
         );
+        
+        /**
+         * Tolerance for aligning robot to autonomous starting position.
+         * Used during disabled mode to show if robot is positioned correctly for auto.
+         */
+        public static final double AUTO_POSE_DISTANCE_TOLERANCE_M = 0.3;
+        public static final double AUTO_POSE_HEADING_TOLERANCE_DEG = 10.0;
     }
 
     public static class TurretSubsystemConstants {
@@ -362,6 +369,15 @@ public final class Constants {
         public static final double SOTF_MAX_DRIVE_SPEED_MPS = .8;
 
         /**
+         * Maximum angular rate (rad/s) enforced while the robot is actively
+         * attempting a shoot-on-the-fly shot.
+         *
+         * <p>This limits spin speed during shooting so turret/shot compensation
+         * remains stable under driver rotation input.
+         */
+        public static final double SOTF_MAX_ANGULAR_RATE_RAD_PER_SEC = Units.rotationsToRadians(0.25);
+
+        /**
          * Duration (seconds) over which the drive speed ramps back to full speed
          * after the shoot button is released.
          *
@@ -438,7 +454,7 @@ public final class Constants {
 
         public static final double LIFT_GEARBOX_RATIO = 4.0*4*4;
 
-        public static final double LIFT_KP = 1;
+        public static final double LIFT_KP = 3;
         public static final double LIFT_KI = 0;
         public static final double LIFT_KD = 0;
 
@@ -447,7 +463,7 @@ public final class Constants {
          * to the fully-lowered intake position. Negative because the motor must
          * turn in the negative direction to lower.
          */
-        public static final double LIFT_LOWERED_ROTATIONS = -25;
+        public static final double LIFT_LOWERED_ROTATIONS = -34;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}
@@ -525,5 +541,15 @@ public final class Constants {
         public static final double CLIMBER_STATOR_CURRENT_LIMIT_A = 120.0;
         /** Supply current limit (A) for the climber motor. */
         public static final double CLIMBER_SUPPLY_CURRENT_LIMIT_A = 80.0;
+    }
+
+    public static class NeopixelConstants {
+        public enum PixelStates {
+            DISABLED_NO_CAMERA,
+            DISABLED_NO_TAGS,
+            DISABLED_HAS_TAGS,
+            DISABLED_CORRECT_POSITION,
+            ENABLED_DEFAULT            
+        }
     }
 }
