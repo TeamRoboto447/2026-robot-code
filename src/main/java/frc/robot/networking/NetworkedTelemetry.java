@@ -1,6 +1,9 @@
 package frc.robot.networking;
 
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -11,6 +14,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
 import org.photonvision.PhotonCamera;
@@ -177,6 +181,9 @@ public class NetworkedTelemetry {
         
         private static final BooleanEntry hasValidAprilTags = visionTable
             .getBooleanTopic("Has Valid AprilTags").getEntry(false);
+        private static final StructArrayPublisher<Pose3d> detectedTagPositions = visionTable
+            .getStructArrayTopic("Detected Tags", Pose3d.struct).publish();
+        
 
         private static final PhotonCamera frontCamera = new PhotonCamera("FrontCam");
         private static final PhotonCamera backCamera = new PhotonCamera("BackCam");
@@ -188,6 +195,11 @@ public class NetworkedTelemetry {
          */
         public static void setHasValidAprilTags(boolean hasValid) {
             hasValidAprilTags.set(hasValid);
+        }
+
+        public static void setDetectedTagPostions(List<Pose3d> positions) {
+            Pose3d[] posArray = positions.toArray(new Pose3d[0]);
+            detectedTagPositions.set(posArray);            
         }
         
         /**

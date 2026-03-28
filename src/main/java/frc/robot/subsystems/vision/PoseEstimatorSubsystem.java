@@ -6,12 +6,19 @@ package frc.robot.subsystems.vision;
 
 import static frc.robot.Constants.VisionConstants.USE_VISION;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -31,6 +38,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     private final CommandSwerveDrivetrain swerveSubsystem;
     private final PhotonRunnable backLeftCamera;
     private final PhotonRunnable backCamera;
+    private final AprilTagFieldLayout aprilTagLayout =
+        AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
     /** Creates a new PoseEstimatorSubsystem. */
     public PoseEstimatorSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
@@ -56,7 +65,17 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             anyValid |= estimatorChecker(backCamera);
             NetworkedTelemetry.Vision.setHasValidAprilTags(anyValid);
 
-            // allDetectedTags
+            ArrayList<PhotonTrackedTarget> allDetectedTags = new ArrayList<PhotonTrackedTarget>();
+            allDetectedTags.addAll(backLeftCamera.grabDetectedTags());
+            allDetectedTags.addAll(backCamera.grabDetectedTags());
+
+            ArrayList<Pose3d> detectedTagPositions = new ArrayList<Pose3d>();
+            allDetectedTags.forEach((PhotonTrackedTarget tag) -> {
+                Optional<Pose3d> optionalPose = aprilTagLayout.getTagPose(tag.getFiducialId());
+                if (optionalPose.isPresent()) detectedTagPositions.add(optionalPose.get());
+            });
+
+            NetworkedTelemetry.Vision.setDetectedTagPostions(detectedTagPositions);
         }
     }
 
