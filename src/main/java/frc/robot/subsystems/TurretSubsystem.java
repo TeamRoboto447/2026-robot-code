@@ -224,6 +224,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         SparkMaxConfig hoodConfig = new SparkMaxConfig();
         hoodConfig.inverted(hoodMotorInverted);
+        hoodConfig.smartCurrentLimit(TurretSubsystemConstants.HOOD_CURRENT_LIMIT_AMPS);
         hoodConfig.closedLoop
             .p(TurretSubsystemConstants.HOOD_KP)
             .i(TurretSubsystemConstants.HOOD_KI)

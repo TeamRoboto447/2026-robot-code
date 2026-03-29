@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.8224216867469876,
-        "y": 7.316758036629099
+        "x": 3.9,
+        "y": 7.55
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.106542168674698,
-        "y": 7.22589156626506
+        "x": 4.010876331415644,
+        "y": 7.325932065810816
       },
       "isLocked": false,
       "linkedName": "Depot Side Stage"
     },
     {
       "anchor": {
-        "x": 7.625265060240963,
-        "y": 7.0729036144578314
+        "x": 7.209524141905737,
+        "y": 7.28
       },
       "prevControl": {
-        "x": 6.629220147121102,
-        "y": 7.76781867012285
+        "x": 6.884681832948726,
+        "y": 7.77387789743443
       },
       "nextControl": {
-        "x": 8.095156626506025,
-        "y": 6.745072289156626
+        "x": 8.365861701554515,
+        "y": 5.52194833327769
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.3714344262295075,
-        "y": 4.344106557377049
+        "x": 7.471175204918032,
+        "y": 5.288976338370902
       },
       "prevControl": {
-        "x": 8.420494667193367,
-        "y": 4.2676125814734345
+        "x": 7.717439003607629,
+        "y": 5.245916595513214
       },
       "nextControl": {
-        "x": 6.506027709976516,
-        "y": 4.4072091304371614
+        "x": 6.841548149448308,
+        "y": 5.399067952522206
       },
       "isLocked": false,
       "linkedName": null
@@ -52,24 +52,40 @@
         "y": 7.316758036629099
       },
       "prevControl": {
-        "x": 7.492006981844355,
-        "y": 6.561667839495434
+        "x": 7.266552350928386,
+        "y": 6.782881725352742
       },
       "nextControl": {
-        "x": 6.510638554216867,
-        "y": 7.870626506024097
+        "x": 6.486645142631567,
+        "y": 8.005135657265827
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.1995421686746988,
+        "x": 3.88,
         "y": 7.608361445783132
       },
       "prevControl": {
-        "x": 3.4836626506024095,
-        "y": 7.520939759036143
+        "x": 4.682599485917561,
+        "y": 7.591174024788933
+      },
+      "nextControl": {
+        "x": 3.4749812263528397,
+        "y": 7.617034798177907
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.2568184234118847,
+        "y": 7.316758036629099
+      },
+      "prevControl": {
+        "x": 3.502366281034209,
+        "y": 7.3637287681231545
       },
       "nextControl": null,
       "isLocked": false,
@@ -91,31 +107,18 @@
     },
     {
       "waypointRelativePos": 3.3,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 180.0
     },
     {
       "waypointRelativePos": 3.55,
-      "rotationDegrees": 0.0
+      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [
     {
-      "name": "Starting Constraint",
-      "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 0.3438239820075751,
-      "constraints": {
-        "maxVelocity": 2.0,
-        "maxAcceleration": 3.0,
-        "maxAngularVelocity": 270.0,
-        "maxAngularAcceleration": 360.0,
-        "nominalVoltage": 12.0,
-        "unlimited": false
-      }
-    },
-    {
       "name": "Ending Constraint",
-      "minWaypointRelativePos": 3.25,
-      "maxWaypointRelativePos": 3.55,
+      "minWaypointRelativePos": 1.275394324100379,
+      "maxWaypointRelativePos": 1.6748231830018931,
       "constraints": {
         "maxVelocity": 2.0,
         "maxAcceleration": 3.0,
@@ -172,7 +175,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 161.31299484747078
   },
   "reversed": false,
   "folder": null,

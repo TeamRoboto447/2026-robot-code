@@ -306,6 +306,13 @@ public class ShipOfTheseus {
             .onTrue(Commands.runOnce(() -> turretSubsystem.setShootingActive(true)))
             .onFalse(Commands.runOnce(() -> turretSubsystem.setShootingActive(false)));
 
+        DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
+            .onFalse(Commands.runOnce(() -> {
+                turretSubsystem.stopShooter();
+                turretSubsystem.stopKicker();
+                indexerSubsystem.stop();
+            }));
+
         
         OperatorController.leftTrigger().or(DriverController.y())
             .and(turretSubsystem::hasValidTarget)
@@ -313,6 +320,13 @@ public class ShipOfTheseus {
             .whileTrue(
                 turretSubsystem.run(() -> turretSubsystem.shootAutoTargetWithRPMOffset(TurretSubsystemConstants.RPM_OFFSET_WHILE_CLIMBED))
             );
+
+        OperatorController.leftTrigger().or(DriverController.y())
+            .onFalse(Commands.runOnce(() -> {
+                turretSubsystem.stopShooter();
+                turretSubsystem.stopKicker();
+                indexerSubsystem.stop();
+            }));
 
         turretSubsystem.getFeedTrigger()
             .and(
@@ -733,7 +747,11 @@ public class ShipOfTheseus {
 
         Pose2d autoStart;
         if (DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red) {
-            autoStart = autoStartBlue.rotateAround(Constants.FieldConstants.FIELD_CENTER, new Rotation2d(Math.PI));
+            Translation2d fieldCenter = new Translation2d(
+                Constants.FieldConstants.FIELD_LENGTH_METERS / 2.0,
+                Constants.FieldConstants.FIELD_WIDTH_METERS / 2.0
+            );
+            autoStart = autoStartBlue.rotateAround(fieldCenter, new Rotation2d(Math.PI));
         } else {
             autoStart = autoStartBlue;
         }
@@ -768,10 +786,10 @@ public class ShipOfTheseus {
         if (edu.wpi.first.wpilibj.DriverStation.isDisabled()) {
             if (!NetworkedTelemetry.Vision.bothCamerasActive()) {
                 mode = "DISABLED_NO_CAMERA";
-            } else if (!hasDebouncedAprilTags) {
-                mode = "DISABLED_NO_TAGS";
             } else if (isAlignedToAutoStart()) {
                 mode = "DISABLED_CORRECT_POSITION";
+            } else if (!hasDebouncedAprilTags) {
+                mode = "DISABLED_NO_TAGS";
             } else {
                 mode = "DISABLED_HAS_TAGS";
             }
