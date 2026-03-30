@@ -9,6 +9,7 @@ import static frc.robot.Constants.VisionConstants.USE_VISION;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -180,5 +181,22 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
         swerveSubsystem.addVisionMeasurement(pose2d, cameraPose.timestampSeconds, stdDevs);
         return true;
+    }
+
+    /**
+     * Applies a temporary AprilTag whitelist to all vision cameras.
+     * While active, only measurements derived from these tag IDs are accepted.
+     */
+    public void setTemporaryAprilTagFilter(Set<Integer> allowedTagIds) {
+        if (!USE_VISION || backLeftCamera == null || backCamera == null) return;
+        backLeftCamera.setAllowedTagIds(allowedTagIds);
+        backCamera.setAllowedTagIds(allowedTagIds);
+    }
+
+    /** Clears the temporary AprilTag whitelist on all vision cameras. */
+    public void clearTemporaryAprilTagFilter() {
+        if (!USE_VISION || backLeftCamera == null || backCamera == null) return;
+        backLeftCamera.clearAllowedTagIds();
+        backCamera.clearAllowedTagIds();
     }
 }

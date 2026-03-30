@@ -211,7 +211,7 @@ public final class Constants {
             public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(.25);
 
 
-            private static final double BLUE_DEPOT_X = 1.23;
+            private static final double BLUE_DEPOT_X = 1.108;
             private static final double BLUE_OUTPOST_X = 0.9;
 
             // ── Final (hook-engagement) positions ──────────────────────────────
@@ -222,13 +222,13 @@ public final class Constants {
             );
             public static final Pose2d BLUE_DEPOT_SIDE = new Pose2d(
                 BLUE_DEPOT_X, // placeholder — tune to your bar
-                4.350, // scoring side: y > field midpoint
+                4.30, // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
 
             // private static final double RED_DEPOT_X = 15.3021;
             private static final double RED_DEPOT_X = 15.4221;
-            private static final double RED_OUTPOST_X = 15.734;
+            private static final double RED_OUTPOST_X = 15.61;
 
             public static final Pose2d RED_DEPOT_SIDE = new Pose2d(
                 RED_DEPOT_X, // placeholder — tune to your bar
@@ -237,7 +237,7 @@ public final class Constants {
             );
             public static final Pose2d RED_OUTPOST_SIDE = new Pose2d(
                 RED_OUTPOST_X, // placeholder — tune to your bar
-                4.920,  // scoring side: y > field midpoint
+                4.90,  // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
             );
 
@@ -247,7 +247,7 @@ public final class Constants {
             // with the same heading, so the robot can align before slotting in.
             public static final Pose2d BLUE_OUTPOST_SIDE_STAGING = new Pose2d(
                 BLUE_OUTPOST_X, // TODO: tune — offset from final pose
-                2.5,
+                2,
                 Rotation2d.fromDegrees(270)
             );
             public static final Pose2d BLUE_DEPOT_SIDE_STAGING = new Pose2d(
@@ -262,7 +262,7 @@ public final class Constants {
             );
             public static final Pose2d RED_OUTPOST_SIDE_STAGING = new Pose2d(
                 RED_OUTPOST_X, // TODO: tune — offset from final pose
-                6,
+                5.75,
                 Rotation2d.fromDegrees(90)
             );
         }

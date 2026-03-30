@@ -643,9 +643,8 @@ public class ShipOfTheseus {
      * actual bar location.</p>
      */
     public Command getAutoClimbCommand() {
-        return Commands.sequence(
+        Command climbSequence = Commands.sequence(
             // Step 1: raise climber to full extension so it clears the bar
-            climberSubsystem.raiseToFull(),
             // Step 2: drive staging → final at reduced speed so the climber slots
             //         onto the tower cleanly. Both poses are selected from the
             //         robot's current alliance + field side at the moment A is pressed.
@@ -653,15 +652,25 @@ public class ShipOfTheseus {
                 Pose2d staging = selectStagingPosition();
                 return swerveSubsystem.driveToPose(staging, 0.4 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
             }, java.util.Set.of(swerveSubsystem)),
+            climberSubsystem.raiseToFull(),
             Commands.defer(() -> {
                 Pose2d target  = selectClimbPosition();
-                return swerveSubsystem.driveToPose(target, 0.15 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
+                return swerveSubsystem.driveToPose(target, 0.1 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
             }, java.util.Set.of(swerveSubsystem)),
-            
+
             // Step 3: lower onto the bar to engage the clamp
             climberSubsystem.lowerOntoBar(),
             Commands.print("Climb!")
         );
+
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+                int towerTag = (alliance == Alliance.Red) ? 15 : 31;
+                poseEstimatorSubsystem.setTemporaryAprilTagFilter(Set.of(towerTag));
+            }),
+            climbSequence
+        ).finallyDo(interrupted -> poseEstimatorSubsystem.clearTemporaryAprilTagFilter());
     }
 
     /**

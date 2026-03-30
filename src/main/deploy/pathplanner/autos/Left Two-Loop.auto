@@ -5,15 +5,45 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Right Slow Clear"
+            "name": "Lower Intake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Outpost from Right SC Exit"
+            "pathName": "Left Steal Diag Move"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Raise Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lower Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Clear Left Hub Edge"
           }
         },
         {
@@ -23,21 +53,9 @@
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "stopShooter"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "autoClimb"
+            "name": "Raise Intake"
           }
         }
       ]
