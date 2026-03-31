@@ -34,6 +34,7 @@ public class PhotonRunnable implements Runnable {
     private final PhotonCamera photonCamera;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
     private ArrayList<PhotonTrackedTarget> detectedTags = new ArrayList<>();
+    private ArrayList<PhotonTrackedTarget> importantTags = new ArrayList<>();
     private volatile Set<Integer> allowedTagIds = null;
 
     /**
@@ -61,8 +62,12 @@ public class PhotonRunnable implements Runnable {
             List<PhotonPipelineResult> photonResults = this.photonCamera.getAllUnreadResults();
             for (PhotonPipelineResult result : photonResults) {
                 detectedTags.clear();
+                importantTags.clear();
 
                 if (!result.hasTargets()) continue;
+
+                detectedTags.addAll(result.getTargets());
+
                 if (!allTargetsAllowed(result.getTargets())) continue;
 
                 // Prefer coprocessor multi-tag; fall back to lowest-ambiguity single-tag.
@@ -83,7 +88,7 @@ public class PhotonRunnable implements Runnable {
                     }
                 });
 
-                detectedTags.addAll(result.getTargets());
+                importantTags.addAll(result.getTargets());
             }
         }
     }
@@ -128,5 +133,9 @@ public class PhotonRunnable implements Runnable {
 
     public List<PhotonTrackedTarget> grabDetectedTags() {
         return detectedTags;
+    }
+
+    public List<PhotonTrackedTarget> grabImportantTags() {
+        return importantTags;
     }
 }

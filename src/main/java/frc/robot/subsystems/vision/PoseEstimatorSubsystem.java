@@ -79,7 +79,18 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
                 if (optionalPose.isPresent()) detectedTagPositions.add(optionalPose.get());
             });
 
+            ArrayList<PhotonTrackedTarget> allImportantTags = new ArrayList<PhotonTrackedTarget>();
+            allImportantTags.addAll(backLeftCamera.grabImportantTags());
+            allImportantTags.addAll(backCamera.grabImportantTags());
+
+            ArrayList<Pose3d> importantTagPositions = new ArrayList<Pose3d>();
+            allImportantTags.forEach((PhotonTrackedTarget tag) -> {
+                Optional<Pose3d> optionalPose = aprilTagLayout.getTagPose(tag.getFiducialId());
+                if (optionalPose.isPresent()) importantTagPositions.add(optionalPose.get());
+            });
+
             NetworkedTelemetry.Vision.setDetectedTagPostions(detectedTagPositions);
+            NetworkedTelemetry.Vision.setImportantTagPostions(importantTagPositions);
         }
     }
 
