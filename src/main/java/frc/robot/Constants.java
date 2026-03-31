@@ -2,6 +2,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 
+import java.util.Set;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MatBuilder;
@@ -161,6 +163,9 @@ public final class Constants {
                 new Translation2d(11.91, 8.07));
         }
 
+        public static final Set<Integer> RED_HUB_TAG_IDS = Set.of(2, 3, 4, 5, 8, 9, 10, 11);
+        public static final Set<Integer> BLUE_HUB_TAG_IDS = Set.of(18, 19, 20, 21, 24, 25, 26, 27);
+
         public static class TurretTargetPoints {
             public static final Translation3d RED_HUB = new Translation3d(11.9, 4.035, 1.83);
             public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.04, 6.57, 0);
@@ -211,7 +216,7 @@ public final class Constants {
             public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(.25);
 
 
-            private static final double BLUE_DEPOT_X = 1.108;
+            private static final double BLUE_DEPOT_X = 1.133;
             private static final double BLUE_OUTPOST_X = 0.9;
 
             // ── Final (hook-engagement) positions ──────────────────────────────

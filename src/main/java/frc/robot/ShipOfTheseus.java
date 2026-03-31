@@ -303,8 +303,17 @@ public class ShipOfTheseus {
             );
 
         DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
-            .onTrue(Commands.runOnce(() -> turretSubsystem.setShootingActive(true)))
-            .onFalse(Commands.runOnce(() -> turretSubsystem.setShootingActive(false)));
+            .onTrue(Commands.runOnce(() -> {
+                turretSubsystem.setShootingActive(true);
+
+                Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+                Set<Integer> hubTags = (alliance == Alliance.Red) ? Constants.FieldConstants.RED_HUB_TAG_IDS : Constants.FieldConstants.BLUE_HUB_TAG_IDS;
+                poseEstimatorSubsystem.setTemporaryAprilTagFilter(hubTags);
+            }))
+            .onFalse(Commands.runOnce(() -> {
+                turretSubsystem.setShootingActive(false);
+                poseEstimatorSubsystem.clearTemporaryAprilTagFilter();
+            }));
 
         DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
             .onFalse(Commands.runOnce(() -> {
