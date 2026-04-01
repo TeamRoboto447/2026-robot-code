@@ -134,8 +134,9 @@ public class ShipOfTheseus {
         this.indexerSubsystem = new IndexerSubsystem();
         this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
         this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
+
         this.powerBoard = new PowerDistribution(1, ModuleType.kRev);
-        
+        SmartDashboard.putData("PDH", powerBoard);
 
         SmartDashboard.putData("Field", field);
 
