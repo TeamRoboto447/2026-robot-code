@@ -3,49 +3,43 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.88,
-        "y": 0.6255542168674697
+        "x": 4.325,
+        "y": 7.61
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8799999999999972,
-        "y": 0.6255542168674698
+        "x": 3.325,
+        "y": 7.61
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Trench Exit"
     },
     {
       "anchor": {
-        "x": 0.74,
-        "y": 0.62
+        "x": 1.680590361445783,
+        "y": 5.575807228915662
       },
       "prevControl": {
-        "x": 1.74,
-        "y": 0.6199999999999999
+        "x": 1.680590361445783,
+        "y": 6.575807228915662
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Outpost"
+      "linkedName": "Left Climb Stage"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.25,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Lower Intake",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Lower Intake"
-        }
-      }
-    },
-    {
       "name": "startShooter",
-      "waypointRelativePos": 0.9978768577494656,
+      "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -64,13 +58,13 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 180.0
+    "velocity": 0.0,
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 2.0,
     "rotation": 180.0
   },
   "useDefaultConstraints": true

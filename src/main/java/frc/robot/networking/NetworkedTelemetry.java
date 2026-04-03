@@ -1,6 +1,9 @@
 package frc.robot.networking;
 
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -11,8 +14,10 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
+import org.photonvision.PhotonCamera;
 
 /**
  * NetworkedTelemetry centralizes generic robot telemetry publishing to NetworkTables.
@@ -40,6 +45,8 @@ public class NetworkedTelemetry {
         // Target position circle visualization
         private static final DoubleArrayPublisher targetCirclePub = poseTable
             .getDoubleArrayTopic("Target").publish();
+        private static final DoubleArrayPublisher startingCirclePub = poseTable
+            .getDoubleArrayTopic("Starting Position").publish();
         
         private static final double[] poseArray = new double[3];
         
@@ -140,6 +147,34 @@ public class NetworkedTelemetry {
             
             targetCirclePub.set(circleArray);
         }
+
+        /**
+         * Publishes a circle at the starting position for visualization.
+         * The circle is approximated using 17 points, with the last closing the circle.
+         * 
+         * @param pose The starting position
+         * @param radiusMeters The radius of the circle in meters
+         */
+        public static void publishStartingCircle(Pose2d pose, double radiusMeters) {
+            if (pose == null) {
+                // Clear the circle if no target
+                startingCirclePub.set(new double[0]);
+                return;
+            }
+            
+            // Create circle with 16 points
+            int numPoints = 16;
+            double[] circleArray = new double[(numPoints + 1) * 3]; // 16 poses * 3 values each
+            
+            for (int i = 0; i <= numPoints; i++) {
+                double angle = 2 * Math.PI * i / numPoints;
+                circleArray[i * 3] = pose.getX() + radiusMeters * Math.cos(angle);
+                circleArray[i * 3 + 1] = pose.getY() + radiusMeters * Math.sin(angle);
+                circleArray[i * 3 + 2] = 0; // rotation
+            }
+            
+            startingCirclePub.set(circleArray);
+        }
         
         /**
          * Helper method to get the Rectangle2d for a given field zone.
@@ -176,7 +211,13 @@ public class NetworkedTelemetry {
         
         private static final BooleanEntry hasValidAprilTags = visionTable
             .getBooleanTopic("Has Valid AprilTags").getEntry(false);
+        private static final StructArrayPublisher<Pose3d> detectedTagPositions = visionTable
+            .getStructArrayTopic("Detected Tags", Pose3d.struct).publish();
         
+
+        private static final PhotonCamera frontCamera = new PhotonCamera("FrontCam");
+        private static final PhotonCamera backCamera = new PhotonCamera("BackCam");
+
         /**
          * Sets whether the vision system currently has valid AprilTag detections.
          * 
@@ -184,6 +225,11 @@ public class NetworkedTelemetry {
          */
         public static void setHasValidAprilTags(boolean hasValid) {
             hasValidAprilTags.set(hasValid);
+        }
+
+        public static void setDetectedTagPostions(List<Pose3d> positions) {
+            Pose3d[] posArray = positions.toArray(new Pose3d[0]);
+            detectedTagPositions.set(posArray);            
         }
         
         /**
@@ -193,6 +239,21 @@ public class NetworkedTelemetry {
          */
         public static boolean hasValidAprilTags() {
             return hasValidAprilTags.get();
+        }
+        
+        /**
+         * Checks if both FrontCam and BackCam are currently active.
+         * Verifies both cameras by checking if their heartbeat values are changing
+         * (indicating fresh frames are being processed).
+         * 
+         * @return True if both cameras are active and publishing new frames, false otherwise
+         */
+        public static boolean bothCamerasActive() {
+            try {
+                return frontCamera.isConnected() && backCamera.isConnected();
+            } catch (Exception e) {
+                return false;
+            }
         }
     }
 
@@ -376,5 +437,18 @@ public class NetworkedTelemetry {
             hubActive.set(isHubActive);
             hubActiveCountdown.set(hubActiveCountdownSecs);
         }
+    }
+
+    public static class NeoPixels {
+        private static final NetworkTable neopixelTable = 
+            defaultNTInstance.getTable("Neopixels");
+        
+        private static final StringEntry controlMode = 
+            neopixelTable.getStringTopic("Control Mode").getEntry("DISABLED_NO_CAMERA");
+        private static final StringEntry controlTrigger = 
+            neopixelTable.getStringTopic("Control Trigger").getEntry("");
+                
+        public static void setControlMode(String mode)          { controlMode.set(mode); }
+        public static void setControlTrigger(String trigger)    { controlTrigger.set(trigger); }
     }
 }

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.216,
-        "y": 5.269
+        "x": 1.680590361445783,
+        "y": 5.575807228915662
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.216,
-        "y": 4.402594982253781
+        "x": 1.6371783170290506,
+        "y": 5.3296052906626095
       },
       "isLocked": false,
       "linkedName": "Left Climb Stage"
     },
     {
       "anchor": {
-        "x": 1.216,
-        "y": 4.4
+        "x": 1.17,
+        "y": 4.39
       },
       "prevControl": {
-        "x": 1.216,
-        "y": 5.367743994447951
+        "x": 1.17,
+        "y": 4.67
       },
       "nextControl": null,
       "isLocked": false,
@@ -35,7 +35,7 @@
       "minWaypointRelativePos": 0,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.75,
+        "maxVelocity": 0.5,
         "maxAcceleration": 3.0,
         "maxAngularVelocity": 270.0,
         "maxAngularAcceleration": 360.0,
@@ -45,22 +45,10 @@
     }
   ],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "Raise Climber",
-      "waypointRelativePos": 0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Raise Climber"
-        }
-      }
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 2.75,
+    "maxAcceleration": 2.0,
     "maxAngularVelocity": 270.0,
     "maxAngularAcceleration": 360.0,
     "nominalVoltage": 12.0,

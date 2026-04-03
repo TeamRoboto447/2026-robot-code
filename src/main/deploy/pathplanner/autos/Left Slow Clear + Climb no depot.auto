@@ -5,63 +5,58 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Lower Intake"
+            "pathName": "Left Slow Clear"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Right Steal Diag Move"
+            "pathName": "Left Climb Stage from Left SC Exit"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Raise Intake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 3.0
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "startShooter"
+            "name": "Stop Intake"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Raise Intake"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Lower Intake"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
+            "name": "Raise Climber"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Clear Right Hub Edge All Trench"
+            "pathName": "Left Climb from Staging"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "startShooter"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Raise Intake"
+            "name": "stopShooter"
           }
         },
         {
@@ -73,7 +68,7 @@
       ]
     }
   },
-  "resetOdom": true,
+  "resetOdom": false,
   "folder": null,
   "choreoAuto": false
 }

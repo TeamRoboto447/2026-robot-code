@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Steal Diag Move"
+            "pathName": "Right Steal Diag Move"
           }
         },
         {
@@ -43,7 +43,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Clear Left Hub Edge All Trench"
+            "pathName": "Clear Right Hub Edge All Trench"
           }
         },
         {
@@ -56,12 +56,6 @@
           "type": "named",
           "data": {
             "name": "Raise Intake"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Lower Climber"
           }
         }
       ]

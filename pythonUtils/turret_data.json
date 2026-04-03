@@ -1,0 +1,84 @@
+{
+  "data_points": [
+    {
+      "target_height": 72.0,
+      "distance": 49.0,
+      "vpar": 0.0,
+      "angle": 25.0,
+      "rpm": 3300,
+      "flight_time": 1.0
+    },
+    {
+      "target_height": 72.0,
+      "distance": 99.0,
+      "vpar": 0.0,
+      "angle": 30.0,
+      "rpm": 3700,
+      "flight_time": 1.1
+    },
+    {
+      "target_height": 72.0,
+      "distance": 138.5,
+      "vpar": 0.0,
+      "angle": 38.0,
+      "rpm": 3950,
+      "flight_time": 1.1
+    },
+    {
+      "target_height": 72.0,
+      "distance": 168.0,
+      "vpar": 0.0,
+      "angle": 40.0,
+      "rpm": 4000,
+      "flight_time": 1.08
+    },
+    {
+      "target_height": 72.0,
+      "distance": 151.3,
+      "vpar": 0.0,
+      "angle": 38.8,
+      "rpm": 3971,
+      "flight_time": 1.09
+    },
+    {
+      "target_height": 72.0,
+      "distance": 203.96,
+      "vpar": 0.0,
+      "angle": 43.0,
+      "rpm": 4700,
+      "flight_time": 1.2
+    },
+    {
+      "target_height": 72.0,
+      "distance": 219.6,
+      "vpar": 0.0,
+      "angle": 43.0,
+      "rpm": 4800,
+      "flight_time": 1.2
+    },
+    {
+      "target_height": 72.0,
+      "distance": 192.0,
+      "vpar": 0.0,
+      "angle": 42.0,
+      "rpm": 4470,
+      "flight_time": 1.13
+    },
+    {
+      "target_height": 72.0,
+      "distance": 88.0,
+      "vpar": 0.0,
+      "angle": 28.9,
+      "rpm": 3450,
+      "flight_time": 1.1
+    },
+    {
+      "target_height": 72.0,
+      "distance": 62.7,
+      "vpar": 0.0,
+      "angle": 27.0,
+      "rpm": 3300,
+      "flight_time": 1.1
+    }
+  ]
+}

@@ -4,13 +4,17 @@
 
 package frc.robot.subsystems.vision;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -29,6 +33,8 @@ public class PhotonRunnable implements Runnable {
     private final PhotonPoseEstimator photonPoseEstimator;
     private final PhotonCamera photonCamera;
     private final AtomicReference<EstimatedRobotPose> atomicEstimatedRobotPose = new AtomicReference<EstimatedRobotPose>();
+    private ArrayList<PhotonTrackedTarget> detectedTags = new ArrayList<>();
+    private volatile Set<Integer> allowedTagIds = null;
 
     /**
      * Creates a new PhotonRunnable.
@@ -54,7 +60,10 @@ public class PhotonRunnable implements Runnable {
         if (this.photonPoseEstimator != null && this.photonCamera != null) {
             List<PhotonPipelineResult> photonResults = this.photonCamera.getAllUnreadResults();
             for (PhotonPipelineResult result : photonResults) {
+                detectedTags.clear();
+
                 if (!result.hasTargets()) continue;
+                if (!allTargetsAllowed(result.getTargets())) continue;
 
                 // Prefer coprocessor multi-tag; fall back to lowest-ambiguity single-tag.
                 // Both methods are the non-deprecated direct estimation API in photonlib 2026.
@@ -73,8 +82,40 @@ public class PhotonRunnable implements Runnable {
                         atomicEstimatedRobotPose.set(estimatedRobotPose);
                     }
                 });
+
+                detectedTags.addAll(result.getTargets());
             }
         }
+    }
+
+    private boolean allTargetsAllowed(List<PhotonTrackedTarget> targets) {
+        Set<Integer> filter = allowedTagIds;
+        if (filter == null || filter.isEmpty()) {
+            return true;
+        }
+        for (PhotonTrackedTarget target : targets) {
+            if (!filter.contains(target.getFiducialId())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Applies a temporary whitelist of allowed AprilTag IDs for this camera.
+     * When active, any pipeline result containing a non-whitelisted tag is ignored.
+     */
+    public void setAllowedTagIds(Set<Integer> tagIds) {
+        if (tagIds == null || tagIds.isEmpty()) {
+            allowedTagIds = null;
+            return;
+        }
+        allowedTagIds = Set.copyOf(new HashSet<>(tagIds));
+    }
+
+    /** Clears any temporary AprilTag whitelist, allowing all tags again. */
+    public void clearAllowedTagIds() {
+        allowedTagIds = null;
     }
 
     /**
@@ -83,5 +124,9 @@ public class PhotonRunnable implements Runnable {
      */
     public EstimatedRobotPose grabLatestEstimatedPose() {
         return atomicEstimatedRobotPose.getAndSet(null);
+    }
+
+    public List<PhotonTrackedTarget> grabDetectedTags() {
+        return detectedTags;
     }
 }

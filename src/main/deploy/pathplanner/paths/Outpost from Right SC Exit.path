@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.88,
-        "y": 0.6255542168674697
+        "x": 4.325,
+        "y": 0.649
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.8799999999999972,
-        "y": 0.6255542168674698
+        "x": 3.5268397903550603,
+        "y": 0.6399417824729935
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Right Trench Exit"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 0.62
       },
       "prevControl": {
-        "x": 1.74,
-        "y": 0.6199999999999999
+        "x": 1.6319828288969274,
+        "y": 0.6147173816766491
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,24 +33,35 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Lower Intake",
-      "waypointRelativePos": 0,
+      "name": "Start Intake",
+      "waypointRelativePos": 0.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "Lower Intake"
+          "name": "Start Intake"
         }
       }
     },
     {
       "name": "startShooter",
-      "waypointRelativePos": 0.9978768577494656,
+      "waypointRelativePos": 1.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "startShooter"
+        }
+      }
+    },
+    {
+      "name": "Stop Intake",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Stop Intake"
         }
       }
     }
@@ -70,7 +81,7 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 0,
+    "velocity": 3.0,
     "rotation": 180.0
   },
   "useDefaultConstraints": true
