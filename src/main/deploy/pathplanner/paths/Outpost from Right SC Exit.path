@@ -53,17 +53,6 @@
           "name": "startShooter"
         }
       }
-    },
-    {
-      "name": "Stop Intake",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Stop Intake"
-        }
-      }
     }
   ],
   "globalConstraints": {

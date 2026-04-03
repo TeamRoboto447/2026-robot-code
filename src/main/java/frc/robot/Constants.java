@@ -211,8 +211,10 @@ public final class Constants {
             public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(.25);
 
 
-            private static final double BLUE_DEPOT_X = 1.108;
-            private static final double BLUE_OUTPOST_X = 0.9;
+            // private static final double BLUE_DEPOT_X = 1.133;
+            // private static final double BLUE_OUTPOST_X = 0.9;
+            private static final double BLUE_DEPOT_X = 1.1061;
+            private static final double BLUE_OUTPOST_X = 1;
 
             // ── Final (hook-engagement) positions ──────────────────────────────
             public static final Pose2d BLUE_OUTPOST_SIDE = new Pose2d(
@@ -227,8 +229,9 @@ public final class Constants {
             );
 
             // private static final double RED_DEPOT_X = 15.3021;
-            private static final double RED_DEPOT_X = 15.4221;
-            private static final double RED_OUTPOST_X = 15.61;
+            private static final double RED_DEPOT_X = 15.449;
+            // private static final double RED_OUTPOST_X = 15.61;
+            private static final double RED_OUTPOST_X = 15.510;
 
             public static final Pose2d RED_DEPOT_SIDE = new Pose2d(
                 RED_DEPOT_X, // placeholder — tune to your bar

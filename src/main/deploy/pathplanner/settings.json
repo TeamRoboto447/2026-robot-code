@@ -31,8 +31,7 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Turret\",\"type\":\"circle\",\"data\":{\"center\":{\"x\":-0.17,\"y\":-0.13},\"radius\":0.1778,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Climber Hook\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.16,\"y\":0.16},\"size\":{\"width\":0.1,\"length\":0.2},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
+    "{\"name\":\"Climber Hook\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.26,\"y\":0.03},\"size\":{\"width\":0.1,\"length\":0.41},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
     "{\"name\":\"Intake\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.6,\"y\":0.0},\"size\":{\"width\":0.5969,\"length\":0.29845},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
   ]
 }
