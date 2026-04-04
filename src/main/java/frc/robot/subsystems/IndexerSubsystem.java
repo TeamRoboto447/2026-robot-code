@@ -76,6 +76,14 @@ public class IndexerSubsystem extends SubsystemBase {
         spinnerMotor.set(-NetworkedConfig.Indexer.getTargetSpeed());
     }
 
+        /**
+     * Spins the motor in the hopper at the speed specified on the NetworkTables.
+     */
+    public void spinReverse() {
+        // spinnerMotor.setControl(velocityReq.withVelocity(-NetworkedConfig.Indexer.getTargetSpeed()/60));
+        spinnerMotor.set(NetworkedConfig.Indexer.getTargetSpeed());
+    }
+
     /**
      * Stops the motor in the hopper.
      * @return A {@link Command} that stops the motor.

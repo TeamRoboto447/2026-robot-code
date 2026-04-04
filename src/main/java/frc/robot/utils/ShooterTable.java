@@ -235,8 +235,9 @@ public class ShooterTable {
         double angleDeg = interpolateAngle(Dfinal);
         double rpm      = interpolateRPM(Dfinal);
 
-        boolean inRange = Dfinal >= points.get(0).distanceIn
-                       && Dfinal <= points.get(points.size() - 1).distanceIn;
+        // boolean inRange = Dfinal >= points.get(0).distanceIn
+        //                && Dfinal <= points.get(points.size() - 1).distanceIn;
+        boolean inRange = true;
 
         // Aim bearing derived from the virtual target vector — correct 2D geometry,
         // no separate vperp correction needed.

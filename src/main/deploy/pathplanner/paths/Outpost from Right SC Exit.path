@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 4.325,
-        "y": 0.649
+        "y": 0.45999999999999996
       },
       "prevControl": null,
       "nextControl": {
         "x": 3.5268397903550603,
-        "y": 0.6399417824729935
+        "y": 0.45094178247299344
       },
       "isLocked": false,
       "linkedName": "Right Trench Exit"

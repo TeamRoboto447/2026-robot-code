@@ -192,7 +192,7 @@ public class ShipOfTheseus {
     //         // .and(this::isShotAllowed)
     //         .whileTrue(Commands.parallel(
     //             Commands.run(() -> indexerSubsystem.spin()),
-    //             Commands.run(() -> turretSubsystem.kick(0.75)),
+    //             Commands.run(() -> turretSubsystem.kick(KICKER_SPEED)),
     //             Commands.run(() -> turretSubsystem.shootAutoTarget())
     //         ));
 
@@ -208,6 +208,9 @@ public class ShipOfTheseus {
     // }
 
     private void configureProductionBindings() {
+        double KICKER_SPEED = 1;
+
+
         // Run homing commands on initialization - If already homed, the command immediately cancels itself
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
         RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber());
@@ -299,7 +302,10 @@ public class ShipOfTheseus {
             .and(turretSubsystem::hasValidTarget)
             .and(this::isShotAllowed)
             .whileTrue(
-                turretSubsystem.run(() -> turretSubsystem.shootAutoTarget())
+                turretSubsystem.run(() -> {
+                    turretSubsystem.shootAutoTarget();
+                    turretSubsystem.kick(KICKER_SPEED);
+                })
             );
 
         DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
@@ -318,7 +324,10 @@ public class ShipOfTheseus {
             .and(turretSubsystem::hasValidTarget)
             .and(this::isShotAllowed)
             .whileTrue(
-                turretSubsystem.run(() -> turretSubsystem.shootAutoTargetWithRPMOffset(TurretSubsystemConstants.RPM_OFFSET_WHILE_CLIMBED))
+                turretSubsystem.run(() -> {
+                    turretSubsystem.shootAutoTargetWithRPMOffset(TurretSubsystemConstants.RPM_OFFSET_WHILE_CLIMBED);
+                    turretSubsystem.kick(KICKER_SPEED);
+                })
             );
 
         OperatorController.leftTrigger().or(DriverController.y())
@@ -328,19 +337,17 @@ public class ShipOfTheseus {
                 indexerSubsystem.stop();
             }));
 
-        turretSubsystem.getFeedTrigger()
-            .and(
-                DriverController.start().or(OperatorController.rightTrigger())
-                .or(DriverController.y().or(OperatorController.leftTrigger()))
-                .or(autoShootTrigger)
-            )
+        Trigger shootRequest = DriverController.start().or(OperatorController.rightTrigger())
+            .or(DriverController.y().or(OperatorController.leftTrigger()))
+            .or(autoShootTrigger);
+
+        // Feed the spindexer only when the feed trigger is true (flywheel at speed).
+        shootRequest
+            .and(turretSubsystem.getFeedTrigger())
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
             .and(this::isShotAllowed)
-            .whileTrue(Commands.parallel(
-                indexerSubsystem.run(() -> indexerSubsystem.spin()),
-                turretSubsystem.run(() -> turretSubsystem.kick(0.75))
-            ));
+            .whileTrue(indexerSubsystem.run(() -> indexerSubsystem.spin()));
 
         DriverController.start().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();
@@ -383,7 +390,7 @@ public class ShipOfTheseus {
         //     .and(this::isShotAllowed)
         //     .whileTrue(Commands.parallel(
         //         indexerSubsystem.run(() -> indexerSubsystem.spin()),
-        //         turretSubsystem.run(() -> turretSubsystem.kick(0.75))
+        //         turretSubsystem.run(() -> turretSubsystem.kick(KICKER_SPEED))
         //     ));
         // OperatorController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
         //     turretSubsystem.stopShooter();
@@ -395,6 +402,9 @@ public class ShipOfTheseus {
         OperatorController.a().onFalse(
             intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
         );
+
+        OperatorController.b().whileFalse(indexerSubsystem.run(() -> indexerSubsystem.spinReverse()));
+        OperatorController.b().onFalse(indexerSubsystem.run(() -> indexerSubsystem.stop()));
 
         // Operator: Intake lift
         OperatorController.leftBumper().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
@@ -450,7 +460,7 @@ public class ShipOfTheseus {
 
         DriverController.rightBumper().whileTrue(turretSubsystem.run(() -> {
             turretSubsystem.shootAutoTarget();
-            turretSubsystem.kick(0.75);
+            turretSubsystem.kick(1);
         }));
 
         DriverController.rightBumper().onFalse(turretSubsystem.runOnce(() -> {
