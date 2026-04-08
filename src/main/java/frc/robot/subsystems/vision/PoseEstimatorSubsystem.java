@@ -37,8 +37,8 @@ import frc.robot.networking.NetworkedTelemetry;
 public class PoseEstimatorSubsystem extends SubsystemBase {
 
     private final CommandSwerveDrivetrain swerveSubsystem;
-    private final PhotonRunnable backLeftCamera;
-    private final PhotonRunnable backCamera;
+    private final PhotonRunnable climberCam;
+    private final PhotonRunnable turretCam;
     private final AprilTagFieldLayout aprilTagLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
@@ -46,12 +46,12 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     public PoseEstimatorSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
         if (USE_VISION) {
-            this.backLeftCamera = new PhotonRunnable(new PhotonCamera("FrontCam"), VisionConstants.ROBOT_TO_BACK_LEFT_CAM);
-            this.backCamera = new PhotonRunnable(new PhotonCamera("BackCam"), VisionConstants.ROBOT_TO_BACK_RIGHT_CAM);
+            this.climberCam = new PhotonRunnable(new PhotonCamera("ClimberCam"), VisionConstants.ROBOT_TO_CLIMBER_CAM);
+            this.turretCam = new PhotonRunnable(new PhotonCamera("TurretCam"), VisionConstants.ROBOT_TO_TURRET_CAM);
             this.setDefaultCommand(this.createNotifierCommand(this));
         } else {
-            this.backLeftCamera = null;
-            this.backCamera = null;
+            this.climberCam = null;
+            this.turretCam = null;
         }
     }
 
@@ -61,17 +61,14 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (VisionConstants.USE_VISION) {
-            // boolean anyValid = false
-            // anyValid |= estimatorChecker(backLeftCamera);
-            // anyValid |= estimatorChecker(backCamera);
-            boolean backLeftValid = estimatorChecker(backLeftCamera);
-            boolean backValid = estimatorChecker(backCamera);
-            boolean anyValid = backLeftValid || backValid;
+            boolean turretCamValid = estimatorChecker(climberCam);
+            boolean climberCamValid = estimatorChecker(turretCam);
+            boolean anyValid = turretCamValid || climberCamValid;
             NetworkedTelemetry.Vision.setHasValidAprilTags(anyValid);
 
             ArrayList<PhotonTrackedTarget> allDetectedTags = new ArrayList<PhotonTrackedTarget>();
-            allDetectedTags.addAll(backLeftCamera.grabDetectedTags());
-            allDetectedTags.addAll(backCamera.grabDetectedTags());
+            allDetectedTags.addAll(climberCam.grabDetectedTags());
+            allDetectedTags.addAll(turretCam.grabDetectedTags());
 
             ArrayList<Pose3d> detectedTagPositions = new ArrayList<Pose3d>();
             allDetectedTags.forEach((PhotonTrackedTarget tag) -> {
@@ -89,8 +86,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      */
     private Command createNotifierCommand(PoseEstimatorSubsystem peSubsystem) {
         return new NotifierCommand(() -> {
-            backLeftCamera.run();
-            backCamera.run();
+            climberCam.run();
+            turretCam.run();
         }, 0.02, peSubsystem).ignoringDisable(true);
     }
 
@@ -188,15 +185,15 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      * While active, only measurements derived from these tag IDs are accepted.
      */
     public void setTemporaryAprilTagFilter(Set<Integer> allowedTagIds) {
-        if (!USE_VISION || backLeftCamera == null || backCamera == null) return;
-        backLeftCamera.setAllowedTagIds(allowedTagIds);
-        backCamera.setAllowedTagIds(allowedTagIds);
+        if (!USE_VISION || climberCam == null || turretCam == null) return;
+        climberCam.setAllowedTagIds(allowedTagIds);
+        turretCam.setAllowedTagIds(allowedTagIds);
     }
 
     /** Clears the temporary AprilTag whitelist on all vision cameras. */
     public void clearTemporaryAprilTagFilter() {
-        if (!USE_VISION || backLeftCamera == null || backCamera == null) return;
-        backLeftCamera.clearAllowedTagIds();
-        backCamera.clearAllowedTagIds();
+        if (!USE_VISION || climberCam == null || turretCam == null) return;
+        climberCam.clearAllowedTagIds();
+        turretCam.clearAllowedTagIds();
     }
 }

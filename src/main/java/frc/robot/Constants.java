@@ -81,10 +81,10 @@ public final class Constants {
         // e.g. 0.3 means +0.3 to the multiplier per extra meter.
         public static final double VISION_STD_DEV_SCALE_FACTOR = 0.5;
 
-        public static final Transform3d ROBOT_TO_BACK_LEFT_CAM = new Transform3d(
+        public static final Transform3d ROBOT_TO_CLIMBER_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(142)));
-        public static final Transform3d ROBOT_TO_BACK_RIGHT_CAM = new Transform3d(
+        public static final Transform3d ROBOT_TO_TURRET_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
 
