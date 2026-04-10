@@ -19,12 +19,6 @@
         {
           "type": "named",
           "data": {
-            "name": "autoClimb"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
             "name": "stopShooter"
           }
         }
