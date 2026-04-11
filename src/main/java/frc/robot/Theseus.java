@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.io.File;
+
 import com.ctre.phoenix6.HootAutoReplay;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
@@ -12,6 +14,7 @@ import com.revrobotics.util.StatusLogger;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -21,6 +24,7 @@ public class Theseus extends TimedRobot {
     private Command m_autonomousCommand;
 
     private final ShipOfTheseus m_robotContainer;
+    private int periodicLoopCount = 0;
 
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
@@ -47,12 +51,33 @@ public class Theseus extends TimedRobot {
     @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
-        CommandScheduler.getInstance().run(); 
-        // Repulsor main update loop (minimal integration)
+        CommandScheduler.getInstance().run();
+
+        //  Publish the status of the flash drive to networktables (connected, space remaining, etc.) once a second
+        if (periodicLoopCount > 49) {
+            periodicLoopCount = 0;
+
+            try {
+                File logDir = new File(DataLogManager.getLogDir());
+                long rawLogSpaceLeft = logDir.getFreeSpace();  // Gets remaining space in bytes
+                SmartDashboard.putNumber("Logging Info/Log Space Remaining (MB)", rawLogSpaceLeft / 1024.0 / 1024.0); // Sends space to NT in MB
+
+                boolean flashDriveConnected = DataLogManager.getLogDir().charAt(1) == 'u' && logDir.exists();
+                SmartDashboard.putBoolean("Logging Info/Flash Drive Connected", flashDriveConnected); // Sends true or false depending on whether or not the flash is connected
+            } catch (NullPointerException e) {
+                System.out.println("Could not open file " + DataLogManager.getLogDir());
+            }
+
+        }
+
+        
+        //  Repulsor main update loop (minimal integration)
         if (m_robotContainer != null && m_robotContainer.repulsor != null) {
             m_robotContainer.repulsor.update();
             m_robotContainer.periodicUpdate();
         }
+
+        periodicLoopCount++;
     }
 
     @Override

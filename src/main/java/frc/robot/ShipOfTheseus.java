@@ -87,6 +87,7 @@ public class ShipOfTheseus {
      * {@link NetworkedConfig#initializeAllDefaults()}.
      */
     private final SendableChooser<String> turretTargetChooser = new SendableChooser<>();
+    private final SendableChooser<String> turretTargetingModeChooser = new SendableChooser<>();
 
     public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
     public final TurretSubsystem turretSubsystem;
@@ -149,6 +150,11 @@ public class ShipOfTheseus {
         turretTargetChooser.addOption("Scoring Corner",        "SCORING_CORNER");
         turretTargetChooser.addOption("None (disable turret)", "NONE");
         SmartDashboard.putData("Debug/Turret Target Override", turretTargetChooser);
+
+        turretTargetingModeChooser.addOption("Auto Fallback", "AUTO_FALLBACK");
+        turretTargetingModeChooser.setDefaultOption("LUT Only", "LUT");
+        turretTargetingModeChooser.addOption("Model Only", "MODEL");
+        SmartDashboard.putData("Debug/Turret Targeting Mode", turretTargetingModeChooser);
         
         configureBindings();
         NetworkedConfig.initializeAllDefaults();
@@ -234,6 +240,7 @@ public class ShipOfTheseus {
                 // Sync the SmartDashboard chooser selection → NetworkedConfig so that
                 // TurretSubsystem.updateTurretTarget() can read it without a direct reference.
                 NetworkedConfig.Debug.setTurretTargetOverride(turretTargetChooser.getSelected());
+                NetworkedConfig.Debug.setTurretTargetingMode(turretTargetingModeChooser.getSelected());
 
                 double speedCap = turretSubsystem.getRampedSpeedCap(MaxSpeed);
                 double angularRateCap = turretSubsystem.getRampedAngularRateCap(MaxAngularRate);
@@ -346,6 +353,7 @@ public class ShipOfTheseus {
             .and(turretSubsystem.getFeedTrigger())
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
+            .and(turretSubsystem::flywheelAtSpeed)
             .and(this::isShotAllowed)
             .whileTrue(indexerSubsystem.run(() -> indexerSubsystem.spin()));
 
@@ -354,14 +362,15 @@ public class ShipOfTheseus {
             turretSubsystem.stopKicker();
         }));
 
-        DriverController.start().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
+        DriverController.start()
+            .or(OperatorController.rightTrigger())
+            .or(turretSubsystem::flywheelAtSpeed)
+            .onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
 
         OperatorController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();
             turretSubsystem.stopKicker();
         }));
-
-        OperatorController.rightTrigger().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
 
         // Driver: Intake (left trigger)
         // Lower the intake if it isn't already, then run the intake roller.
@@ -378,10 +387,10 @@ public class ShipOfTheseus {
             // command or closed-loop controller needs exclusive ownership of it.
             Commands.run(() -> intakeSubsystem.intake(1))
         );
-        DriverController.back().whileTrue(
+        DriverController.back().or(OperatorController.x()).whileTrue(
             Commands.run(() -> intakeSubsystem.reverseIntake(0.5))
         );
-        DriverController.leftTrigger().or(DriverController.back()).or(autoIntakeTrigger).onFalse(
+        DriverController.leftTrigger().or(OperatorController.a()).or(DriverController.back()).or(autoIntakeTrigger).onFalse(
             Commands.runOnce(() -> intakeSubsystem.stopIntake())
         );
 
@@ -398,12 +407,7 @@ public class ShipOfTheseus {
         // }));
         // OperatorController.rightTrigger().onFalse(indexerSubsystem.stop());
 
-        // Operator: Intake (left trigger)
-        OperatorController.a().onFalse(
-            intakeSubsystem.runOnce(() -> intakeSubsystem.stopIntake())
-        );
-
-        OperatorController.b().whileFalse(indexerSubsystem.run(() -> indexerSubsystem.spinReverse()));
+        OperatorController.b().whileTrue(indexerSubsystem.run(() -> indexerSubsystem.spinReverse()));
         OperatorController.b().onFalse(indexerSubsystem.run(() -> indexerSubsystem.stop()));
 
         // Operator: Intake lift
@@ -883,7 +887,7 @@ public class ShipOfTheseus {
      * </ul>
      */
     private boolean isShotAllowed() {
-        return true; // There appears to be a bug preventing shots, don't have time to debug it
+        return turretSubsystem.isTurretSafe(); // There appears to be a bug preventing shots, don't have time to debug it
 
         // if (!turretSubsystem.isTargetingHub()) return true;
         // if (NetworkedConfig.Debug.isBypassHubLock()) return true;

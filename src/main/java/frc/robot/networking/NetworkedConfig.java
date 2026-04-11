@@ -563,6 +563,13 @@ public class NetworkedConfig {
         private static final DoubleEntry overrideHoodAngleValue =
             debugTable.getDoubleTopic("Override Hood Angle Value").getEntry(30.0);
 
+        /**
+         * Runtime turret targeting mode.
+         * Valid values: {@code "LUT"}, {@code "MODEL"}, {@code "AUTO_FALLBACK"}.
+         */
+        private static final StringEntry turretTargetingMode =
+            debugTable.getStringTopic("Turret Targeting Mode").getEntry("AUTO_FALLBACK");
+
         public static void initializeDefaults() {
             newPoseX.set(0);
             newPoseY.set(0);
@@ -574,6 +581,7 @@ public class NetworkedConfig {
             overrideRPMValue.set(3400);
             overrideHoodAngleEnabled.set(false);
             overrideHoodAngleValue.set(30.0);
+            turretTargetingMode.set("AUTO_FALLBACK");
         }
 
         public static boolean isBypassHubLock() {
@@ -628,6 +636,18 @@ public class NetworkedConfig {
         /** Returns the override hood angle (degrees). */
         public static double getOverrideHoodAngleValue() {
             return overrideHoodAngleValue.get();
+        }
+
+        public static String getTurretTargetingMode() {
+            return turretTargetingMode.get();
+        }
+
+        public static void setTurretTargetingMode(String mode) {
+            if (mode == null || mode.isBlank()) {
+                turretTargetingMode.set("AUTO_FALLBACK");
+            } else {
+                turretTargetingMode.set(mode);
+            }
         }
         
     }

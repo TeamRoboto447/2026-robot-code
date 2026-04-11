@@ -215,8 +215,8 @@ public class NetworkedTelemetry {
             .getStructArrayTopic("Detected Tags", Pose3d.struct).publish();
         
 
-        private static final PhotonCamera frontCamera = new PhotonCamera("FrontCam");
-        private static final PhotonCamera backCamera = new PhotonCamera("BackCam");
+        private static final PhotonCamera turretCamera = new PhotonCamera("TurretCam");
+        private static final PhotonCamera climberCamera = new PhotonCamera("ClimberCam");
 
         /**
          * Sets whether the vision system currently has valid AprilTag detections.
@@ -250,7 +250,7 @@ public class NetworkedTelemetry {
          */
         public static boolean bothCamerasActive() {
             try {
-                return frontCamera.isConnected() && backCamera.isConnected();
+                return turretCamera.isConnected() && climberCamera.isConnected();
             } catch (Exception e) {
                 return false;
             }
@@ -282,6 +282,11 @@ public class NetworkedTelemetry {
         private static final DoubleEntry controlTargetFlywheelRPM = turretTable.getDoubleTopic("Control Target Flywheel RPM").getEntry(0);
         private static final BooleanEntry controlTargetValidTrajectory = turretTable.getBooleanTopic("Control Target Valid Trajectory").getEntry(false);
         private static final BooleanEntry motorCommStatus = turretTable.getBooleanTopic("Motor Comm Status").getEntry(true);
+        private static final StringEntry selectedSolver = turretTable.getStringTopic("Selected Solver").getEntry("NONE");
+        private static final DoubleEntry lutModelHoodDeltaDeg = turretTable.getDoubleTopic("LUT-Model Hood Delta Deg").getEntry(0);
+        private static final DoubleEntry lutModelRPMDelta = turretTable.getDoubleTopic("LUT-Model RPM Delta").getEntry(0);
+        private static final StructArrayPublisher<Pose3d> shotArc =
+            turretTable.getStructArrayTopic("Shot Arc", Pose3d.struct).publish();
 
         public static void setCTHoodAngle(double angle) {
             controlTargetHoodAngle.set(angle);
@@ -297,6 +302,22 @@ public class NetworkedTelemetry {
 
         public static void setMotorCommStatus(boolean status) {
             motorCommStatus.set(status);
+        }
+
+        public static void setSelectedSolver(String solver) {
+            selectedSolver.set(solver);
+        }
+
+        public static void setLutModelHoodDeltaDeg(double deltaDeg) {
+            lutModelHoodDeltaDeg.set(deltaDeg);
+        }
+
+        public static void setLutModelRPMDelta(double deltaRpm) {
+            lutModelRPMDelta.set(deltaRpm);
+        }
+
+        public static void setShotArc(Pose3d[] arcPoints) {
+            shotArc.set(arcPoints);
         }
     }
 

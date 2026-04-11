@@ -148,6 +148,21 @@ public class ShooterTable {
         return points.size();
     }
 
+    public double minDistanceInches() {
+        if (points.isEmpty()) return Double.NaN;
+        return points.get(0).distanceIn;
+    }
+
+    public double maxDistanceInches() {
+        if (points.isEmpty()) return Double.NaN;
+        return points.get(points.size() - 1).distanceIn;
+    }
+
+    public boolean isDistanceInRange(double distanceInches) {
+        if (points.isEmpty()) return false;
+        return distanceInches >= minDistanceInches() && distanceInches <= maxDistanceInches();
+    }
+
 
     /**
      * Solves for shot parameters given the current geometry.
@@ -235,8 +250,6 @@ public class ShooterTable {
         double angleDeg = interpolateAngle(Dfinal);
         double rpm      = interpolateRPM(Dfinal);
 
-        // boolean inRange = Dfinal >= points.get(0).distanceIn
-        //                && Dfinal <= points.get(points.size() - 1).distanceIn;
         boolean inRange = true;
 
         // Aim bearing derived from the virtual target vector — correct 2D geometry,

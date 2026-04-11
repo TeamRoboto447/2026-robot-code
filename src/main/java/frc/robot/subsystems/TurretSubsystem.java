@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
@@ -54,6 +56,7 @@ import frc.robot.Constants.FieldConstants.TurretTargetPoints;
 import frc.robot.Constants.FieldConstants.TurretSafety;
 import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
+import frc.robot.utils.ModelShotCalculator;
 import frc.robot.utils.ShooterTable;
 import frc.robot.utils.ShooterTable.ShotSolution;
 import frc.robot.utils.TargettingUtils.ControlTarget;
@@ -70,7 +73,7 @@ public class TurretSubsystem extends SubsystemBase {
     private boolean rightShooterMotorConnected, leftShooterMotorConnected,
         angleMotorConnected, hoodMotorConnected;
     private boolean hoodSafe;
-    private final Trigger hoodLowerLimitTrigger;
+    // private final Trigger hoodLowerLimitTrigger;
     private final Trigger feedTrigger;
 
     private final TalonFX rightShooterMotor;
@@ -103,6 +106,15 @@ public class TurretSubsystem extends SubsystemBase {
      * {@link #getFeedTrigger()} can inspect it without re-running the solver.
      */
     private ShotSolution lastSolution = null;
+    private ShotSolution lastLutSolution = null;
+    private ShotSolution lastModelSolution = null;
+    private String selectedSolver = "NONE";
+
+    private enum TargetingMode {
+        LUT,
+        MODEL,
+        AUTO_FALLBACK
+    }
 
     private TalonFXConfiguration ShooterFxConfigs = new TalonFXConfiguration();
     private final VelocityTorqueCurrentFOC velocityReq = new VelocityTorqueCurrentFOC(0).withSlot(0);
@@ -128,6 +140,10 @@ public class TurretSubsystem extends SubsystemBase {
     private int periodicLoopCount = 0;
     /** How many 20ms loops between dashboard-visualization updates (5 = 10 Hz). */
     private static final int TELEMETRY_LOOP_DIVISOR = 5;
+    private static final int SHOT_ARC_SAMPLES = 20;
+    private static final double SHOT_ARC_GRAVITY_MPS2 = 9.81;
+    private static final double SHOT_ARC_MPS_AT_0_RPM = 2.5;
+    private static final double SHOT_ARC_MPS_PER_RPM = 0.00115;
 
     /**
      * When {@code true}, {@link #periodic()} skips the trajectory-tracking override
@@ -235,10 +251,10 @@ public class TurretSubsystem extends SubsystemBase {
         this.hoodEncoder = hoodMotor.getEncoder();
         hoodController = this.hoodMotor.getClosedLoopController();
 
-        hoodLowerLimitTrigger = new Trigger(() -> this.hoodMotor.getForwardLimitSwitch().isPressed());
-        hoodLowerLimitTrigger.onTrue(Commands.runOnce((() -> {
-            this.hoodEncoder.setPosition(0);
-        }), this));
+        // hoodLowerLimitTrigger = new Trigger(() -> this.hoodMotor.getForwardLimitSwitch().isPressed());
+        // hoodLowerLimitTrigger.onTrue(Commands.runOnce((() -> {
+        //     this.hoodEncoder.setPosition(0);
+        // }), this));
 
         this.angleMotor = new TalonFX(TurretSubsystemConstants.ANGLE_MOTOR_ID);
 
@@ -288,8 +304,8 @@ public class TurretSubsystem extends SubsystemBase {
                     ? lastSolution.rpm / 60.0
                     : NetworkedConfig.Turret.getTargetRPM() / 60.0;
             // Only "ready" when the flywheel is commanded to spin AND within tolerance.
-            if (!runFlywheel || targetRPS < 16 || !hoodSafe) return false;
-            return this.flywheelAtSpeed();
+            if (!runFlywheel || targetRPS < 16) return false;
+            return this.flywheelAtSpeed() && this.hoodSafe;
         });
 
         motorStatusCheck();
@@ -309,6 +325,46 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private Alliance getCurrentAlliance() {
         return DriverStation.getAlliance().orElse(Alliance.Red);
+    }
+
+    private TargetingMode getTargetingMode() {
+        String modeRaw = NetworkedConfig.Debug.getTurretTargetingMode();
+        if (modeRaw == null) return TargetingMode.AUTO_FALLBACK;
+        switch (modeRaw.trim().toUpperCase()) {
+            case "LUT":
+                return TargetingMode.LUT;
+            case "MODEL":
+                return TargetingMode.MODEL;
+            default:
+                return TargetingMode.AUTO_FALLBACK;
+        }
+    }
+
+    private ShotSolution selectSolution(TargetingMode mode, ShotSolution lut, ShotSolution model) {
+        switch (mode) {
+            case LUT:
+                selectedSolver = (lut != null) ? "LUT" : "NONE";
+                return lut;
+            case MODEL:
+                selectedSolver = (model != null) ? "MODEL" : "NONE";
+                return model;
+            case AUTO_FALLBACK:
+            default:
+                if (model != null && model.inRange) {
+                    selectedSolver = "MODEL";
+                    return model;
+                }
+                if (lut != null && lut.inRange) {
+                    selectedSolver = "LUT";
+                    return lut;
+                }
+                if (model != null) {
+                    selectedSolver = "MODEL";
+                    return model;
+                }
+                selectedSolver = (lut != null) ? "LUT" : "NONE";
+                return lut;
+        }
     }
 
     /**
@@ -332,6 +388,10 @@ public class TurretSubsystem extends SubsystemBase {
         // ── 1. Refresh CAN signals ────────────────────────────────────────────
         // Single batched read — avoids creating new signal objects every loop.
         BaseStatusSignal.refreshAll(shooterVelocitySignal, anglePositionSignal);
+
+        // Update target selection before solving so this loop aims at the latest
+        // field-zone/alliance/override target rather than the previous loop's target.
+        updateTurretTarget();
 
         // ── 2. Geometry: turret pivot position in field frame ─────────────────
         Pose2d currentPose = poseProvider.getPose();
@@ -399,10 +459,15 @@ public class TurretSubsystem extends SubsystemBase {
                        + omegaRadPerSec * Units.metersToInches(turretOffset.getX());
 
         // ── 5. On-RIO shot solve ──────────────────────────────────────────────
-        ShotSolution sol = null;
+        ShotSolution lutSol = null;
+        ShotSolution modelSol = null;
         if (shooterTable.isLoaded() && turretTarget != TurretTarget.NONE && distanceInches > 1.0) {
-            sol = shooterTable.solve(dxIn, dyIn, vxIps, vyIps);
+            lutSol = shooterTable.solve(dxIn, dyIn, vxIps, vyIps);
+            modelSol = ModelShotCalculator.solve(dxIn, dyIn, vxIps, vyIps, shooterTable);
         }
+        lastLutSolution = lutSol;
+        lastModelSolution = modelSol;
+        ShotSolution sol = selectSolution(getTargetingMode(), lutSol, modelSol);
         lastSolution = sol;
 
         // ── 6. Publish NT telemetry (coprocessor now reads these for visualisation) ──
@@ -428,6 +493,11 @@ public class TurretSubsystem extends SubsystemBase {
             NetworkedConfig.Turret.setTargetRPM(sol.rpm);
         }
 
+        if (lutSol != null && modelSol != null) {
+            NetworkedTelemetry.Turret.setLutModelHoodDeltaDeg(lutSol.angleDeg - modelSol.angleDeg);
+            NetworkedTelemetry.Turret.setLutModelRPMDelta(lutSol.rpm - modelSol.rpm);
+        }
+
         // ── Debug / LUT-tuning overrides for actuation ────────────────────────
         // These replace the solved RPM and/or hood angle sent to the motors while
         // leaving the NT-published LUT solution untouched, so you can compare the
@@ -447,7 +517,6 @@ public class TurretSubsystem extends SubsystemBase {
             validShot = true;
         }
 
-        updateTurretTarget();
         periodicLoopCount++;
         updateNetworkTables();
 
@@ -587,6 +656,7 @@ public class TurretSubsystem extends SubsystemBase {
                 .until(() ->
                     hoodMotor.getOutputCurrent() >= TurretSubsystemConstants.HOOD_HOMING_STALL_AMPS
                     && stallTimer.hasElapsed(TurretSubsystemConstants.HOOD_HOMING_STALL_DURATION_S))
+                .withTimeout(10.0)
                 .finallyDo((interrupted) -> {
                     hoodMotor.set(0);
                     stallTimer.stop();
@@ -596,6 +666,8 @@ public class TurretSubsystem extends SubsystemBase {
                         // setHoodAngle() to accept commands.
                         hoodEncoder.setPosition(0);
                         hoodLimitSet = true;
+                    } else {
+                        DriverStation.reportWarning("Hood homing timed out/interrupted; hood remains unhomed.", false);
                     }
                 })
                 .unless(() -> hoodLimitSet);
@@ -817,7 +889,7 @@ public class TurretSubsystem extends SubsystemBase {
 
     public boolean flywheelAtSpeed() {
         // Prefer the on-RIO solution's RPM; fall back to the NT override for manual use.
-        double targetRPS = (lastSolution != null)
+        double targetRPS = (lastSolution != null && lastSolution.inRange)
                 ? lastSolution.rpm / 60.0
                 : NetworkedConfig.Turret.getTargetRPM() / 60.0;
         return Math.abs(shooterVelocitySignal.getValueAsDouble() - targetRPS)
@@ -835,7 +907,7 @@ public class TurretSubsystem extends SubsystemBase {
     public void kick(double strength) {
         boolean overrideActive = NetworkedConfig.Debug.isOverrideRPMEnabled()
             || NetworkedConfig.Debug.isOverrideHoodAngleEnabled();
-        if ((lastSolution != null || overrideActive) && flywheelAtSpeed())
+        if ((overrideActive || (lastSolution != null && lastSolution.inRange)) && flywheelAtSpeed())
             runKickerRaw(strength);
         else
             runKickerRaw(0);
@@ -874,11 +946,13 @@ public class TurretSubsystem extends SubsystemBase {
         NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
         NetworkedConfig.Turret.setFlywheelSpeed(shooterVelocitySignal.getValueAsDouble() * 60);
         NetworkedConfig.Turret.setTurretTarget(this.turretTarget.toString());
+        NetworkedTelemetry.Turret.setSelectedSolver(selectedSolver);
 
         // Rate-limit pure visualization data — dashboards don't need 50 Hz updates.
         if (periodicLoopCount % TELEMETRY_LOOP_DIVISOR == 0) {
             Translation3d targetPosition = getTargetFromEnum(this.turretTarget);
             NetworkedTelemetry.Pose.publishTargetCircle(targetPosition, Units.inchesToMeters(12));
+            publishShotArcVisualization();
 
             NetworkedTelemetry.Turret.setCTHoodAngle(currentControlTarget.hoodAngle);
             NetworkedTelemetry.Turret.setCTFlywheelRPM(currentControlTarget.rpm);
@@ -887,6 +961,51 @@ public class TurretSubsystem extends SubsystemBase {
                 rightShooterMotorConnected && leftShooterMotorConnected &&
                 angleMotorConnected && hoodMotorConnected);
         }
+    }
+
+    private void publishShotArcVisualization() {
+        if (lastSolution == null || !shooting || turretTarget == TurretTarget.NONE) {
+            NetworkedTelemetry.Turret.setShotArc(new Pose3d[0]);
+            return;
+        }
+
+        Pose2d robotPose = poseProvider.getPose();
+        Translation3d turretOffset = TurretSubsystemConstants.TURRET_TO_ROBOT.getTranslation();
+        Translation2d turretOffsetField = new Translation2d(turretOffset.getX(), turretOffset.getY())
+            .rotateBy(robotPose.getRotation());
+
+        double startX = robotPose.getX() + turretOffsetField.getX();
+        double startY = robotPose.getY() + turretOffsetField.getY();
+        double startZ = turretOffset.getZ();
+
+        double robotHeadingDeg = robotPose.getRotation().getDegrees();
+        double yawDeg = robotHeadingDeg - lastSolution.aimBearingDeg;
+        double yawRad = Units.degreesToRadians(yawDeg);
+
+        double hoodFromVerticalDeg = lastSolution.angleDeg;
+        double launchPitchDeg = 90.0 - hoodFromVerticalDeg;
+        double launchPitchRad = Units.degreesToRadians(launchPitchDeg);
+
+        double launchSpeedMps = SHOT_ARC_MPS_AT_0_RPM + SHOT_ARC_MPS_PER_RPM * lastSolution.rpm;
+        double vx0 = launchSpeedMps * Math.cos(launchPitchRad) * Math.cos(yawRad);
+        double vy0 = launchSpeedMps * Math.cos(launchPitchRad) * Math.sin(yawRad);
+        double vz0 = launchSpeedMps * Math.sin(launchPitchRad);
+
+        double totalT = Math.max(0.05, lastSolution.timeOfFlightS);
+        Pose3d[] samples = new Pose3d[SHOT_ARC_SAMPLES];
+
+        for (int i = 0; i < SHOT_ARC_SAMPLES; i++) {
+            double frac = (SHOT_ARC_SAMPLES == 1) ? 0.0 : (double) i / (SHOT_ARC_SAMPLES - 1);
+            double t = frac * totalT;
+
+            double x = startX + vx0 * t;
+            double y = startY + vy0 * t;
+            double z = startZ + vz0 * t - 0.5 * SHOT_ARC_GRAVITY_MPS2 * t * t;
+
+            samples[i] = new Pose3d(x, y, Math.max(0.0, z), new Rotation3d());
+        }
+
+        NetworkedTelemetry.Turret.setShotArc(samples);
     }
 
     /**
@@ -1069,9 +1188,13 @@ public class TurretSubsystem extends SubsystemBase {
         return targetAngleFieldRelative.minus(currentRobotPose.getRotation().getMeasure());
     }
 
+    public boolean isTurretSafe() {
+        return this.hoodSafe;
+    }
+
     private void checkHoodSafety(double turretX, double turretY) {
         Translation2d turretPos = new Translation2d(turretX, turretY);
-        this.hoodSafe = (
+        this.hoodSafe = !(
             TurretSafety.RED_DEPOT_SIDE_TRENCH.contains(turretPos)    ||
             TurretSafety.RED_OUTPOST_SIDE_TRENCH.contains(turretPos)  ||
             TurretSafety.BLUE_DEPOT_SIDE_TRENCH.contains(turretPos)   ||

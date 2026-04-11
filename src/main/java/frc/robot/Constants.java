@@ -331,7 +331,7 @@ public final class Constants {
         public static final double HOOD_KP = 0.05;
         public static final double HOOD_KI = 0;
         public static final double HOOD_KD = 0;
-        public static final int HOOD_CURRENT_LIMIT_AMPS = 20;
+        public static final int HOOD_CURRENT_LIMIT_AMPS = 30;
         
         public static final double TURRET_KP = 80;
         public static final double TURRET_KD = 0.5;
@@ -346,7 +346,7 @@ public final class Constants {
          * Start at 1.0 (one-to-one compensation) and tune by watching turret lag
          * during a spin: increase if still lagging, decrease if it overshoots.
          */
-        public static final double TURRET_ROTATION_FF = 1.0;
+        public static final double TURRET_ROTATION_FF = 0.0;
 
         /**
          * How close (in RPS) the flywheel must be to its target speed before the
@@ -367,17 +367,17 @@ public final class Constants {
         public static final Angle MAX_TURRET_ANGLE = Degrees.of(170);
 
         public static final double TURRET_GEAR_RATIO = 29.17;
-        public static final double TURRET_ANGLE_TOLERANCE_DEGREES = 0.5;
+        public static final double TURRET_ANGLE_TOLERANCE_DEGREES = 0.25;
         public static final double HOOD_ANGLE_TOLERANCE_DEGREES = 0.25;
 
         
         /** Open-loop output used while homing toward the lower hard stop. Negative = lower. */
-        public static final double HOOD_HOMING_SPEED = -0.1;
+        public static final double HOOD_HOMING_SPEED = -0.5;
         /**
          * Output-current threshold (amps) above which the NEO 550 is considered stalled.
          * NEO 550 free current ≈ 1 A; stall ≈ 8 A. 4 A gives comfortable headroom.
          */
-        public static final double HOOD_HOMING_STALL_AMPS = 4.0;
+        public static final double HOOD_HOMING_STALL_AMPS = 2.0;
         /** How long (seconds) current must exceed the threshold before homing is accepted. */
         public static final double HOOD_HOMING_STALL_DURATION_S = 0.1;
 
@@ -446,7 +446,7 @@ public final class Constants {
          * consistently in the direction you came from (behind your path), increase
          * this value.  If they land consistently ahead of your path, decrease it.
          */
-        public static final double SOTF_LATENCY_COMPENSATION_S = 0.1;
+        public static final double SOTF_LATENCY_COMPENSATION_S = -0.02;
 
         /**
          * Additional radial (toward/away) latency compensation for shoot-on-the-fly
@@ -465,7 +465,7 @@ public final class Constants {
          *       increase this value.</li>
          * </ul>
          */
-        public static final double SOTF_RANGE_LATENCY_COMPENSATION_S = -0.04;
+        public static final double SOTF_RANGE_LATENCY_COMPENSATION_S = -0.03;
 
         /** Stator current limit (A) for each flywheel motor (Kraken X60). */
         public static final double SHOOTER_STATOR_CURRENT_LIMIT_A = 80.0;
@@ -496,13 +496,14 @@ public final class Constants {
          * to the fully-lowered intake position. Negative because the motor must
          * turn in the negative direction to lower.
          */
-        public static final double LIFT_LOWERED_ROTATIONS = -34;
+        // public static final double LIFT_LOWERED_ROTATIONS = -34; // TODO: uncomment this
+        public static final double LIFT_LOWERED_ROTATIONS = -13;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}
          * when comparing the lift's actual position against the target endpoints.
          */
-        public static final double LIFT_POSITION_TOLERANCE_ROTATIONS = 1.0;
+        public static final double LIFT_POSITION_TOLERANCE_ROTATIONS = .5;
 
         /** Open-loop output used while homing toward the upper hard stop. Positive = raise. */
         public static final double LIFT_HOMING_SPEED = 0.1;
