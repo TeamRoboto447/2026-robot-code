@@ -279,6 +279,34 @@ public final class Constants {
             15.55,
             4.3
         );
+
+        /**
+         * Rectangles in which Theseus drops the hood to protect the turret from breaking off.
+         * 
+         * <p><b>TODO: Values possibly need tuning to allow us to get closer to the trench without colliding.</b>
+         */
+        public static class TurretSafety {
+
+            public static final Rectangle2d BLUE_DEPOT_SIDE_TRENCH = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(158.06), Units.inchesToMeters(0)),
+                new Translation2d(Units.inchesToMeters(205.06), Units.inchesToMeters(49.84))
+            );
+
+            public static final Rectangle2d BLUE_OUTPOST_SIDE_TRENCH = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(158.06), Units.inchesToMeters(266.68)),
+                new Translation2d(Units.inchesToMeters(205.06), FIELD_WIDTH_METERS)
+            );
+
+            public static final Rectangle2d RED_DEPOT_SIDE_TRENCH = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(445.06), Units.inchesToMeters(266.68)),
+                new Translation2d(Units.inchesToMeters(492.06), FIELD_WIDTH_METERS) //492.06
+            );
+
+            public static final Rectangle2d RED_OUTPOST_SIDE_TRENCH = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(445.06), Units.inchesToMeters(0)),
+                new Translation2d(Units.inchesToMeters(492.06), Units.inchesToMeters(49.84))
+            );
+        }
         
         /**
          * Tolerance for aligning robot to autonomous starting position.

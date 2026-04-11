@@ -51,6 +51,7 @@ import frc.robot.ShipOfTheseus;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.TurretTarget;
 import frc.robot.Constants.FieldConstants.TurretTargetPoints;
+import frc.robot.Constants.FieldConstants.TurretSafety;
 import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.ShooterTable;
@@ -68,6 +69,7 @@ public class TurretSubsystem extends SubsystemBase {
     private boolean hoodLimitSet = false;
     private boolean rightShooterMotorConnected, leftShooterMotorConnected,
         angleMotorConnected, hoodMotorConnected;
+    private boolean hoodSafe;
     private final Trigger hoodLowerLimitTrigger;
     private final Trigger feedTrigger;
 
@@ -286,7 +288,7 @@ public class TurretSubsystem extends SubsystemBase {
                     ? lastSolution.rpm / 60.0
                     : NetworkedConfig.Turret.getTargetRPM() / 60.0;
             // Only "ready" when the flywheel is commanded to spin AND within tolerance.
-            if (!runFlywheel || targetRPS < 16) return false;
+            if (!runFlywheel || targetRPS < 16 || !hoodSafe) return false;
             return this.flywheelAtSpeed();
         });
 
@@ -415,6 +417,8 @@ public class TurretSubsystem extends SubsystemBase {
         NetworkedConfig.Turret.setTargetHeight(Units.metersToInches(currentTargetPose.getZ()));
         NetworkedConfig.Turret.setDistanceToTarget(distanceInches);
 
+        checkHoodSafety(actualTurretXm, actualTurretYm);
+
         boolean validShot = (sol != null);
         NetworkedConfig.Turret.setValidTarget(validShot);
         if (validShot) {
@@ -455,7 +459,7 @@ public class TurretSubsystem extends SubsystemBase {
             else
                 rightShooterMotor.setControl(coastReq); // coast freely
 
-            if (validShot && shooting) {
+            if (validShot && shooting && hoodSafe) {
                 this.setHoodAngle(Degrees.of(actuationHoodDeg));
 
                 // Convert field-relative aim bearing to robot-frame turret angle.
@@ -1063,5 +1067,15 @@ public class TurretSubsystem extends SubsystemBase {
         double deltaY = currentTargetPose.getY() - currentRobotPose.getY();
         Angle targetAngleFieldRelative = Radians.of(Math.atan2(deltaY, deltaX));
         return targetAngleFieldRelative.minus(currentRobotPose.getRotation().getMeasure());
+    }
+
+    private void checkHoodSafety(double turretX, double turretY) {
+        Translation2d turretPos = new Translation2d(turretX, turretY);
+        this.hoodSafe = (
+            TurretSafety.RED_DEPOT_SIDE_TRENCH.contains(turretPos)    ||
+            TurretSafety.RED_OUTPOST_SIDE_TRENCH.contains(turretPos)  ||
+            TurretSafety.BLUE_DEPOT_SIDE_TRENCH.contains(turretPos)   ||
+            TurretSafety.BLUE_OUTPOST_SIDE_TRENCH.contains(turretPos)
+        );
     }
 }
