@@ -367,6 +367,10 @@ public class TurretSubsystem extends SubsystemBase {
         }
     }
 
+    private boolean isModelModeActive() {
+        return "MODEL".equals(selectedSolver);
+    }
+
     /**
      * Updates the subsystem's various elements, including the on-RIO shot solver,
      * motor setpoints, and NetworkTables telemetry.
@@ -393,6 +397,15 @@ public class TurretSubsystem extends SubsystemBase {
         // field-zone/alliance/override target rather than the previous loop's target.
         updateTurretTarget();
 
+        TargetingMode requestedMode = getTargetingMode();
+        if (requestedMode == TargetingMode.MODEL) {
+            selectedSolver = "MODEL";
+        } else if (requestedMode == TargetingMode.LUT) {
+            selectedSolver = "LUT";
+        } else {
+            selectedSolver = "AUTO_FALLBACK";
+        }
+
         // ── 2. Geometry: turret pivot position in field frame ─────────────────
         Pose2d currentPose = poseProvider.getPose();
 
@@ -410,6 +423,9 @@ public class TurretSubsystem extends SubsystemBase {
         // Tune SOTF_LATENCY_COMPENSATION_S by driving perpendicular to the target:
         //   shots landing behind your path → increase; ahead of your path → decrease.
         double latencyS = TurretSubsystemConstants.SOTF_LATENCY_COMPENSATION_S;
+        if (isModelModeActive()) {
+            latencyS += NetworkedConfig.Debug.getModelLatencyOffsetSeconds();
+        }
         double projectedRobotX = currentPose.getX() + chassis.vxMetersPerSecond * latencyS;
         double projectedRobotY = currentPose.getY() + chassis.vyMetersPerSecond * latencyS;
 
@@ -431,6 +447,9 @@ public class TurretSubsystem extends SubsystemBase {
         // Apply an independent radial (toward/away) latency compensation so depth
         // behavior can be tuned separately from lateral/bearing lead.
         double rangeLatencyS = TurretSubsystemConstants.SOTF_RANGE_LATENCY_COMPENSATION_S;
+        if (isModelModeActive()) {
+            rangeLatencyS += NetworkedConfig.Debug.getModelRangeLatencyOffsetSeconds();
+        }
         if (Math.abs(rangeLatencyS) > 1e-9) {
             double rangeMeters = Math.hypot(currentTargetPose.getX() - turretXm, currentTargetPose.getY() - turretYm);
             if (rangeMeters > 1e-6) {
@@ -463,7 +482,14 @@ public class TurretSubsystem extends SubsystemBase {
         ShotSolution modelSol = null;
         if (shooterTable.isLoaded() && turretTarget != TurretTarget.NONE && distanceInches > 1.0) {
             lutSol = shooterTable.solve(dxIn, dyIn, vxIps, vyIps);
-            modelSol = ModelShotCalculator.solve(dxIn, dyIn, vxIps, vyIps, shooterTable);
+            modelSol = ModelShotCalculator.solve(
+                dxIn,
+                dyIn,
+                vxIps,
+                vyIps,
+                NetworkedConfig.Debug.getModelDistanceBiasInches(),
+                NetworkedConfig.Debug.getModelRpmOffset(),
+                NetworkedConfig.Debug.getModelTofScale());
         }
         lastLutSolution = lutSol;
         lastModelSolution = modelSol;
@@ -978,8 +1004,7 @@ public class TurretSubsystem extends SubsystemBase {
         double startY = robotPose.getY() + turretOffsetField.getY();
         double startZ = turretOffset.getZ();
 
-        double robotHeadingDeg = robotPose.getRotation().getDegrees();
-        double yawDeg = robotHeadingDeg - lastSolution.aimBearingDeg;
+        double yawDeg = lastSolution.aimBearingDeg;
         double yawRad = Units.degreesToRadians(yawDeg);
 
         double hoodFromVerticalDeg = lastSolution.angleDeg;

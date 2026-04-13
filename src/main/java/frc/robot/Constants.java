@@ -497,7 +497,7 @@ public final class Constants {
          * turn in the negative direction to lower.
          */
         // public static final double LIFT_LOWERED_ROTATIONS = -34; // TODO: uncomment this
-        public static final double LIFT_LOWERED_ROTATIONS = -13;
+        public static final double LIFT_LOWERED_ROTATIONS = -7;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}

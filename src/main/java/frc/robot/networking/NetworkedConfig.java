@@ -570,6 +570,40 @@ public class NetworkedConfig {
         private static final StringEntry turretTargetingMode =
             debugTable.getStringTopic("Turret Targeting Mode").getEntry("AUTO_FALLBACK");
 
+        /**
+         * Additive RPM bias applied only in MODEL mode.
+         * Positive values push shots farther; negative values pull shots shorter.
+         */
+        private static final DoubleEntry modelRpmOffset =
+            debugTable.getDoubleTopic("Model RPM Offset").getEntry(200.0);
+
+        /**
+         * Additive virtual-distance bias (inches) applied only in MODEL mode.
+         * Useful for quick range tuning while preserving the model's arc shape trend.
+         */
+        private static final DoubleEntry modelDistanceBiasInches =
+            debugTable.getDoubleTopic("Model Distance Bias Inches").getEntry(0.0);
+
+        /**
+         * Multiplicative scale on model TOF used for motion lead.
+         * Values below 1.0 reduce lead; values above 1.0 increase lead.
+         */
+        private static final DoubleEntry modelTofScale =
+            debugTable.getDoubleTopic("Model TOF Scale").getEntry(1.0);
+
+        /**
+         * Additive latency-compensation offset (seconds) applied only in MODEL mode.
+         * Positive increases lead, negative reduces lead.
+         */
+        private static final DoubleEntry modelLatencyOffsetS =
+            debugTable.getDoubleTopic("Model Latency Offset S").getEntry(0.0);
+
+        /**
+         * Additive radial latency-compensation offset (seconds) applied only in MODEL mode.
+         */
+        private static final DoubleEntry modelRangeLatencyOffsetS =
+            debugTable.getDoubleTopic("Model Range Latency Offset S").getEntry(0.0);
+
         public static void initializeDefaults() {
             newPoseX.set(0);
             newPoseY.set(0);
@@ -582,6 +616,11 @@ public class NetworkedConfig {
             overrideHoodAngleEnabled.set(false);
             overrideHoodAngleValue.set(30.0);
             turretTargetingMode.set("AUTO_FALLBACK");
+            modelRpmOffset.set(0.0);
+            modelDistanceBiasInches.set(0.0);
+            modelTofScale.set(1.0);
+            modelLatencyOffsetS.set(0.0);
+            modelRangeLatencyOffsetS.set(0.0);
         }
 
         public static boolean isBypassHubLock() {
@@ -648,6 +687,26 @@ public class NetworkedConfig {
             } else {
                 turretTargetingMode.set(mode);
             }
+        }
+
+        public static double getModelRpmOffset() {
+            return modelRpmOffset.get();
+        }
+
+        public static double getModelDistanceBiasInches() {
+            return modelDistanceBiasInches.get();
+        }
+
+        public static double getModelTofScale() {
+            return modelTofScale.get();
+        }
+
+        public static double getModelLatencyOffsetSeconds() {
+            return modelLatencyOffsetS.get();
+        }
+
+        public static double getModelRangeLatencyOffsetSeconds() {
+            return modelRangeLatencyOffsetS.get();
         }
         
     }
