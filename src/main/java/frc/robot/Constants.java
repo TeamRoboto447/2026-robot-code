@@ -360,7 +360,7 @@ public final class Constants {
         public static final int LOOKUP_TABLE_DIST_STEP = 1;
 
         public static final Angle MIN_HOOD_ANGLE = Degrees.of(23);
-        public static final Angle MAX_HOOD_ANGLE = Degrees.of(44);
+        public static final Angle MAX_HOOD_ANGLE = Degrees.of(40);
         public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(1);
 
         public static final Angle MIN_TURRET_ANGLE = Degrees.of(-190);
@@ -496,8 +496,7 @@ public final class Constants {
          * to the fully-lowered intake position. Negative because the motor must
          * turn in the negative direction to lower.
          */
-        // public static final double LIFT_LOWERED_ROTATIONS = -34; // TODO: uncomment this
-        public static final double LIFT_LOWERED_ROTATIONS = -7;
+        public static final double LIFT_LOWERED_ROTATIONS = -34;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}

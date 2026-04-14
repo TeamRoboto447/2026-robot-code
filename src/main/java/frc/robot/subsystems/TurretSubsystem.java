@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -429,11 +430,13 @@ public class TurretSubsystem extends SubsystemBase {
         double projectedRobotX = currentPose.getX() + chassis.vxMetersPerSecond * latencyS;
         double projectedRobotY = currentPose.getY() + chassis.vyMetersPerSecond * latencyS;
 
+        double projectedHeadingRad = currentPose.getRotation().getRadians() - omegaRadPerSec * latencyS;
+        Rotation2d projectedRotation = new Rotation2d(projectedHeadingRad);
         // Offset the projected robot centre by the turret mount point, rotated to field frame.
         Translation2d turretOffset = new Translation2d(
             TurretSubsystemConstants.TURRET_TO_ROBOT.getX(),
             TurretSubsystemConstants.TURRET_TO_ROBOT.getY()
-        ).rotateBy(currentPose.getRotation());
+        ).rotateBy(projectedRotation); //.rotateBy(currentPose.getRotation());
         double turretXm = projectedRobotX + turretOffset.getX();
         double turretYm = projectedRobotY + turretOffset.getY();
 

@@ -24,7 +24,9 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -97,7 +99,8 @@ public class ShipOfTheseus {
     public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
     private final AtomicBoolean repulsorHasPiece = new AtomicBoolean(false);
-    
+
+    public final PowerDistribution powerBoard;    
 
     private final Trigger driverControllerPOVActive = new Trigger(() -> !DriverController.povCenter().getAsBoolean());
     private final Trigger operatorControllerRightJoystick = new Trigger(() -> 
@@ -139,6 +142,9 @@ public class ShipOfTheseus {
 
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
+
+        powerBoard = new PowerDistribution(1, ModuleType.kRev);
+        SmartDashboard.putData("PDH", powerBoard);
 
         // ── Debug: turret target override chooser ─────────────────────────────
         // Populate before configureBindings() so the drive default command can
