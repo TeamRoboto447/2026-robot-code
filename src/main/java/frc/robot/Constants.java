@@ -465,7 +465,7 @@ public final class Constants {
          *       increase this value.</li>
          * </ul>
          */
-        public static final double SOTF_RANGE_LATENCY_COMPENSATION_S = -0.03;
+        public static final double SOTF_RANGE_LATENCY_COMPENSATION_S = 0.0;
 
         /** Stator current limit (A) for each flywheel motor (Kraken X60). */
         public static final double SHOOTER_STATOR_CURRENT_LIMIT_A = 80.0;
