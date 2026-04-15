@@ -42,7 +42,7 @@ import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
 import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
-import frc.robot.libraries.Repulsor.State.GameState;
+import frc.robot.utils.GameState;
 import frc.robot.libraries.Repulsor.State.StateManager;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -98,6 +98,7 @@ public class ShipOfTheseus {
     public final PoseEstimatorSubsystem poseEstimatorSubsystem;
     public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
+    public final GameState gameState;
     private final AtomicBoolean repulsorHasPiece = new AtomicBoolean(false);
 
     public final PowerDistribution powerBoard;    
@@ -178,6 +179,9 @@ public class ShipOfTheseus {
                 repulsorHasPiece::get); // operator-controlled supplier until a sensor is available
         NetworkedTelemetry.Repulsor.setHasPiece(repulsorHasPiece.get());
         RepulsorDriverStationBootstrap.useDefaultNt();
+
+        gameState = new GameState();
+        gameState.update();
     }
 
     public void runSensorlessHoming() {
@@ -835,27 +839,25 @@ public class ShipOfTheseus {
      * managed by {@link StateManager} (updated by {@code repulsor.update()}).
      */
     public void periodicUpdate() {
-        GameState gs = StateManager.getState(GameState.class);
-        if (gs != null) {
+        if (gameState != null) { 
             // Countdown is only meaningful when the hub is inactive — how long until it flips active.
             // When already active (or game data not yet available), publish 0.
             // double countdown = (!gs.isHubActive()) ? Math.max(0.0, gs.getRemainingShiftTime()) : 0.0;
-            double countdown = gs.getRemainingShiftTime();
+            double countdown = gameState.getRemainingShiftTime();
             NetworkedTelemetry.GameState.publish(
-                edu.wpi.first.wpilibj.DriverStation.getMatchTime(),
-                gs.isHubActive(),
-                countdown
+                 (int) gameState.getMatchTime(),
+                gameState.isHubActive(),
+                 (int) countdown
             );
             
             // Handle NeoPixel hub warning trigger (8 seconds before hub becomes active)
-            boolean isHubActive = gs.isHubActive();
-            double remainingShift = gs.getRemainingShiftTime();
+            boolean isHubActive = gameState.isHubActive();
             
             // Fire trigger when hub inactive, countdown <= 6s, and not yet fired
-            if (!isHubActive && remainingShift <= 10.0 && !hubWarningFired) {
+            if (!isHubActive && countdown <= 10.0 && !hubWarningFired) {
                 NetworkedTelemetry.NeoPixels.setControlTrigger("PHASE_SHIFT_INCOMING");
                 hubWarningFired = true;
-                System.out.println("[NeoPixel] Phase shift incoming trigger: hub activating in ~" + remainingShift + "s");
+                System.out.println("[NeoPixel] Phase shift incoming trigger: hub activating in ~" + countdown + "s");
             }
             
             // Reset flag when hub just became inactive
