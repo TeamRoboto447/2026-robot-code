@@ -354,7 +354,7 @@ public final class Constants {
          * tight enough to ensure a consistent shot without being unreachably precise.
          * Increase if the kicker rarely fires; decrease if shot consistency is poor.
          */
-        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 50.0 / 60.0; // 50 RPM tolerance / 60 seconds = RPS
+        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 250.0 / 60.0; // 50 RPM tolerance / 60 seconds = RPS
 
         public static final int LOOKUP_TABLE_VEL_STEP = 1;
         public static final int LOOKUP_TABLE_DIST_STEP = 1;
@@ -465,7 +465,7 @@ public final class Constants {
          *       increase this value.</li>
          * </ul>
          */
-        public static final double SOTF_RANGE_LATENCY_COMPENSATION_S = 0.0;
+        public static final double SOTF_RANGE_LATENCY_COMPENSATION_S = -0.02;
 
         /** Stator current limit (A) for each flywheel motor (Kraken X60). */
         public static final double SHOOTER_STATOR_CURRENT_LIMIT_A = 80.0;

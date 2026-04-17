@@ -285,6 +285,7 @@ public class NetworkedTelemetry {
         private static final StringEntry selectedSolver = turretTable.getStringTopic("Selected Solver").getEntry("NONE");
         private static final DoubleEntry lutModelHoodDeltaDeg = turretTable.getDoubleTopic("LUT-Model Hood Delta Deg").getEntry(0);
         private static final DoubleEntry lutModelRPMDelta = turretTable.getDoubleTopic("LUT-Model RPM Delta").getEntry(0);
+        private static final DoubleEntry turretAngleOffset = turretTable.getDoubleTopic("Turret Angle Offset").getEntry(0);
         private static final StructArrayPublisher<Pose3d> shotArc =
             turretTable.getStructArrayTopic("Shot Arc", Pose3d.struct).publish();
 
@@ -318,6 +319,10 @@ public class NetworkedTelemetry {
 
         public static void setShotArc(Pose3d[] arcPoints) {
             shotArc.set(arcPoints);
+        }
+
+        public static void setTurretAngleOffset(double offset) {
+            turretAngleOffset.set(offset);
         }
     }
 

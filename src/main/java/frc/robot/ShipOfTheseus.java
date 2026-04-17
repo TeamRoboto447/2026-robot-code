@@ -23,6 +23,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -61,6 +62,7 @@ public class ShipOfTheseus {
     private boolean autoShoot = false;
     private boolean autoIntake = false;
     private boolean autoTurningToAngle = false;
+    private MutAngle turretAngleOffset = Degrees.mutable(0);
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric driveFieldOriented = new SwerveRequest.FieldCentric()
@@ -130,7 +132,7 @@ public class ShipOfTheseus {
 
     public ShipOfTheseus() {
 
-        this.turretSubsystem = new TurretSubsystem(swerveSubsystem);
+        this.turretSubsystem = new TurretSubsystem(swerveSubsystem, turretAngleOffset);
         this.intakeSubsystem = new IntakeSubsystem();
         this.indexerSubsystem = new IndexerSubsystem();
         this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
@@ -428,6 +430,8 @@ public class ShipOfTheseus {
         OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
         OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
 
+        OperatorController.start().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(1))));
+        OperatorController.back().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(-1))));
     }
     
     @SuppressWarnings("unused") // Suppress warnings for unused bindings in dev mode
@@ -879,6 +883,8 @@ public class ShipOfTheseus {
             intakeSubsystem.resetLiftHoming();
             NetworkedConfig.Debug.clearResetHomedPositions();
         }
+
+        NetworkedTelemetry.Turret.setTurretAngleOffset(turretAngleOffset.in(Degrees));
 
         // if (turretSubsystem.isShootingActive() && turretSubsystem.getRelativeAngleToTarget().abs(Degrees) > 60) autoTurningToAngle = true;
         // else autoTurningToAngle = false;

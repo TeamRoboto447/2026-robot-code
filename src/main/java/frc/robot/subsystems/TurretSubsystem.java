@@ -47,6 +47,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.TurretSubsystemConstants;
@@ -84,6 +85,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final SparkClosedLoopController hoodController;
     private final TalonFX angleMotor;
     private final SparkMax kickerMotor;
+
+    private final MutAngle turretAngleOffset;
 
     // Cached status signals — initialized in constructor after motors are created.
     // Calling .getVelocity()/.getPosition() repeatedly creates new signal objects
@@ -187,8 +190,9 @@ public class TurretSubsystem extends SubsystemBase {
      * 
      * @param poseProvider An object that can fetch the current robot pose
      */
-    public TurretSubsystem(PoseProvider poseProvider) {
+    public TurretSubsystem(PoseProvider poseProvider, MutAngle turretOffsetAngle) {
         this.poseProvider = poseProvider;
+        this.turretAngleOffset = turretOffsetAngle;
 
         this.rightShooterMotor = new TalonFX(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID);
         var shooterSlot0config = ShooterFxConfigs.Slot0;
@@ -578,7 +582,7 @@ public class TurretSubsystem extends SubsystemBase {
                     double compensatedTarget = baseTargetDeg
                         - omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02;
 
-                    this.turnToAngle(Degrees.of(compensatedTarget));
+                    this.turnToAngle(Degrees.of(compensatedTarget).plus(turretAngleOffset));
                 }
             } else {
                 this.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE);
