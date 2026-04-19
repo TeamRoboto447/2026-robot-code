@@ -184,6 +184,9 @@ public class ShipOfTheseus {
 
         gameState = new GameState();
         gameState.update();
+
+        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+        if (alliance == Alliance.Blue) turretAngleOffset = Degrees.mutable(-4);
     }
 
     public void runSensorlessHoming() {
@@ -328,8 +331,15 @@ public class ShipOfTheseus {
             );
 
         DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
-            .onTrue(Commands.runOnce(() -> turretSubsystem.setShootingActive(true)))
-            .onFalse(Commands.runOnce(() -> turretSubsystem.setShootingActive(false)));
+            .onTrue(Commands.runOnce(() -> {
+                Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+                poseEstimatorSubsystem.setTemporaryAprilTagFilter((alliance == Alliance.Red) ? Constants.FieldConstants.RED_HUB_APRILTAGS : Constants.FieldConstants.BLUE_HUB_APRILTAGS);
+                turretSubsystem.setShootingActive(true);
+            }))
+            .onFalse(Commands.runOnce(() -> {
+                poseEstimatorSubsystem.clearTemporaryAprilTagFilter();
+                turretSubsystem.setShootingActive(false);
+            }));
 
         DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
             .onFalse(Commands.runOnce(() -> {
@@ -694,7 +704,7 @@ public class ShipOfTheseus {
         return Commands.sequence(
             Commands.runOnce(() -> {
                 Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
-                Set<Integer> towerTags = (alliance == Alliance.Red) ? Set.of(15, 16) : Set.of(31, 32);
+                Set<Integer> towerTags = (alliance == Alliance.Red) ? Set.of(15/*, 16*/) : Set.of(31/*, 32*/);
                 poseEstimatorSubsystem.setTemporaryAprilTagFilter(towerTags);
             }),
             climbSequence

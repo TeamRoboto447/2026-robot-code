@@ -8,29 +8,29 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.112349397590362,
-        "y": 7.673927710843373
+        "x": 2.0521325301204825,
+        "y": 7.805060240963856
       },
       "isLocked": false,
       "linkedName": "Left Trench Exit"
     },
     {
       "anchor": {
-        "x": 1.680590361445783,
-        "y": 5.575807228915662
+        "x": 2.8170722891566267,
+        "y": 6.242397590361446
       },
       "prevControl": {
-        "x": 1.680590361445783,
-        "y": 6.575807228915662
+        "x": 2.8061445783132544,
+        "y": 6.548373493975904
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Climb Stage"
+      "linkedName": "Mid-Left Shooting"
     }
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.25,
+      "waypointRelativePos": 0.2130909090909136,
       "rotationDegrees": 180.0
     }
   ],
@@ -39,7 +39,7 @@
   "eventMarkers": [
     {
       "name": "startShooter",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0.9995753715498937,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -58,13 +58,13 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 90.0
+    "velocity": 0,
+    "rotation": 90.20432152724219
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 2.0,
+    "velocity": 0,
     "rotation": 180.0
   },
   "useDefaultConstraints": true

@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Slow Clear"
+            "pathName": "Backup and Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left Shooting from Left SC"
+            "pathName": "Left Backup to Depot"
           }
         },
         {
@@ -21,27 +27,9 @@
           "data": {
             "commands": [
               {
-                "type": "named",
-                "data": {
-                  "name": "Raise Intake"
-                }
-              },
-              {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.75
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Lower Intake"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 0.75
+                  "waitTime": 1.0
                 }
               },
               {
@@ -53,7 +41,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.75
+                  "waitTime": 1.0
                 }
               },
               {
@@ -65,7 +53,31 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 0.75
+                  "waitTime": 1.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Raise Intake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Lower Intake"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.0
                 }
               },
               {
@@ -80,13 +92,13 @@
         {
           "type": "named",
           "data": {
-            "name": "Stop Intake"
+            "name": "autoClimb"
           }
         }
       ]
     }
   },
-  "resetOdom": false,
+  "resetOdom": true,
   "folder": null,
   "choreoAuto": false
 }

@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Backup and Shoot"
+            "pathName": "Left Slow Clear"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Shooting from Left SC"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "startShooter"
+            "name": "Stop Intake"
           }
         },
         {
@@ -29,15 +35,9 @@
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 0.1
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "autoClimb"
+            "pathName": "Left Hub Slow Clear"
           }
         }
       ]

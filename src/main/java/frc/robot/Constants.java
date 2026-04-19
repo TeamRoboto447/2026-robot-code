@@ -2,6 +2,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Degrees;
 
+import java.util.Set;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MatBuilder;
@@ -110,6 +112,9 @@ public final class Constants {
         public static final double FIELD_LENGTH_METERS = Units.inchesToMeters(651.22);
         public static final double FIELD_WIDTH_METERS = Units.inchesToMeters(317.69);
 
+        public static final Set<Integer> RED_HUB_APRILTAGS = Set.of(2, 3, 4, 5, 8, 9, 10, 11);
+        public static final Set<Integer> BLUE_HUB_APRILTAGS = Set.of(18, 19, 20, 21, 24, 25, 26, 27);
+
         public enum FieldZone {
             RED_ALLIANCE_AUDIENCE_SIDE,
             RED_ALLIANCE_SCORING_SIDE,
@@ -167,8 +172,8 @@ public final class Constants {
             public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.04, 1.5, 0);
             
             public static final Translation3d BLUE_HUB = new Translation3d(4.595, 4.035, 1.83);
-            public static final Translation3d BLUE_RIGHT_CORNER = new Translation3d(1.5, 6.57, 0);
-            public static final Translation3d BLUE_LEFT_CORNER = new Translation3d(1.5, 1.5, 0);
+            public static final Translation3d BLUE_RIGHT_CORNER = new Translation3d(1.5, 1.5, 0);
+            public static final Translation3d BLUE_LEFT_CORNER = new Translation3d(1.5, 6.57, 0);
         }
 
         /**
@@ -228,8 +233,8 @@ public final class Constants {
                 Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
             );
 
-            // private static final double RED_DEPOT_X = 15.3021;
-            private static final double RED_DEPOT_X = 15.449;
+            private static final double RED_DEPOT_X = 15.2521;
+            // private static final double RED_DEPOT_X = 15.449;
             // private static final double RED_OUTPOST_X = 15.61;
             private static final double RED_OUTPOST_X = 15.510;
 
