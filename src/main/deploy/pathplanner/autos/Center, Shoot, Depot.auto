@@ -88,18 +88,6 @@
               }
             ]
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Backup from Depot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "autoClimb"
-          }
         }
       ]
     }

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 0.8173012048192771,
-        "y": 5.958277108433736
+        "x": 0.6861686746987952,
+        "y": 5.783433734939758
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.516674698795181,
-        "y": 6.001987951807228
+        "x": 1.385542168674699,
+        "y": 5.827144578313251
       },
       "isLocked": false,
       "linkedName": "Depot Collect"
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 140.964487101253
   },
   "useDefaultConstraints": true
 }

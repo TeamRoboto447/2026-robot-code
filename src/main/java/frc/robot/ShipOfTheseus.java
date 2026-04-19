@@ -440,8 +440,15 @@ public class ShipOfTheseus {
         OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
         OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
 
+        // Operator: Adjust turret offset
         OperatorController.start().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(1))));
         OperatorController.back().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(-1))));
+
+        // Operator: Home Hood
+        OperatorController.povLeft().onTrue(Commands.sequence(
+            Commands.runOnce(() -> turretSubsystem.resetHoodHoming()),
+            turretSubsystem.homeHood()
+        ));
     }
     
     @SuppressWarnings("unused") // Suppress warnings for unused bindings in dev mode

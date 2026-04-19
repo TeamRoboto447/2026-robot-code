@@ -78,10 +78,10 @@ public final class Constants {
         public static final boolean USE_VISION = true;
         // How many meters away a tag needs to be before its std dev starts scaling up.
         // At this distance the multiplier is 1x; beyond it, it grows linearly.
-        public static final double VISION_STD_DEV_SCALE_DISTANCE = 1.0; // meters
+        public static final double VISION_STD_DEV_SCALE_DISTANCE = 1.3; // meters
         // How quickly std devs grow with distance beyond VISION_STD_DEV_SCALE_DISTANCE.
         // e.g. 0.3 means +0.3 to the multiplier per extra meter.
-        public static final double VISION_STD_DEV_SCALE_FACTOR = 0.5;
+        public static final double VISION_STD_DEV_SCALE_FACTOR = 0.4;
 
         public static final Transform3d ROBOT_TO_CLIMBER_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
