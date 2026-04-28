@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.325,
-        "y": 7.61
+        "x": 0.6861686746987952,
+        "y": 5.783433734939758
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.1232771084337347,
-        "y": 7.706710843373493
+        "x": 1.681113750724146,
+        "y": 5.766298559963453
       },
       "isLocked": false,
-      "linkedName": "Left Trench Exit"
+      "linkedName": "Depot Collect"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 5.685084337349398
       },
       "prevControl": {
-        "x": 1.5824832175991437,
-        "y": 5.890632385260343
+        "x": 0.4342494122116538,
+        "y": 5.658863877849719
       },
       "nextControl": null,
       "isLocked": false,
@@ -41,14 +41,14 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
+    "velocity": 0,
     "rotation": 180.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 3.0,
-    "rotation": 180.0
+    "velocity": 0,
+    "rotation": 140.964487101253
   },
   "useDefaultConstraints": true
 }

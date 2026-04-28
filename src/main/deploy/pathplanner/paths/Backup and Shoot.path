@@ -20,12 +20,12 @@
         "y": 4.985710843373495
       },
       "prevControl": {
-        "x": 3.1776867469879515,
-        "y": 4.985710843373495
+        "x": 2.237903614457831,
+        "y": 4.559530120481927
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Backup Left"
     }
   ],
   "rotationTargets": [],

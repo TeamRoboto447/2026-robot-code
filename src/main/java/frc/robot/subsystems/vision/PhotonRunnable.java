@@ -63,27 +63,28 @@ public class PhotonRunnable implements Runnable {
                 detectedTags.clear();
 
                 if (!result.hasTargets()) continue;
-                if (!allTargetsAllowed(result.getTargets())) continue;
+                if (allTargetsAllowed(result.getTargets())) {
 
-                // Prefer coprocessor multi-tag; fall back to lowest-ambiguity single-tag.
-                // Both methods are the non-deprecated direct estimation API in photonlib 2026.
-                var estimation = photonPoseEstimator.estimateCoprocMultiTagPose(result);
-                if (estimation.isEmpty()) {
-                    if (result.targets.size() == 1
-                            && result.targets.get(0).getPoseAmbiguity() <= APRILTAG_AMBIGUITY_THRESHOLD) {
-                        estimation = photonPoseEstimator.estimateLowestAmbiguityPose(result);
+                    // Prefer coprocessor multi-tag; fall back to lowest-ambiguity single-tag.
+                    // Both methods are the non-deprecated direct estimation API in photonlib 2026.
+                    var estimation = photonPoseEstimator.estimateCoprocMultiTagPose(result);
+                    if (estimation.isEmpty()) {
+                        if (result.targets.size() == 1
+                                && result.targets.get(0).getPoseAmbiguity() <= APRILTAG_AMBIGUITY_THRESHOLD) {
+                            estimation = photonPoseEstimator.estimateLowestAmbiguityPose(result);
+                        }
                     }
+
+                    estimation.ifPresent(estimatedRobotPose -> {
+                        Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
+                        if (MathUtils.withinRange(estimatedPose.getX(), 0, FieldConstants.FIELD_LENGTH_METERS)
+                                && MathUtils.withinRange(estimatedPose.getY(), 0, FieldConstants.FIELD_WIDTH_METERS)) {
+                            atomicEstimatedRobotPose.set(estimatedRobotPose);
+                        }
+                    });
+
+                    detectedTags.addAll(result.getTargets());
                 }
-
-                estimation.ifPresent(estimatedRobotPose -> {
-                    Pose3d estimatedPose = estimatedRobotPose.estimatedPose;
-                    if (MathUtils.withinRange(estimatedPose.getX(), 0, FieldConstants.FIELD_LENGTH_METERS)
-                            && MathUtils.withinRange(estimatedPose.getY(), 0, FieldConstants.FIELD_WIDTH_METERS)) {
-                        atomicEstimatedRobotPose.set(estimatedRobotPose);
-                    }
-                });
-
-                detectedTags.addAll(result.getTargets());
             }
         }
     }

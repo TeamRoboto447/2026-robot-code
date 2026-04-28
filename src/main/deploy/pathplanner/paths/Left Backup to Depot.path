@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.4401807228915664,
-        "y": 5.685084337349398
+        "x": 1.9319277108433734,
+        "y": 4.985710843373495
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.966925321630209,
-        "y": 5.680581910780772
+        "x": 0.8282289156626503,
+        "y": 5.247975903614458
       },
       "isLocked": false,
-      "linkedName": "Depot Collect Stage"
+      "linkedName": "Backup Left"
     },
     {
       "anchor": {
@@ -20,23 +20,28 @@
         "y": 5.783433734939758
       },
       "prevControl": {
-        "x": 1.253149106151752,
-        "y": 5.772165732691862
+        "x": 0.992144578313253,
+        "y": 5.12777108433735
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Depot Collect"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.2238181818181807,
+      "rotationDegrees": 145.0
+    }
+  ],
   "constraintZones": [
     {
-      "name": "Slow Collect Constraint",
-      "minWaypointRelativePos": 0,
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.5,
       "maxWaypointRelativePos": 1.0,
       "constraints": {
-        "maxVelocity": 0.5,
-        "maxAcceleration": 3.0,
+        "maxVelocity": 1.0,
+        "maxAcceleration": 2.0,
         "maxAngularVelocity": 270.0,
         "maxAngularAcceleration": 360.0,
         "nominalVoltage": 12.0,
@@ -48,23 +53,12 @@
   "eventMarkers": [
     {
       "name": "Start Intake",
-      "waypointRelativePos": 0,
+      "waypointRelativePos": 0.75,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "Start Intake"
-        }
-      }
-    },
-    {
-      "name": "Stop Intake",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "Stop Intake"
         }
       }
     }

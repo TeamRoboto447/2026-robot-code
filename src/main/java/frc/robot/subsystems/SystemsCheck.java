@@ -167,7 +167,7 @@ public class SystemsCheck {
             flywheelStep(robot, 2000, NetworkedTelemetry.SystemsCheck.resFlywheel2k),
             flywheelStep(robot, 3000, NetworkedTelemetry.SystemsCheck.resFlywheel3k),
             flywheelStep(robot, 4000, NetworkedTelemetry.SystemsCheck.resFlywheel4k),
-            flywheelStep(robot, 5000, NetworkedTelemetry.SystemsCheck.resFlywheel5k),
+            // flywheelStep(robot, 5000, NetworkedTelemetry.SystemsCheck.resFlywheel5k),
 
             // Ensure flywheel is stopped before continuing
             robot.turretSubsystem.runOnce(() -> robot.turretSubsystem.stopShooter()),

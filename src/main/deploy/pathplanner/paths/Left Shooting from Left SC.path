@@ -8,30 +8,47 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.1232771084337347,
-        "y": 7.706710843373493
+        "x": 2.0521325301204825,
+        "y": 7.805060240963856
       },
       "isLocked": false,
       "linkedName": "Left Trench Exit"
     },
     {
       "anchor": {
-        "x": 1.4401807228915664,
-        "y": 5.685084337349398
+        "x": 2.8170722891566267,
+        "y": 6.242397590361446
       },
       "prevControl": {
-        "x": 1.5824832175991437,
-        "y": 5.890632385260343
+        "x": 2.8061445783132544,
+        "y": 6.548373493975904
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot Collect Stage"
+      "linkedName": "Mid-Left Shooting"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.2130909090909136,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "startShooter",
+      "waypointRelativePos": 0.9995753715498937,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "startShooter"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 2.75,
     "maxAcceleration": 2.0,
@@ -41,13 +58,13 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0.0,
-    "rotation": 180.0
+    "velocity": 0,
+    "rotation": 90.20432152724219
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 3.0,
+    "velocity": 0,
     "rotation": 180.0
   },
   "useDefaultConstraints": true

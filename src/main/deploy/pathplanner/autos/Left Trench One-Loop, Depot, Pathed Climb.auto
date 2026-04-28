@@ -17,28 +17,9 @@
           }
         },
         {
-          "type": "sequential",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "startShooter"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "stopShooter"
-                }
-              }
-            ]
+            "name": "startShooter"
           }
         },
         {
@@ -56,13 +37,25 @@
         {
           "type": "named",
           "data": {
+            "name": "Raise Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "stopShooter"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Raise Climber"
+            "name": "Stop Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Raise Intake"
           }
         },
         {

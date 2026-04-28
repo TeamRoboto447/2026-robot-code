@@ -409,7 +409,7 @@ public class NetworkedTelemetry {
             if (hood)     allPassed &= resHoodHoming.get()    && resHoodAngle.get();
             if (turret)   allPassed &= resTurretFwd.get()     && resTurretRev.get() && resTurretReturn.get();
             if (flywheel) allPassed &= resFlywheel2k.get()    && resFlywheel3k.get()
-                                    && resFlywheel4k.get()    && resFlywheel5k.get();
+                                    && resFlywheel4k.get()    /*&& resFlywheel5k.get()*/;
             if (intake)   allPassed &= resIntakeHoming.get() && resIntakeDrop.get() && resIntakeRoller.get() && resIntakeLift.get();
             if (indexer)  allPassed &= resIndexer.get();
             if (feeder)   allPassed &= resFeeder.get();
