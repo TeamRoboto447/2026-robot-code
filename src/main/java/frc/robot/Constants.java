@@ -89,6 +89,10 @@ public final class Constants {
         public static final Transform3d ROBOT_TO_TURRET_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
+        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
+        new Translation3d(Units.inchesToMeters(-12.5), Units.inchesToMeters(-8.5), Units.inchesToMeters(9)),
+        new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-85))
+        );
 
         // Base std devs for vision measurements. Higher = trust odometry more over vision.
         // [x (m), y (m), theta (rad)] — lower = trust vision more, higher = trust swerve more.
