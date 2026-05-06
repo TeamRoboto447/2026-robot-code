@@ -333,16 +333,16 @@ public class ShipOfTheseus {
                 })
             );
 
-        // DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
-        //     .onTrue(Commands.runOnce(() -> {
+        DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
+            .onTrue(Commands.runOnce(() -> {
         //         Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
         //         poseEstimatorSubsystem.setTemporaryAprilTagFilter((alliance == Alliance.Red) ? Constants.FieldConstants.RED_HUB_APRILTAGS : Constants.FieldConstants.BLUE_HUB_APRILTAGS);
-        //         turretSubsystem.setShootingActive(true);
-        //     }))
-        //     .onFalse(Commands.runOnce(() -> {
+                turretSubsystem.setShootingActive(true);
+            }))
+            .onFalse(Commands.runOnce(() -> {
         //         poseEstimatorSubsystem.clearTemporaryAprilTagFilter();
-        //         turretSubsystem.setShootingActive(false);
-        //     }));
+                turretSubsystem.setShootingActive(false);
+            }));
 
         DriverController.start().or(OperatorController.rightTrigger()).or(autoShootTrigger)
             .onFalse(Commands.runOnce(() -> {

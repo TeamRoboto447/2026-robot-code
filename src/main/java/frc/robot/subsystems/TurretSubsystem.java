@@ -58,6 +58,7 @@ import frc.robot.Constants.FieldConstants.TurretTargetPoints;
 import frc.robot.Constants.FieldConstants.TurretSafety;
 import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
+import frc.robot.networking.NetworkedTelemetry.QuestNavNT;
 import frc.robot.utils.ModelShotCalculator;
 import frc.robot.utils.ShooterTable;
 import frc.robot.utils.ShooterTable.ShotSolution;
@@ -427,7 +428,7 @@ public class TurretSubsystem extends SubsystemBase {
         // ball-departure time rather than the stale sensor-capture position.
         // Tune SOTF_LATENCY_COMPENSATION_S by driving perpendicular to the target:
         //   shots landing behind your path → increase; ahead of your path → decrease.
-        double latencyS = TurretSubsystemConstants.SOTF_LATENCY_COMPENSATION_S;
+        double latencyS = QuestNavNT.getLatency() / 1000.0; //TurretSubsystemConstants.SOTF_LATENCY_COMPENSATION_S;
         if (isModelModeActive()) {
             latencyS += NetworkedConfig.Debug.getModelLatencyOffsetSeconds();
         }

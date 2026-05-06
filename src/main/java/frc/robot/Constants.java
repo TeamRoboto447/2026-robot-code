@@ -89,9 +89,10 @@ public final class Constants {
         public static final Transform3d ROBOT_TO_TURRET_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
+
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-12.5), Units.inchesToMeters(-8.5), Units.inchesToMeters(9)),
-        new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-80))
+        new Translation3d(Units.inchesToMeters(-13), Units.inchesToMeters(-12), Units.inchesToMeters(9)),
+        new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-147))
         );
 
         // Base std devs for vision measurements. Higher = trust odometry more over vision.
@@ -408,7 +409,7 @@ public final class Constants {
          * <p>Set to {@code MaxSpeed} (the robot's normal top speed) to disable the cap.
          * Testing showed 1.5 m/s as the upper bound for reliable SOTF shots.
          */
-        public static final double SOTF_MAX_DRIVE_SPEED_MPS = .8;
+        public static final double SOTF_MAX_DRIVE_SPEED_MPS = .6;
 
         /**
          * Maximum angular rate (rad/s) enforced while the robot is actively
