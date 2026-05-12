@@ -476,8 +476,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
                     .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
             ),
             new PPHolonomicDriveController(
-                new PIDConstants(6.0, 0.0, 0.0),
-                new PIDConstants(8.0, 0, 0.05)
+                new PIDConstants(3.0, 0.0, 0), // kP: 6.0
+                new PIDConstants(3.0, 0, 0.0)
             ),
             config, 
             () -> {

@@ -241,7 +241,7 @@ public final class Constants {
             private static final double RED_DEPOT_X = 15.2521;
             // private static final double RED_DEPOT_X = 15.449;
             // private static final double RED_OUTPOST_X = 15.61;
-            private static final double RED_OUTPOST_X = 15.510;
+            private static final double RED_OUTPOST_X = 15.66;
 
             public static final Pose2d RED_DEPOT_SIDE = new Pose2d(
                 RED_DEPOT_X, // placeholder — tune to your bar
@@ -250,7 +250,7 @@ public final class Constants {
             );
             public static final Pose2d RED_OUTPOST_SIDE = new Pose2d(
                 RED_OUTPOST_X, // placeholder — tune to your bar
-                4.90,  // scoring side: y > field midpoint
+                5.10,  // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
             );
 
