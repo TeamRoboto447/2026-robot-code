@@ -15,6 +15,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructEntry;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
 import org.photonvision.PhotonCamera;
@@ -476,5 +477,33 @@ public class NetworkedTelemetry {
                 
         public static void setControlMode(String mode)          { controlMode.set(mode); }
         public static void setControlTrigger(String trigger)    { controlTrigger.set(trigger); }
+    }
+
+    public static class QuestNavNT {
+        private static final NetworkTable questNavTable = 
+            defaultNTInstance.getTable("QuestNavTelemetry");
+
+        private static final BooleanEntry connectedEntry = 
+            questNavTable.getBooleanTopic("Connected").getEntry(false);
+        private static final BooleanEntry trackingEntry = 
+            questNavTable.getBooleanTopic("Tracking").getEntry(false);
+        private static final DoubleEntry latencyEntry = 
+            questNavTable.getDoubleTopic("Latency").getEntry(999);
+        private static final DoubleEntry batteryEntry = 
+            questNavTable.getDoubleTopic("Battery %").getEntry(0);
+        private static final DoubleEntry trackingLostCountEntry = 
+            questNavTable.getDoubleTopic("Tracking Lost Counter").getEntry(999);
+        private static final StructEntry<Pose3d> robotPoseEntry = 
+            questNavTable.getStructTopic("Robot Pose", Pose3d.struct).getEntry(new Pose3d());
+
+            
+        public static void setConnected(boolean connected)                  { connectedEntry.set(connected); }
+        public static void setTracking(boolean tracking)                    { trackingEntry.set(tracking); }
+        public static void setLatency(double latency)                       { latencyEntry.set(latency); }
+        public static void setBattery(double battery)                       { batteryEntry.set(battery); }
+        public static void setTrackingLostCount(double trackingLostCount)   { trackingLostCountEntry.set(trackingLostCount); }
+        public static void set3dPose(Pose3d pose)                           { robotPoseEntry.set(pose); }
+
+        public static double getLatency()           { return latencyEntry.get(); }
     }
 }

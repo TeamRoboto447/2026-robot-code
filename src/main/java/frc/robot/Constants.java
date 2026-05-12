@@ -90,6 +90,11 @@ public final class Constants {
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
 
+        public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
+        new Translation3d(Units.inchesToMeters(-13), Units.inchesToMeters(-12), Units.inchesToMeters(9)),
+        new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-147))
+        );
+
         // Base std devs for vision measurements. Higher = trust odometry more over vision.
         // [x (m), y (m), theta (rad)] — lower = trust vision more, higher = trust swerve more.
         // At 0.9/0.9/1.5, vision gently nudges the pose estimate rather than overriding wheel odometry.
@@ -236,7 +241,7 @@ public final class Constants {
             private static final double RED_DEPOT_X = 15.2521;
             // private static final double RED_DEPOT_X = 15.449;
             // private static final double RED_OUTPOST_X = 15.61;
-            private static final double RED_OUTPOST_X = 15.510;
+            private static final double RED_OUTPOST_X = 15.66;
 
             public static final Pose2d RED_DEPOT_SIDE = new Pose2d(
                 RED_DEPOT_X, // placeholder — tune to your bar
@@ -245,7 +250,7 @@ public final class Constants {
             );
             public static final Pose2d RED_OUTPOST_SIDE = new Pose2d(
                 RED_OUTPOST_X, // placeholder — tune to your bar
-                4.90,  // scoring side: y > field midpoint
+                5.10,  // scoring side: y > field midpoint
                 Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
             );
 
@@ -404,7 +409,7 @@ public final class Constants {
          * <p>Set to {@code MaxSpeed} (the robot's normal top speed) to disable the cap.
          * Testing showed 1.5 m/s as the upper bound for reliable SOTF shots.
          */
-        public static final double SOTF_MAX_DRIVE_SPEED_MPS = .8;
+        public static final double SOTF_MAX_DRIVE_SPEED_MPS = .6;
 
         /**
          * Maximum angular rate (rad/s) enforced while the robot is actively
