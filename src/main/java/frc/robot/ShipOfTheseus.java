@@ -14,6 +14,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.commands.PathfindThenFollowPath;
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -39,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 // (removed unused imports)
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
@@ -206,8 +208,11 @@ public class ShipOfTheseus {
     private void configureBindings() {
         // configureAutonomousBindings();
         
-        configureProductionBindings();
+        // configureProductionBindings();
+
         // configureDevBindings();
+
+        configureSysIdBindings();
     }
 
     // private void configureAutonomousBindings() {
@@ -583,12 +588,34 @@ public class ShipOfTheseus {
         OperatorController.rightBumper().onTrue(climberSubsystem.raiseToFull());
         OperatorController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
 
-        // Run SysId routines when holding back/start and X/Y.
+                // joystick.start().onFalse(Commands.runOnce(() -> SignalLogger.stop()));
+
+        // Reset the field-centric heading on left bumper press.
+        // joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
+
+        swerveSubsystem.registerTelemetry(logger::telemeterize);
+    }
+
+    @SuppressWarnings("unused")
+    private void configureSysIdBindings() {
+        DriverController.start().onTrue(Commands.runOnce(() -> {
+            System.out.println("SignalLogger Started!");
+            SignalLogger.start();
+        }));
+        DriverController.back().onTrue(Commands.runOnce(() -> {
+            System.out.println("SignalLogger Stopped!");
+            SignalLogger.stop();
+        }));
+        
+        // Run SysId routines when holding right trigger and A/B/X/Y.
         // Note that each routine should be run exactly once in a single log.
-        // joystick.back().and(joystick.y()).whileTrue(swerveSubsystem.sysIdDynamic(Direction.kForward));
-        // joystick.back().and(joystick.x()).whileTrue(swerveSubsystem.sysIdDynamic(Direction.kReverse));
-        // joystick.start().and(joystick.y()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kForward));
-        // joystick.start().and(joystick.x()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kReverse));
+        DriverController.rightTrigger().and(DriverController.b()).whileTrue(swerveSubsystem.sysIdDynamic(Direction.kForward));
+        DriverController.rightTrigger().and(DriverController.x()).whileTrue(swerveSubsystem.sysIdDynamic(Direction.kReverse));
+        DriverController.rightTrigger().and(DriverController.y()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kForward));
+        DriverController.rightTrigger().and(DriverController.a()).whileTrue(swerveSubsystem.sysIdQuasistatic(Direction.kReverse));
+
+        // Reset the field-centric heading on left bumper press.
+        OperatorController.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
 
         // SysId bindings for turret flywheel characterization — explicitly start/stop SignalLogger
         // joystick.back().and(joystick.y()).onTrue(
@@ -624,12 +651,22 @@ public class ShipOfTheseus {
         //     )
         // );
 
-        // joystick.start().onFalse(Commands.runOnce(() -> SignalLogger.stop()));
+        swerveSubsystem.setDefaultCommand(
+            swerveSubsystem.applyRequest(() -> {
+                // Sync the SmartDashboard chooser selection → NetworkedConfig so that
+                // TurretSubsystem.updateTurretTarget() can read it without a direct reference.
+                NetworkedConfig.Debug.setTurretTargetOverride(turretTargetChooser.getSelected());
+                NetworkedConfig.Debug.setTurretTargetingMode(turretTargetingModeChooser.getSelected());
 
-        // Reset the field-centric heading on left bumper press.
-        // joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
+                double speedCap = turretSubsystem.getRampedSpeedCap(MaxSpeed*0.5);
+                double angularRateCap = turretSubsystem.getRampedAngularRateCap(MaxAngularRate);
+                return driveFieldOriented
+                        .withVelocityX(-OperatorController.getLeftY() * speedCap)
+                        .withVelocityY(-OperatorController.getLeftX() * speedCap)
+                        .withRotationalRate(-OperatorController.getRightX() * angularRateCap);
+            })
+        );
 
-        swerveSubsystem.registerTelemetry(logger::telemeterize);
     }
 
     public void pullAllNetworkedConfigs() {
