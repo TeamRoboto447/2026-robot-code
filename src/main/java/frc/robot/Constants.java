@@ -497,16 +497,16 @@ public final class Constants {
 
         public static final double LIFT_GEARBOX_RATIO = 4.0*4*4;
 
-        public static final double LIFT_KP = 3;
+        public static final double LIFT_KP = 5;
         public static final double LIFT_KI = 0;
-        public static final double LIFT_KD = 0;
+        public static final double LIFT_KD = 0.7;
 
         /**
          * Rotations (output shaft) the lift travels from the stowed position (0)
          * to the fully-lowered intake position. Negative because the motor must
          * turn in the negative direction to lower.
          */
-        public static final double LIFT_LOWERED_ROTATIONS = -34;
+        public static final double LIFT_LOWERED_ROTATIONS = -28;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}
