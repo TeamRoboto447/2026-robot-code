@@ -443,9 +443,9 @@ public class ShipOfTheseus {
         OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
         OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
 
-        // Operator: Adjust turret offset
-        OperatorController.start().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(1))));
-        OperatorController.back().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(-1))));
+        // Operator: Adjust turret offset (this was here for Ronen taking it out now.)
+        // OperatorController.start().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(1))));
+        // OperatorController.back().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(-1))));
 
         // Operator: Home Hood
         OperatorController.povLeft().onTrue(Commands.sequence(
