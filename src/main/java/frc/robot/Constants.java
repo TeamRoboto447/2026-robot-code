@@ -92,7 +92,7 @@ public final class Constants {
 
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11), Units.inchesToMeters(2.5), Units.inchesToMeters(12)),
-        new Rotation3d(Units.degreesToRadians(-90), Units.degreesToRadians(0), Units.degreesToRadians(180))
+        new Rotation3d(Units.degreesToRadians(-85), Units.degreesToRadians(0), Units.degreesToRadians(180))
         );
 
         // Base std devs for vision measurements. Higher = trust odometry more over vision.
