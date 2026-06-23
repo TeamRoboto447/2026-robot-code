@@ -500,6 +500,8 @@ public class NetworkedConfig {
         private static final DoubleEntry newPoseY = debugTable.getDoubleTopic("New Pose Y").getEntry(0);
         private static final DoubleEntry newPoseRotation = debugTable.getDoubleTopic("New Pose Rotation").getEntry(0);
 
+        private static final BooleanEntry demoMode = debugTable.getBooleanTopic("Demo Mode").getEntry(false);
+
         /**
          * When {@code true}, hub-lock is bypassed and the driver can shoot at the hub
          * regardless of whether the hub is currently active. Intended for development
@@ -621,6 +623,8 @@ public class NetworkedConfig {
             modelTofScale.set(1.0);
             modelLatencyOffsetS.set(0.0);
             modelRangeLatencyOffsetS.set(0.0);
+
+            demoMode.set(false);
         }
 
         public static boolean isBypassHubLock() {
@@ -709,6 +713,9 @@ public class NetworkedConfig {
             return modelRangeLatencyOffsetS.get();
         }
         
+        public static boolean getDemoMode() {
+            return demoMode.get();
+        }
     }
     
     /**

@@ -144,6 +144,8 @@ public class ShipOfTheseus {
 
         SmartDashboard.putData("Field", field);
 
+        
+
         initializeNamedCommands();
 
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -911,6 +913,9 @@ public class ShipOfTheseus {
 
         // if (turretSubsystem.isShootingActive() && turretSubsystem.getRelativeAngleToTarget().abs(Degrees) > 60) autoTurningToAngle = true;
         // else autoTurningToAngle = false;
+
+        double maxSpeedMulitplier = NetworkedConfig.Debug.getDemoMode() ? 0.20 : 0.70;
+        MaxSpeed = maxSpeedMulitplier * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     }
 
     /**
