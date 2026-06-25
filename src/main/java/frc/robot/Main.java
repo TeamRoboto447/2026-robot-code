@@ -10,7 +10,7 @@ public final class Main {
   private Main() {}
 
   public static void main(String... args) {
-    // RobotBase.startRobot(Theseus::new);
-    RobotBase.startRobot(dioPortTest::new); // TODO: UNDO
+    RobotBase.startRobot(Theseus::new);
+    // RobotBase.startRobot(dioPortTest::new); // TODO: UNDO
   }
 }
