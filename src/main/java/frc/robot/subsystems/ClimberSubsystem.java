@@ -97,11 +97,11 @@ public class ClimberSubsystem extends SubsystemBase {
     // } else 
     if ((safeRange || DriverStation.isAutonomousEnabled()) && (climberDir == 1 || climberDir == -1)) {
       // Normal open-loop drive (climb or lower).
-      // if (climberDir == -1 && !climberLimitSwitch.get()) { // TODO: UNCOMMENT
-      //   climberMotor.set(0);
-      // } else {
-        // climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * climberDir); // TODO: UNCOMMENT
-      // }
+      if (climberDir == -1 && !climberLimitSwitch.get()) { // TODO: UNCOMMENT
+        climberMotor.set(0);
+      } else {
+        climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * climberDir); // TODO: UNCOMMENT
+      }
 
     } else if (climberDir == 0) {
       // Hold mode — engage position-hold PID when outside tolerance.
@@ -109,7 +109,7 @@ public class ClimberSubsystem extends SubsystemBase {
       if (false) {//(error > ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS) {
         climberMotor.setControl(holdRequest.withPosition(holdPosition));
       } else {
-        // climberMotor.set(0); // TODO: UNCOMMENT
+        climberMotor.set(0);
       }
     }
     // climberDir == -2 means a homeClimber() command is running and owns the motor directly.
@@ -140,16 +140,16 @@ public class ClimberSubsystem extends SubsystemBase {
         })
         .andThen(this.run(() -> {
           // Drive slowly toward the lower hard stop.
-          // climberMotor.set(ClimberSubsystemConstants.CLIMBER_HOMING_SPEED); // TODO: UNCOMMENT
+          climberMotor.set(ClimberSubsystemConstants.CLIMBER_HOMING_SPEED); // TODO: UNCOMMENT
         }))
         .until(() ->
             !climberLimitSwitch.get())
         .finallyDo((interrupted) -> {
-          // climberMotor.set(0);  // TODO: UNCOMMENT
+          climberMotor.set(0);
 
           if (!interrupted) {
             // Hard stop confirmed — zero the position sensor.
-            // climberMotor.setPosition(0); // TODO: UNCOMMENT
+            climberMotor.setPosition(0);
             holdPosition = 0.0;
             isHomed = true;
             System.out.println("Homed Climber Position");

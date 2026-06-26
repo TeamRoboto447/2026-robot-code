@@ -196,7 +196,7 @@ public class ShipOfTheseus {
     }
 
     public void runSensorlessHoming() {
-        // CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
+        CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
         CommandScheduler.getInstance().schedule(turretSubsystem.homeHood());
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
@@ -240,7 +240,7 @@ public class ShipOfTheseus {
 
         // Run homing commands on initialization - If already homed, the command immediately cancels itself
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
-        // RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
+        RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
         RobotModeTriggers.teleop().onTrue(climberSubsystem.raiseToFull());
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
             runSensorlessHoming();
@@ -309,6 +309,8 @@ public class ShipOfTheseus {
         // Driver: Climber
         DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
         DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull());
+        // DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
+        // DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
         DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()))
                 .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
         DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()))
