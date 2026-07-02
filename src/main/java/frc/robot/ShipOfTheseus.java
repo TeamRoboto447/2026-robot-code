@@ -99,8 +99,8 @@ public class ShipOfTheseus {
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
     public final IntakeSubsystem intakeSubsystem;
-    // public final PoseEstimatorSubsystem poseEstimatorSubsystem;
-    public final QuestNavSubsystem questNavSubsystem;
+    public final PoseEstimatorSubsystem poseEstimatorSubsystem;
+    // public final QuestNavSubsystem questNavSubsystem;
     public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
     public final GameState gameState;
@@ -138,8 +138,8 @@ public class ShipOfTheseus {
         this.turretSubsystem = new TurretSubsystem(swerveSubsystem, turretAngleOffset);
         this.intakeSubsystem = new IntakeSubsystem();
         this.indexerSubsystem = new IndexerSubsystem();
-        // this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
-        this.questNavSubsystem = new QuestNavSubsystem(swerveSubsystem);
+        this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
+        // this.questNavSubsystem = new QuestNavSubsystem(swerveSubsystem);
         this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
         
 
