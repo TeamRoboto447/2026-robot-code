@@ -506,7 +506,7 @@ public final class Constants {
          * to the fully-lowered intake position. Negative because the motor must
          * turn in the negative direction to lower.
          */
-        public static final double LIFT_LOWERED_ROTATIONS = -28;
+        public static final double LIFT_LOWERED_ROTATIONS = -31;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}
