@@ -58,7 +58,8 @@ import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 
 public class ShipOfTheseus {
-    private double MaxSpeed = 0.70 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double maxSpeedMulitplier = 0.70;
+    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
     private boolean autoShoot = false;
     private boolean autoIntake = false;
@@ -98,8 +99,8 @@ public class ShipOfTheseus {
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
     public final IntakeSubsystem intakeSubsystem;
-    // public final PoseEstimatorSubsystem poseEstimatorSubsystem;
-    public final QuestNavSubsystem questNavSubsystem;
+    public final PoseEstimatorSubsystem poseEstimatorSubsystem;
+    // public final QuestNavSubsystem questNavSubsystem;
     public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
     public final GameState gameState;
@@ -137,12 +138,14 @@ public class ShipOfTheseus {
         this.turretSubsystem = new TurretSubsystem(swerveSubsystem, turretAngleOffset);
         this.intakeSubsystem = new IntakeSubsystem();
         this.indexerSubsystem = new IndexerSubsystem();
-        // this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
-        this.questNavSubsystem = new QuestNavSubsystem(swerveSubsystem);
+        this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
+        // this.questNavSubsystem = new QuestNavSubsystem(swerveSubsystem);
         this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
         
 
         SmartDashboard.putData("Field", field);
+
+        
 
         initializeNamedCommands();
 
@@ -193,7 +196,7 @@ public class ShipOfTheseus {
     }
 
     public void runSensorlessHoming() {
-        CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber());
+        CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
         CommandScheduler.getInstance().schedule(turretSubsystem.homeHood());
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
@@ -237,7 +240,7 @@ public class ShipOfTheseus {
 
         // Run homing commands on initialization - If already homed, the command immediately cancels itself
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
-        RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber());
+        RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
         RobotModeTriggers.teleop().onTrue(climberSubsystem.raiseToFull());
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
             runSensorlessHoming();
@@ -260,7 +263,7 @@ public class ShipOfTheseus {
                 NetworkedConfig.Debug.setTurretTargetOverride(turretTargetChooser.getSelected());
                 NetworkedConfig.Debug.setTurretTargetingMode(turretTargetingModeChooser.getSelected());
 
-                double speedCap = turretSubsystem.getRampedSpeedCap(MaxSpeed);
+                double speedCap = turretSubsystem.getRampedSpeedCap(maxSpeedMulitplier * MaxSpeed);
                 double angularRateCap = turretSubsystem.getRampedAngularRateCap(MaxAngularRate);
                 if (autoTurningToAngle) {
                     return driveFieldOrientedWithAngle
@@ -306,8 +309,12 @@ public class ShipOfTheseus {
         // Driver: Climber
         DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
         DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull());
-        DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
-        DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
+        // DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
+        // DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
+        DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()))
+                .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
+        DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()))
+                .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
 
         // withinSafeClimberRange.onFalse(climberSubsystem.lowerOntoBar());
 
@@ -414,7 +421,8 @@ public class ShipOfTheseus {
         );
         DriverController.back().or(OperatorController.x()).whileTrue(
             Commands.run(() -> intakeSubsystem.reverseIntake(0.5))
-        );
+        ).onFalse(Commands.run(() -> intakeSubsystem.stopIntake()));
+
         DriverController.leftTrigger().or(OperatorController.a()).or(DriverController.back()).or(autoIntakeTrigger).onFalse(
             Commands.runOnce(() -> intakeSubsystem.stopIntake())
         );
@@ -443,9 +451,9 @@ public class ShipOfTheseus {
         OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
         OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
 
-        // Operator: Adjust turret offset
-        OperatorController.start().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(1))));
-        OperatorController.back().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(-1))));
+        // Operator: Adjust turret offset (this was here for Ronen taking it out now.)
+        // OperatorController.start().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(1))));
+        // OperatorController.back().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(-1))));
 
         // Operator: Home Hood
         OperatorController.povLeft().onTrue(Commands.sequence(
@@ -908,6 +916,8 @@ public class ShipOfTheseus {
 
         // if (turretSubsystem.isShootingActive() && turretSubsystem.getRelativeAngleToTarget().abs(Degrees) > 60) autoTurningToAngle = true;
         // else autoTurningToAngle = false;
+
+        this.maxSpeedMulitplier = NetworkedConfig.Debug.getDemoMode() ? 0.20 : 0.70;
     }
 
     /**

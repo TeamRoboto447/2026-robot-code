@@ -97,10 +97,10 @@ public class ClimberSubsystem extends SubsystemBase {
     // } else 
     if ((safeRange || DriverStation.isAutonomousEnabled()) && (climberDir == 1 || climberDir == -1)) {
       // Normal open-loop drive (climb or lower).
-      if (climberDir == -1 && !climberLimitSwitch.get()) {
+      if (climberDir == -1 && !climberLimitSwitch.get()) { // TODO: UNCOMMENT
         climberMotor.set(0);
       } else {
-        climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * climberDir);
+        climberMotor.set(NetworkedConfig.Climber.getOpenLoopOutput() * climberDir); // TODO: UNCOMMENT
       }
 
     } else if (climberDir == 0) {
@@ -140,7 +140,7 @@ public class ClimberSubsystem extends SubsystemBase {
         })
         .andThen(this.run(() -> {
           // Drive slowly toward the lower hard stop.
-          climberMotor.set(ClimberSubsystemConstants.CLIMBER_HOMING_SPEED);
+          climberMotor.set(ClimberSubsystemConstants.CLIMBER_HOMING_SPEED); // TODO: UNCOMMENT
         }))
         .until(() ->
             !climberLimitSwitch.get())

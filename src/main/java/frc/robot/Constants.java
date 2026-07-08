@@ -91,8 +91,8 @@ public final class Constants {
         new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
 
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-13), Units.inchesToMeters(-12), Units.inchesToMeters(9)),
-        new Rotation3d(Units.degreesToRadians(0), Units.degreesToRadians(0), Units.degreesToRadians(-147))
+        new Translation3d(Units.inchesToMeters(-11), Units.inchesToMeters(2.5), Units.inchesToMeters(12)),
+        new Rotation3d(Units.degreesToRadians(-85), Units.degreesToRadians(0), Units.degreesToRadians(180))
         );
 
         // Base std devs for vision measurements. Higher = trust odometry more over vision.
@@ -497,16 +497,16 @@ public final class Constants {
 
         public static final double LIFT_GEARBOX_RATIO = 4.0*4*4;
 
-        public static final double LIFT_KP = 3;
+        public static final double LIFT_KP = 5;
         public static final double LIFT_KI = 0;
-        public static final double LIFT_KD = 0;
+        public static final double LIFT_KD = 0.7;
 
         /**
          * Rotations (output shaft) the lift travels from the stowed position (0)
          * to the fully-lowered intake position. Negative because the motor must
          * turn in the negative direction to lower.
          */
-        public static final double LIFT_LOWERED_ROTATIONS = -34;
+        public static final double LIFT_LOWERED_ROTATIONS = -31;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}
