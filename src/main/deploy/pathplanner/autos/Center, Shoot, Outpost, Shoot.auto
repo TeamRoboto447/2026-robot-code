@@ -29,6 +29,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Lower Intake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Mid-Right to Outpost"
