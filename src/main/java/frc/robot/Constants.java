@@ -497,7 +497,7 @@ public final class Constants {
 
         public static final double LIFT_GEARBOX_RATIO = 4.0*4*4;
 
-        public static final double LIFT_KP = 5;
+        public static final double LIFT_KP = 7;
         public static final double LIFT_KI = 0;
         public static final double LIFT_KD = 0.7;
 
