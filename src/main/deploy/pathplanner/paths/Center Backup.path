@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5273734939758947,
+        "x": 2.5273734939759036,
         "y": 4.045927710843373
       },
       "isLocked": false,
@@ -16,16 +16,16 @@
     },
     {
       "anchor": {
-        "x": 1.9319277108433734,
-        "y": 4.985710843373495
+        "x": 1.942855421686747,
+        "y": 4.045927710843373
       },
       "prevControl": {
-        "x": 2.237903614457831,
-        "y": 4.559530120481927
+        "x": 2.9428554216867457,
+        "y": 4.045927710843373
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Backup Left"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],

@@ -8,24 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5273734939758947,
-        "y": 4.045927710843373
+        "x": 2.842508085259816,
+        "y": 3.2576590374484105
       },
       "isLocked": false,
       "linkedName": "Center Stage"
     },
     {
       "anchor": {
-        "x": 1.9319277108433734,
-        "y": 4.985710843373495
+        "x": 2.052132530120482,
+        "y": 2.330277108433736
       },
       "prevControl": {
-        "x": 2.237903614457831,
-        "y": 4.559530120481927
+        "x": 2.750855283781632,
+        "y": 3.1382541103810886
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Backup Left"
+      "linkedName": "Mid-Right"
     }
   ],
   "rotationTargets": [],
