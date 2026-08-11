@@ -245,4 +245,8 @@ public class IntakeSubsystem extends SubsystemBase {
         
         this.liftMotor.getConfigurator().apply(liftFXConfigs);
     }
+
+    public double getIntakeAngleDegrees() {
+        return this.liftPositionSignal.getValueAsDouble() / IntakeSubsystemConstants.LIFT_GEARBOX_RATIO;
+    }
 }
