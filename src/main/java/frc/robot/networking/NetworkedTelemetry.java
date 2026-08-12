@@ -292,8 +292,8 @@ public class NetworkedTelemetry {
         };
 
         public static void setIntakeAngle(double angle_degrees) {
-            Angle angle_radians = Degrees.of(angle_degrees);
-            component_poses[0] = new Pose3d(new Translation3d(), new Rotation3d(angle_radians, Degrees.of(0), Degrees.of(90)));
+            Angle angle_radians = Degrees.of(-angle_degrees);
+            component_poses[0] = new Pose3d(new Translation3d(0, 0, 1), new Rotation3d(angle_radians, Degrees.of(0), Degrees.of(90)));
             components.set(component_poses);
         }
     }

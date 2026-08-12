@@ -263,6 +263,6 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public double getIntakeAngleDegrees() {
-        return (RobotBase.isReal() ? this.liftPositionSignal.getValueAsDouble() : target_angle) / IntakeSubsystemConstants.LIFT_GEARBOX_RATIO;
+        return (RobotBase.isReal() ? this.liftPositionSignal.getValueAsDouble() : target_angle);
     }
 }
