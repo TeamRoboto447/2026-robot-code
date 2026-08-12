@@ -914,6 +914,7 @@ public class ShipOfTheseus {
 
         NetworkedTelemetry.Turret.setTurretAngleOffset(turretAngleOffset.in(Degrees));
 
+        System.out.println("setting intake angle to: " + intakeSubsystem.getIntakeAngleDegrees());
         NetworkedTelemetry.AdvScopeComponents.setIntakeAngle(intakeSubsystem.getIntakeAngleDegrees());
 
         // if (turretSubsystem.isShootingActive() && turretSubsystem.getRelativeAngleToTarget().abs(Degrees) > 60) autoTurningToAngle = true;

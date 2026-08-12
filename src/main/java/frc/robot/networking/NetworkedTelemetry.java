@@ -287,13 +287,14 @@ public class NetworkedTelemetry {
             defaultNTInstance.getStructArrayTopic("AdvScope Components", Pose3d.struct).publish();
         
         private static final Pose3d[] component_poses = {
-            new Pose3d(),
+            new Pose3d(new Translation3d(0, 0, 1), new Rotation3d(Degrees.of(0), Degrees.of(0), Degrees.of(90))),
             new Pose3d()
         };
 
         public static void setIntakeAngle(double angle_degrees) {
             Angle angle_radians = Degrees.of(angle_degrees);
-            component_poses[0] = new Pose3d(new Translation3d(), new Rotation3d(angle_radians, Degrees.of(0), Degrees.of(0)));
+            component_poses[0] = new Pose3d(new Translation3d(), new Rotation3d(angle_radians, Degrees.of(0), Degrees.of(90)));
+            components.set(component_poses);
         }
     }
 
