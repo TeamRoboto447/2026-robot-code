@@ -1,12 +1,16 @@
 package frc.robot.networking;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleEntry;
@@ -16,6 +20,7 @@ import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructEntry;
+import edu.wpi.first.units.measure.Angle;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
 import org.photonvision.PhotonCamera;
@@ -273,6 +278,22 @@ public class NetworkedTelemetry {
 
         public static boolean hasPiece() {
             return hasPiece.get();
+        }
+    }
+
+    public static class AdvScopeComponents {
+
+        private static final StructArrayPublisher<Pose3d> components = 
+            defaultNTInstance.getStructArrayTopic("AdvScope Components", Pose3d.struct).publish();
+        
+        private static final Pose3d[] component_poses = {
+            new Pose3d(),
+            new Pose3d()
+        };
+
+        public static void setIntakeAngle(double angle_degrees) {
+            Angle angle_radians = Degrees.of(angle_degrees);
+            component_poses[0] = new Pose3d(new Translation3d(), new Rotation3d(angle_radians, Degrees.of(0), Degrees.of(0)));
         }
     }
 
