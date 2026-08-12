@@ -13,6 +13,8 @@ import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -37,6 +39,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private final PositionTorqueCurrentFOC liftPositionReq = new PositionTorqueCurrentFOC(0).withSlot(0);
 
     private boolean isLiftHomed = false;
+    private double target_angle = 0.0;
 
     /** Creates a new IntakeSubsystem. */
     public IntakeSubsystem() {
@@ -137,8 +140,9 @@ public class IntakeSubsystem extends SubsystemBase {
      * No-ops until the lift has been homed.
      */
     public void dropIntake() {
-        if (!isLiftHomed) return;
-        liftMotor.setControl(liftPositionReq.withPosition(NetworkedConfig.Intake.getLiftLoweredPosition()));
+        if (!isLiftHomed && RobotBase.isReal()) return;
+        target_angle = NetworkedConfig.Intake.getLiftLoweredPosition();
+        liftMotor.setControl(liftPositionReq.withPosition(target_angle));
     }
 
     /**
@@ -146,25 +150,37 @@ public class IntakeSubsystem extends SubsystemBase {
      * No-ops until the lift has been homed.
      */
     public void liftIntake() {
-        if (!isLiftHomed) return;
-        liftMotor.setControl(liftPositionReq.withPosition(0));
+        if (!isLiftHomed && RobotBase.isReal()) return;
+        target_angle = 0;
+        liftMotor.setControl(liftPositionReq.withPosition(target_angle));
     }
 
     /**
      * Returns true if the lift is within tolerance of the fully-lowered position.
      */
     public boolean isIntakeDown() {
-        return Math.abs(liftPositionSignal.getValueAsDouble()
-                - NetworkedConfig.Intake.getLiftLoweredPosition())
-            <= IntakeSubsystemConstants.LIFT_POSITION_TOLERANCE_ROTATIONS;
+        if (RobotBase.isReal()){
+            return Math.abs(liftPositionSignal.getValueAsDouble()
+                    - NetworkedConfig.Intake.getLiftLoweredPosition())
+                <= IntakeSubsystemConstants.LIFT_POSITION_TOLERANCE_ROTATIONS;
+        } else {
+            return Math.abs(target_angle
+                    - NetworkedConfig.Intake.getLiftLoweredPosition())
+                <= IntakeSubsystemConstants.LIFT_POSITION_TOLERANCE_ROTATIONS;
+        }
     }
 
     /**
      * Returns true if the lift is within tolerance of the stowed (zero) position.
      */
     public boolean isIntakeUp() {
-        return Math.abs(liftPositionSignal.getValueAsDouble())
-            <= IntakeSubsystemConstants.LIFT_POSITION_TOLERANCE_ROTATIONS;
+        if (RobotBase.isReal()) {
+            return Math.abs(liftPositionSignal.getValueAsDouble())
+                <= IntakeSubsystemConstants.LIFT_POSITION_TOLERANCE_ROTATIONS;
+        } else {
+            return Math.abs(target_angle)
+                <= IntakeSubsystemConstants.LIFT_POSITION_TOLERANCE_ROTATIONS;
+        }
     }
 
     /** Returns true once the lift has been successfully homed. */
@@ -247,6 +263,6 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public double getIntakeAngleDegrees() {
-        return this.liftPositionSignal.getValueAsDouble() / IntakeSubsystemConstants.LIFT_GEARBOX_RATIO;
+        return (RobotBase.isReal() ? this.liftPositionSignal.getValueAsDouble() : target_angle) / IntakeSubsystemConstants.LIFT_GEARBOX_RATIO;
     }
 }
