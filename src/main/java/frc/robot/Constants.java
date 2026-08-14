@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 
 import java.util.Set;
+import java.util.concurrent.TransferQueue;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -37,6 +38,13 @@ import frc.robot.libraries.Repulsor.Fields.Rebuilt2026;
  */
 
 public final class Constants {
+
+    public static final boolean USE_ADV_KIT = false;
+
+    public static class AdvScopeComponentConstants {
+        public static final Translation3d INTAKE_POS = 
+            new Translation3d(-0.335, -0.005, 0.295);
+    }
 
     public static class RepulsorConstants {
     public static final AprilTagFieldLayout aprilTagLayout =

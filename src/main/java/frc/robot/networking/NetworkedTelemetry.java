@@ -1,6 +1,7 @@
 package frc.robot.networking;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.List;
 
@@ -21,6 +22,8 @@ import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructEntry;
 import edu.wpi.first.units.measure.Angle;
+import frc.robot.Constants.AdvScopeComponentConstants;
+import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
 import org.photonvision.PhotonCamera;
@@ -287,13 +290,13 @@ public class NetworkedTelemetry {
             defaultNTInstance.getStructArrayTopic("AdvScope Components", Pose3d.struct).publish();
         
         private static final Pose3d[] component_poses = {
-            new Pose3d(new Translation3d(0, 0, 1), new Rotation3d(Degrees.of(0), Degrees.of(0), Degrees.of(90))),
+            new Pose3d(AdvScopeComponentConstants.INTAKE_POS, new Rotation3d(Degrees.of(45.0), Degrees.of(0), Degrees.of(90))),
             new Pose3d()
         };
 
-        public static void setIntakeAngle(double angle_degrees) {
-            Angle angle_radians = Degrees.of(-angle_degrees);
-            component_poses[0] = new Pose3d(new Translation3d(0, 0, 1), new Rotation3d(angle_radians, Degrees.of(0), Degrees.of(90)));
+        public static void setIntakeAngle(double angle_value) {
+            Angle new_angle = Degrees.of(((angle_value/IntakeSubsystemConstants.LIFT_LOWERED_ROTATIONS) * -135.0) + 45.0);
+            component_poses[0] = new Pose3d(AdvScopeComponentConstants.INTAKE_POS, new Rotation3d(new_angle, Degrees.of(0), Degrees.of(90)));
             components.set(component_poses);
         }
     }

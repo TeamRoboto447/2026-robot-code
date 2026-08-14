@@ -26,6 +26,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -39,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 // (removed unused imports)
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
@@ -173,6 +175,13 @@ public class ShipOfTheseus {
         
         configureBindings();
         NetworkedConfig.initializeAllDefaults();
+
+        if (RobotBase.isSimulation()) {
+            double pos_x = DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red ? 13.02 : 3.58;
+            double pos_y = FieldConstants.FIELD_WIDTH_METERS / 2.0;
+            Pose2d pose = new Pose2d(pos_x, pos_y, new Rotation2d());
+            swerveSubsystem.resetPose(pose);
+        }
 
     // Debug: lightweight path/event prints added in fillAutoChooser to
     // help diagnose unexpected interruptions during auto.

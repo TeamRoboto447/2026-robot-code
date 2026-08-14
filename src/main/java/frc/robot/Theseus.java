@@ -42,20 +42,16 @@ public class Theseus extends LoggedRobot {
     public Theseus() {
         Logger.recordMetadata("ProjectName", "2026 Theseus"); // Set a metadata value
 
-        if (isReal()) {
+        if (isReal() || !Constants.USE_ADV_KIT) {
             Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
         } else {
-            try {
-                String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-                Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-                Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-                setUseTiming(false); // Run as fast as possible
-            } catch (StringIndexOutOfBoundsException e) {
-                System.out.println("Running Basic Simulator");
-                Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-                Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-            }
+            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+            Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+            System.out.println("Running Basic Simulator");
+            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
             
         }
 
@@ -108,9 +104,9 @@ public class Theseus extends LoggedRobot {
                 }
 
             }
+        }
 
         periodicLoopCount++;
-        }
     }
 
     @Override

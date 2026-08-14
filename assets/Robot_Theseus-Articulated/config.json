@@ -1,0 +1,56 @@
+{
+    "name": "2026 Theseus (Articulated)",
+    "model": "model.glb",
+    "rotations": [
+        {
+            "axis": "z",
+            "degrees": 90
+        },
+        {
+            "axis": "y",
+            "degrees": 90
+        }
+    ],
+    "position": [0.05, 0.34, 0.32],
+    "cameras": [
+        {
+            "name": "Turret-Side Camera",
+            "rotations": [
+                {
+                    "axis": "y",
+                    "degrees": -20
+                },
+                {
+                    "axis": "z",
+                    "degrees": 210.24
+                }
+            ],
+            "position": [-0.302, -0.264, 0.194]
+        },
+        {
+            "name": "Climber-Side Camera",
+            "rotations": [
+                {
+                    "axis": "y",
+                    "degrees": -20
+                },
+                {
+                    "axis": "z",
+                    "degrees": 142
+                }
+            ],
+            "position": [-0.270, 0.340, 0.235]
+        }
+    ],
+    "components": [
+        {
+            "zeroedRotations": [
+                {
+                    "axis": "x",
+                    "degrees": 45
+                }
+            ],
+            "zeroedPosition": [0.34, -0.25, 0.315]
+        }
+    ]
+}
