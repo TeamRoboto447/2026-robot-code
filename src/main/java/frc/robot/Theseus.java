@@ -18,6 +18,8 @@ import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.revrobotics.util.StatusLogger;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -26,13 +28,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.Elastic;
+import frc.robot.utils.SimPhysics;
 
 public class Theseus extends LoggedRobot {
     private Command m_autonomousCommand;
 
     private final ShipOfTheseus m_robotContainer;
     private int periodicLoopCount = 0;
+
+    private SimPhysics m_simPhysics;
 
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
@@ -165,5 +171,16 @@ public class Theseus extends LoggedRobot {
     public void testExit() {}
 
     @Override
-    public void simulationPeriodic() {}
+    public void simulationInit() {
+        this.m_simPhysics = new SimPhysics();
+    }
+
+    @Override
+    public void simulationPeriodic() {
+
+        Pose2d swervePose = m_robotContainer.swerveSubsystem.getPose();
+
+        Pose3d bumpCalulatedPose = this.m_simPhysics.applyBumpAngle(swervePose);
+        NetworkedTelemetry.AdvantageScope.set3dPose(bumpCalulatedPose);        
+    }
 }

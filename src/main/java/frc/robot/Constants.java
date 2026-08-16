@@ -41,9 +41,12 @@ public final class Constants {
 
     public static final boolean USE_ADV_KIT = false;
 
-    public static class AdvScopeComponentConstants {
+    public static class AdvScopeConstants {
         public static final Translation3d INTAKE_POS = 
             new Translation3d(-0.335, -0.005, 0.295);
+        
+        public static final double ROBOT_WHEELBASE_WIDTH = Units.inchesToMeters(20.75);
+        public static final double ROBOT_WHEELBASE_LENGTH = Units.inchesToMeters(23.75);
     }
 
     public static class RepulsorConstants {
@@ -332,6 +335,34 @@ public final class Constants {
          */
         public static final double AUTO_POSE_DISTANCE_TOLERANCE_M = 0.5;
         public static final double AUTO_POSE_HEADING_TOLERANCE_DEG = 10.0;
+
+
+        /**
+         * Areas of the field where bump angle calculations should be run in simulation mode.
+         * There is an extra ten inches added on both x directions to allow for a smoother transition onto the bump
+         */
+        public static class BumpZones {
+
+            public static final Rectangle2d BLUE_DEPOT_BUMP_ZONE = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(149.91), Units.inchesToMeters(182.67)),
+                new Translation2d(Units.inchesToMeters(214.31), Units.inchesToMeters(255.67))
+            );
+
+            public static final Rectangle2d BLUE_OUTPOST_BUMP_ZONE = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(149.91), Units.inchesToMeters(62.67)),
+                new Translation2d(Units.inchesToMeters(214.31), Units.inchesToMeters(135.67))
+            );
+
+            public static final Rectangle2d RED_DEPOT_BUMP_ZONE = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(436.91), Units.inchesToMeters(62.67)),
+                new Translation2d(Units.inchesToMeters(501.31), Units.inchesToMeters(135.67))
+            );
+
+            public static final Rectangle2d RED_OUTPOST_BUMP_ZONE = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(456.91), Units.inchesToMeters(182.67)),
+                new Translation2d(Units.inchesToMeters(501.31), Units.inchesToMeters(255.67))
+            );
+        }
     }
 
     public static class TurretSubsystemConstants {

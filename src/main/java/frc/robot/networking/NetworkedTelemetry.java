@@ -21,8 +21,9 @@ import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructEntry;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
-import frc.robot.Constants.AdvScopeComponentConstants;
+import frc.robot.Constants.AdvScopeConstants;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
@@ -284,20 +285,28 @@ public class NetworkedTelemetry {
         }
     }
 
-    public static class AdvScopeComponents {
+    public static class AdvantageScope {
+
+        private static final NetworkTable advScopeTable = defaultNTInstance.getTable("AdvantageScope Elements");
+
+        private static final StructPublisher<Pose3d> robot3dPose = advScopeTable.getStructTopic("3D Pose", Pose3d.struct).publish();
 
         private static final StructArrayPublisher<Pose3d> components = 
-            defaultNTInstance.getStructArrayTopic("AdvScope Components", Pose3d.struct).publish();
+            advScopeTable.getStructArrayTopic("Components", Pose3d.struct).publish();
         
         private static final Pose3d[] component_poses = {
-            new Pose3d(AdvScopeComponentConstants.INTAKE_POS, new Rotation3d(Degrees.of(45.0), Degrees.of(0), Degrees.of(90))),
+            new Pose3d(AdvScopeConstants.INTAKE_POS, new Rotation3d(Degrees.of(45.0), Degrees.of(0), Degrees.of(90))),
             new Pose3d()
         };
 
         public static void setIntakeAngle(double angle_value) {
             Angle new_angle = Degrees.of(((angle_value/IntakeSubsystemConstants.LIFT_LOWERED_ROTATIONS) * -135.0) + 45.0);
-            component_poses[0] = new Pose3d(AdvScopeComponentConstants.INTAKE_POS, new Rotation3d(new_angle, Degrees.of(0), Degrees.of(90)));
+            component_poses[0] = new Pose3d(AdvScopeConstants.INTAKE_POS, new Rotation3d(new_angle, Degrees.of(0), Degrees.of(90)));
             components.set(component_poses);
+        }
+
+        public static void set3dPose(Pose3d new_pose) {
+            robot3dPose.set(new_pose);
         }
     }
 
