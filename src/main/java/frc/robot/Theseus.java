@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.io.File;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -20,6 +22,8 @@ import com.revrobotics.util.StatusLogger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -28,6 +32,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.AdvScopeConstants;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.Elastic;
 import frc.robot.utils.SimPhysics;
@@ -180,7 +185,32 @@ public class Theseus extends LoggedRobot {
 
         Pose2d swervePose = m_robotContainer.swerveSubsystem.getPose();
 
-        Pose3d bumpCalulatedPose = this.m_simPhysics.applyBumpAngle(swervePose);
-        NetworkedTelemetry.AdvantageScope.set3dPose(bumpCalulatedPose);        
+        Pose3d bumpAffectedPose = m_simPhysics.applyBumpAngle(swervePose);
+
+        Pose3d elementAffectedPose = bumpAffectedPose;
+        
+        for (Rectangle2d element : AdvScopeConstants.FIELD_ELEMENTS) {
+            elementAffectedPose = m_simPhysics.checkForElement(elementAffectedPose, element);
+        }
+
+        Pose3d boundaryAffectedPose = m_simPhysics.checkFieldBoundries(elementAffectedPose);
+
+        Pose3d displayPose = new Pose3d(
+            boundaryAffectedPose.getTranslation(),
+            new Rotation3d(
+                boundaryAffectedPose.getRotation().getX(),
+                boundaryAffectedPose.getRotation().getY(),
+                swervePose.getRotation().getRadians()
+            )
+        );
+
+        NetworkedTelemetry.AdvantageScope.set3dPose(displayPose);
+        
+        m_robotContainer.swerveSubsystem.resetPose(
+            new Pose2d(
+                boundaryAffectedPose.getTranslation().toTranslation2d(),
+                swervePose.getRotation()
+            )
+        );
     }
 }

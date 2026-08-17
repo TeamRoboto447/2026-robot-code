@@ -47,6 +47,34 @@ public final class Constants {
         
         public static final double ROBOT_WHEELBASE_WIDTH = Units.inchesToMeters(20.75);
         public static final double ROBOT_WHEELBASE_LENGTH = Units.inchesToMeters(23.75);
+
+        public static final Rectangle2d[] FIELD_ELEMENTS = {
+            new Rectangle2d(            // RED HUB
+                new Translation2d(Units.inchesToMeters(445.61), Units.inchesToMeters(135.67)),
+                new Translation2d(Units.inchesToMeters(492.61), Units.inchesToMeters(182.67))
+            ),
+            new Rectangle2d(            // RED DEPOT-SIDE DIVIDER
+                new Translation2d(Units.inchesToMeters(445.61), Units.inchesToMeters(50.67)),
+                new Translation2d(Units.inchesToMeters(492.61), Units.inchesToMeters(62.67))
+            ),
+            new Rectangle2d(            // RED OUTPOST-SIDE DIVIDER
+                new Translation2d(Units.inchesToMeters(445.61), Units.inchesToMeters(255.67)),
+                new Translation2d(Units.inchesToMeters(492.61), Units.inchesToMeters(267.67))
+            ),
+            new Rectangle2d(            // BLUE HUB
+                new Translation2d(Units.inchesToMeters(158.61), Units.inchesToMeters(135.67)),
+                new Translation2d(Units.inchesToMeters(205.61), Units.inchesToMeters(182.67))
+            ),
+            new Rectangle2d(            // BLUE DEPOT-SIDE DIVIDER
+                new Translation2d(Units.inchesToMeters(158.61), Units.inchesToMeters(255.67)),
+                new Translation2d(Units.inchesToMeters(205.61), Units.inchesToMeters(267.67))
+            ),
+            new Rectangle2d(            // BLUE OUTPOST-SIDE DIVIDER
+                new Translation2d(Units.inchesToMeters(158.61), Units.inchesToMeters(50.67)),
+                new Translation2d(Units.inchesToMeters(205.61), Units.inchesToMeters(62.67))
+            )
+            
+        };
     }
 
     public static class RepulsorConstants {
@@ -344,23 +372,23 @@ public final class Constants {
         public static class BumpZones {
 
             public static final Rectangle2d BLUE_DEPOT_BUMP_ZONE = new Rectangle2d(
-                new Translation2d(Units.inchesToMeters(149.91), Units.inchesToMeters(182.67)),
-                new Translation2d(Units.inchesToMeters(214.31), Units.inchesToMeters(255.67))
+                new Translation2d(Units.inchesToMeters(139.91), Units.inchesToMeters(182.67)),
+                new Translation2d(Units.inchesToMeters(224.31), Units.inchesToMeters(255.67))
             );
 
             public static final Rectangle2d BLUE_OUTPOST_BUMP_ZONE = new Rectangle2d(
-                new Translation2d(Units.inchesToMeters(149.91), Units.inchesToMeters(62.67)),
-                new Translation2d(Units.inchesToMeters(214.31), Units.inchesToMeters(135.67))
+                new Translation2d(Units.inchesToMeters(139.91), Units.inchesToMeters(62.67)),
+                new Translation2d(Units.inchesToMeters(224.31), Units.inchesToMeters(135.67))
             );
 
             public static final Rectangle2d RED_DEPOT_BUMP_ZONE = new Rectangle2d(
-                new Translation2d(Units.inchesToMeters(436.91), Units.inchesToMeters(62.67)),
-                new Translation2d(Units.inchesToMeters(501.31), Units.inchesToMeters(135.67))
+                new Translation2d(Units.inchesToMeters(426.91), Units.inchesToMeters(62.67)),
+                new Translation2d(Units.inchesToMeters(511.31), Units.inchesToMeters(135.67))
             );
 
             public static final Rectangle2d RED_OUTPOST_BUMP_ZONE = new Rectangle2d(
-                new Translation2d(Units.inchesToMeters(456.91), Units.inchesToMeters(182.67)),
-                new Translation2d(Units.inchesToMeters(501.31), Units.inchesToMeters(255.67))
+                new Translation2d(Units.inchesToMeters(426.91), Units.inchesToMeters(182.67)),
+                new Translation2d(Units.inchesToMeters(511.31), Units.inchesToMeters(255.67))
             );
         }
     }
