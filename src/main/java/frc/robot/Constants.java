@@ -43,7 +43,7 @@ public final class Constants {
 
     public static class AdvScopeConstants {
         public static final Translation3d INTAKE_POS = 
-            new Translation3d(-0.335, -0.005, 0.295);
+            new Translation3d(0.335, 0.005, 0.295);
         
         public static final double ROBOT_WHEELBASE_WIDTH = Units.inchesToMeters(20.75);
         public static final double ROBOT_WHEELBASE_LENGTH = Units.inchesToMeters(23.75);

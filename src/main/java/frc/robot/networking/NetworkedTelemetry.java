@@ -295,13 +295,13 @@ public class NetworkedTelemetry {
             advScopeTable.getStructArrayTopic("Components", Pose3d.struct).publish();
         
         private static final Pose3d[] component_poses = {
-            new Pose3d(AdvScopeConstants.INTAKE_POS, new Rotation3d(Degrees.of(45.0), Degrees.of(0), Degrees.of(90))),
+            new Pose3d(AdvScopeConstants.INTAKE_POS, new Rotation3d(Degrees.of(45.0), Degrees.of(0), Degrees.of(-90.0))),
             new Pose3d()
         };
 
         public static void setIntakeAngle(double angle_value) {
             Angle new_angle = Degrees.of(((angle_value/IntakeSubsystemConstants.LIFT_LOWERED_ROTATIONS) * -135.0) + 45.0);
-            component_poses[0] = new Pose3d(AdvScopeConstants.INTAKE_POS, new Rotation3d(new_angle, Degrees.of(0), Degrees.of(90)));
+            component_poses[0] = new Pose3d(AdvScopeConstants.INTAKE_POS, new Rotation3d(new_angle, Degrees.of(0), Degrees.of(-90.0)));
             components.set(component_poses);
         }
 
