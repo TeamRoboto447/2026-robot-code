@@ -17,6 +17,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -157,7 +158,7 @@ public class ClimberSubsystem extends SubsystemBase {
           // Return to normal hold mode (climberDir = 0).
           climberDir = 0;
         })
-        .unless(() -> isHomed);
+        .unless(() -> (isHomed || RobotBase.isSimulation()));
   }
 
   /** Returns true once the climber has been successfully homed. */

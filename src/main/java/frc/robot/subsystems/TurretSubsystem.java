@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -704,7 +705,7 @@ public class TurretSubsystem extends SubsystemBase {
                         DriverStation.reportWarning("Hood homing timed out/interrupted; hood remains unhomed.", false);
                     }
                 })
-                .unless(() -> hoodLimitSet);
+                .unless(() -> (hoodLimitSet || RobotBase.isSimulation()));
     }
 
     /** Returns true once the hood has been successfully homed. */

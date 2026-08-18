@@ -240,7 +240,7 @@ public class IntakeSubsystem extends SubsystemBase {
                     System.out.println("Homed Lift Position");
                 }
             })
-            .unless(() -> isLiftHomed);
+            .unless(() -> (isLiftHomed || RobotBase.isSimulation()));
     }
 
     /**
