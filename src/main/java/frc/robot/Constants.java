@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.libraries.Repulsor.Fields.FieldDefinition;
@@ -61,6 +62,14 @@ public final class Constants {
                 new Translation2d(Units.inchesToMeters(445.61), Units.inchesToMeters(255.67)),
                 new Translation2d(Units.inchesToMeters(492.61), Units.inchesToMeters(267.67))
             ),
+            new Rectangle2d(            // RED DEPOT-SIDE TOWER POST
+                new Translation2d(Units.inchesToMeters(607.66), Units.inchesToMeters(152.595)),
+                new Translation2d(Units.inchesToMeters(611.16), Units.inchesToMeters(154.095))
+            ),
+            new Rectangle2d(            // RED OUTPOST-SIDE TOWER POST
+                new Translation2d(Units.inchesToMeters(607.66), Units.inchesToMeters(186.345)),
+                new Translation2d(Units.inchesToMeters(611.16), Units.inchesToMeters(187.845))
+            ),
             new Rectangle2d(            // BLUE HUB
                 new Translation2d(Units.inchesToMeters(158.61), Units.inchesToMeters(135.67)),
                 new Translation2d(Units.inchesToMeters(205.61), Units.inchesToMeters(182.67))
@@ -72,8 +81,15 @@ public final class Constants {
             new Rectangle2d(            // BLUE OUTPOST-SIDE DIVIDER
                 new Translation2d(Units.inchesToMeters(158.61), Units.inchesToMeters(50.67)),
                 new Translation2d(Units.inchesToMeters(205.61), Units.inchesToMeters(62.67))
-            )
-            
+            ),
+            new Rectangle2d(            // BLUE DEPOT-SIDE TOWER POST
+                new Translation2d(Units.inchesToMeters(40.06), Units.inchesToMeters(137.375)),
+                new Translation2d(Units.inchesToMeters(43.56), Units.inchesToMeters(138.875))
+            ),
+            new Rectangle2d(            // BLUE OUTPOST-SIDE TOWER POST
+                new Translation2d(Units.inchesToMeters(40.06), Units.inchesToMeters(103.625)),
+                new Translation2d(Units.inchesToMeters(43.56), Units.inchesToMeters(105.125))
+            ),
         };
     }
 
