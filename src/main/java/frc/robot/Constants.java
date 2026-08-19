@@ -83,12 +83,12 @@ public final class Constants {
                 new Translation2d(Units.inchesToMeters(205.61), Units.inchesToMeters(62.67))
             ),
             new Rectangle2d(            // BLUE DEPOT-SIDE TOWER POST
-                new Translation2d(Units.inchesToMeters(40.06), Units.inchesToMeters(137.375)),
-                new Translation2d(Units.inchesToMeters(43.56), Units.inchesToMeters(138.875))
+                new Translation2d(Units.inchesToMeters(40.06), Units.inchesToMeters(163.595)),
+                new Translation2d(Units.inchesToMeters(43.56), Units.inchesToMeters(165.095))
             ),
             new Rectangle2d(            // BLUE OUTPOST-SIDE TOWER POST
-                new Translation2d(Units.inchesToMeters(40.06), Units.inchesToMeters(103.625)),
-                new Translation2d(Units.inchesToMeters(43.56), Units.inchesToMeters(105.125))
+                new Translation2d(Units.inchesToMeters(40.06), Units.inchesToMeters(129.845)),
+                new Translation2d(Units.inchesToMeters(43.56), Units.inchesToMeters(131.345))
             ),
         };
     }
