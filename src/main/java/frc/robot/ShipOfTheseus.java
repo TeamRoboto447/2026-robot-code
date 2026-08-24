@@ -682,7 +682,9 @@ public class ShipOfTheseus {
 
             Command autoProxy = Commands.defer(
                 () -> {
-                    Command selected = autoChooser.getSelected();
+                    String selected_path_name = autoChooser.getSelected().getName();
+                    if (selected_path_name == "None") return Commands.none();
+                    Command selected = AutoBuilder.buildAuto(selected_path_name);
                     return selected != null ? selected : Commands.none();
                 },
                 Set.of(swerveSubsystem)
