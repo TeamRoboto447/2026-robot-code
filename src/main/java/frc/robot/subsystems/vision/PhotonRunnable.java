@@ -130,4 +130,8 @@ public class PhotonRunnable implements Runnable {
     public List<PhotonTrackedTarget> grabDetectedTags() {
         return detectedTags;
     }
+
+    public PhotonCamera getCameraObject() {
+        return photonCamera;
+    }
 }

@@ -13,6 +13,9 @@ import java.util.Set;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -20,10 +23,13 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -41,6 +47,8 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     private final PhotonRunnable turretCam;
     private final AprilTagFieldLayout aprilTagLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+    
+    private VisionSystemSim visionSim;
 
     /** Creates a new PoseEstimatorSubsystem. */
     public PoseEstimatorSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
@@ -48,6 +56,29 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
         if (USE_VISION) {
             this.climberCam = new PhotonRunnable(new PhotonCamera("ClimberCam"), VisionConstants.ROBOT_TO_CLIMBER_CAM);
             this.turretCam = new PhotonRunnable(new PhotonCamera("TurretCam"), VisionConstants.ROBOT_TO_TURRET_CAM);
+            if (RobotBase.isSimulation()) {
+                visionSim = new VisionSystemSim("main");
+                visionSim.addAprilTags(aprilTagLayout);
+
+                SimCameraProperties climberCamSimProps = new SimCameraProperties();
+                climberCamSimProps.setCalibration(1280, 800, new Rotation2d(Units.degreesToRadians(79.84)));
+                climberCamSimProps.setCalibError(0.28, 0);
+                climberCamSimProps.setFPS(20);
+                climberCamSimProps.setAvgLatencyMs(30);
+
+                PhotonCameraSim climberSimCamera = new PhotonCameraSim(climberCam.getCameraObject(), climberCamSimProps);
+                visionSim.addCamera(climberSimCamera, VisionConstants.ROBOT_TO_CLIMBER_CAM);           
+
+                SimCameraProperties turretCamSimProps = new SimCameraProperties();
+                turretCamSimProps.setCalibration(1280, 800, new Rotation2d(Units.degreesToRadians(79.2)));
+                turretCamSimProps.setCalibError(0.42, 0);
+                turretCamSimProps.setFPS(20);
+                turretCamSimProps.setAvgLatencyMs(30);
+
+                PhotonCameraSim turretSimCamera = new PhotonCameraSim(turretCam.getCameraObject(), turretCamSimProps);
+                visionSim.addCamera(turretSimCamera, VisionConstants.ROBOT_TO_TURRET_CAM);
+
+            }
             this.setDefaultCommand(this.createNotifierCommand(this));
         } else {
             this.climberCam = null;
@@ -79,6 +110,10 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             });
 
             NetworkedTelemetry.Vision.setDetectedTagPostions(detectedTagPositions);
+
+            if (RobotBase.isSimulation()) {
+                visionSim.update(getCurrentPose());
+            }
         }
     }
 
