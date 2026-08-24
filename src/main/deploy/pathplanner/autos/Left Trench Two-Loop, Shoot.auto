@@ -39,6 +39,18 @@
           "data": {
             "pathName": "Left Hub Slow Clear"
           }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopShooter"
+          }
         }
       ]
     }
