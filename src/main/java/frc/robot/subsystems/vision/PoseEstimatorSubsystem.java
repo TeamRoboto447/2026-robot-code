@@ -30,6 +30,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.NotifierCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -111,8 +112,13 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
 
             NetworkedTelemetry.Vision.setDetectedTagPostions(detectedTagPositions);
 
+            Pose3d robotPosition3d = new Pose3d(getCurrentPose());
+            Pose3d climberCamPosition = robotPosition3d.transformBy(VisionConstants.ROBOT_TO_CLIMBER_CAM);
+            Pose3d turretCamPosition = robotPosition3d.transformBy(VisionConstants.ROBOT_TO_TURRET_CAM);
+            NetworkedTelemetry.Vision.setCameraPostions(List.of(climberCamPosition, turretCamPosition));
+
             if (RobotBase.isSimulation()) {
-                visionSim.update(getCurrentPose());
+                visionSim.update(robotPosition3d);
             }
         }
     }

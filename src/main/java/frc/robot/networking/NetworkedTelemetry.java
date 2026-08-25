@@ -223,6 +223,8 @@ public class NetworkedTelemetry {
             .getBooleanTopic("Has Valid AprilTags").getEntry(false);
         private static final StructArrayPublisher<Pose3d> detectedTagPositions = visionTable
             .getStructArrayTopic("Detected Tags", Pose3d.struct).publish();
+        private static final StructArrayPublisher<Pose3d> cameraTransformPositions = visionTable
+            .getStructArrayTopic("Camera Positions", Pose3d.struct).publish();
         
 
         private static final PhotonCamera turretCamera = new PhotonCamera("TurretCam");
@@ -240,6 +242,11 @@ public class NetworkedTelemetry {
         public static void setDetectedTagPostions(List<Pose3d> positions) {
             Pose3d[] posArray = positions.toArray(new Pose3d[0]);
             detectedTagPositions.set(posArray);            
+        }
+
+        public static void setCameraPostions(List<Pose3d> positions) {
+            Pose3d[] posArray = positions.toArray(new Pose3d[0]);
+            cameraTransformPositions.set(posArray);            
         }
         
         /**
