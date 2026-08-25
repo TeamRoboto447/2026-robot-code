@@ -68,6 +68,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
                 climberCamSimProps.setAvgLatencyMs(30);
 
                 PhotonCameraSim climberSimCamera = new PhotonCameraSim(climberCam.getCameraObject(), climberCamSimProps);
+                climberSimCamera.setMaxSightRange(7.5);
                 visionSim.addCamera(climberSimCamera, VisionConstants.ROBOT_TO_CLIMBER_CAM);           
 
                 SimCameraProperties turretCamSimProps = new SimCameraProperties();
@@ -77,6 +78,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
                 turretCamSimProps.setAvgLatencyMs(30);
 
                 PhotonCameraSim turretSimCamera = new PhotonCameraSim(turretCam.getCameraObject(), turretCamSimProps);
+                turretSimCamera.setMaxSightRange(7.5);
                 visionSim.addCamera(turretSimCamera, VisionConstants.ROBOT_TO_TURRET_CAM);
 
             }
