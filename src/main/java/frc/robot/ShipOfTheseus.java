@@ -205,7 +205,7 @@ public class ShipOfTheseus {
     }
 
     public void runSensorlessHoming() {
-        CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
+        // CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
         CommandScheduler.getInstance().schedule(turretSubsystem.homeHood());
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }

@@ -28,6 +28,7 @@ public class NetworkedConfig {
         private static final NetworkTable hoodTable = turretTable.getSubTable("hood");
         private static final NetworkTable flywheelTable = turretTable.getSubTable("flywheel");
         private static final NetworkTable rotationTable = turretTable.getSubTable("rotation");
+        private static final NetworkTable kickerTable = turretTable.getSubTable("kicker");
         
         // Shooter PID
         private static final DoubleEntry shooterKP = flywheelTable
@@ -97,7 +98,11 @@ public class NetworkedConfig {
             .getStringTopic("Turret Target").getEntry("");
         private static final StringEntry debugFieldZone = turretTable
             .getStringTopic("Debug Field Zone").getEntry("");
-        
+
+        private static final DoubleEntry kickerTarget = kickerTable
+            .getDoubleTopic("Kicker Target").getEntry(0);
+        private static final DoubleEntry kickerSpeed = kickerTable
+            .getDoubleTopic("Kicker Speed").getEntry(0);
 
         /**
          * Initializes the NetworkTables entries for the turret subsystem.
@@ -127,6 +132,9 @@ public class NetworkedConfig {
             targetY.set(-1);
             targetHeight.set(-1);
             distanceToTarget.set(-1);
+
+            kickerTarget.set(0);
+            kickerSpeed.set(0);
         }
         
         // Launcher
@@ -293,6 +301,14 @@ public class NetworkedConfig {
         public static void setFlywheelSpeed(double speed) {
             flywheelSpeed.set(speed);
         }
+
+        public static void setKickerTarget(double target) {
+            kickerTarget.set(target);
+        } 
+
+        public static void setKickerSpeed(double speed) {
+            kickerSpeed.set(speed);
+        } 
         
         /** Sends a value as the current turret target. */
         public static void setTurretTarget(String target) {

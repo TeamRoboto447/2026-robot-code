@@ -24,8 +24,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -74,6 +76,8 @@ public class Theseus extends LoggedRobot {
     public void robotInit() {
         CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
 
+        WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+
         LiveWindow.disableAllTelemetry();
         StatusLogger.disableAutoLogging();
         SignalLogger.stop();
@@ -108,7 +112,7 @@ public class Theseus extends LoggedRobot {
                     long rawLogSpaceLeft = logDir.getFreeSpace();  // Gets remaining space in bytes
                     SmartDashboard.putNumber("Logging Info/Log Space Remaining (MB)", rawLogSpaceLeft / 1024.0 / 1024.0); // Sends space to NT in MB
 
-                    boolean flashDriveConnected = DataLogManager.getLogDir().charAt(1) == 'u' && logDir.exists();
+                    boolean flashDriveConnected = logDir.exists() && DataLogManager.getLogDir().charAt(1) == 'u';
                     SmartDashboard.putBoolean("Logging Info/Flash Drive Connected", flashDriveConnected); // Sends true or false depending on whether or not the flash is connected
                 } catch (NullPointerException e) {
                     System.out.println("Could not open file " + DataLogManager.getLogDir());

@@ -158,6 +158,8 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private boolean systemsCheckMode = false;
 
+    private double targetKickerSpeed = 0.0;
+
     /**
      * Timestamp (seconds) when the shooting state transitioned from active to inactive.
      * Used to implement smooth speed ramping: the drive speed gradually increases from
@@ -885,6 +887,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public void stopKicker() {
         this.kickerMotor.set(0);
+        targetKickerSpeed = 0;
     }
 
     /**
@@ -942,10 +945,13 @@ public class TurretSubsystem extends SubsystemBase {
     public void kick(double strength) {
         boolean overrideActive = NetworkedConfig.Debug.isOverrideRPMEnabled()
             || NetworkedConfig.Debug.isOverrideHoodAngleEnabled();
-        if ((overrideActive || (lastSolution != null && lastSolution.inRange)) && flywheelAtSpeed())
+        if ((overrideActive || (lastSolution != null && lastSolution.inRange)) && flywheelAtSpeed()) {
             runKickerRaw(strength);
-        else
+            targetKickerSpeed = strength;
+        } else {
             runKickerRaw(0);
+            targetKickerSpeed = 0;
+        }
     }
 
     /**
@@ -995,6 +1001,9 @@ public class TurretSubsystem extends SubsystemBase {
             NetworkedTelemetry.Turret.setMotorCommStatus(
                 rightShooterMotorConnected && leftShooterMotorConnected &&
                 angleMotorConnected && hoodMotorConnected);
+            
+            NetworkedConfig.Turret.setKickerTarget(targetKickerSpeed);
+            NetworkedConfig.Turret.setKickerSpeed(kickerMotor.get());
         }
     }
 
