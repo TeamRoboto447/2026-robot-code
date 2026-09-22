@@ -29,6 +29,8 @@ public class IndexerSubsystem extends SubsystemBase {
     // Cached signal — avoids creating a new StatusSignal object every periodic() call.
     private final StatusSignal<edu.wpi.first.units.measure.AngularVelocity> spinnerVelocitySignal;
 
+    private boolean runSlow = false;
+
     /**
      * Creates a new IndexerSubsystem.
      */
@@ -73,7 +75,11 @@ public class IndexerSubsystem extends SubsystemBase {
      */
     public void spin() {
         // spinnerMotor.setControl(velocityReq.withVelocity(-NetworkedConfig.Indexer.getTargetSpeed()/60));
-        spinnerMotor.set(-NetworkedConfig.Indexer.getTargetSpeed());
+        if (!runSlow) {
+            spinnerMotor.set(-NetworkedConfig.Indexer.getTargetSpeed());
+        } else {
+            spinnerMotor.set(-NetworkedConfig.Indexer.getTargetSpeed()/2);
+        }
     }
 
         /**
@@ -90,6 +96,11 @@ public class IndexerSubsystem extends SubsystemBase {
      */
     public void stop() {
         spinnerMotor.set(0);
+        runSlow = false;
+    }
+
+    public void setSlow(boolean slow) {
+        runSlow = slow;
     }
 
     /**

@@ -27,6 +27,7 @@ import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -67,6 +68,8 @@ public class ShipOfTheseus {
     private boolean autoIntake = false;
     private boolean autoTurningToAngle = false;
     private MutAngle turretAngleOffset = Degrees.mutable(0);
+
+    private double indexerStartTime = 0.0;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric driveFieldOriented = new SwerveRequest.FieldCentric()
@@ -391,12 +394,19 @@ public class ShipOfTheseus {
 
         // Feed the spindexer only when the feed trigger is true (flywheel at speed).
         shootRequest
-            .and(turretSubsystem.getFeedTrigger())
+            // .and(turretSubsystem.getFeedTrigger())
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
-            .and(turretSubsystem::flywheelAtSpeed)
+            // .and(turretSubsystem::flywheelAtSpeed)
             .and(this::isShotAllowed)
-            .whileTrue(indexerSubsystem.run(() -> indexerSubsystem.spin()));
+            .onTrue(Commands.runOnce(() -> indexerStartTime = Timer.getFPGATimestamp()))
+            .whileTrue(indexerSubsystem.run(() -> {
+                if (Timer.getFPGATimestamp() > indexerStartTime + 5) {
+                    indexerSubsystem.setSlow(true);
+                }
+                indexerSubsystem.spin();
+            }))
+            .onFalse(Commands.runOnce(() -> indexerSubsystem.stop()));
 
         DriverController.start().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();

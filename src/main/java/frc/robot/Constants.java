@@ -447,7 +447,7 @@ public final class Constants {
          * tight enough to ensure a consistent shot without being unreachably precise.
          * Increase if the kicker rarely fires; decrease if shot consistency is poor.
          */
-        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 500.0 / 60.0; // 50 RPM tolerance / 60 seconds = RPS
+        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 750.0 / 60.0; // 50 RPM tolerance / 60 seconds = RPS
 
         public static final int LOOKUP_TABLE_VEL_STEP = 1;
         public static final int LOOKUP_TABLE_DIST_STEP = 1;
