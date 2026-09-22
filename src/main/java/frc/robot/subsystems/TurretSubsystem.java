@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -156,6 +157,8 @@ public class TurretSubsystem extends SubsystemBase {
      * exclusive control of the mechanism. Set via {@link #setSystemsCheckMode(boolean)}.
      */
     private boolean systemsCheckMode = false;
+
+    private double targetKickerSpeed = 0.0;
 
     /**
      * Timestamp (seconds) when the shooting state transitioned from active to inactive.
@@ -704,7 +707,7 @@ public class TurretSubsystem extends SubsystemBase {
                         DriverStation.reportWarning("Hood homing timed out/interrupted; hood remains unhomed.", false);
                     }
                 })
-                .unless(() -> hoodLimitSet);
+                .unless(() -> (hoodLimitSet || RobotBase.isSimulation()));
     }
 
     /** Returns true once the hood has been successfully homed. */
@@ -884,6 +887,7 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public void stopKicker() {
         this.kickerMotor.set(0);
+        targetKickerSpeed = 0;
     }
 
     /**
@@ -941,10 +945,13 @@ public class TurretSubsystem extends SubsystemBase {
     public void kick(double strength) {
         boolean overrideActive = NetworkedConfig.Debug.isOverrideRPMEnabled()
             || NetworkedConfig.Debug.isOverrideHoodAngleEnabled();
-        if ((overrideActive || (lastSolution != null && lastSolution.inRange)) && flywheelAtSpeed())
+        if ((overrideActive || (lastSolution != null && lastSolution.inRange)) && flywheelAtSpeed()) {
             runKickerRaw(strength);
-        else
+            targetKickerSpeed = strength;
+        } else {
             runKickerRaw(0);
+            targetKickerSpeed = 0;
+        }
     }
 
     /**
@@ -994,6 +1001,9 @@ public class TurretSubsystem extends SubsystemBase {
             NetworkedTelemetry.Turret.setMotorCommStatus(
                 rightShooterMotorConnected && leftShooterMotorConnected &&
                 angleMotorConnected && hoodMotorConnected);
+            
+            NetworkedConfig.Turret.setKickerTarget(targetKickerSpeed);
+            NetworkedConfig.Turret.setKickerSpeed(kickerMotor.get());
         }
     }
 

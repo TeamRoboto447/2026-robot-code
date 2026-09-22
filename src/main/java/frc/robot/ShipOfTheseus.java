@@ -26,6 +26,8 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.MutAngle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -39,6 +41,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 // (removed unused imports)
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
@@ -65,6 +68,8 @@ public class ShipOfTheseus {
     private boolean autoIntake = false;
     private boolean autoTurningToAngle = false;
     private MutAngle turretAngleOffset = Degrees.mutable(0);
+
+    private double indexerStartTime = 0.0;
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric driveFieldOriented = new SwerveRequest.FieldCentric()
@@ -174,6 +179,13 @@ public class ShipOfTheseus {
         configureBindings();
         NetworkedConfig.initializeAllDefaults();
 
+        if (RobotBase.isSimulation()) {
+            double pos_x = DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red ? 13.02 : 3.58;
+            double pos_y = FieldConstants.FIELD_WIDTH_METERS / 2.0;
+            Pose2d pose = new Pose2d(pos_x, pos_y, new Rotation2d());
+            swerveSubsystem.resetPose(pose);
+        }
+
     // Debug: lightweight path/event prints added in fillAutoChooser to
     // help diagnose unexpected interruptions during auto.
 
@@ -196,7 +208,7 @@ public class ShipOfTheseus {
     }
 
     public void runSensorlessHoming() {
-        CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
+        // CommandScheduler.getInstance().schedule(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
         CommandScheduler.getInstance().schedule(turretSubsystem.homeHood());
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
@@ -382,12 +394,19 @@ public class ShipOfTheseus {
 
         // Feed the spindexer only when the feed trigger is true (flywheel at speed).
         shootRequest
-            .and(turretSubsystem.getFeedTrigger())
+            // .and(turretSubsystem.getFeedTrigger())
             .and(turretSubsystem::hasValidTarget)
             .and(turretSubsystem::isHoodHomed)
-            .and(turretSubsystem::flywheelAtSpeed)
+            // .and(turretSubsystem::flywheelAtSpeed)
             .and(this::isShotAllowed)
-            .whileTrue(indexerSubsystem.run(() -> indexerSubsystem.spin()));
+            .onTrue(Commands.runOnce(() -> indexerStartTime = Timer.getFPGATimestamp()))
+            .whileTrue(indexerSubsystem.run(() -> {
+                if (Timer.getFPGATimestamp() > indexerStartTime + 5) {
+                    indexerSubsystem.setSlow(true);
+                }
+                indexerSubsystem.spin();
+            }))
+            .onFalse(Commands.runOnce(() -> indexerSubsystem.stop()));
 
         DriverController.start().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();
@@ -673,7 +692,9 @@ public class ShipOfTheseus {
 
             Command autoProxy = Commands.defer(
                 () -> {
-                    Command selected = autoChooser.getSelected();
+                    String selected_path_name = autoChooser.getSelected().getName();
+                    if (selected_path_name == "None") return Commands.none();
+                    Command selected = AutoBuilder.buildAuto(selected_path_name);
                     return selected != null ? selected : Commands.none();
                 },
                 Set.of(swerveSubsystem)
@@ -913,6 +934,8 @@ public class ShipOfTheseus {
         }
 
         NetworkedTelemetry.Turret.setTurretAngleOffset(turretAngleOffset.in(Degrees));
+
+        NetworkedTelemetry.AdvantageScope.setIntakeAngle(intakeSubsystem.getIntakeAngleDegrees());
 
         // if (turretSubsystem.isShootingActive() && turretSubsystem.getRelativeAngleToTarget().abs(Degrees) > 60) autoTurningToAngle = true;
         // else autoTurningToAngle = false;

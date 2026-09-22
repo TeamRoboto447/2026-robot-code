@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Degrees;
 
 import java.util.Set;
+import java.util.concurrent.TransferQueue;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -18,6 +19,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.libraries.Repulsor.Fields.FieldDefinition;
@@ -37,6 +39,59 @@ import frc.robot.libraries.Repulsor.Fields.Rebuilt2026;
  */
 
 public final class Constants {
+
+    public static final boolean USE_ADV_KIT = false;
+
+    public static class AdvScopeConstants {
+        public static final Translation3d INTAKE_POS = 
+            new Translation3d(0.335, 0.005, 0.295);
+        
+        public static final double ROBOT_WHEELBASE_WIDTH = Units.inchesToMeters(20.75);
+        public static final double ROBOT_WHEELBASE_LENGTH = Units.inchesToMeters(23.75);
+
+        public static final Rectangle2d[] FIELD_ELEMENTS = {
+            new Rectangle2d(            // RED HUB
+                new Translation2d(Units.inchesToMeters(445.61), Units.inchesToMeters(135.67)),
+                new Translation2d(Units.inchesToMeters(492.61), Units.inchesToMeters(182.67))
+            ),
+            new Rectangle2d(            // RED DEPOT-SIDE DIVIDER
+                new Translation2d(Units.inchesToMeters(445.61), Units.inchesToMeters(50.67)),
+                new Translation2d(Units.inchesToMeters(492.61), Units.inchesToMeters(62.67))
+            ),
+            new Rectangle2d(            // RED OUTPOST-SIDE DIVIDER
+                new Translation2d(Units.inchesToMeters(445.61), Units.inchesToMeters(255.67)),
+                new Translation2d(Units.inchesToMeters(492.61), Units.inchesToMeters(267.67))
+            ),
+            new Rectangle2d(            // RED DEPOT-SIDE TOWER POST
+                new Translation2d(Units.inchesToMeters(607.66), Units.inchesToMeters(152.595)),
+                new Translation2d(Units.inchesToMeters(611.16), Units.inchesToMeters(154.095))
+            ),
+            new Rectangle2d(            // RED OUTPOST-SIDE TOWER POST
+                new Translation2d(Units.inchesToMeters(607.66), Units.inchesToMeters(186.345)),
+                new Translation2d(Units.inchesToMeters(611.16), Units.inchesToMeters(187.845))
+            ),
+            new Rectangle2d(            // BLUE HUB
+                new Translation2d(Units.inchesToMeters(158.61), Units.inchesToMeters(135.67)),
+                new Translation2d(Units.inchesToMeters(205.61), Units.inchesToMeters(182.67))
+            ),
+            new Rectangle2d(            // BLUE DEPOT-SIDE DIVIDER
+                new Translation2d(Units.inchesToMeters(158.61), Units.inchesToMeters(255.67)),
+                new Translation2d(Units.inchesToMeters(205.61), Units.inchesToMeters(267.67))
+            ),
+            new Rectangle2d(            // BLUE OUTPOST-SIDE DIVIDER
+                new Translation2d(Units.inchesToMeters(158.61), Units.inchesToMeters(50.67)),
+                new Translation2d(Units.inchesToMeters(205.61), Units.inchesToMeters(62.67))
+            ),
+            new Rectangle2d(            // BLUE DEPOT-SIDE TOWER POST
+                new Translation2d(Units.inchesToMeters(40.06), Units.inchesToMeters(163.595)),
+                new Translation2d(Units.inchesToMeters(43.56), Units.inchesToMeters(165.095))
+            ),
+            new Rectangle2d(            // BLUE OUTPOST-SIDE TOWER POST
+                new Translation2d(Units.inchesToMeters(40.06), Units.inchesToMeters(129.845)),
+                new Translation2d(Units.inchesToMeters(43.56), Units.inchesToMeters(131.345))
+            ),
+        };
+    }
 
     public static class RepulsorConstants {
     public static final AprilTagFieldLayout aprilTagLayout =
@@ -85,10 +140,10 @@ public final class Constants {
 
         public static final Transform3d ROBOT_TO_CLIMBER_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
-        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(142)));
+        new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(142)));
         public static final Transform3d ROBOT_TO_TURRET_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
-        new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(210.24)));
+        new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(210.24)));
 
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11), Units.inchesToMeters(2.5), Units.inchesToMeters(12)),
@@ -324,6 +379,34 @@ public final class Constants {
          */
         public static final double AUTO_POSE_DISTANCE_TOLERANCE_M = 0.5;
         public static final double AUTO_POSE_HEADING_TOLERANCE_DEG = 10.0;
+
+
+        /**
+         * Areas of the field where bump angle calculations should be run in simulation mode.
+         * There is an extra ten inches added on both x directions to allow for a smoother transition onto the bump
+         */
+        public static class BumpZones {
+
+            public static final Rectangle2d BLUE_DEPOT_BUMP_ZONE = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(139.91), Units.inchesToMeters(182.67)),
+                new Translation2d(Units.inchesToMeters(224.31), Units.inchesToMeters(255.67))
+            );
+
+            public static final Rectangle2d BLUE_OUTPOST_BUMP_ZONE = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(139.91), Units.inchesToMeters(62.67)),
+                new Translation2d(Units.inchesToMeters(224.31), Units.inchesToMeters(135.67))
+            );
+
+            public static final Rectangle2d RED_DEPOT_BUMP_ZONE = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(426.91), Units.inchesToMeters(62.67)),
+                new Translation2d(Units.inchesToMeters(511.31), Units.inchesToMeters(135.67))
+            );
+
+            public static final Rectangle2d RED_OUTPOST_BUMP_ZONE = new Rectangle2d(
+                new Translation2d(Units.inchesToMeters(426.91), Units.inchesToMeters(182.67)),
+                new Translation2d(Units.inchesToMeters(511.31), Units.inchesToMeters(255.67))
+            );
+        }
     }
 
     public static class TurretSubsystemConstants {
@@ -364,7 +447,7 @@ public final class Constants {
          * tight enough to ensure a consistent shot without being unreachably precise.
          * Increase if the kicker rarely fires; decrease if shot consistency is poor.
          */
-        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 250.0 / 60.0; // 50 RPM tolerance / 60 seconds = RPS
+        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 750.0 / 60.0; // 50 RPM tolerance / 60 seconds = RPS
 
         public static final int LOOKUP_TABLE_VEL_STEP = 1;
         public static final int LOOKUP_TABLE_DIST_STEP = 1;

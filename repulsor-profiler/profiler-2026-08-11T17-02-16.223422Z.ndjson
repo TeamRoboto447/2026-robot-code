@@ -1,0 +1,5 @@
+{"t":"m","ts":1786467736228,"f":"C:\\Users\\ryang\\Documents\\git\\2026-robot-code\\repulsor-profiler\\profiler-2026-08-11T17-02-16.223422Z.ndjson"}
+{"t":"s","ts":1786467736235,"r":"init","f":"C:\\Users\\ryang\\Documents\\git\\2026-robot-code\\repulsor-profiler\\profiler-2026-08-11T17-02-16.223422Z.ndjson","d":0,"sec":[],"ctr":[],"g":[]}
+{"t":"f","ts":1786467736235}
+{"t":"s","ts":1786467737585,"r":"shutdown","f":"C:\\Users\\ryang\\Documents\\git\\2026-robot-code\\repulsor-profiler\\profiler-2026-08-11T17-02-16.223422Z.ndjson","d":0,"sec":[["DragShotPlanner.loadGamePieceFromDeployYaml",1,83164801,83164801,83164801],["DragShotPlanner.loadGamePieceFromDeployYamlInternal",1,81269200,81269200,81269200],["DragShotPlanner.isShooterPoseValid",215,5306185,1199,3322699],["DragShotPlanner.isShooterPoseValidInternal.body",215,3522696,199,3311500],["DragShotPlanner.staticObstacles",2,1482999,699,1482300]],"ctr":[],"g":[["DragShotPlanner.staticObstacles.size",22]]}
+{"t":"f","ts":1786467737586}

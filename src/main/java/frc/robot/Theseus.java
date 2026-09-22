@@ -6,25 +6,46 @@ package frc.robot;
 
 import java.io.File;
 
+import static edu.wpi.first.units.Units.Degrees;
+
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import com.ctre.phoenix6.HootAutoReplay;
 import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.revrobotics.util.StatusLogger;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.net.WebServer;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.AdvScopeConstants;
+import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.Elastic;
+import frc.robot.utils.SimPhysics;
 
-public class Theseus extends TimedRobot {
+public class Theseus extends LoggedRobot {
     private Command m_autonomousCommand;
 
     private final ShipOfTheseus m_robotContainer;
     private int periodicLoopCount = 0;
+
+    private SimPhysics m_simPhysics;
 
     /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
@@ -32,6 +53,22 @@ public class Theseus extends TimedRobot {
         .withJoystickReplay();
 
     public Theseus() {
+        Logger.recordMetadata("ProjectName", "2026 Theseus"); // Set a metadata value
+
+        if (isReal() || !Constants.USE_ADV_KIT) {
+            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+        } else {
+            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
+            Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+            System.out.println("Running Basic Simulator");
+            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+            
+        }
+
+        Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
         m_robotContainer = new ShipOfTheseus();
     }
 
@@ -39,13 +76,15 @@ public class Theseus extends TimedRobot {
     public void robotInit() {
         CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
 
+        WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
+
         LiveWindow.disableAllTelemetry();
         StatusLogger.disableAutoLogging();
         SignalLogger.stop();
 
-        DataLogManager.start();
+        
 
-        addPeriodic(() -> m_robotContainer.motorStatusCheck(), 10);
+        // addPeriodic(() -> m_robotContainer.motorStatusCheck(), 10);
     }
 
     @Override
@@ -53,28 +92,33 @@ public class Theseus extends TimedRobot {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
 
-        //  Publish the status of the flash drive to networktables (connected, space remaining, etc.) once a second
-        if (periodicLoopCount > 49) {
-            periodicLoopCount = 0;
-
-            try {
-                File logDir = new File(DataLogManager.getLogDir());
-                long rawLogSpaceLeft = logDir.getFreeSpace();  // Gets remaining space in bytes
-                SmartDashboard.putNumber("Logging Info/Log Space Remaining (MB)", rawLogSpaceLeft / 1024.0 / 1024.0); // Sends space to NT in MB
-
-                boolean flashDriveConnected = DataLogManager.getLogDir().charAt(1) == 'u' && logDir.exists();
-                SmartDashboard.putBoolean("Logging Info/Flash Drive Connected", flashDriveConnected); // Sends true or false depending on whether or not the flash is connected
-            } catch (NullPointerException e) {
-                System.out.println("Could not open file " + DataLogManager.getLogDir());
-            }
-
-        }
-
         
         //  Repulsor main update loop (minimal integration)
         if (m_robotContainer != null && m_robotContainer.repulsor != null) {
             m_robotContainer.repulsor.update();
             m_robotContainer.periodicUpdate();
+        }
+
+        //  Publish the status of the flash drive to networktables (connected, space remaining, etc.) once a second
+        
+        if (periodicLoopCount > 49) {
+            periodicLoopCount = 0;
+
+            SmartDashboard.putNumber("Intake/Lift Angle (Degrees)", m_robotContainer.intakeSubsystem.getIntakeAngleDegrees());
+
+            if (isReal()) {
+                try {
+                    File logDir = new File(DataLogManager.getLogDir());
+                    long rawLogSpaceLeft = logDir.getFreeSpace();  // Gets remaining space in bytes
+                    SmartDashboard.putNumber("Logging Info/Log Space Remaining (MB)", rawLogSpaceLeft / 1024.0 / 1024.0); // Sends space to NT in MB
+
+                    boolean flashDriveConnected = logDir.exists() && DataLogManager.getLogDir().charAt(1) == 'u';
+                    SmartDashboard.putBoolean("Logging Info/Flash Drive Connected", flashDriveConnected); // Sends true or false depending on whether or not the flash is connected
+                } catch (NullPointerException e) {
+                    System.out.println("Could not open file " + DataLogManager.getLogDir());
+                }
+
+            }
         }
 
         periodicLoopCount++;
@@ -136,5 +180,41 @@ public class Theseus extends TimedRobot {
     public void testExit() {}
 
     @Override
-    public void simulationPeriodic() {}
+    public void simulationInit() {
+        this.m_simPhysics = new SimPhysics();
+    }
+
+    @Override
+    public void simulationPeriodic() {
+
+        Pose2d swervePose = m_robotContainer.swerveSubsystem.getPose();
+
+        Pose3d bumpAffectedPose = m_simPhysics.applyBumpAngle(swervePose);
+
+        Pose3d elementAffectedPose = bumpAffectedPose;
+        
+        for (Rectangle2d element : AdvScopeConstants.FIELD_ELEMENTS) {
+            elementAffectedPose = m_simPhysics.checkForElement(elementAffectedPose, element);
+        }
+
+        Pose3d boundaryAffectedPose = m_simPhysics.checkFieldBoundries(elementAffectedPose);
+
+        Pose3d displayPose = new Pose3d(
+            boundaryAffectedPose.getTranslation(),
+            new Rotation3d(
+                boundaryAffectedPose.getRotation().getX(),
+                boundaryAffectedPose.getRotation().getY(),
+                swervePose.getRotation().getRadians()
+            )
+        );
+
+        NetworkedTelemetry.AdvantageScope.set3dPose(displayPose);
+        
+        m_robotContainer.swerveSubsystem.resetPose(
+            new Pose2d(
+                boundaryAffectedPose.getTranslation().toTranslation2d(),
+                swervePose.getRotation()
+            )
+        );
+    }
 }

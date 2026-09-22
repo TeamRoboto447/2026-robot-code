@@ -1,12 +1,17 @@
 package frc.robot.networking;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Rotations;
+
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rectangle2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleEntry;
@@ -16,6 +21,10 @@ import edu.wpi.first.networktables.StringEntry;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructEntry;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.measure.Angle;
+import frc.robot.Constants.AdvScopeConstants;
+import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
 import org.photonvision.PhotonCamera;
@@ -214,6 +223,8 @@ public class NetworkedTelemetry {
             .getBooleanTopic("Has Valid AprilTags").getEntry(false);
         private static final StructArrayPublisher<Pose3d> detectedTagPositions = visionTable
             .getStructArrayTopic("Detected Tags", Pose3d.struct).publish();
+        private static final StructArrayPublisher<Pose3d> cameraTransformPositions = visionTable
+            .getStructArrayTopic("Camera Positions", Pose3d.struct).publish();
         
 
         private static final PhotonCamera turretCamera = new PhotonCamera("TurretCam");
@@ -231,6 +242,11 @@ public class NetworkedTelemetry {
         public static void setDetectedTagPostions(List<Pose3d> positions) {
             Pose3d[] posArray = positions.toArray(new Pose3d[0]);
             detectedTagPositions.set(posArray);            
+        }
+
+        public static void setCameraPostions(List<Pose3d> positions) {
+            Pose3d[] posArray = positions.toArray(new Pose3d[0]);
+            cameraTransformPositions.set(posArray);            
         }
         
         /**
@@ -273,6 +289,31 @@ public class NetworkedTelemetry {
 
         public static boolean hasPiece() {
             return hasPiece.get();
+        }
+    }
+
+    public static class AdvantageScope {
+
+        private static final NetworkTable advScopeTable = defaultNTInstance.getTable("AdvantageScope Elements");
+
+        private static final StructPublisher<Pose3d> robot3dPose = advScopeTable.getStructTopic("3D Pose", Pose3d.struct).publish();
+
+        private static final StructArrayPublisher<Pose3d> components = 
+            advScopeTable.getStructArrayTopic("Components", Pose3d.struct).publish();
+        
+        private static final Pose3d[] component_poses = {
+            new Pose3d(AdvScopeConstants.INTAKE_POS, new Rotation3d(Degrees.of(45.0), Degrees.of(0), Degrees.of(-90.0))),
+            new Pose3d()
+        };
+
+        public static void setIntakeAngle(double angle_value) {
+            Angle new_angle = Degrees.of(((angle_value/IntakeSubsystemConstants.LIFT_LOWERED_ROTATIONS) * -135.0) + 45.0);
+            component_poses[0] = new Pose3d(AdvScopeConstants.INTAKE_POS, new Rotation3d(new_angle, Degrees.of(0), Degrees.of(-90.0)));
+            components.set(component_poses);
+        }
+
+        public static void set3dPose(Pose3d new_pose) {
+            robot3dPose.set(new_pose);
         }
     }
 

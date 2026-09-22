@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8554337349397598,
+        "x": 1.8554337349397603,
         "y": 8.318662650602409
       },
       "isLocked": false,
@@ -127,7 +127,12 @@
       "name": "startShooter",
       "waypointRelativePos": 3.631422505307864,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "startShooter"
+        }
+      }
     }
   ],
   "globalConstraints": {
@@ -139,7 +144,7 @@
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 3.0,
+    "velocity": 0.0,
     "rotation": 1.1039322560063822
   },
   "reversed": false,
