@@ -384,7 +384,7 @@ public class TurretSubsystem extends SubsystemBase {
      * Updates the subsystem's various elements, including the on-RIO shot solver,
      * motor setpoints, and NetworkTables telemetry.
      *
-     * <h3>Aiming pipeline (runs every 20 ms, zero NT round-trip)</h3>
+     * <h4>Aiming pipeline (runs every 20 ms, zero NT round-trip)</h4>
      * <ol>
      *   <li>Compute the turret pivot position in field coordinates (robot pose +
      *       rotated TURRET_TO_ROBOT offset).</li>
