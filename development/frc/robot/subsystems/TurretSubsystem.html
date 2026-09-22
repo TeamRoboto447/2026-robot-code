@@ -127,7 +127,8 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(frc.robot.subsystems.PoseProvider)" class="member-name-link">TurretSubsystem</a><wbr>(<a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a>&nbsp;poseProvider)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(frc.robot.subsystems.PoseProvider,edu.wpi.first.units.measure.MutAngle)" class="member-name-link">TurretSubsystem</a><wbr>(<a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a>&nbsp;poseProvider,
+ edu.wpi.first.units.measure.MutAngle&nbsp;turretOffsetAngle)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Creates a new TurretSubsystem.</div>
 </div>
@@ -148,66 +149,90 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#flywheelAtSpeed()" class="member-name-link">flywheelAtSpeed</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../utils/TargettingUtils.ControlTarget.html" title="class in frc.robot.utils">TargettingUtils.ControlTarget</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getControlTarget()" class="member-name-link">getControlTarget</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.button.Trigger</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFeedTrigger()" class="member-name-link">getFeedTrigger</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Gets the current control target - namely the target RPM and hood angle.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.button.Trigger</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFeedTrigger()" class="member-name-link">getFeedTrigger</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Get the trigger that indicates when the shooter is at target velocity.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFlywheelRPM()" class="member-name-link">getFlywheelRPM</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFlywheelRPM()" class="member-name-link">getFlywheelRPM</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the current flywheel speed in RPM.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHoodAngleDegrees()" class="member-name-link">getHoodAngleDegrees</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getHoodAngleDegrees()" class="member-name-link">getHoodAngleDegrees</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the current hood angle in degrees (absolute, offset from MIN_HOOD_ANGLE),
  derived from the SparkMax relative encoder.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRampedAngularRateCap(double)" class="member-name-link">getRampedAngularRateCap</a><wbr>(double&nbsp;maxAngularRate)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the current angular-rate cap for the drive system, accounting for SOTF
+ limits and the ramp-up process after shooting stops.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTurretAngleDegrees()" class="member-name-link">getTurretAngleDegrees</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRampedSpeedCap(double)" class="member-name-link">getRampedSpeedCap</a><wbr>(double&nbsp;maxSpeed)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the current speed cap for the drive system, accounting for SOTF limits
+ and the ramp-up process after shooting stops.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.units.measure.Angle</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRelativeAngleToTarget()" class="member-name-link">getRelativeAngleToTarget</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.units.measure.Angle</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTargetAngleFromPos()" class="member-name-link">getTargetAngleFromPos</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTurretAngleDegrees()" class="member-name-link">getTurretAngleDegrees</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the current turret rotation angle in degrees (from the cached position signal).</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasValidTarget()" class="member-name-link">hasValidTarget</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns true when the coprocessor has computed a valid shot trajectory.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#homeHood()" class="member-name-link">homeHood</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasValidTarget()" class="member-name-link">hasValidTarget</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns true when the on-RIO solver has computed a valid shot solution this loop.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#homeHood()" class="member-name-link">homeHood</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a <code>Command</code> that homes the hood by slowly driving it toward
  the lower hard stop and zeroing the encoder when a current-based stall is
  detected.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isHoodHomed()" class="member-name-link">isHoodHomed</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isHoodHomed()" class="member-name-link">isHoodHomed</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns true once the hood has been successfully homed.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isShootingActive()" class="member-name-link">isShootingActive</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns <code>true</code> while a shoot-on-the-fly attempt is in progress.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isTargetingHub()" class="member-name-link">isTargetingHub</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns true when the turret is currently targeting either alliance hub.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#kick(double)" class="member-name-link">kick</a><wbr>(double&nbsp;strength)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isTurretSafe()" class="member-name-link">isTurretSafe</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#kick(double)" class="member-name-link">kick</a><wbr>(double&nbsp;strength)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Runs the kicker motor only when the flywheel is within
  <a href="../Constants.TurretSubsystemConstants.html#FLYWHEEL_READY_TOLERANCE_RPS"><code>Constants.TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS</code></a> of its target
  speed AND the coprocessor has a valid trajectory.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#motorStatusCheck()" class="member-name-link">motorStatusCheck</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Updates the subsystem's various elements, 
- including its networktables, the current target, and the turret control data.</div>
+<div class="block">Updates the subsystem's various elements, including the on-RIO shot solver,
+ motor setpoints, and NetworkTables telemetry.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pullNetworkTableData()" class="member-name-link">pullNetworkTableData</a>()</code></div>
@@ -231,20 +256,34 @@ loadScripts(document, 'script');</script>
 <div class="block">Starts the hood moving towards a new angle.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSystemsCheckMode(boolean)" class="member-name-link">setSystemsCheckMode</a><wbr>(boolean&nbsp;enabled)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setShootingActive(boolean)" class="member-name-link">setShootingActive</a><wbr>(boolean&nbsp;active)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Enables or disables systems-check mode.</div>
+<div class="block">Signals that the robot is actively attempting a shoot-on-the-fly shot.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shoot()" class="member-name-link">shoot</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSystemsCheckMode(boolean)" class="member-name-link">setSystemsCheckMode</a><wbr>(boolean&nbsp;enabled)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Tells the flywheel to spin at a specific speed, taken from the control target.</div>
+<div class="block">Enables or disables systems-check mode.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#spinFlywheelAtRPM(double)" class="member-name-link">spinFlywheelAtRPM</a><wbr>(double&nbsp;rpm)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shootAutoTarget()" class="member-name-link">shootAutoTarget</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Signals the shooter to spin up.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shootAutoTargetWithRPMOffset(double)" class="member-name-link">shootAutoTargetWithRPMOffset</a><wbr>(double&nbsp;rpmOffset)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#shootWithRPM(double)" class="member-name-link">shootWithRPM</a><wbr>(double&nbsp;rpm)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#spinFlywheelAtRPM(double)" class="member-name-link">spinFlywheelAtRPM</a><wbr>(double&nbsp;rpm)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Spins the flywheel directly at the given RPM, bypassing NetworkTables.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopAll()" class="member-name-link">stopAll</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stopHood()" class="member-name-link">stopHood</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -330,9 +369,10 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(frc.robot.subsystems.PoseProvider)">
+<section class="detail" id="&lt;init&gt;(frc.robot.subsystems.PoseProvider,edu.wpi.first.units.measure.MutAngle)">
 <h3>TurretSubsystem</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">TurretSubsystem</span><wbr><span class="parameters">(<a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a>&nbsp;poseProvider)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">TurretSubsystem</span><wbr><span class="parameters">(<a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a>&nbsp;poseProvider,
+ edu.wpi.first.units.measure.MutAngle&nbsp;turretOffsetAngle)</span></div>
 <div class="block">Creates a new TurretSubsystem.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -361,6 +401,12 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="motorStatusCheck()">
+<h3>motorStatusCheck</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">motorStatusCheck</span>()</div>
+</section>
+</li>
+<li>
 <section class="detail" id="turnToTarget()">
 <h3>turnToTarget</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.wpilibj2.command.Command</span>&nbsp;<span class="element-name">turnToTarget</span>()</div>
@@ -370,15 +416,41 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="periodic()">
 <h3>periodic</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">periodic</span>()</div>
-<div class="block">Updates the subsystem's various elements, 
- including its networktables, the current target, and the turret control data.</div>
+<div class="block">Updates the subsystem's various elements, including the on-RIO shot solver,
+ motor setpoints, and NetworkTables telemetry.
+
+ <h4 id="aiming-pipeline-runs-every-20-ms-zero-nt-round-trip--heading">Aiming pipeline (runs every 20 ms, zero NT round-trip)</h4>
+ <ol>
+   <li>Compute the turret pivot position in field coordinates (robot pose +
+       rotated TURRET_TO_ROBOT offset).</li>
+   <li>Look up the current target 3-D position from <a href="#turretTarget"><code>turretTarget</code></a>.</li>
+   <li>Feed the displacement vector and robot chassis velocity (in inches) into
+       <a href="../utils/ShooterTable.html#solve(double,double,double,double)"><code>ShooterTable.solve(double, double, double, double)</code></a>, which runs a Newton TOF-recursion to produce
+       a field-relative aim bearing and interpolated hood angle / RPM.</li>
+   <li>Convert the aim bearing to a robot-frame turret angle, apply a yaw-rate
+       feed-forward lead, and command the motor.</li>
+ </ol></div>
 </section>
 </li>
 <li>
-<section class="detail" id="shoot()">
-<h3>shoot</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">shoot</span>()</div>
-<div class="block">Tells the flywheel to spin at a specific speed, taken from the control target.</div>
+<section class="detail" id="shootAutoTarget()">
+<h3>shootAutoTarget</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">shootAutoTarget</span>()</div>
+<div class="block">Signals the shooter to spin up. The target RPM comes from the most-recent
+ <a href="../utils/ShooterTable.html" title="class in frc.robot.utils"><code>ShooterTable</code></a> solution computed in <a href="#periodic()"><code>periodic()</code></a>; if no solution
+ is available the flywheel coasts.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="shootAutoTargetWithRPMOffset(double)">
+<h3>shootAutoTargetWithRPMOffset</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">shootAutoTargetWithRPMOffset</span><wbr><span class="parameters">(double&nbsp;rpmOffset)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="shootWithRPM(double)">
+<h3>shootWithRPM</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">shootWithRPM</span><wbr><span class="parameters">(double&nbsp;rpm)</span></div>
 </section>
 </li>
 <li>
@@ -406,6 +478,12 @@ loadScripts(document, 'script');</script>
 <h3>stopHood</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopHood</span>()</div>
 <div class="block">Stops the hood.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="stopAll()">
+<h3>stopAll</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stopAll</span>()</div>
 </section>
 </li>
 <li>
@@ -453,7 +531,70 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="hasValidTarget()">
 <h3>hasValidTarget</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">hasValidTarget</span>()</div>
-<div class="block">Returns true when the coprocessor has computed a valid shot trajectory.</div>
+<div class="block">Returns true when the on-RIO solver has computed a valid shot solution this loop.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setShootingActive(boolean)">
+<h3>setShootingActive</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setShootingActive</span><wbr><span class="parameters">(boolean&nbsp;active)</span></div>
+<div class="block">Signals that the robot is actively attempting a shoot-on-the-fly shot.
+ Called by <a href="../ShipOfTheseus.html" title="class in frc.robot"><code>ShipOfTheseus</code></a> when the shoot button or
+ autonomous shoot trigger becomes active/inactive.  Read by
+ <a href="#isShootingActive()"><code>isShootingActive()</code></a> to gate the drive-speed cap.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>active</code> - <code>true</code> when a shot attempt is in progress</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isShootingActive()">
+<h3>isShootingActive</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isShootingActive</span>()</div>
+<div class="block">Returns <code>true</code> while a shoot-on-the-fly attempt is in progress.
+ Used by the drive default command in <a href="../ShipOfTheseus.html" title="class in frc.robot"><code>ShipOfTheseus</code></a> to
+ cap the robot's translational speed at
+ <a href="../Constants.TurretSubsystemConstants.html#SOTF_MAX_DRIVE_SPEED_MPS"><code>Constants.TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS</code></a>.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getRampedSpeedCap(double)">
+<h3>getRampedSpeedCap</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getRampedSpeedCap</span><wbr><span class="parameters">(double&nbsp;maxSpeed)</span></div>
+<div class="block">Returns the current speed cap for the drive system, accounting for SOTF limits
+ and the ramp-up process after shooting stops.
+
+ <p>While shooting is active, returns <a href="../Constants.TurretSubsystemConstants.html#SOTF_MAX_DRIVE_SPEED_MPS"><code>Constants.TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS</code></a>.
+ After shooting stops, linearly interpolates back to the full <code>maxSpeed</code> over
+ <a href="../Constants.TurretSubsystemConstants.html#SOTF_SPEED_RAMP_TIME_S"><code>Constants.TurretSubsystemConstants.SOTF_SPEED_RAMP_TIME_S</code></a>. Once the ramp completes,
+ returns the full <code>maxSpeed</code>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>maxSpeed</code> - The robot's maximum speed in m/s when not shooting</dd>
+<dt>Returns:</dt>
+<dd>The current speed cap to apply to drive commands</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getRampedAngularRateCap(double)">
+<h3>getRampedAngularRateCap</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getRampedAngularRateCap</span><wbr><span class="parameters">(double&nbsp;maxAngularRate)</span></div>
+<div class="block">Returns the current angular-rate cap for the drive system, accounting for SOTF
+ limits and the ramp-up process after shooting stops.
+
+ <p>While shooting is active, returns
+ <a href="../Constants.TurretSubsystemConstants.html#SOTF_MAX_ANGULAR_RATE_RAD_PER_SEC"><code>Constants.TurretSubsystemConstants.SOTF_MAX_ANGULAR_RATE_RAD_PER_SEC</code></a>. After
+ shooting stops, linearly interpolates back to the full <code>maxAngularRate</code>
+ over <a href="../Constants.TurretSubsystemConstants.html#SOTF_SPEED_RAMP_TIME_S"><code>Constants.TurretSubsystemConstants.SOTF_SPEED_RAMP_TIME_S</code></a>. Once the ramp
+ completes, returns the full <code>maxAngularRate</code>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>maxAngularRate</code> - The robot's maximum angular rate in rad/s when not shooting</dd>
+<dt>Returns:</dt>
+<dd>The current angular-rate cap to apply to drive commands</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -616,14 +757,21 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getControlTarget()">
-<h3>getControlTarget</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../utils/TargettingUtils.ControlTarget.html" title="class in frc.robot.utils">TargettingUtils.ControlTarget</a></span>&nbsp;<span class="element-name">getControlTarget</span>()</div>
-<div class="block">Gets the current control target - namely the target RPM and hood angle.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>A <a href="../utils/TargettingUtils.ControlTarget.html" title="class in frc.robot.utils"><code>TargettingUtils.ControlTarget</code></a> with the appropiate data.</dd>
-</dl>
+<section class="detail" id="getTargetAngleFromPos()">
+<h3>getTargetAngleFromPos</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.units.measure.Angle</span>&nbsp;<span class="element-name">getTargetAngleFromPos</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getRelativeAngleToTarget()">
+<h3>getRelativeAngleToTarget</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.units.measure.Angle</span>&nbsp;<span class="element-name">getRelativeAngleToTarget</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isTurretSafe()">
+<h3>isTurretSafe</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isTurretSafe</span>()</div>
 </section>
 </li>
 </ul>

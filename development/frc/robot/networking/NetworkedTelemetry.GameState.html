@@ -127,8 +127,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#publish(double,boolean)" class="member-name-link">publish</a><wbr>(double&nbsp;matchTimeSecs,
- boolean&nbsp;isHubActive)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#publish(double,boolean,double)" class="member-name-link">publish</a><wbr>(double&nbsp;matchTimeSecs,
+ boolean&nbsp;isHubActive,
+ double&nbsp;hubActiveCountdownSecs)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Publishes game-state values to NetworkTables.</div>
 </div>
@@ -164,15 +165,17 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="publish(double,boolean)">
+<section class="detail" id="publish(double,boolean,double)">
 <h3>publish</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">publish</span><wbr><span class="parameters">(double&nbsp;matchTimeSecs,
- boolean&nbsp;isHubActive)</span></div>
+ boolean&nbsp;isHubActive,
+ double&nbsp;hubActiveCountdownSecs)</span></div>
 <div class="block">Publishes game-state values to NetworkTables.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>matchTimeSecs</code> - Remaining match time in seconds</dd>
 <dd><code>isHubActive</code> - Whether the hub is active for this alliance</dd>
+<dd><code>hubActiveCountdownSecs</code> - Seconds until the hub next becomes active; 0 if already active</dd>
 </dl>
 </section>
 </li>

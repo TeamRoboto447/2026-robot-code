@@ -134,9 +134,15 @@ loadScripts(document, 'script');</script>
 <div class="block">Publishes the robot's pose to NetworkTables for field visualization.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#publishTargetCircle(edu.wpi.first.math.geometry.Translation3d,double)" class="member-name-link">publishTargetCircle</a><wbr>(edu.wpi.first.math.geometry.Translation3d&nbsp;target,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#publishStartingCircle(edu.wpi.first.math.geometry.Pose2d,double)" class="member-name-link">publishStartingCircle</a><wbr>(edu.wpi.first.math.geometry.Pose2d&nbsp;pose,
  double&nbsp;radiusMeters)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Publishes a circle at the starting position for visualization.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#publishTargetCircle(edu.wpi.first.math.geometry.Translation3d,double)" class="member-name-link">publishTargetCircle</a><wbr>(edu.wpi.first.math.geometry.Translation3d&nbsp;target,
+ double&nbsp;radiusMeters)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Publishes a circle at the target position for visualization.</div>
 </div>
 </div>
@@ -203,6 +209,20 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>target</code> - The target position (uses only X and Y, ignoring Z)</dd>
+<dd><code>radiusMeters</code> - The radius of the circle in meters</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="publishStartingCircle(edu.wpi.first.math.geometry.Pose2d,double)">
+<h3>publishStartingCircle</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">publishStartingCircle</span><wbr><span class="parameters">(edu.wpi.first.math.geometry.Pose2d&nbsp;pose,
+ double&nbsp;radiusMeters)</span></div>
+<div class="block">Publishes a circle at the starting position for visualization.
+ The circle is approximated using 17 points, with the last closing the circle.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>pose</code> - The starting position</dd>
 <dd><code>radiusMeters</code> - The radius of the circle in meters</dd>
 </dl>
 </section>

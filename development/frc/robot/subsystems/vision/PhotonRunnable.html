@@ -127,15 +127,31 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.photonvision.EstimatedRobotPose</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#grabLatestEstimatedPose()" class="member-name-link">grabLatestEstimatedPose</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearAllowedTagIds()" class="member-name-link">clearAllowedTagIds</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Clears any temporary AprilTag whitelist, allowing all tags again.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.photonvision.PhotonCamera</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCameraObject()" class="member-name-link">getCameraObject</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;org.photonvision.targeting.PhotonTrackedTarget&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#grabDetectedTags()" class="member-name-link">grabDetectedTags</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.photonvision.EstimatedRobotPose</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#grabLatestEstimatedPose()" class="member-name-link">grabLatestEstimatedPose</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the latest estimated pose of the robot.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#run()" class="member-name-link">run</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#run()" class="member-name-link">run</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Contains the code to run every iteration.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setAllowedTagIds(java.util.Set)" class="member-name-link">setAllowedTagIds</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;&nbsp;tagIds)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Applies a temporary whitelist of allowed AprilTag IDs for this camera.</div>
 </div>
 </div>
 </div>
@@ -187,6 +203,21 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 </section>
 </li>
 <li>
+<section class="detail" id="setAllowedTagIds(java.util.Set)">
+<h3>setAllowedTagIds</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setAllowedTagIds</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;&nbsp;tagIds)</span></div>
+<div class="block">Applies a temporary whitelist of allowed AprilTag IDs for this camera.
+ When active, any pipeline result containing a non-whitelisted tag is ignored.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="clearAllowedTagIds()">
+<h3>clearAllowedTagIds</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">clearAllowedTagIds</span>()</div>
+<div class="block">Clears any temporary AprilTag whitelist, allowing all tags again.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="grabLatestEstimatedPose()">
 <h3>grabLatestEstimatedPose</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.photonvision.EstimatedRobotPose</span>&nbsp;<span class="element-name">grabLatestEstimatedPose</span>()</div>
@@ -195,6 +226,18 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <dt>Returns:</dt>
 <dd>The estimated pose.</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="grabDetectedTags()">
+<h3>grabDetectedTags</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;org.photonvision.targeting.PhotonTrackedTarget&gt;</span>&nbsp;<span class="element-name">grabDetectedTags</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getCameraObject()">
+<h3>getCameraObject</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.photonvision.PhotonCamera</span>&nbsp;<span class="element-name">getCameraObject</span>()</div>
 </section>
 </li>
 </ul>
