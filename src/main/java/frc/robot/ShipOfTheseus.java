@@ -106,7 +106,7 @@ public class ShipOfTheseus {
     public final IntakeSubsystem intakeSubsystem;
     public final PoseEstimatorSubsystem poseEstimatorSubsystem;
     // public final QuestNavSubsystem questNavSubsystem;
-    public final ClimberSubsystem climberSubsystem;
+    // public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
     public final GameState gameState;
     private final AtomicBoolean repulsorHasPiece = new AtomicBoolean(false);
@@ -145,7 +145,7 @@ public class ShipOfTheseus {
         this.indexerSubsystem = new IndexerSubsystem();
         this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
         // this.questNavSubsystem = new QuestNavSubsystem(swerveSubsystem);
-        this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
+        // this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
         
 
         SmartDashboard.putData("Field", field);
@@ -252,15 +252,15 @@ public class ShipOfTheseus {
 
         // Run homing commands on initialization - If already homed, the command immediately cancels itself
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
-        RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
-        RobotModeTriggers.teleop().onTrue(climberSubsystem.raiseToFull());
+        // RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
+        // RobotModeTriggers.teleop().onTrue(climberSubsystem.raiseToFull());
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
             runSensorlessHoming();
             this.autoShoot = false;
             this.autoIntake = false;
         }));
 
-        DriverController.x().onTrue(Commands.defer(() -> getAutoClimbCommand(), Set.of(swerveSubsystem, climberSubsystem)));
+        // DriverController.x().onTrue(Commands.defer(() -> getAutoClimbCommand(), Set.of(swerveSubsystem, climberSubsystem)));
 
         // Swerve Drive
         // When a shoot-on-the-fly attempt is active (shoot button held or autoShootTrigger),
@@ -319,21 +319,21 @@ public class ShipOfTheseus {
         swerveSubsystem.registerTelemetry(logger::telemeterize);
 
         // Driver: Climber
-        DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
-        DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull());
+        // DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
+        // DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull());
         // DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
         // DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
-        DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()))
-                .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
-        DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()))
-                .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
+        // DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()))
+        //         .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
+        // DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()))
+        //         .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
 
         // withinSafeClimberRange.onFalse(climberSubsystem.lowerOntoBar());
 
         // Driver: Automated climb (A button)
         // Raises the climber, drives to the bar, then lowers onto it.
         // Pressing A again (or any command that requires swerve/climber) will cancel.
-        DriverController.a().onTrue(getAutoClimbCommand());
+        // DriverController.a().onTrue(getAutoClimbCommand());
 
         // Shoot
         // Spin up the flywheel while the trigger is held. Once the flywheel reaches
@@ -467,8 +467,8 @@ public class ShipOfTheseus {
         OperatorController.rightBumper().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
 
         // Operator: Climber Control
-        OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
-        OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
+        // OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
+        // OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
 
         // Operator: Adjust turret offset (this was here for Ronen taking it out now.)
         // OperatorController.start().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(1))));
@@ -517,7 +517,7 @@ public class ShipOfTheseus {
         );
 
         // DriverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
-        DriverController.a().onTrue(getAutoClimbCommand());
+        // DriverController.a().onTrue(getAutoClimbCommand());
 
         DriverController.b().whileTrue(swerveSubsystem.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-DriverController.getLeftY(), -DriverController.getLeftX()))
@@ -603,12 +603,12 @@ public class ShipOfTheseus {
             new Rotation2d(NetworkedConfig.Debug.getNewPoseRotation())
         ))));
 
-        DriverController.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
-        DriverController.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
-        DriverController.pov(-1).whileTrue(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
+        // DriverController.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
+        // DriverController.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
+        // DriverController.pov(-1).whileTrue(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
 
-        OperatorController.rightBumper().onTrue(climberSubsystem.raiseToFull());
-        OperatorController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
+        // OperatorController.rightBumper().onTrue(climberSubsystem.raiseToFull());
+        // OperatorController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -671,9 +671,12 @@ public class ShipOfTheseus {
         // NamedCommands.registerCommand("startShooterFromClimb", turretSubsystem.run(() -> turretSubsystem.shootAutoTargetWithRPMOffset(TurretSubsystemConstants.RPM_OFFSET_WHILE_CLIMBED)))
         NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
         NamedCommands.registerCommand("runAutoShoot", Commands.startEnd(() -> this.autoShoot = true, () -> this.autoShoot = false));
-        NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
-        NamedCommands.registerCommand("Raise Climber", Commands.defer(() -> climberSubsystem.raiseToFull(), Set.of(climberSubsystem)));
-        NamedCommands.registerCommand("Lower Climber", Commands.defer(() -> climberSubsystem.lowerOntoBar(), Set.of(climberSubsystem)));
+        // NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
+        NamedCommands.registerCommand("autoClimb", Commands.none());
+        NamedCommands.registerCommand("Raise Climber", Commands.none());
+        NamedCommands.registerCommand("Lower Climber", Commands.none());
+        // NamedCommands.registerCommand("Raise Climber", Commands.defer(() -> climberSubsystem.raiseToFull(), Set.of(climberSubsystem)));
+        // NamedCommands.registerCommand("Lower Climber", Commands.defer(() -> climberSubsystem.lowerOntoBar(), Set.of(climberSubsystem)));
 
         NamedCommands.registerCommand("Lower Intake", Commands.defer(() -> Commands.runOnce(() -> intakeSubsystem.dropIntake()), Set.of()));
         NamedCommands.registerCommand("Start Intake", Commands.runOnce(() -> {this.autoIntake = true; System.out.println("Intake Start");}));
@@ -686,8 +689,8 @@ public class ShipOfTheseus {
         return Commands.defer(() -> {
             Command homingSequence = Commands.parallel(
                 turretSubsystem.homeHood(),
-                intakeSubsystem.homeLift(),
-                climberSubsystem.homeClimber()
+                intakeSubsystem.homeLift() // ,
+                // climberSubsystem.homeClimber()
             );
 
             Command autoProxy = Commands.defer(
@@ -719,36 +722,36 @@ public class ShipOfTheseus {
      * values there and in {@code deploy/autos/paths/climb.json} to match your
      * actual bar location.</p>
      */
-    public Command getAutoClimbCommand() {
-        Command climbSequence = Commands.sequence(
-            // Step 1: raise climber to full extension so it clears the bar
-            // Step 2: drive staging → final at reduced speed so the climber slots
-            //         onto the tower cleanly. Both poses are selected from the
-            //         robot's current alliance + field side at the moment A is pressed.
-            Commands.defer(() -> {
-                Pose2d staging = selectStagingPosition();
-                return swerveSubsystem.driveToPose(staging, 0.4 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
-            }, java.util.Set.of(swerveSubsystem)),
-            climberSubsystem.raiseToFull(),
-            Commands.defer(() -> {
-                Pose2d target  = selectClimbPosition();
-                return swerveSubsystem.driveToPose(target, 0.1 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
-            }, java.util.Set.of(swerveSubsystem)),
+    // public Command getAutoClimbCommand() {
+    //     Command climbSequence = Commands.sequence(
+    //         // Step 1: raise climber to full extension so it clears the bar
+    //         // Step 2: drive staging → final at reduced speed so the climber slots
+    //         //         onto the tower cleanly. Both poses are selected from the
+    //         //         robot's current alliance + field side at the moment A is pressed.
+    //         Commands.defer(() -> {
+    //             Pose2d staging = selectStagingPosition();
+    //             return swerveSubsystem.driveToPose(staging, 0.4 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
+    //         }, java.util.Set.of(swerveSubsystem)),
+    //         climberSubsystem.raiseToFull(),
+    //         Commands.defer(() -> {
+    //             Pose2d target  = selectClimbPosition();
+    //             return swerveSubsystem.driveToPose(target, 0.1 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
+    //         }, java.util.Set.of(swerveSubsystem)),
 
-            // Step 3: lower onto the bar to engage the clamp
-            climberSubsystem.lowerOntoBar(),
-            Commands.print("Climb!")
-        );
+    //         // Step 3: lower onto the bar to engage the clamp
+    //         climberSubsystem.lowerOntoBar(),
+    //         Commands.print("Climb!")
+    //     );
 
-        return Commands.sequence(
+        // return Commands.sequence(
         //     Commands.runOnce(() -> {
         //         Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
         //         Set<Integer> towerTags = (alliance == Alliance.Red) ? Set.of(15/*, 16*/) : Set.of(31/*, 32*/);
         //         poseEstimatorSubsystem.setTemporaryAprilTagFilter(towerTags);
         //     }),
-            climbSequence
-        );//.finallyDo(interrupted -> poseEstimatorSubsystem.clearTemporaryAprilTagFilter());
-    }
+            // climbSequence
+        // );//.finallyDo(interrupted -> poseEstimatorSubsystem.clearTemporaryAprilTagFilter());
+    // }
 
     /**
      * Picks the correct climb target pose based on the robot's current alliance
@@ -928,7 +931,7 @@ public class ShipOfTheseus {
 
         if (NetworkedConfig.Debug.shouldResetHomedPositions()) {
             turretSubsystem.resetHoodHoming();
-            climberSubsystem.resetHoming();
+            // climberSubsystem.resetHoming();
             intakeSubsystem.resetLiftHoming();
             NetworkedConfig.Debug.clearResetHomedPositions();
         }
