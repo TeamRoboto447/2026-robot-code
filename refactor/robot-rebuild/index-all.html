@@ -128,6 +128,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Reasoning/SequenceReasoner.Builder.html#addPhaseFor(java.lang.String,java.util.EnumSet,double)" class="member-name-link">addPhaseFor(String, EnumSet&lt;F&gt;, double)</a> - Method in class frc.robot.libraries.Repulsor.Reasoning.<a href="frc/robot/libraries/Repulsor/Reasoning/SequenceReasoner.Builder.html" title="class in frc.robot.libraries.Repulsor.Reasoning">SequenceReasoner.Builder</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/RollingAveragePose2d.html#addPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">addPose(Pose2d)</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/RollingAveragePose2d.html" title="class in frc.robot.utils">RollingAveragePose2d</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Reasoning/RuleReasoner.html#addRule(java.lang.String,int,frc.robot.libraries.Repulsor.Reasoning.Condition,java.util.EnumSet)" class="member-name-link">addRule(String, int, Condition&lt;C&gt;, EnumSet&lt;F&gt;)</a> - Method in class frc.robot.libraries.Repulsor.Reasoning.<a href="frc/robot/libraries/Repulsor/Reasoning/RuleReasoner.html" title="class in frc.robot.libraries.Repulsor.Reasoning">RuleReasoner</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Metrics/DoubleMeanAggregator.html#addSample(java.lang.Double)" class="member-name-link">addSample(Double)</a> - Method in class frc.robot.libraries.Repulsor.Metrics.<a href="frc/robot/libraries/Repulsor/Metrics/DoubleMeanAggregator.html" title="class in frc.robot.libraries.Repulsor.Metrics">DoubleMeanAggregator</a></dt>
@@ -148,6 +150,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Adds a vision measurement to the Kalman Filter.</div>
 </dd>
+<dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#addVisionMeasurement(edu.wpi.first.math.geometry.Pose2d,edu.wpi.first.math.Matrix)" class="member-name-link">addVisionMeasurement(Pose2d, Matrix&lt;N3, N1&gt;)</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Predictive/PredictiveFieldStateOps.html#ADV_GAIN" class="member-name-link">ADV_GAIN</a> - Static variable in class frc.robot.libraries.Repulsor.Predictive.<a href="frc/robot/libraries/Repulsor/Predictive/PredictiveFieldStateOps.html" title="class in frc.robot.libraries.Repulsor.Predictive">PredictiveFieldStateOps</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/networking/NetworkedTelemetry.AdvantageScope.html#%3Cinit%3E()" class="member-name-link">AdvantageScope()</a> - Constructor for class frc.robot.networking.<a href="frc/robot/networking/NetworkedTelemetry.AdvantageScope.html" title="class in frc.robot.networking">NetworkedTelemetry.AdvantageScope</a></dt>
@@ -700,6 +704,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the value of the <code>clampToFieldRobotSafe</code> record component.</div>
 </dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#cleanUpQuestNavMessages()" class="member-name-link">cleanUpQuestNavMessages()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>
+<div class="block">Clean up questnav subroutine messages after processing on the headset.</div>
+</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Behaviours/BehaviourManager.html#clear()" class="member-name-link">clear()</a> - Method in class frc.robot.libraries.Repulsor.Behaviours.<a href="frc/robot/libraries/Repulsor/Behaviours/BehaviourManager.html" title="class in frc.robot.libraries.Repulsor.Behaviours">BehaviourManager</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Reasoning/Blackboard.html#clear()" class="member-name-link">clear()</a> - Method in class frc.robot.libraries.Repulsor.Reasoning.<a href="frc/robot/libraries/Repulsor/Reasoning/Blackboard.html" title="class in frc.robot.libraries.Repulsor.Reasoning">Blackboard</a></dt>
@@ -1121,17 +1129,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants.</div>
 </dd>
-<dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#%3Cinit%3E(com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,double,edu.wpi.first.math.Matrix,edu.wpi.first.math.Matrix,com.ctre.phoenix6.swerve.SwerveModuleConstants...)" class="member-name-link">CommandSwerveDrivetrain(SwerveDrivetrainConstants, double, Matrix&lt;N3, N1&gt;, Matrix&lt;N3, N1&gt;, SwerveModuleConstants&lt;?, ?, ?&gt;...)</a> - Constructor for class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
+<dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#%3Cinit%3E(java.util.function.Consumer,com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,double,edu.wpi.first.math.Matrix,edu.wpi.first.math.Matrix,com.ctre.phoenix6.swerve.SwerveModuleConstants...)" class="member-name-link">CommandSwerveDrivetrain(Consumer&lt;Pose2d&gt;, SwerveDrivetrainConstants, double, Matrix&lt;N3, N1&gt;, Matrix&lt;N3, N1&gt;, SwerveModuleConstants&lt;?, ?, ?&gt;...)</a> - Constructor for class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
 <dd>
 <div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants.</div>
 </dd>
-<dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#%3Cinit%3E(edu.wpi.first.wpilibj.smartdashboard.Field2d,com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,double,com.ctre.phoenix6.swerve.SwerveModuleConstants...)" class="member-name-link">CommandSwerveDrivetrain(Field2d, SwerveDrivetrainConstants, double, SwerveModuleConstants&lt;?, ?, ?&gt;...)</a> - Constructor for class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
+<dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#%3Cinit%3E(java.util.function.Consumer,edu.wpi.first.wpilibj.smartdashboard.Field2d,com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,double,com.ctre.phoenix6.swerve.SwerveModuleConstants...)" class="member-name-link">CommandSwerveDrivetrain(Consumer&lt;Pose2d&gt;, Field2d, SwerveDrivetrainConstants, double, SwerveModuleConstants&lt;?, ?, ?&gt;...)</a> - Constructor for class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
 <dd>
 <div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants and a
  custom odometry update frequency, while also accepting a <code>Field2d</code>
  for dashboard visualization.</div>
 </dd>
-<dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#%3Cinit%3E(edu.wpi.first.wpilibj.smartdashboard.Field2d,com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,com.ctre.phoenix6.swerve.SwerveModuleConstants...)" class="member-name-link">CommandSwerveDrivetrain(Field2d, SwerveDrivetrainConstants, SwerveModuleConstants&lt;?, ?, ?&gt;...)</a> - Constructor for class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
+<dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#%3Cinit%3E(java.util.function.Consumer,edu.wpi.first.wpilibj.smartdashboard.Field2d,com.ctre.phoenix6.swerve.SwerveDrivetrainConstants,com.ctre.phoenix6.swerve.SwerveModuleConstants...)" class="member-name-link">CommandSwerveDrivetrain(Consumer&lt;Pose2d&gt;, Field2d, SwerveDrivetrainConstants, SwerveModuleConstants&lt;?, ?, ?&gt;...)</a> - Constructor for class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
 <dd>
 <div class="block">Constructs a CTRE SwerveDrivetrain using the specified constants.</div>
 </dd>
@@ -1320,7 +1328,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Predictive/SpatialDyn.html#countResourcesWithin(edu.wpi.first.math.geometry.Translation2d,double)" class="member-name-link">countResourcesWithin(Translation2d, double)</a> - Method in class frc.robot.libraries.Repulsor.Predictive.<a href="frc/robot/libraries/Repulsor/Predictive/SpatialDyn.html" title="class in frc.robot.libraries.Repulsor.Predictive">SpatialDyn</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="frc/robot/generated/TunerConstants.html#createDrivetrain(edu.wpi.first.wpilibj.smartdashboard.Field2d)" class="member-name-link">createDrivetrain(Field2d)</a> - Static method in class frc.robot.generated.<a href="frc/robot/generated/TunerConstants.html" title="class in frc.robot.generated">TunerConstants</a></dt>
+<dt><a href="frc/robot/generated/TunerConstants.html#createDrivetrain(java.util.function.Consumer,edu.wpi.first.wpilibj.smartdashboard.Field2d)" class="member-name-link">createDrivetrain(Consumer&lt;Pose2d&gt;, Field2d)</a> - Static method in class frc.robot.generated.<a href="frc/robot/generated/TunerConstants.html" title="class in frc.robot.generated">TunerConstants</a></dt>
 <dd>
 <div class="block">Creates a CommandSwerveDrivetrain instance.</div>
 </dd>
@@ -2414,6 +2422,12 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/FieldTrackerCore.html#getAvailableElements(java.util.function.Predicate)" class="member-name-link">getAvailableElements(Predicate&lt;GameElement&gt;)</a> - Method in class frc.robot.libraries.Repulsor.Tracking.<a href="frc/robot/libraries/Repulsor/Tracking/FieldTrackerCore.html" title="class in frc.robot.libraries.Repulsor.Tracking">FieldTrackerCore</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/RollingAveragePose2d.html#getAveragePose()" class="member-name-link">getAveragePose()</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/RollingAveragePose2d.html" title="class in frc.robot.utils">RollingAveragePose2d</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#getAverageRobotPose()" class="member-name-link">getAverageRobotPose()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#getBatteryPercent()" class="member-name-link">getBatteryPercent()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Setpoints/RepulsorSetpoint.html#getBlue(frc.robot.libraries.Repulsor.Setpoints.SetpointContext)" class="member-name-link">getBlue(SetpointContext)</a> - Method in class frc.robot.libraries.Repulsor.Setpoints.<a href="frc/robot/libraries/Repulsor/Setpoints/RepulsorSetpoint.html" title="class in frc.robot.libraries.Repulsor.Setpoints">RepulsorSetpoint</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/subsystems/vision/PhotonRunnable.html#getCameraObject()" class="member-name-link">getCameraObject()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/PhotonRunnable.html" title="class in frc.robot.subsystems.vision">PhotonRunnable</a></dt>
@@ -2981,6 +2995,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the voltage list for quasistatic tests.</div>
 </dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#getQuaternion()" class="member-name-link">getQuaternion()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>
+<div class="block">Gets the raw Rotation3d of the Quest</div>
+</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#getQuestPose()" class="member-name-link">getQuestPose()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>
+<div class="block">Gets the pose of the Quest on the field</div>
+</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Model/Pipe.html#getRadius()" class="member-name-link">getRadius()</a> - Method in class frc.robot.libraries.Repulsor.Tracking.Model.<a href="frc/robot/libraries/Repulsor/Tracking/Model/Pipe.html" title="class in frc.robot.libraries.Repulsor.Tracking.Model">Pipe</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/subsystems/TurretSubsystem.html#getRampedAngularRateCap(double)" class="member-name-link">getRampedAngularRateCap(double)</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></dt>
@@ -3006,6 +3028,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="frc/robot/libraries/Repulsor/Simulation/HardStopConfig.html#getRestitution()" class="member-name-link">getRestitution()</a> - Method in class frc.robot.libraries.Repulsor.Simulation.<a href="frc/robot/libraries/Repulsor/Simulation/HardStopConfig.html" title="class in frc.robot.libraries.Repulsor.Simulation">HardStopConfig</a></dt>
 <dd>
 <div class="block">Returns the coefficient of restitution.</div>
+</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#getRobotPose()" class="member-name-link">getRobotPose()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>
+<div class="block">Gets the pose of the robot on the field</div>
 </dd>
 <dt><a href="frc/robot/utils/TargettingUtils.ControlTarget.html#getRPS()" class="member-name-link">getRPS()</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/TargettingUtils.ControlTarget.html" title="class in frc.robot.utils">TargettingUtils.ControlTarget</a></dt>
 <dd>&nbsp;</dd>
@@ -3130,6 +3156,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="frc/robot/libraries/Repulsor/Simulation/SimplePneumaticModel.html#getTimeConstantSeconds()" class="member-name-link">getTimeConstantSeconds()</a> - Method in class frc.robot.libraries.Repulsor.Simulation.<a href="frc/robot/libraries/Repulsor/Simulation/SimplePneumaticModel.html" title="class in frc.robot.libraries.Repulsor.Simulation">SimplePneumaticModel</a></dt>
 <dd>
 <div class="block">Returns the time constant.</div>
+</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#getTimestamp()" class="member-name-link">getTimestamp()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>
+<div class="block">Gets the Quests's timestamp</div>
 </dd>
 <dt><a href="frc/robot/utils/Elastic.Notification.html#getTitle()" class="member-name-link">getTitle()</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/Elastic.Notification.html" title="class in frc.robot.utils">Elastic.Notification</a></dt>
 <dd>
@@ -3701,6 +3731,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Collect/FieldTrackerCollectObjectiveLoop.html#isCollectType(java.lang.String)" class="member-name-link">isCollectType(String)</a> - Method in class frc.robot.libraries.Repulsor.Tracking.Collect.<a href="frc/robot/libraries/Repulsor/Tracking/Collect/FieldTrackerCollectObjectiveLoop.html" title="class in frc.robot.libraries.Repulsor.Tracking.Collect">FieldTrackerCollectObjectiveLoop</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#isConnected()" class="member-name-link">isConnected()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>
+<div class="block">Returns if the Quest is connected</div>
+</dd>
 <dt><a href="frc/robot/utils/ShooterTable.html#isDistanceInRange(double)" class="member-name-link">isDistanceInRange(double)</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/ShooterTable.html" title="class in frc.robot.utils">ShooterTable</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Interval.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class frc.robot.libraries.Repulsor.<a href="frc/robot/libraries/Repulsor/Interval.html" title="class in frc.robot.libraries.Repulsor">Interval</a></dt>
@@ -4675,8 +4709,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Updates the subsystem's various elements.</div>
 </dd>
-<dt><a href="frc/robot/subsystems/vision/QuestNavSubsystem.html#periodic()" class="member-name-link">periodic()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNavSubsystem.html" title="class in frc.robot.subsystems.vision">QuestNavSubsystem</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Commands/GateTelemetry.Mode.html#PERIODIC" class="member-name-link">PERIODIC</a> - Enum constant in enum class frc.robot.libraries.Repulsor.Commands.<a href="frc/robot/libraries/Repulsor/Commands/GateTelemetry.Mode.html" title="enum class in frc.robot.libraries.Repulsor.Commands">GateTelemetry.Mode</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/ShipOfTheseus.html#periodicUpdate()" class="member-name-link">periodicUpdate()</a> - Method in class frc.robot.<a href="frc/robot/ShipOfTheseus.html" title="class in frc.robot">ShipOfTheseus</a></dt>
@@ -5006,11 +5038,13 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:Q">Q</h2>
 <dl class="index">
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html" class="type-name-link" title="class in frc.robot.subsystems.vision">QuestNav</a> - Class in <a href="frc/robot/subsystems/vision/package-summary.html">frc.robot.subsystems.vision</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#%3Cinit%3E()" class="member-name-link">QuestNav()</a> - Constructor for class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#%3Cinit%3E(int)" class="member-name-link">QuestNav(int)</a> - Constructor for class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/networking/NetworkedTelemetry.QuestNavNT.html#%3Cinit%3E()" class="member-name-link">QuestNavNT()</a> - Constructor for class frc.robot.networking.<a href="frc/robot/networking/NetworkedTelemetry.QuestNavNT.html" title="class in frc.robot.networking">NetworkedTelemetry.QuestNavNT</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="frc/robot/subsystems/vision/QuestNavSubsystem.html" class="type-name-link" title="class in frc.robot.subsystems.vision">QuestNavSubsystem</a> - Class in <a href="frc/robot/subsystems/vision/package-summary.html">frc.robot.subsystems.vision</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="frc/robot/subsystems/vision/QuestNavSubsystem.html#%3Cinit%3E(frc.robot.subsystems.CommandSwerveDrivetrain)" class="member-name-link">QuestNavSubsystem(CommandSwerveDrivetrain)</a> - Constructor for class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNavSubsystem.html" title="class in frc.robot.subsystems.vision">QuestNavSubsystem</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Profiler/ProfilerConfig.html#queueCapacity" class="member-name-link">queueCapacity</a> - Variable in class frc.robot.libraries.Repulsor.Profiler.<a href="frc/robot/libraries/Repulsor/Profiler/ProfilerConfig.html" title="class in frc.robot.libraries.Repulsor.Profiler">ProfilerConfig</a></dt>
 <dd>&nbsp;</dd>
@@ -5370,6 +5404,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tuning/Tuning.html#reset()" class="member-name-link">reset()</a> - Method in class frc.robot.libraries.Repulsor.Tuning.<a href="frc/robot/libraries/Repulsor/Tuning/Tuning.html" title="class in frc.robot.libraries.Repulsor.Tuning">Tuning</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/RollingAveragePose2d.html#reset()" class="member-name-link">reset()</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/RollingAveragePose2d.html" title="class in frc.robot.utils">RollingAveragePose2d</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Simulation/SimLimitSwitch.html#reset(boolean)" class="member-name-link">reset(boolean)</a> - Method in class frc.robot.libraries.Repulsor.Simulation.<a href="frc/robot/libraries/Repulsor/Simulation/SimLimitSwitch.html" title="class in frc.robot.libraries.Repulsor.Simulation">SimLimitSwitch</a></dt>
 <dd>
 <div class="block">Sets the triggered state.</div>
@@ -5406,8 +5442,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Clears the lift-homed flag, forcing a re-home on the next homing command.</div>
 </dd>
-<dt><a href="frc/robot/subsystems/vision/QuestNavSubsystem.html#resetPose()" class="member-name-link">resetPose()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNavSubsystem.html" title="class in frc.robot.subsystems.vision">QuestNavSubsystem</a></dt>
-<dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#resetPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">resetPose(Pose2d)</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>
+<div class="block">Set the robot's pose on the field.</div>
+</dd>
 <dt><a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html#resetResults(boolean,boolean,boolean,boolean,boolean,boolean,boolean,boolean)" class="member-name-link">resetResults(boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean)</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedTelemetry.SystemsCheck.html" title="class in frc.robot.networking">NetworkedTelemetry.SystemsCheck</a></dt>
 <dd>
 <div class="block">Resets result entries to <code>false</code> only for <em>enabled</em> systems,
@@ -5594,6 +5632,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="frc/robot/libraries/Repulsor/Predictive/Internal/CollectEval.html#robustPenalty" class="member-name-link">robustPenalty</a> - Variable in class frc.robot.libraries.Repulsor.Predictive.Internal.<a href="frc/robot/libraries/Repulsor/Predictive/Internal/CollectEval.html" title="class in frc.robot.libraries.Repulsor.Predictive.Internal">CollectEval</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Vision/Test/VisionSimWorld.Agent.html#role" class="member-name-link">role</a> - Variable in class frc.robot.libraries.Repulsor.Vision.Test.<a href="frc/robot/libraries/Repulsor/Vision/Test/VisionSimWorld.Agent.html" title="class in frc.robot.libraries.Repulsor.Vision.Test">VisionSimWorld.Agent</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/RollingAveragePose2d.html" class="type-name-link" title="class in frc.robot.utils">RollingAveragePose2d</a> - Class in <a href="frc/robot/utils/package-summary.html">frc.robot.utils</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/RollingAveragePose2d.html#%3Cinit%3E(int)" class="member-name-link">RollingAveragePose2d(int)</a> - Constructor for class frc.robot.utils.<a href="frc/robot/utils/RollingAveragePose2d.html" title="class in frc.robot.utils">RollingAveragePose2d</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/DriverStation/NtRepulsorDriverStation.html#root" class="member-name-link">root</a> - Variable in class frc.robot.libraries.Repulsor.DriverStation.<a href="frc/robot/libraries/Repulsor/DriverStation/NtRepulsorDriverStation.html" title="class in frc.robot.libraries.Repulsor.DriverStation">NtRepulsorDriverStation</a></dt>
 <dd>&nbsp;</dd>
@@ -6096,8 +6138,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="frc/robot/libraries/Repulsor/Setpoints/SetpointUtil.html" class="type-name-link" title="class in frc.robot.libraries.Repulsor.Setpoints">SetpointUtil</a> - Class in <a href="frc/robot/libraries/Repulsor/Setpoints/package-summary.html">frc.robot.libraries.Repulsor.Setpoints</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Setpoints/SetpointUtil.html#%3Cinit%3E()" class="member-name-link">SetpointUtil()</a> - Constructor for class frc.robot.libraries.Repulsor.Setpoints.<a href="frc/robot/libraries/Repulsor/Setpoints/SetpointUtil.html" title="class in frc.robot.libraries.Repulsor.Setpoints">SetpointUtil</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="frc/robot/subsystems/vision/QuestNavSubsystem.html#setPose(edu.wpi.first.math.geometry.Pose3d)" class="member-name-link">setPose(Pose3d)</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNavSubsystem.html" title="class in frc.robot.subsystems.vision">QuestNavSubsystem</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Tracking/Model/GameElementModel.html#setPosition(edu.wpi.first.math.geometry.Pose3d)" class="member-name-link">setPosition(Pose3d)</a> - Method in class frc.robot.libraries.Repulsor.Tracking.Model.<a href="frc/robot/libraries/Repulsor/Tracking/Model/GameElementModel.html" title="class in frc.robot.libraries.Repulsor.Tracking.Model">GameElementModel</a></dt>
 <dd>&nbsp;</dd>
@@ -7258,6 +7298,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/FieldPlanner/FieldPlanner.html#updateArrows(java.util.List)" class="member-name-link">updateArrows(List&lt;? extends Obstacle&gt;)</a> - Method in class frc.robot.libraries.Repulsor.FieldPlanner.<a href="frc/robot/libraries/Repulsor/FieldPlanner/FieldPlanner.html" title="class in frc.robot.libraries.Repulsor.FieldPlanner">FieldPlanner</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/subsystems/vision/QuestNav.html#updateAverageRobotPose()" class="member-name-link">updateAverageRobotPose()</a> - Method in class frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/QuestNav.html" title="class in frc.robot.subsystems.vision">QuestNav</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Predictive/PredictiveFieldStateOps.html#updateEnemy(int,edu.wpi.first.math.geometry.Translation2d,edu.wpi.first.math.geometry.Translation2d,java.lang.Double)" class="member-name-link">updateEnemy(int, Translation2d, Translation2d, Double)</a> - Method in class frc.robot.libraries.Repulsor.Predictive.<a href="frc/robot/libraries/Repulsor/Predictive/PredictiveFieldStateOps.html" title="class in frc.robot.libraries.Repulsor.Predictive">PredictiveFieldStateOps</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Predictive/PredictiveFieldStateRuntime.html#updateEnemy(int,edu.wpi.first.math.geometry.Translation2d,edu.wpi.first.math.geometry.Translation2d,java.lang.Double)" class="member-name-link">updateEnemy(int, Translation2d, Translation2d, Double)</a> - Method in class frc.robot.libraries.Repulsor.Predictive.<a href="frc/robot/libraries/Repulsor/Predictive/PredictiveFieldStateRuntime.html" title="class in frc.robot.libraries.Repulsor.Predictive">PredictiveFieldStateRuntime</a></dt>
@@ -7272,6 +7314,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Updates the current turret target.</div>
 </dd>
+<dt><a href="frc/robot/ShipOfTheseus.html#updateVisionPose()" class="member-name-link">updateVisionPose()</a> - Method in class frc.robot.<a href="frc/robot/ShipOfTheseus.html" title="class in frc.robot">ShipOfTheseus</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/libraries/Repulsor/Simulation/SimLimitSwitch.html#upperLimit(double,double)" class="member-name-link">upperLimit(double, double)</a> - Static method in class frc.robot.libraries.Repulsor.Simulation.<a href="frc/robot/libraries/Repulsor/Simulation/SimLimitSwitch.html" title="class in frc.robot.libraries.Repulsor.Simulation">SimLimitSwitch</a></dt>
 <dd>
 <div class="block">Creates an upper limit switch.</div>
