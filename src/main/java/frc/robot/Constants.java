@@ -146,8 +146,8 @@ public final class Constants {
         new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(210.24)));
 
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-11), Units.inchesToMeters(2.5), Units.inchesToMeters(12)),
-        new Rotation3d(Units.degreesToRadians(-85), Units.degreesToRadians(0), Units.degreesToRadians(180))
+        new Translation3d(Units.inchesToMeters(-8.5), Units.inchesToMeters(7.5), Units.inchesToMeters(19.75)),
+        new Rotation3d(Units.degreesToRadians(-0), Units.degreesToRadians(0), Units.degreesToRadians(90))
         );
 
         // Base std devs for vision measurements. Higher = trust odometry more over vision.

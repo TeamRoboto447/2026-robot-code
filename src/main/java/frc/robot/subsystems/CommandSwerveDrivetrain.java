@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -53,6 +54,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
     private static final double kSimLoopPeriod = 0.004; // 4 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+
+    private Consumer<Pose2d> m_questPoseResetConsumer;
 
     private Field2d field;
 
@@ -150,10 +153,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
      * @param modules             Constants for each specific module
      */
     public CommandSwerveDrivetrain(
+            Consumer<Pose2d> questPoseReset,
             Field2d fieldImport,
             SwerveDrivetrainConstants drivetrainConstants,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, modules);
+        m_questPoseResetConsumer = questPoseReset;
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -176,11 +182,14 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
      * @param modules                 Constants for each specific module
      */
     public CommandSwerveDrivetrain(
+            Consumer<Pose2d> questPoseReset,
             Field2d fieldImport,
             SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, odometryUpdateFrequency, modules);
+        m_questPoseResetConsumer = questPoseReset;
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -243,6 +252,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
      * @param modules                   Constants for each specific module
      */
     public CommandSwerveDrivetrain(
+            Consumer<Pose2d> questPoseReset,
             SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
             Matrix<N3, N1> odometryStandardDeviation,
@@ -250,6 +260,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, odometryUpdateFrequency, odometryStandardDeviation, visionStandardDeviation,
                 modules);
+        m_questPoseResetConsumer = questPoseReset;
+        
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -392,6 +404,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
                 visionMeasurementStdDevs);
     }
 
+    public void addVisionMeasurement(
+      Pose2d visionRobotPoseMeters, Matrix<N3, N1> visionMeasurementStdDevs) {
+    addVisionMeasurement(
+        visionRobotPoseMeters, Utils.getCurrentTimeSeconds() - 0.02, visionMeasurementStdDevs);
+  }
+
     /**
      * Return the pose at a given timestamp, if the buffer is not empty.
      *
@@ -496,5 +514,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
         
+    }
+
+    private void resetQuestPose(Pose2d pose) {
+        m_questPoseResetConsumer.accept(pose);
+        resetPose(pose);
     }
 }

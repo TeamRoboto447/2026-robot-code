@@ -19,6 +19,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -54,7 +55,7 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
-import frc.robot.subsystems.vision.QuestNavSubsystem;
+import frc.robot.subsystems.vision.QuestNav;
 import frc.robot.subsystems.SystemsCheck;
 
 import frc.robot.networking.NetworkedConfig;
@@ -100,12 +101,13 @@ public class ShipOfTheseus {
     private final SendableChooser<String> turretTargetChooser = new SendableChooser<>();
     private final SendableChooser<String> turretTargetingModeChooser = new SendableChooser<>();
 
-    public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
+    private QuestNav questNav = new QuestNav();
+
+    public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain((pose) -> questNav.resetPose(pose), field);
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
     public final IntakeSubsystem intakeSubsystem;
     public final PoseEstimatorSubsystem poseEstimatorSubsystem;
-    // public final QuestNavSubsystem questNavSubsystem;
     // public final ClimberSubsystem climberSubsystem;
     public final Repulsor repulsor;
     public final GameState gameState;
@@ -895,6 +897,7 @@ public class ShipOfTheseus {
      * managed by {@link StateManager} (updated by {@code repulsor.update()}).
      */
     public void periodicUpdate() {
+        questNav.cleanUpQuestNavMessages();
         if (gameState != null) { 
             // Countdown is only meaningful when the hub is inactive — how long until it flips active.
             // When already active (or game data not yet available), publish 0.
@@ -946,6 +949,17 @@ public class ShipOfTheseus {
         this.maxSpeedMulitplier = NetworkedConfig.Debug.getDemoMode() ? 0.20 : 0.70;
     }
 
+
+     public void updateVisionPose() {
+        if (questNav.isConnected()) {
+        questNav.updateAverageRobotPose();
+        //   drivetrain.addVisionMeasurement(
+        //       questNav.getRobotPose(), VecBuilder.fill(0.0, 0.0, 9999999.0));
+        swerveSubsystem.addVisionMeasurement(
+            questNav.getAverageRobotPose(), VecBuilder.fill(0.0, 0.0, 0.0));
+        return;
+        }
+    }
     /**
      * Returns {@code true} when a hub-targeting shot is permitted.
      *
