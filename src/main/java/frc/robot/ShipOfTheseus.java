@@ -225,6 +225,9 @@ public class ShipOfTheseus {
         
         configureProductionBindings();
         // configureDevBindings();
+
+        // FOR TESTING ONLY
+        DriverController.rightTrigger(0.95).onTrue(Commands.runOnce(() -> questNav.resetPose(new Pose2d(12.95, 3.85, new Rotation2d()))));
     }
 
     // private void configureAutonomousBindings() {

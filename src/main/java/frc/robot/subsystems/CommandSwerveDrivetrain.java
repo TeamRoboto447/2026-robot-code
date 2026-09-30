@@ -486,7 +486,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
             var config = RobotConfig.fromGUISettings();
             AutoBuilder.configure(
             this::getPose, 
-            this::resetPose,
+            this::resetQuestPose,
             this::getChassisSpeeds,
             (speeds, feedforwards) -> setControl(
                 driveRobotRequest.withSpeeds(speeds)
