@@ -901,6 +901,7 @@ public class ShipOfTheseus {
      */
     public void periodicUpdate() {
         questNav.cleanUpQuestNavMessages();
+        updateVisionPose();
         if (gameState != null) { 
             // Countdown is only meaningful when the hub is inactive — how long until it flips active.
             // When already active (or game data not yet available), publish 0.
