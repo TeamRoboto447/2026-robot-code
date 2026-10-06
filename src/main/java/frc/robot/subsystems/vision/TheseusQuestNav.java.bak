@@ -17,8 +17,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.utils.RollingAveragePose2d;
+import gg.questnav.questnav.QuestNav;
 
-public class QuestNav {
+public class TheseusQuestNav {
     // Configure Network Tables topics (questnav/...) to communicate with the Quest
     // HMD
     NetworkTableInstance nt4Instance = NetworkTableInstance.getDefault();
@@ -47,7 +48,7 @@ public class QuestNav {
     // Pose of the robot when the pose was reset
     private Pose2d resetPoseRobot = new Pose2d();
 
-  private final Transform2d robotToQuest =
+    private final Transform2d robotToQuest =
         new Transform2d(
             VisionConstants.ROBOT_TO_QUEST.getTranslation().toTranslation2d(),
             VisionConstants.ROBOT_TO_QUEST.getRotation().toRotation2d()
@@ -55,8 +56,10 @@ public class QuestNav {
 
     private final RollingAveragePose2d rollingAvg;
 
+    private final QuestNav vendorQuestNav = new QuestNav();
+
     /* Constructor */
-    public QuestNav(int windowSize) {
+    public TheseusQuestNav(int windowSize) {
         // Zero the absolute 3D position of the robot (similar to long-pressing the
         // quest logo)
         if (questMiso.get() != 99) {
@@ -66,7 +69,7 @@ public class QuestNav {
         rollingAvg = new RollingAveragePose2d(windowSize);
     }
 
-    public QuestNav() {
+    public TheseusQuestNav() {
         this(2);
     }
 
@@ -184,7 +187,8 @@ public class QuestNav {
         return new Pose2d(translation, rotation);
     }
 
-    public void updateTelemety() {
+    public void updateTelemetry() {
+        vendorQuestNav.commandPeriodic();
         batteryPublisher.set(getBatteryPercent());
         connectedPublisher.set(isConnected());
     }

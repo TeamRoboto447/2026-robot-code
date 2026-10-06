@@ -48,6 +48,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.libraries.Repulsor.Repulsor;
 import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
 import frc.robot.utils.GameState;
+import gg.questnav.questnav.QuestNav;
 import frc.robot.libraries.Repulsor.State.StateManager;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -55,7 +56,7 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
-import frc.robot.subsystems.vision.QuestNav;
+import frc.robot.subsystems.vision.TheseusQuestNav;
 import frc.robot.subsystems.SystemsCheck;
 
 import frc.robot.networking.NetworkedConfig;
@@ -101,7 +102,7 @@ public class ShipOfTheseus {
     private final SendableChooser<String> turretTargetChooser = new SendableChooser<>();
     private final SendableChooser<String> turretTargetingModeChooser = new SendableChooser<>();
 
-    private QuestNav questNav = new QuestNav();
+    private TheseusQuestNav questNav = new TheseusQuestNav();
 
     public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain((pose) -> questNav.resetPose(pose), field);
     public final TurretSubsystem turretSubsystem;
@@ -955,7 +956,7 @@ public class ShipOfTheseus {
 
 
      public void updateVision() {
-        questNav.updateTelemety();
+        questNav.updateTelemetry();
         if (questNav.isConnected()) {
         questNav.updateAverageRobotPose();
         //   swerveSubsystem.addVisionMeasurement(
