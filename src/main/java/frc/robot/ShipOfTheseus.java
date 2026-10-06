@@ -879,7 +879,7 @@ public class ShipOfTheseus {
         boolean hasDebouncedAprilTags = aprilTagValidDebouncer.calculate(NetworkedTelemetry.Vision.hasValidAprilTags());
         
         if (edu.wpi.first.wpilibj.DriverStation.isDisabled()) {
-            if (!NetworkedTelemetry.Vision.bothCamerasActive()) {
+            if (!NetworkedTelemetry.Vision.allCamerasActive()) {
                 mode = "DISABLED_NO_CAMERA";
             } else if (isAlignedToAutoStart()) {
                 mode = "DISABLED_CORRECT_POSITION";

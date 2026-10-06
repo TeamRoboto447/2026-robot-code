@@ -27,6 +27,8 @@ import frc.robot.Constants.AdvScopeConstants;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
+import gg.questnav.questnav.QuestNav;
+
 import org.photonvision.PhotonCamera;
 
 /**
@@ -218,6 +220,8 @@ public class NetworkedTelemetry {
      */
     public static class Vision {
         private static final NetworkTable visionTable = defaultNTInstance.getTable("Vision");
+
+        private static final QuestNav questnav = new QuestNav();
         
         private static final BooleanEntry hasValidAprilTags = visionTable
             .getBooleanTopic("Has Valid AprilTags").getEntry(false);
@@ -265,9 +269,9 @@ public class NetworkedTelemetry {
          * 
          * @return True if both cameras are active and publishing new frames, false otherwise
          */
-        public static boolean bothCamerasActive() {
+        public static boolean allCamerasActive() {
             try {
-                return turretCamera.isConnected() && climberCamera.isConnected();
+                return turretCamera.isConnected() && questnav.isConnected();
             } catch (Exception e) {
                 return false;
             }

@@ -19,7 +19,7 @@ import frc.robot.Constants.VisionConstants;
 import frc.robot.utils.RollingAveragePose2d;
 import gg.questnav.questnav.QuestNav;
 
-public class TheseusQuestNav {
+public class Team1732QuestNav {
     // Configure Network Tables topics (questnav/...) to communicate with the Quest
     // HMD
     NetworkTableInstance nt4Instance = NetworkTableInstance.getDefault();
@@ -59,7 +59,7 @@ public class TheseusQuestNav {
     private final QuestNav vendorQuestNav = new QuestNav();
 
     /* Constructor */
-    public TheseusQuestNav(int windowSize) {
+    public Team1732QuestNav(int windowSize) {
         // Zero the absolute 3D position of the robot (similar to long-pressing the
         // quest logo)
         if (questMiso.get() != 99) {
@@ -69,7 +69,7 @@ public class TheseusQuestNav {
         rollingAvg = new RollingAveragePose2d(windowSize);
     }
 
-    public TheseusQuestNav() {
+    public Team1732QuestNav() {
         this(2);
     }
 
