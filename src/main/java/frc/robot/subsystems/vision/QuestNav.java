@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.FloatArraySubscriber;
 import edu.wpi.first.networktables.IntegerPublisher;
@@ -33,6 +35,11 @@ public class QuestNav {
     private FloatArraySubscriber questEulerAngles = nt4Table.getFloatArrayTopic("eulerAngles")
             .subscribe(new float[] { 0.0f, 0.0f, 0.0f });
     private DoubleSubscriber questBatteryPercent = nt4Table.getDoubleTopic("batteryPercent").subscribe(0.0f);
+
+    // Telemetry setup
+    private NetworkTable telemetryTable = nt4Instance.getTable("QuestNavTelemetry");
+    private BooleanPublisher connectedPublisher = telemetryTable.getBooleanTopic("Connected").publish();
+    private DoublePublisher batteryPublisher = telemetryTable.getDoubleTopic("Battery %").publish();
 
     // Pose of the Quest when the pose was reset
     private Pose2d resetPoseOculus = new Pose2d();
@@ -175,5 +182,10 @@ public class QuestNav {
         var questnavPosition = questPosition.get();
         var translation = new Translation2d(questnavPosition[2], -questnavPosition[0]);
         return new Pose2d(translation, rotation);
+    }
+
+    public void updateTelemety() {
+        batteryPublisher.set(getBatteryPercent());
+        connectedPublisher.set(isConnected());
     }
 }

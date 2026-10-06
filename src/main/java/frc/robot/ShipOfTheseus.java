@@ -901,7 +901,7 @@ public class ShipOfTheseus {
      */
     public void periodicUpdate() {
         questNav.cleanUpQuestNavMessages();
-        updateVisionPose();
+        updateVision();
         if (gameState != null) { 
             // Countdown is only meaningful when the hub is inactive — how long until it flips active.
             // When already active (or game data not yet available), publish 0.
@@ -954,10 +954,11 @@ public class ShipOfTheseus {
     }
 
 
-     public void updateVisionPose() {
+     public void updateVision() {
+        questNav.updateTelemety();
         if (questNav.isConnected()) {
         questNav.updateAverageRobotPose();
-        //   drivetrain.addVisionMeasurement(
+        //   swerveSubsystem.addVisionMeasurement(
         //       questNav.getRobotPose(), VecBuilder.fill(0.0, 0.0, 9999999.0));
         swerveSubsystem.addVisionMeasurement(
             questNav.getAverageRobotPose(), VecBuilder.fill(0.0, 0.0, 0.0));
