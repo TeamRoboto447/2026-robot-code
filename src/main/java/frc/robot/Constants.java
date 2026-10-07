@@ -5,8 +5,6 @@ import static edu.wpi.first.units.Units.Degrees;
 import java.util.Set;
 import java.util.concurrent.TransferQueue;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -22,8 +20,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
-import frc.robot.libraries.Repulsor.Fields.FieldDefinition;
-import frc.robot.libraries.Repulsor.Fields.Rebuilt2026;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -93,32 +89,6 @@ public final class Constants {
         };
     }
 
-    public static class RepulsorConstants {
-    public static final AprilTagFieldLayout aprilTagLayout =
-        AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-    /**
-     * Field length in meters (full field X dimension). Sourced from the
-     * AprilTag field layout; keep units in meters.
-     */
-    public static final double FIELD_LENGTH = 16.540988;
-
-    /**
-     * Field width in meters (full field Y dimension). Sourced from the
-     * AprilTag field layout; keep units in meters.
-     */
-    public static final double FIELD_WIDTH = aprilTagLayout.getFieldWidth();
-    public static final FieldDefinition FIELD = new Rebuilt2026();
-
-    /**
-     * Robot external footprint (meters). These are the full robot
-     * dimensions (length = X, width = Y) and SHOULD include bumpers and
-     * any permanent protrusions. Use these values for collision checks
-     * and pathing where the code expects full extents.
-     */
-    public static final double ROBOT_X = Units.inchesToMeters(33.583);
-    public static final double ROBOT_Y = Units.inchesToMeters(36.583000);
-    }
-
     /**
      * Holds constants related to the vision subsystem.
      */
@@ -146,8 +116,8 @@ public final class Constants {
         new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(210.24)));
 
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-11), Units.inchesToMeters(2.5), Units.inchesToMeters(12)),
-        new Rotation3d(Units.degreesToRadians(-85), Units.degreesToRadians(0), Units.degreesToRadians(180))
+        new Translation3d(Units.inchesToMeters(-8.5), Units.inchesToMeters(7.5), Units.inchesToMeters(19.75)),
+        new Rotation3d(Units.degreesToRadians(-0), Units.degreesToRadians(0), Units.degreesToRadians(90))
         );
 
         // Base std devs for vision measurements. Higher = trust odometry more over vision.

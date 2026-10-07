@@ -7,7 +7,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -19,6 +18,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
@@ -44,17 +44,15 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.generated.TunerConstants;
-import frc.robot.libraries.Repulsor.Repulsor;
-import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
 import frc.robot.utils.GameState;
-import frc.robot.libraries.Repulsor.State.StateManager;
+import gg.questnav.questnav.QuestNav;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.vision.PoseEstimatorSubsystem;
-import frc.robot.subsystems.vision.QuestNavSubsystem;
+import frc.robot.subsystems.vision.TheseusQuestNav;
 import frc.robot.subsystems.SystemsCheck;
 
 import frc.robot.networking.NetworkedConfig;
@@ -100,16 +98,15 @@ public class ShipOfTheseus {
     private final SendableChooser<String> turretTargetChooser = new SendableChooser<>();
     private final SendableChooser<String> turretTargetingModeChooser = new SendableChooser<>();
 
-    public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain(field);
+    private TheseusQuestNav questNav = new TheseusQuestNav();
+
+    public final CommandSwerveDrivetrain swerveSubsystem = TunerConstants.createDrivetrain((pose) -> questNav.resetPose(pose), field);
     public final TurretSubsystem turretSubsystem;
     public final IndexerSubsystem indexerSubsystem;
     public final IntakeSubsystem intakeSubsystem;
-    public final PoseEstimatorSubsystem poseEstimatorSubsystem;
-    // public final QuestNavSubsystem questNavSubsystem;
-    public final ClimberSubsystem climberSubsystem;
-    public final Repulsor repulsor;
+    // public final PoseEstimatorSubsystem poseEstimatorSubsystem;
+    // public final ClimberSubsystem climberSubsystem;
     public final GameState gameState;
-    private final AtomicBoolean repulsorHasPiece = new AtomicBoolean(false);
 
     public final PowerDistribution powerBoard;    
 
@@ -122,8 +119,10 @@ public class ShipOfTheseus {
     private final Trigger autoIntakeTrigger = new Trigger(() -> this.autoIntake);
     
     // NeoPixel telemetry state tracking
-    private boolean hubWarningFired = false;
-    private boolean wasHubActive = false;
+    /** Seconds before an inactive shift ends at which the NeoPixel "phase shift incoming" warning fires. */
+    private static final double HUB_WARNING_LEAD_S = 10.0;
+    /** Phase index we last warned for, so the warning fires once per inactive shift. -1 = re-armed. */
+    private int lastWarnedPhaseIndex = -1;
     private final Debouncer aprilTagValidDebouncer = new Debouncer(0.25, DebounceType.kFalling);
 
     // /**
@@ -143,9 +142,9 @@ public class ShipOfTheseus {
         this.turretSubsystem = new TurretSubsystem(swerveSubsystem, turretAngleOffset);
         this.intakeSubsystem = new IntakeSubsystem();
         this.indexerSubsystem = new IndexerSubsystem();
-        this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
+        // this.poseEstimatorSubsystem = new PoseEstimatorSubsystem(swerveSubsystem);
         // this.questNavSubsystem = new QuestNavSubsystem(swerveSubsystem);
-        this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
+        // this.climberSubsystem = new ClimberSubsystem(swerveSubsystem);
         
 
         SmartDashboard.putData("Field", field);
@@ -189,19 +188,7 @@ public class ShipOfTheseus {
     // Debug: lightweight path/event prints added in fillAutoChooser to
     // help diagnose unexpected interruptions during auto.
 
-        this.repulsor =
-            new Repulsor(
-                swerveSubsystem,
-                frc.robot.Constants.RepulsorConstants.ROBOT_X,
-                frc.robot.Constants.RepulsorConstants.ROBOT_Y,
-                0.0,
-                0.0,
-                repulsorHasPiece::get); // operator-controlled supplier until a sensor is available
-        NetworkedTelemetry.Repulsor.setHasPiece(repulsorHasPiece.get());
-        RepulsorDriverStationBootstrap.useDefaultNt();
-
         gameState = new GameState();
-        gameState.update();
 
         Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
         if (alliance == Alliance.Blue) turretAngleOffset = Degrees.mutable(-4);
@@ -213,6 +200,11 @@ public class ShipOfTheseus {
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
 
+    /** Runs the turret shot solvers once at boot so the first enabled loop doesn't pay the JIT/class-load cost. */
+    public void warmUpSolvers() {
+        turretSubsystem.warmUpSolvers();
+    }
+
     public void motorStatusCheck() {
         turretSubsystem.motorStatusCheck();
     }
@@ -222,7 +214,8 @@ public class ShipOfTheseus {
         // configureAutonomousBindings();
         
         configureProductionBindings();
-        // configureDevBindings();
+        // Additional debug bindings layered on top of production. Comment out when deploying production code.
+        configureDebugBindings();
     }
 
     // private void configureAutonomousBindings() {
@@ -252,15 +245,15 @@ public class ShipOfTheseus {
 
         // Run homing commands on initialization - If already homed, the command immediately cancels itself
         RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
-        RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
-        RobotModeTriggers.teleop().onTrue(climberSubsystem.raiseToFull());
+        // RobotModeTriggers.autonomous().onTrue(climberSubsystem.homeClimber()); // TODO: UNCOMMENT
+        // RobotModeTriggers.teleop().onTrue(climberSubsystem.raiseToFull());
         RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> {
             runSensorlessHoming();
             this.autoShoot = false;
             this.autoIntake = false;
         }));
 
-        DriverController.x().onTrue(Commands.defer(() -> getAutoClimbCommand(), Set.of(swerveSubsystem, climberSubsystem)));
+        // DriverController.x().onTrue(Commands.defer(() -> getAutoClimbCommand(), Set.of(swerveSubsystem, climberSubsystem)));
 
         // Swerve Drive
         // When a shoot-on-the-fly attempt is active (shoot button held or autoShootTrigger),
@@ -319,21 +312,21 @@ public class ShipOfTheseus {
         swerveSubsystem.registerTelemetry(logger::telemeterize);
 
         // Driver: Climber
-        DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
-        DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull());
+        // DriverController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
+        // DriverController.rightBumper().onTrue(climberSubsystem.raiseToFull());
         // DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
         // DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
-        DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()))
-                .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
-        DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()))
-                .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
+        // DriverController.y().whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()))
+        //         .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
+        // DriverController.x().whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()))
+        //         .onFalse(climberSubsystem.runOnce(() -> climberSubsystem.stopClimber()));
 
         // withinSafeClimberRange.onFalse(climberSubsystem.lowerOntoBar());
 
         // Driver: Automated climb (A button)
         // Raises the climber, drives to the bar, then lowers onto it.
         // Pressing A again (or any command that requires swerve/climber) will cancel.
-        DriverController.a().onTrue(getAutoClimbCommand());
+        // DriverController.a().onTrue(getAutoClimbCommand());
 
         // Shoot
         // Spin up the flywheel while the trigger is held. Once the flywheel reaches
@@ -467,8 +460,8 @@ public class ShipOfTheseus {
         OperatorController.rightBumper().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
 
         // Operator: Climber Control
-        OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
-        OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
+        // OperatorController.povUp().onTrue(climberSubsystem.raiseToFull().onlyIf(climberSubsystem.withinSafeClimberRange));
+        // OperatorController.povDown().onTrue(climberSubsystem.lowerOntoBar());
 
         // Operator: Adjust turret offset (this was here for Ronen taking it out now.)
         // OperatorController.start().onTrue(Commands.runOnce(() -> turretAngleOffset.mut_acc(Degrees.of(1))));
@@ -481,44 +474,25 @@ public class ShipOfTheseus {
         ));
     }
     
-    @SuppressWarnings("unused") // Suppress warnings for unused bindings in dev mode
-    private void configureDevBindings() {
-        // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
-        RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
-
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        swerveSubsystem.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            swerveSubsystem.applyRequest(() ->
-                driveFieldOriented.withVelocityX(-DriverController.getLeftY() * MaxSpeed / 1.75) // Drive forward with negative Y (forward)
-                    .withVelocityY(-DriverController.getLeftX() * MaxSpeed / 1.75) // Drive left with negative X (left)
-                    .withRotationalRate(-DriverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
-
-        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.7)));
-        OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(0.7)));
-        OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
-        OperatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
-
-        OperatorController.pov(-1).onTrue(intakeSubsystem.run(() -> {
-            intakeSubsystem.stopIntake();
-        }));
-
-        OperatorController.start().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.pullNetworkTableData()));
-
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
-
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-            swerveSubsystem.applyRequest(() -> idle).ignoringDisable(true)
-        );
-
-        // DriverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
-        DriverController.a().onTrue(getAutoClimbCommand());
-
+    /**
+     * Extra debug/tuning bindings layered on top of {@link #configureProductionBindings()}.
+     * Every binding here uses a button production leaves free, and nothing here sets a default
+     * command or telemetry, so it is safe to call alongside production. Comment out the call in
+     * {@link #configureBindings()} when deploying production code.
+     *
+     * <ul>
+     *   <li>Driver A: reset QuestNav and drivetrain pose from the NetworkTables debug values</li>
+     *   <li>Driver left + right stick click (both held): reset QuestNav and drivetrain pose to a fixed test pose</li>
+     *   <li>Driver B: point wheels along the left stick</li>
+     *   <li>Driver X: turret to the NetworkTables target angle</li>
+     *   <li>Driver left bumper: spin the indexer (ungated)</li>
+     *   <li>Driver right bumper: shoot + kick (ungated: no target/hood/hub-lock checks)</li>
+     *   <li>Operator Y: manual turret turn (operator left stick Y, quarter speed)</li>
+     *   <li>Operator POV up: turn turret to target without shooting</li>
+     *   <li>Operator Start: pull all NetworkTables configs</li>
+     * </ul>
+     */
+    private void configureDebugBindings() {
         DriverController.b().whileTrue(swerveSubsystem.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-DriverController.getLeftY(), -DriverController.getLeftX()))
         ));
@@ -531,84 +505,48 @@ public class ShipOfTheseus {
         DriverController.rightBumper().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();
             turretSubsystem.stopKicker();
-            }));
-        
-        OperatorController.rightBumper().whileTrue(turretSubsystem.defer(() -> turretSubsystem.turnToTarget()));
-        
-        OperatorController.rightBumper().onFalse(turretSubsystem.runOnce(() ->
-            turretSubsystem.stopTurret()
-        ));
-
-        OperatorController.leftBumper().whileTrue(turretSubsystem.run(() ->
-            turretSubsystem.turnRaw(-OperatorController.getRightY()/4)
-        ));
-
-        OperatorController.rightBumper().onFalse(turretSubsystem.runOnce(() ->
-            turretSubsystem.stopTurret()
-        ));
-
-        // AtomicInteger angle = new AtomicInteger(25);
-        // AtomicBoolean goingUp = new AtomicBoolean(true);
-        // joystick.rightTrigger().whileTrue(turretSubsystem.run(() -> {
-        //     turretSubsystem.setHoodAngle(Degrees.of(angle.get()));
-        //     if(goingUp.get()) {
-        //         if(angle.get() >= 45) {
-        //             angle.set(angle.get()-1);
-        //             goingUp.set(false);
-        //         } else angle.set(angle.get()+1);
-        //     } else {
-                
-        //         if(angle.get() <= 25) {
-        //             angle.set(angle.get()+1);
-        //             goingUp.set(true);
-        //         } else angle.set(angle.get()-1);
-        //     }
-        // }));
-
-        // joystick.x().onTrue(turretSubsystem.run(() -> turretSubsystem.kick(1)));
-        // joystick.x().onFalse(turretSubsystem.stopKicker());
-
-        // Operator toggle for Repulsor "has piece" (temporary until a sensor is wired).
-        // Pressing X will toggle the value; it is published to NetworkTables for visibility.
-        OperatorController.x().onTrue(Commands.runOnce(() -> {
-            boolean next = !repulsorHasPiece.get();
-            repulsorHasPiece.set(next);
-            NetworkedTelemetry.Repulsor.setHasPiece(next);
-            SmartDashboard.putBoolean("Repulsor/HasPiece", next);
         }));
 
-        DriverController.y().onTrue(turretSubsystem.run(() -> {
+        OperatorController.povUp().whileTrue(turretSubsystem.defer(() -> turretSubsystem.turnToTarget()));
+        OperatorController.povUp().onFalse(turretSubsystem.runOnce(() -> turretSubsystem.stopTurret()));
+
+        OperatorController.y().whileTrue(turretSubsystem.run(() ->
+            turretSubsystem.turnRaw(-OperatorController.getLeftY() / 4)
+        ));
+        OperatorController.y().onFalse(turretSubsystem.runOnce(() -> turretSubsystem.stopTurret()));
+
+
+        DriverController.x().onTrue(turretSubsystem.run(() -> {
             turretSubsystem.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
         }));
-        DriverController.y().onFalse(turretSubsystem.run(() -> {
+        DriverController.x().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopTurret();
         }));
 
-        DriverController.start().onTrue(turretSubsystem.runOnce(() -> {
-            turretSubsystem.pullNetworkTableData();
-        }));
+        OperatorController.start().onTrue(Commands.runOnce(this::pullAllNetworkedConfigs));
 
-        DriverController.leftTrigger().whileTrue(indexerSubsystem.run(() -> {
+        DriverController.leftBumper().whileTrue(indexerSubsystem.run(() -> {
             indexerSubsystem.spin();
         }));
-        DriverController.leftTrigger().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
+        DriverController.leftBumper().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
 
-        DriverController.start().onTrue(indexerSubsystem.runOnce(() -> {
-            indexerSubsystem.pullNetworkTableData();
-        }));
-        
-        DriverController.back().onTrue(swerveSubsystem.run(() -> swerveSubsystem.resetPose(new Pose2d(
+        // Chord so it can't be hit by accident while driving.
+        // Resets the drivetrain as well as QuestNav, otherwise the Quest pulls the pose back.
+        DriverController.leftStick().and(DriverController.rightStick())
+            .onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.resetQuestPose(new Pose2d(12.95, 3.85, new Rotation2d()))));
+
+        DriverController.a().onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.resetQuestPose(new Pose2d(
             NetworkedConfig.Debug.getNewPoseX(),
             NetworkedConfig.Debug.getNewPoseY(),
             new Rotation2d(NetworkedConfig.Debug.getNewPoseRotation())
         ))));
 
-        DriverController.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
-        DriverController.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
-        DriverController.pov(-1).whileTrue(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
+        // DriverController.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
+        // DriverController.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));
+        // DriverController.pov(-1).whileTrue(climberSubsystem.run(() -> climberSubsystem.stopClimber()));
 
-        OperatorController.rightBumper().onTrue(climberSubsystem.raiseToFull());
-        OperatorController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
+        // OperatorController.rightBumper().onTrue(climberSubsystem.raiseToFull());
+        // OperatorController.leftBumper().onTrue(climberSubsystem.lowerOntoBar());
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
@@ -655,8 +593,13 @@ public class ShipOfTheseus {
 
         // Reset the field-centric heading on left bumper press.
         // joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
+    }
 
-        swerveSubsystem.registerTelemetry(logger::telemeterize);
+    /** Applies the NetworkTables motor gains to the controllers only where they changed (cheap when nothing did). */
+    public void applyChangedNetworkedConfigs() {
+        turretSubsystem.applyChangedNetworkTableData();
+        indexerSubsystem.applyChangedNetworkTableData();
+        intakeSubsystem.applyChangedNetworkTableData();
     }
 
     public void pullAllNetworkedConfigs() {
@@ -671,9 +614,12 @@ public class ShipOfTheseus {
         // NamedCommands.registerCommand("startShooterFromClimb", turretSubsystem.run(() -> turretSubsystem.shootAutoTargetWithRPMOffset(TurretSubsystemConstants.RPM_OFFSET_WHILE_CLIMBED)))
         NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
         NamedCommands.registerCommand("runAutoShoot", Commands.startEnd(() -> this.autoShoot = true, () -> this.autoShoot = false));
-        NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
-        NamedCommands.registerCommand("Raise Climber", Commands.defer(() -> climberSubsystem.raiseToFull(), Set.of(climberSubsystem)));
-        NamedCommands.registerCommand("Lower Climber", Commands.defer(() -> climberSubsystem.lowerOntoBar(), Set.of(climberSubsystem)));
+        // NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
+        NamedCommands.registerCommand("autoClimb", Commands.none());
+        NamedCommands.registerCommand("Raise Climber", Commands.none());
+        NamedCommands.registerCommand("Lower Climber", Commands.none());
+        // NamedCommands.registerCommand("Raise Climber", Commands.defer(() -> climberSubsystem.raiseToFull(), Set.of(climberSubsystem)));
+        // NamedCommands.registerCommand("Lower Climber", Commands.defer(() -> climberSubsystem.lowerOntoBar(), Set.of(climberSubsystem)));
 
         NamedCommands.registerCommand("Lower Intake", Commands.defer(() -> Commands.runOnce(() -> intakeSubsystem.dropIntake()), Set.of()));
         NamedCommands.registerCommand("Start Intake", Commands.runOnce(() -> {this.autoIntake = true; System.out.println("Intake Start");}));
@@ -686,8 +632,8 @@ public class ShipOfTheseus {
         return Commands.defer(() -> {
             Command homingSequence = Commands.parallel(
                 turretSubsystem.homeHood(),
-                intakeSubsystem.homeLift(),
-                climberSubsystem.homeClimber()
+                intakeSubsystem.homeLift() // ,
+                // climberSubsystem.homeClimber()
             );
 
             Command autoProxy = Commands.defer(
@@ -719,36 +665,36 @@ public class ShipOfTheseus {
      * values there and in {@code deploy/autos/paths/climb.json} to match your
      * actual bar location.</p>
      */
-    public Command getAutoClimbCommand() {
-        Command climbSequence = Commands.sequence(
-            // Step 1: raise climber to full extension so it clears the bar
-            // Step 2: drive staging → final at reduced speed so the climber slots
-            //         onto the tower cleanly. Both poses are selected from the
-            //         robot's current alliance + field side at the moment A is pressed.
-            Commands.defer(() -> {
-                Pose2d staging = selectStagingPosition();
-                return swerveSubsystem.driveToPose(staging, 0.4 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
-            }, java.util.Set.of(swerveSubsystem)),
-            climberSubsystem.raiseToFull(),
-            Commands.defer(() -> {
-                Pose2d target  = selectClimbPosition();
-                return swerveSubsystem.driveToPose(target, 0.1 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
-            }, java.util.Set.of(swerveSubsystem)),
+    // public Command getAutoClimbCommand() {
+    //     Command climbSequence = Commands.sequence(
+    //         // Step 1: raise climber to full extension so it clears the bar
+    //         // Step 2: drive staging → final at reduced speed so the climber slots
+    //         //         onto the tower cleanly. Both poses are selected from the
+    //         //         robot's current alliance + field side at the moment A is pressed.
+    //         Commands.defer(() -> {
+    //             Pose2d staging = selectStagingPosition();
+    //             return swerveSubsystem.driveToPose(staging, 0.4 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
+    //         }, java.util.Set.of(swerveSubsystem)),
+    //         climberSubsystem.raiseToFull(),
+    //         Commands.defer(() -> {
+    //             Pose2d target  = selectClimbPosition();
+    //             return swerveSubsystem.driveToPose(target, 0.1 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
+    //         }, java.util.Set.of(swerveSubsystem)),
 
-            // Step 3: lower onto the bar to engage the clamp
-            climberSubsystem.lowerOntoBar(),
-            Commands.print("Climb!")
-        );
+    //         // Step 3: lower onto the bar to engage the clamp
+    //         climberSubsystem.lowerOntoBar(),
+    //         Commands.print("Climb!")
+    //     );
 
-        return Commands.sequence(
+        // return Commands.sequence(
         //     Commands.runOnce(() -> {
         //         Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
         //         Set<Integer> towerTags = (alliance == Alliance.Red) ? Set.of(15/*, 16*/) : Set.of(31/*, 32*/);
         //         poseEstimatorSubsystem.setTemporaryAprilTagFilter(towerTags);
         //     }),
-            climbSequence
-        );//.finallyDo(interrupted -> poseEstimatorSubsystem.clearTemporaryAprilTagFilter());
-    }
+            // climbSequence
+        // );//.finallyDo(interrupted -> poseEstimatorSubsystem.clearTemporaryAprilTagFilter());
+    // }
 
     /**
      * Picks the correct climb target pose based on the robot's current alliance
@@ -870,7 +816,7 @@ public class ShipOfTheseus {
         boolean hasDebouncedAprilTags = aprilTagValidDebouncer.calculate(NetworkedTelemetry.Vision.hasValidAprilTags());
         
         if (edu.wpi.first.wpilibj.DriverStation.isDisabled()) {
-            if (!NetworkedTelemetry.Vision.bothCamerasActive()) {
+            if (!NetworkedTelemetry.Vision.allCamerasActive()) {
                 mode = "DISABLED_NO_CAMERA";
             } else if (isAlignedToAutoStart()) {
                 mode = "DISABLED_CORRECT_POSITION";
@@ -888,39 +834,34 @@ public class ShipOfTheseus {
 
     /**
      * Called every robot loop from {@code Theseus.robotPeriodic()}. Publishes
-     * game-state telemetry to NetworkTables using the {@link GameState} instance
-     * managed by {@link StateManager} (updated by {@code repulsor.update()}).
+     * game-state telemetry to NetworkTables using the {@link GameState} instance.
      */
     public void periodicUpdate() {
-        if (gameState != null) { 
-            // Countdown is only meaningful when the hub is inactive — how long until it flips active.
-            // When already active (or game data not yet available), publish 0.
-            // double countdown = (!gs.isHubActive()) ? Math.max(0.0, gs.getRemainingShiftTime()) : 0.0;
-            double countdown = gameState.getRemainingShiftTime();
-            NetworkedTelemetry.GameState.publish(
-                 (int) gameState.getMatchTime(),
-                gameState.isHubActive(),
-                 (int) countdown
-            );
-            
-            // Handle NeoPixel hub warning trigger (8 seconds before hub becomes active)
-            boolean isHubActive = gameState.isHubActive();
-            
-            // Fire trigger when hub inactive, countdown <= 6s, and not yet fired
-            if (!isHubActive && countdown <= 10.0 && !hubWarningFired) {
-                NetworkedTelemetry.NeoPixels.setControlTrigger("PHASE_SHIFT_INCOMING");
-                hubWarningFired = true;
-                System.out.println("[NeoPixel] Phase shift incoming trigger: hub activating in ~" + countdown + "s");
+        questNav.cleanUpQuestNavMessages();
+        updateVision();
+        if (gameState != null) {
+            gameState.update();
+
+            boolean hubActive = gameState.isHubActive();
+            double untilActive = gameState.getSecondsUntilHubActive();
+            NetworkedTelemetry.GameState.publish(gameState.getMatchTime(), hubActive, untilActive);
+            NetworkedTelemetry.GameState.publishDiagnostics(
+                gameState.isDataValid(),
+                gameState.getPhase().name(),
+                gameState.getInactiveFirstAlliance().map(Enum::name).orElse("Unknown"));
+
+            // NeoPixel warning: fire once per inactive shift, HUB_WARNING_LEAD_S before the hub becomes active.
+            if (gameState.isDataValid() && !hubActive && untilActive <= HUB_WARNING_LEAD_S) {
+                if (gameState.getPhaseIndex() != lastWarnedPhaseIndex) {
+                    NetworkedTelemetry.NeoPixels.setControlTrigger("PHASE_SHIFT_INCOMING");
+                    lastWarnedPhaseIndex = gameState.getPhaseIndex();
+                    System.out.println("[NeoPixel] Phase shift incoming trigger: hub activating in ~" + untilActive + "s");
+                }
+            } else if (!gameState.isDataValid() || DriverStation.isDisabled()) {
+                lastWarnedPhaseIndex = -1; // re-arm for the next match
             }
-            
-            // Reset flag when hub just became inactive
-            if (wasHubActive && !isHubActive) {
-                hubWarningFired = false;
-            }
-            
-            wasHubActive = isHubActive;
         }
-        
+
         // Publish current NeoPixel mode based on robot state
         publishNeopixelMode();
 
@@ -928,7 +869,7 @@ public class ShipOfTheseus {
 
         if (NetworkedConfig.Debug.shouldResetHomedPositions()) {
             turretSubsystem.resetHoodHoming();
-            climberSubsystem.resetHoming();
+            // climberSubsystem.resetHoming();
             intakeSubsystem.resetLiftHoming();
             NetworkedConfig.Debug.clearResetHomedPositions();
         }
@@ -943,6 +884,19 @@ public class ShipOfTheseus {
         this.maxSpeedMulitplier = NetworkedConfig.Debug.getDemoMode() ? 0.20 : 0.70;
     }
 
+
+     public void updateVision() {
+        questNav.updateTelemetry();
+        // Only fuse fresh frames; re-adding a stale pose stamped "now" pins the estimate in place
+        if (questNav.isConnected() && questNav.hasNewFrame()) {
+        questNav.updateAverageRobotPose();
+        //   swerveSubsystem.addVisionMeasurement(
+        //       questNav.getRobotPose(), VecBuilder.fill(0.0, 0.0, 9999999.0));
+        swerveSubsystem.addVisionMeasurement(
+            questNav.getAverageRobotPose(), questNav.getLatestFrameTimestamp(), VecBuilder.fill(0.01, 0.01, 0.02));//VecBuilder.fill(0.0, 0.0, 0.0));
+        return;
+        }
+    }
     /**
      * Returns {@code true} when a hub-targeting shot is permitted.
      *
@@ -958,8 +912,7 @@ public class ShipOfTheseus {
 
         // if (!turretSubsystem.isTargetingHub()) return true;
         // if (NetworkedConfig.Debug.isBypassHubLock()) return true;
-        // GameState gs = StateManager.getState(GameState.class);
-        // return gs == null || gs.isHubActive();
+        // return gameState == null || gameState.isHubActive();
     }
 
     /**

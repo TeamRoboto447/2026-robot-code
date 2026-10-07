@@ -44,7 +44,7 @@ import frc.robot.networking.NetworkedTelemetry;
 public class PoseEstimatorSubsystem extends SubsystemBase {
 
     private final CommandSwerveDrivetrain swerveSubsystem;
-    private final PhotonRunnable climberCam;
+    // private final PhotonRunnable climberCam;
     private final PhotonRunnable turretCam;
     private final AprilTagFieldLayout aprilTagLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
@@ -55,21 +55,21 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     public PoseEstimatorSubsystem(CommandSwerveDrivetrain swerveSubsystem) {
         this.swerveSubsystem = swerveSubsystem;
         if (USE_VISION) {
-            this.climberCam = new PhotonRunnable(new PhotonCamera("ClimberCam"), VisionConstants.ROBOT_TO_CLIMBER_CAM);
+            // this.climberCam = new PhotonRunnable(new PhotonCamera("ClimberCam"), VisionConstants.ROBOT_TO_CLIMBER_CAM);
             this.turretCam = new PhotonRunnable(new PhotonCamera("TurretCam"), VisionConstants.ROBOT_TO_TURRET_CAM);
             if (RobotBase.isSimulation()) {
                 visionSim = new VisionSystemSim("main");
                 visionSim.addAprilTags(aprilTagLayout);
 
-                SimCameraProperties climberCamSimProps = new SimCameraProperties();
-                climberCamSimProps.setCalibration(1280, 800, new Rotation2d(Units.degreesToRadians(79.84)));
-                climberCamSimProps.setCalibError(0.28, 0);
-                climberCamSimProps.setFPS(20);
-                climberCamSimProps.setAvgLatencyMs(30);
+                // SimCameraProperties climberCamSimProps = new SimCameraProperties();
+                // climberCamSimProps.setCalibration(1280, 800, new Rotation2d(Units.degreesToRadians(79.84)));
+                // climberCamSimProps.setCalibError(0.28, 0);
+                // climberCamSimProps.setFPS(20);
+                // climberCamSimProps.setAvgLatencyMs(30);
 
-                PhotonCameraSim climberSimCamera = new PhotonCameraSim(climberCam.getCameraObject(), climberCamSimProps);
-                climberSimCamera.setMaxSightRange(7.5);
-                visionSim.addCamera(climberSimCamera, VisionConstants.ROBOT_TO_CLIMBER_CAM);           
+                // PhotonCameraSim climberSimCamera = new PhotonCameraSim(climberCam.getCameraObject(), climberCamSimProps);
+                // climberSimCamera.setMaxSightRange(7.5);
+                // visionSim.addCamera(climberSimCamera, VisionConstants.ROBOT_TO_CLIMBER_CAM);           
 
                 SimCameraProperties turretCamSimProps = new SimCameraProperties();
                 turretCamSimProps.setCalibration(1280, 800, new Rotation2d(Units.degreesToRadians(79.2)));
@@ -84,7 +84,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             }
             this.setDefaultCommand(this.createNotifierCommand(this));
         } else {
-            this.climberCam = null;
+            // this.climberCam = null;
             this.turretCam = null;
         }
     }
@@ -95,13 +95,13 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         if (VisionConstants.USE_VISION) {
-            boolean turretCamValid = estimatorChecker(climberCam);
-            boolean climberCamValid = estimatorChecker(turretCam);
-            boolean anyValid = turretCamValid || climberCamValid;
+            // boolean climberCamValid = estimatorChecker(climberCam);
+            boolean turretCamValid = estimatorChecker(turretCam);
+            boolean anyValid = turretCamValid; //|| climberCamValid;
             NetworkedTelemetry.Vision.setHasValidAprilTags(anyValid);
 
             ArrayList<PhotonTrackedTarget> allDetectedTags = new ArrayList<PhotonTrackedTarget>();
-            allDetectedTags.addAll(climberCam.grabDetectedTags());
+            // allDetectedTags.addAll(climberCam.grabDetectedTags());
             allDetectedTags.addAll(turretCam.grabDetectedTags());
 
             ArrayList<Pose3d> detectedTagPositions = new ArrayList<Pose3d>();
@@ -131,7 +131,7 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      */
     private Command createNotifierCommand(PoseEstimatorSubsystem peSubsystem) {
         return new NotifierCommand(() -> {
-            climberCam.run();
+            // climberCam.run();
             turretCam.run();
         }, 0.02, peSubsystem).ignoringDisable(true);
     }
@@ -230,15 +230,15 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
      * While active, only measurements derived from these tag IDs are accepted.
      */
     public void setTemporaryAprilTagFilter(Set<Integer> allowedTagIds) {
-        if (!USE_VISION || climberCam == null || turretCam == null) return;
-        climberCam.setAllowedTagIds(allowedTagIds);
+        if (!USE_VISION || /*climberCam == null || */ turretCam == null) return;
+        // climberCam.setAllowedTagIds(allowedTagIds);
         turretCam.setAllowedTagIds(allowedTagIds);
     }
 
     /** Clears the temporary AprilTag whitelist on all vision cameras. */
     public void clearTemporaryAprilTagFilter() {
-        if (!USE_VISION || climberCam == null || turretCam == null) return;
-        climberCam.clearAllowedTagIds();
+        if (!USE_VISION || /*climberCam == null ||*/ turretCam == null) return;
+        // climberCam.clearAllowedTagIds();
         turretCam.clearAllowedTagIds();
     }
 }
