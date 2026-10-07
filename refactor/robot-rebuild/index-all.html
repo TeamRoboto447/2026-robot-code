@@ -91,6 +91,13 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Hood angle (degrees from vertical).</div>
 </dd>
+<dt><a href="frc/robot/utils/AppliedGains.html" class="type-name-link" title="class in frc.robot.utils">AppliedGains</a> - Class in <a href="frc/robot/utils/package-summary.html">frc.robot.utils</a></dt>
+<dd>
+<div class="block">Remembers which gains were last sent to a motor controller so unchanged NetworkTables values can skip the
+ blocking CAN <code>apply()</code>.</div>
+</dd>
+<dt><a href="frc/robot/utils/AppliedGains.html#%3Cinit%3E(double...)" class="member-name-link">AppliedGains(double...)</a> - Constructor for class frc.robot.utils.<a href="frc/robot/utils/AppliedGains.html" title="class in frc.robot.utils">AppliedGains</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/utils/SimPhysics.html#applyBumpAngle(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">applyBumpAngle(Pose2d)</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/SimPhysics.html" title="class in frc.robot.utils">SimPhysics</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/ShipOfTheseus.html#applyChangedNetworkedConfigs()" class="member-name-link">applyChangedNetworkedConfigs()</a> - Method in class frc.robot.<a href="frc/robot/ShipOfTheseus.html" title="class in frc.robot">ShipOfTheseus</a></dt>
@@ -99,15 +106,18 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="frc/robot/subsystems/IndexerSubsystem.html#applyChangedNetworkTableData()" class="member-name-link">applyChangedNetworkTableData()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IndexerSubsystem.html" title="class in frc.robot.subsystems">IndexerSubsystem</a></dt>
 <dd>
-<div class="block">Applies the NetworkTables gains only if they differ from what is already on the motor.</div>
+<div class="block">Applies the NetworkTables gains only if they differ from what is already on the motor, or if the
+ controller has reset since the last check (a reboot/brownout wipes its whole configuration).</div>
 </dd>
 <dt><a href="frc/robot/subsystems/IntakeSubsystem.html#applyChangedNetworkTableData()" class="member-name-link">applyChangedNetworkTableData()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" title="class in frc.robot.subsystems">IntakeSubsystem</a></dt>
 <dd>
-<div class="block">Applies the NetworkTables gains only if they differ from what is already on the motor.</div>
+<div class="block">Applies the NetworkTables gains only if they differ from what is already on the motor, or if the
+ controller has reset since the last check (a reboot/brownout wipes its whole configuration).</div>
 </dd>
 <dt><a href="frc/robot/subsystems/TurretSubsystem.html#applyChangedNetworkTableData()" class="member-name-link">applyChangedNetworkTableData()</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></dt>
 <dd>
-<div class="block">Applies the NetworkTables gains only if they differ from what is already on the motors.</div>
+<div class="block">Applies the NetworkTables gains only if they differ from what is already on the motors, or if a motor
+ controller has reset since the last check (a reboot/brownout wipes its whole configuration).</div>
 </dd>
 <dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#applyRequest(java.util.function.Supplier)" class="member-name-link">applyRequest(Supplier&lt;SwerveRequest&gt;)</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
 <dd>
@@ -1377,6 +1387,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns a <code>Command</code> that drives the climber to full extension and then
  holds position.</div>
 </dd>
+<dt><a href="frc/robot/utils/AppliedGains.html#record(boolean,double...)" class="member-name-link">record(boolean, double...)</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/AppliedGains.html" title="class in frc.robot.utils">AppliedGains</a></dt>
+<dd>
+<div class="block">Records the outcome of an apply of <code>values</code>.</div>
+</dd>
 <dt><a href="frc/robot/Constants.FieldConstants.FieldZone.html#RED_ALLIANCE_AUDIENCE_SIDE" class="member-name-link">RED_ALLIANCE_AUDIENCE_SIDE</a> - Enum constant in enum class frc.robot.<a href="frc/robot/Constants.FieldConstants.FieldZone.html" title="enum class in frc.robot">Constants.FieldConstants.FieldZone</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.FieldConstants.FieldZoneAreas.html#RED_ALLIANCE_AUDIENCE_SIDE_AREA" class="member-name-link">RED_ALLIANCE_AUDIENCE_SIDE_AREA</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.FieldConstants.FieldZoneAreas.html" title="class in frc.robot">Constants.FieldConstants.FieldZoneAreas</a></dt>
@@ -1830,6 +1844,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/utils/ShooterTable.ShotSolution.html#%3Cinit%3E(double,double,double,double,double,boolean)" class="member-name-link">ShotSolution(double, double, double, double, double, boolean)</a> - Constructor for class frc.robot.utils.<a href="frc/robot/utils/ShooterTable.ShotSolution.html" title="class in frc.robot.utils">ShooterTable.ShotSolution</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/AppliedGains.html#shouldApply(boolean,double...)" class="member-name-link">shouldApply(boolean, double...)</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/AppliedGains.html" title="class in frc.robot.utils">AppliedGains</a></dt>
+<dd>
+<div class="block">True if these values should be sent to the controller now.</div>
+</dd>
 <dt><a href="frc/robot/networking/NetworkedConfig.Debug.html#shouldResetHomedPositions()" class="member-name-link">shouldResetHomedPositions()</a> - Static method in class frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Debug.html" title="class in frc.robot.networking">NetworkedConfig.Debug</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/utils/SimPhysics.html" class="type-name-link" title="class in frc.robot.utils">SimPhysics</a> - Class in <a href="frc/robot/utils/package-summary.html">frc.robot.utils</a></dt>
