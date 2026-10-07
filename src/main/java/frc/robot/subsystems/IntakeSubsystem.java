@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.Arrays;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -253,13 +254,34 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * Pulls data from the NetworkTables.
      */
+    // Gains currently on the motor (seeded with the constructor's values); see TurretSubsystem.
+    private double[] appliedLiftGains = {
+        IntakeSubsystemConstants.LIFT_KP, IntakeSubsystemConstants.LIFT_KI, IntakeSubsystemConstants.LIFT_KD};
+
+    /** Applies the NetworkTables gains to the lift motor unconditionally. */
     public void pullNetworkTableData() {
+        applyNetworkTableData(true);
+    }
+
+    /** Applies the NetworkTables gains only if they differ from what is already on the motor. */
+    public void applyChangedNetworkTableData() {
+        applyNetworkTableData(false);
+    }
+
+    private void applyNetworkTableData(boolean force) {
+        double[] lift = {
+            NetworkedConfig.Intake.getLiftKP(), NetworkedConfig.Intake.getLiftKI(), NetworkedConfig.Intake.getLiftKD()};
+        if (!force && Arrays.equals(lift, appliedLiftGains)) return;
+
         liftFXConfigs.Slot0
-            .withKP(NetworkedConfig.Intake.getLiftKP())
-            .withKI(NetworkedConfig.Intake.getLiftKI())
-            .withKD(NetworkedConfig.Intake.getLiftKD());
-        
-        this.liftMotor.getConfigurator().apply(liftFXConfigs);
+            .withKP(lift[0])
+            .withKI(lift[1])
+            .withKD(lift[2]);
+
+        // Slot0 only: applying the whole config also overwrote the feedback ratio set in the constructor.
+        if (this.liftMotor.getConfigurator().apply(liftFXConfigs.Slot0).isOK()) {
+            appliedLiftGains = lift;
+        }
     }
 
     public double getIntakeAngleDegrees() {

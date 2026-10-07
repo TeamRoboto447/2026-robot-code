@@ -200,6 +200,11 @@ public class ShipOfTheseus {
         CommandScheduler.getInstance().schedule(intakeSubsystem.homeLift());
     }
 
+    /** Runs the turret shot solvers once at boot so the first enabled loop doesn't pay the JIT/class-load cost. */
+    public void warmUpSolvers() {
+        turretSubsystem.warmUpSolvers();
+    }
+
     public void motorStatusCheck() {
         turretSubsystem.motorStatusCheck();
     }
@@ -588,6 +593,13 @@ public class ShipOfTheseus {
 
         // Reset the field-centric heading on left bumper press.
         // joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
+    }
+
+    /** Applies the NetworkTables motor gains to the controllers only where they changed (cheap when nothing did). */
+    public void applyChangedNetworkedConfigs() {
+        turretSubsystem.applyChangedNetworkTableData();
+        indexerSubsystem.applyChangedNetworkTableData();
+        intakeSubsystem.applyChangedNetworkTableData();
     }
 
     public void pullAllNetworkedConfigs() {

@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 
+import java.util.Arrays;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -105,15 +106,36 @@ public class IndexerSubsystem extends SubsystemBase {
     /**
      * Pulls data from the NetworkTables.
      */
+    // Gains currently on the motor (seeded with the constructor's values); see TurretSubsystem.
+    private double[] appliedSpinnerGains = {
+        IndexerSubsystemConstants.SPINNER_KP, IndexerSubsystemConstants.SPINNER_KI,
+        IndexerSubsystemConstants.SPINNER_KD, IndexerSubsystemConstants.SPINNER_KV};
+
+    /** Applies the NetworkTables gains to the motor unconditionally. */
     public void pullNetworkTableData() {
+        applyNetworkTableData(true);
+    }
+
+    /** Applies the NetworkTables gains only if they differ from what is already on the motor. */
+    public void applyChangedNetworkTableData() {
+        applyNetworkTableData(false);
+    }
+
+    private void applyNetworkTableData(boolean force) {
+        double[] spinner = {
+            NetworkedConfig.Indexer.getSpinnerKP(), NetworkedConfig.Indexer.getSpinnerKI(),
+            NetworkedConfig.Indexer.getSpinnerKD(), NetworkedConfig.Indexer.getSpinnerKV()};
+        if (!force && Arrays.equals(spinner, appliedSpinnerGains)) return;
+
         var spinnerSlot0config = SpinnerFxConfigs.Slot0;
-        
-        spinnerSlot0config.kP = NetworkedConfig.Indexer.getSpinnerKP();
-        spinnerSlot0config.kI = NetworkedConfig.Indexer.getSpinnerKI();
-        spinnerSlot0config.kD = NetworkedConfig.Indexer.getSpinnerKD();
-        spinnerSlot0config.kV = NetworkedConfig.Indexer.getSpinnerKV();
+        spinnerSlot0config.kP = spinner[0];
+        spinnerSlot0config.kI = spinner[1];
+        spinnerSlot0config.kD = spinner[2];
+        spinnerSlot0config.kV = spinner[3];
         spinnerSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
-        this.spinnerMotor.getConfigurator().apply(spinnerSlot0config);        
+        if (this.spinnerMotor.getConfigurator().apply(spinnerSlot0config).isOK()) {
+            appliedSpinnerGains = spinner;
+        }
     }
 }

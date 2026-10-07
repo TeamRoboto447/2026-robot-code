@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 
+import java.util.Arrays;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -181,6 +182,22 @@ public class TurretSubsystem extends SubsystemBase {
         return feedTrigger;
     }
 
+    /**
+     * Runs both shot solvers a few hundred times on representative inputs so their classes load and the JIT
+     * compiles them during boot. Otherwise the first enabled {@link #periodic()} paid ~80-140 ms for it.
+     * Pure computation: touches no motors, NetworkTables or state.
+     */
+    public void warmUpSolvers() {
+        for (int i = 0; i < 300; i++) {
+            double dxIn = -60.0 - (i % 40) * 4.0;
+            double dyIn = 20.0 + (i % 25) * 3.0;
+            double vxIps = (i % 7) - 3.0;
+            double vyIps = (i % 5) - 2.0;
+            if (shooterTable.isLoaded()) shooterTable.solve(dxIn, dyIn, vxIps, vyIps);
+            ModelShotCalculator.solve(dxIn, dyIn, vxIps, vyIps, 0.0, 0.0, 1.0);
+        }
+    }
+
     public void motorStatusCheck() {
         rightShooterMotorConnected = rightShooterMotor.isConnected();
         leftShooterMotorConnected = leftShooterMotor.isConnected();
@@ -296,15 +313,19 @@ public class TurretSubsystem extends SubsystemBase {
         // Reduce update frequencies to 20 Hz for telemetry-only signals.
         // These values are only used for dashboard display and targeting decisions
         // that run at the 20 ms robot loop rate, so 50 Hz is wasteful.
-        // this.shooterVelocitySignal.setUpdateFrequency(20);
+        // Flywheel velocity drives flywheelAtSpeed()/feed gating, so keep it at the 50 Hz loop rate
+        // rather than the 20 Hz the telemetry-only signals use.
+        this.shooterVelocitySignal.setUpdateFrequency(50);
         this.anglePositionSignal.setUpdateFrequency(20);
 
         // Silence all other status frames on these motors that we never read.
         // Phoenix 6 motors broadcast many signals by default; this tells the firmware
-        // to suppress any frame not explicitly configured above.
-        // this.rightShooterMotor.optimizeBusUtilization();
-        // this.leftShooterMotor.optimizeBusUtilization();
-        // this.angleMotor.optimizeBusUtilization();
+        // to suppress any frame not explicitly configured above. (The CAN bus was ~54% utilized
+        // while disabled, and the CAN receive thread was the biggest non-Java CPU consumer.)
+        // Only the two signals above are read; the left shooter motor is a follower.
+        this.rightShooterMotor.optimizeBusUtilization();
+        this.leftShooterMotor.optimizeBusUtilization();
+        this.angleMotor.optimizeBusUtilization();
 
         this.feedTrigger = new Trigger(() -> {
             // Use the on-RIO solution's RPM if available; otherwise fall back to the
@@ -1124,28 +1145,61 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Pulls data from the NetworkTables.
      */
+    // Gains currently on the motors (seeded with the constructor's values). Each CTRE apply() blocks
+    // the robot thread on a CAN round trip, so unchanged NetworkTables values skip it.
+    private double[] appliedShooterGains = {
+        TurretSubsystemConstants.SHOOTER_KP, TurretSubsystemConstants.SHOOTER_KI,
+        TurretSubsystemConstants.SHOOTER_KD, TurretSubsystemConstants.SHOOTER_KV};
+    private double[] appliedAngleGains = {
+        TurretSubsystemConstants.TURRET_KP, TurretSubsystemConstants.TURRET_KI,
+        TurretSubsystemConstants.TURRET_KD, TurretSubsystemConstants.TURRET_KS};
+
+    /** Applies the NetworkTables gains to the motors unconditionally. */
     public void pullNetworkTableData() {
-        var shooterSlot0config = ShooterFxConfigs.Slot0;
-        
-        shooterSlot0config.kP = NetworkedConfig.Turret.getShooterKP();
-        shooterSlot0config.kI = NetworkedConfig.Turret.getShooterKI();
-        shooterSlot0config.kD = NetworkedConfig.Turret.getShooterKD();
-        shooterSlot0config.kV = NetworkedConfig.Turret.getShooterKV();
-        shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+        applyNetworkTableData(true);
+    }
 
-        this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
+    /** Applies the NetworkTables gains only if they differ from what is already on the motors. */
+    public void applyChangedNetworkTableData() {
+        applyNetworkTableData(false);
+    }
 
-        var angleSlot0config = AngleFxConfigs.Slot0;
+    private void applyNetworkTableData(boolean force) {
+        double[] shooter = {
+            NetworkedConfig.Turret.getShooterKP(), NetworkedConfig.Turret.getShooterKI(),
+            NetworkedConfig.Turret.getShooterKD(), NetworkedConfig.Turret.getShooterKV()};
+        boolean applied = false;
+        if (force || !Arrays.equals(shooter, appliedShooterGains)) {
+            var shooterSlot0config = ShooterFxConfigs.Slot0;
+            shooterSlot0config.kP = shooter[0];
+            shooterSlot0config.kI = shooter[1];
+            shooterSlot0config.kD = shooter[2];
+            shooterSlot0config.kV = shooter[3];
+            shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+            // Slot0 only: re-applying the whole config rewrites unrelated settings (current limits, neutral mode, ...).
+            if (this.rightShooterMotor.getConfigurator().apply(shooterSlot0config).isOK()) {
+                appliedShooterGains = shooter;
+            }
+            applied = true;
+        }
 
-        angleSlot0config.kP = NetworkedConfig.Turret.getTurretKP();
-        angleSlot0config.kI = NetworkedConfig.Turret.getTurretKI();
-        angleSlot0config.kD = NetworkedConfig.Turret.getTurretKD();
-        angleSlot0config.kS = NetworkedConfig.Turret.getTurretKS();
-        angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
-
-        this.angleMotor.getConfigurator().apply(AngleFxConfigs);
-        this.angleMotor.getConfigurator().apply(new FeedbackConfigs()
-            .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_GEAR_RATIO));
+        double[] angle = {
+            NetworkedConfig.Turret.getTurretKP(), NetworkedConfig.Turret.getTurretKI(),
+            NetworkedConfig.Turret.getTurretKD(), NetworkedConfig.Turret.getTurretKS()};
+        if (force || !Arrays.equals(angle, appliedAngleGains)) {
+            var angleSlot0config = AngleFxConfigs.Slot0;
+            angleSlot0config.kP = angle[0];
+            angleSlot0config.kI = angle[1];
+            angleSlot0config.kD = angle[2];
+            angleSlot0config.kS = angle[3];
+            angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+            // Slot0 only. Applying the full config also reset the feedback (sensor-to-mechanism) ratio
+            // until a second apply restored it.
+            if (this.angleMotor.getConfigurator().apply(angleSlot0config).isOK()) {
+                appliedAngleGains = angle;
+            }
+            applied = true;
+        }
         
         // SparkMaxConfig hoodConfig = new SparkMaxConfig();
         // hoodConfig.inverted(hoodMotorInverted);
@@ -1156,7 +1210,7 @@ public class TurretSubsystem extends SubsystemBase {
         
         // this.hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        System.out.println("Updated Turret PIDs.");
+        if (applied) System.out.println("Updated Turret PIDs.");
         
     }
 
