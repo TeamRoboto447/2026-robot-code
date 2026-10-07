@@ -66,7 +66,7 @@ public class TheseusQuestNav {
      */
     public Pose2d getRobotPose() {
         // The robot is the Quest's pose transformed back by the quest->robot offset
-        return getQuestPose().transformBy(robotToQuest);
+        return getQuestPose().transformBy(robotToQuest.inverse());
     }
 
     public Pose2d getQuestPose() {
@@ -88,9 +88,23 @@ public class TheseusQuestNav {
         resetPoseOculus = getUncorrectedOculusPose();
         resetPoseRobot = newPose;
     }    
+    private Pose2d latestRawQuestPose = null;
+
+    // FPGA timestamp of latestRawQuestPose, and whether it arrived during the most recent update
+    private double latestFrameTimestamp = 0.0;
+    private boolean hasNewFrame = false;
 
     public void updateTelemetry() {
         questNav.commandPeriodic();
+        hasNewFrame = false;
+        for (PoseFrame f : questNav.getAllUnreadPoseFrames()) {
+            if (f.isTracking()) {
+                latestRawQuestPose = f.questPose3d().toPose2d();
+                latestFrameTimestamp = f.dataTimestamp();
+                hasNewFrame = true;
+            }
+        }
+        if (latestRawQuestPose != null) QuestNavNT.setRawQuestPose(new Pose3d(latestRawQuestPose));
         QuestNavNT.setBattery(questNav.getBatteryPercent().orElse(0));
         QuestNavNT.setLatency(questNav.getLatency());
         QuestNavNT.setConnected(questNav.isConnected());
@@ -99,32 +113,24 @@ public class TheseusQuestNav {
         QuestNavNT.setCorrectedQuestPose(new Pose3d(getQuestPose()));
     }
 
-    private Pose2d getUncorrectedOculusPose() {
-        PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
-
-        // Loop over the pose data frames and send them to the pose estimator
-        Pose3d questPose = null;
-
-        for (PoseFrame questFrame : questFrames) {
-            // Make sure the Quest was tracking the pose for this frame
-            if (questFrame.isTracking()) {
-                // Get the pose of the Quest
-                questPose = questFrame.questPose3d();
-                // Get timestamp for when the data was sent
-                double timestamp = questFrame.dataTimestamp();
-            }
-        }
-        QuestNavNT.setRawQuestPose(questPose);
-
-        if (questPose != null) {
-            return new Pose2d(
-                questPose.getTranslation().toTranslation2d(),
-                questPose.getRotation().toRotation2d()
-            );
-        } else {
-            return rollingAvg.getAveragePose().transformBy(robotToQuest);
-        }
+    /**
+     * Whether a new tracking frame was received during the last {@link #updateTelemetry()}.
+     */
+    public boolean hasNewFrame() {
+        return hasNewFrame;
     }
+
+    /**
+     * FPGA timestamp (seconds) of the most recent tracking frame.
+     */
+    public double getLatestFrameTimestamp() {
+        return latestFrameTimestamp;
+    }
+
+    private Pose2d getUncorrectedOculusPose() {
+        return latestRawQuestPose != null ? latestRawQuestPose : new Pose2d();
+    }
+    
     /**
      * Check if the Quest is connected to the robot.
      * @return The connection state as a boolean

@@ -957,12 +957,13 @@ public class ShipOfTheseus {
 
      public void updateVision() {
         questNav.updateTelemetry();
-        if (questNav.isConnected()) {
+        // Only fuse fresh frames; re-adding a stale pose stamped "now" pins the estimate in place
+        if (questNav.isConnected() && questNav.hasNewFrame()) {
         questNav.updateAverageRobotPose();
         //   swerveSubsystem.addVisionMeasurement(
         //       questNav.getRobotPose(), VecBuilder.fill(0.0, 0.0, 9999999.0));
         swerveSubsystem.addVisionMeasurement(
-            questNav.getAverageRobotPose(), VecBuilder.fill(0.0, 0.0, 0.0));
+            questNav.getAverageRobotPose(), questNav.getLatestFrameTimestamp(), VecBuilder.fill(0.01, 0.01, 0.02));//VecBuilder.fill(0.0, 0.0, 0.0));
         return;
         }
     }

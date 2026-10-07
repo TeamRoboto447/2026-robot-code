@@ -405,10 +405,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
     }
 
     public void addVisionMeasurement(
-      Pose2d visionRobotPoseMeters, Matrix<N3, N1> visionMeasurementStdDevs) {
-    addVisionMeasurement(
-        visionRobotPoseMeters, Utils.getCurrentTimeSeconds() - 0.02, visionMeasurementStdDevs);
-  }
+        Pose2d visionRobotPoseMeters, Matrix<N3, N1> visionMeasurementStdDevs
+    ) {
+        super.addVisionMeasurement(
+            visionRobotPoseMeters, Utils.getCurrentTimeSeconds() - 0.02, visionMeasurementStdDevs
+        );
+    }
 
     /**
      * Return the pose at a given timestamp, if the buffer is not empty.
