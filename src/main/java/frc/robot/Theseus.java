@@ -93,9 +93,7 @@ public class Theseus extends LoggedRobot {
         CommandScheduler.getInstance().run();
 
         
-        //  Repulsor main update loop (minimal integration)
-        if (m_robotContainer != null && m_robotContainer.repulsor != null) {
-            m_robotContainer.repulsor.update();
+        if (m_robotContainer != null) {
             m_robotContainer.periodicUpdate();
         }
 

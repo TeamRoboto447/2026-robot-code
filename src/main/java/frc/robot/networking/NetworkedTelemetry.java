@@ -278,24 +278,6 @@ public class NetworkedTelemetry {
         }
     }
 
-    /**
-     * Repulsor-related telemetry (operator-supplied "has piece" flag, etc.).
-     */
-    public static class Repulsor {
-        private static final NetworkTable repTable = defaultNTInstance.getTable("Repulsor");
-
-        private static final BooleanEntry hasPiece = repTable
-            .getBooleanTopic("Has Piece").getEntry(false);
-
-        public static void setHasPiece(boolean v) {
-            hasPiece.set(v);
-        }
-
-        public static boolean hasPiece() {
-            return hasPiece.get();
-        }
-    }
-
     public static class AdvantageScope {
 
         private static final NetworkTable advScopeTable = defaultNTInstance.getTable("AdvantageScope Elements");
@@ -471,7 +453,7 @@ public class NetworkedTelemetry {
 
     /**
      * Game-state telemetry — publishes match time and hub active status
-     * derived from {@code GameState} via {@code StateManager}.
+     * derived from {@code GameState}.
      *
      * <p>NT path: {@code GameState/}</p>
      */
@@ -485,17 +467,30 @@ public class NetworkedTelemetry {
 
         /**
          * Whether the hub is currently active (accepting fuel) for this alliance.
-         * False if the game data hasn't arrived yet.
+         * Fails open: true when the game data hasn't arrived or there is no teleop clock
+         * (see "Data Valid").
          */
         private static final BooleanEntry hubActive =
             gameStateTable.getBooleanTopic("Hub Active").getEntry(false);
 
         /**
          * Seconds until the hub next becomes active for this alliance.
-         * 0.0 when the hub is already active or game data is unavailable.
+         * 0.0 when the hub is already active or the schedule can't be applied.
          */
         private static final DoubleEntry hubActiveCountdown =
             gameStateTable.getDoubleTopic("Hub Active Countdown").getEntry(0.0);
+
+        /** False when the FMS game data / alliance is unavailable (hub is then reported active). */
+        private static final BooleanEntry dataValid =
+            gameStateTable.getBooleanTopic("Data Valid").getEntry(false);
+
+        /** Current match phase (NONE, AUTO, TRANSITION, SHIFT_1..4, ENDGAME). */
+        private static final StringEntry phase =
+            gameStateTable.getStringTopic("Phase").getEntry("NONE");
+
+        /** Alliance whose hub goes inactive first, or "Unknown". */
+        private static final StringEntry inactiveFirst =
+            gameStateTable.getStringTopic("Inactive First").getEntry("Unknown");
 
         /**
          * Publishes game-state values to NetworkTables.
@@ -508,6 +503,13 @@ public class NetworkedTelemetry {
             matchTime.set(matchTimeSecs);
             hubActive.set(isHubActive);
             hubActiveCountdown.set(hubActiveCountdownSecs);
+        }
+
+        /** Publishes the extra timer diagnostics alongside {@link #publish(double, boolean, double)}. */
+        public static void publishDiagnostics(boolean isDataValid, String phaseName, String inactiveFirstAlliance) {
+            dataValid.set(isDataValid);
+            phase.set(phaseName);
+            inactiveFirst.set(inactiveFirstAlliance);
         }
     }
 

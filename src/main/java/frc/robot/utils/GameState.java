@@ -1,124 +1,133 @@
 package frc.robot.utils;
 
+import java.util.Optional;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.utils.HubSchedule.Phase;
 
-/** Add your docs here. */
+/**
+ * Hub active/inactive timing for the 2026 game, read live from the DriverStation.
+ *
+ * <p>Call {@link #update()} once per loop; every getter then reads that same snapshot so they always
+ * agree within a loop. The schedule itself lives in {@link HubSchedule}.
+ *
+ * <p><b>Fail-open:</b> if the FMS game data or alliance is missing/unparseable, or there is no usable
+ * teleop clock, the hub is reported <i>active</i> (never block a shot because of bad data) and
+ * {@link #isDataValid()} is false so dashboards can show the timer is not trustworthy.
+ */
 public class GameState {
-    private final double TELEOP_GAME_LENGTH = 140.0;
-    private final double AUTONOMOUS_PERIOD_LENGTH = 20.0;
-    private final double TRANSITION_END_TIME = 130.0;
-    private final double SHIFT_1_END_TIME = 105.0;
-    private final double SHIFT_2_END_TIME = 80.0;
-    private final double SHIFT_3_END_TIME = 55.0;
-    private final double SHIFT_4_END_TIME = 30.0;
+    private static final class Snapshot {
+        final double matchTime;
+        final Phase phase;
+        final Optional<Alliance> ourAlliance;
+        final Optional<Alliance> inactiveFirst;
 
-    private DriverStation.Alliance currentAlliance = null;
-    private DriverStation.Alliance inactiveFirst = null;
+        Snapshot(double matchTime, Phase phase, Optional<Alliance> ourAlliance, Optional<Alliance> inactiveFirst) {
+            this.matchTime = matchTime;
+            this.phase = phase;
+            this.ourAlliance = ourAlliance;
+            this.inactiveFirst = inactiveFirst;
+        }
 
-    private Boolean isCountingDown = null;
-    private double lastMatchTime = Double.NaN;
+        boolean dataValid() {
+            return ourAlliance.isPresent() && inactiveFirst.isPresent();
+        }
 
-    private Trigger gameEnableTrigger = new Trigger(DriverStation::isEnabled);
+        /** True when the schedule can actually be applied (valid data and a teleop clock). */
+        boolean scheduleApplies() {
+            return dataValid() && phase.isTeleopPhase();
+        }
+
+        boolean ourHubInactiveFirst() {
+            return ourAlliance.get() == inactiveFirst.get();
+        }
+    }
+
+    private volatile Snapshot snapshot = new Snapshot(-1.0, Phase.NONE, Optional.empty(), Optional.empty());
 
     public GameState() {
         update();
-        gameEnableTrigger.onChange(Commands.runOnce(() -> update()));
     }
 
-    private void updateAlliance() {
-        currentAlliance = DriverStation.getAlliance().orElse(Alliance.Red);
-    }
+    /** Re-reads the DriverStation. Call once per robot loop before using any getter. */
+    public void update() {
+        double matchTime = DriverStation.getMatchTime();
 
-    private void updateGameData() {
-        String gameData = DriverStation.getGameSpecificMessage();
-        boolean validGameData = gameData.length() > 0
-                && (gameData.charAt(0) == 'B' || gameData.charAt(0) == 'R');
-
-        if (validGameData) {
-            inactiveFirst = (gameData.charAt(0) == 'B') ? DriverStation.Alliance.Blue : DriverStation.Alliance.Red;
-        }
-    }
-
-    public double getMatchTime() {
-        double gameTime = DriverStation.getMatchTime();
-
-        if (Double.isNaN(lastMatchTime)) { // Make sure last match time is good before trying to use it
-            lastMatchTime = gameTime;
-            return gameTime;
-        }
-        // Auto-detect direction on first tick of a new period
-        if (isCountingDown == null && lastMatchTime >= 0) {
-            isCountingDown = gameTime < lastMatchTime;
-        }
-        lastMatchTime = gameTime;
-
-        if (Boolean.TRUE.equals(isCountingDown)) { // Because we are using a Boolean object instead of a boolean
-                                                   // primative, we have to use a null-safe comparison
-            return gameTime; // Practice mode: already time remaining
-        }
-        return gameTime; // Plain DS: convert elapsed → remaining
-    }
-
-    public boolean isHubActive() { /*
+        Phase phase;
         if (DriverStation.isAutonomousEnabled()) {
-            return true;
+            phase = Phase.AUTO;
+        } else if (DriverStation.isTeleopEnabled()) {
+            phase = HubSchedule.phaseAt(matchTime);
+        } else {
+            phase = Phase.NONE;
         }
 
-        // Fail-safe default: keep hub active when not teleop enabled.
-        if (!DriverStation.isTest()) {
-            return true;
+        snapshot = new Snapshot(matchTime, phase, DriverStation.getAlliance(), parseInactiveFirst());
+    }
+
+    /**
+     * The FMS game-specific message names the alliance whose hub goes inactive first ('R' or 'B').
+     * Anything else (empty, other characters) is treated as no data.
+     */
+    private static Optional<Alliance> parseInactiveFirst() {
+        String message = DriverStation.getGameSpecificMessage();
+        if (message == null || message.isEmpty()) return Optional.empty();
+        switch (Character.toUpperCase(message.charAt(0))) {
+            case 'R':
+                return Optional.of(Alliance.Red);
+            case 'B':
+                return Optional.of(Alliance.Blue);
+            default:
+                return Optional.empty();
         }
+    }
 
-        if (inactiveFirst == null || currentAlliance == null) {
-            return true;
-        } */
+    /** Raw match time from the DriverStation (seconds remaining in the current period, -1 if unknown). */
+    public double getMatchTime() {
+        return snapshot.matchTime;
+    }
 
-        double matchTime = getMatchTime();
+    public Phase getPhase() {
+        return snapshot.phase;
+    }
 
-        // Transition and endgame are always active.
-        if (matchTime > TRANSITION_END_TIME || matchTime <= SHIFT_4_END_TIME) {
-            return true;
-        }
+    /** Increases through the match; changes whenever the phase changes. */
+    public int getPhaseIndex() {
+        return snapshot.phase.ordinal();
+    }
 
-        boolean shift1Active = inactiveFirst != currentAlliance;
-        if (matchTime > SHIFT_1_END_TIME) {
-            return shift1Active;
-        } else if (matchTime > SHIFT_2_END_TIME) {
-            return !shift1Active;
-        } else if (matchTime > SHIFT_3_END_TIME) {
-            return shift1Active;
-        }
-        return !shift1Active;
+    /** True when both the alliance and the FMS game data are available. */
+    public boolean isDataValid() {
+        return snapshot.dataValid();
+    }
+
+    /** The alliance whose hub is inactive first, if the game data has arrived. */
+    public Optional<Alliance> getInactiveFirstAlliance() {
+        return snapshot.inactiveFirst;
+    }
+
+    /** Whether our hub is active. Fails open (true) when the schedule cannot be applied. */
+    public boolean isHubActive() {
+        Snapshot s = snapshot;
+        if (!s.scheduleApplies()) return true;
+        return HubSchedule.isActive(s.phase, s.ourHubInactiveFirst());
     }
 
     public boolean isHubInactive() {
         return !isHubActive();
     }
 
-    public double getRemainingShiftTime() {
-        double matchTime = getMatchTime();
-
-        if (matchTime > TRANSITION_END_TIME) {
-            return matchTime - TRANSITION_END_TIME;
-        } else if (matchTime > SHIFT_1_END_TIME) {
-            return matchTime - SHIFT_1_END_TIME;
-        } else if (matchTime > SHIFT_2_END_TIME) {
-            return matchTime - SHIFT_2_END_TIME;
-        } else if (matchTime > SHIFT_3_END_TIME) {
-            return matchTime - SHIFT_3_END_TIME;
-        } else if (matchTime > SHIFT_4_END_TIME) {
-            return matchTime - SHIFT_4_END_TIME;
-        }
-
-        return Math.max(0.0, matchTime);
+    /** Seconds until our hub is next active; 0 if it is already active or the schedule cannot be applied. */
+    public double getSecondsUntilHubActive() {
+        Snapshot s = snapshot;
+        if (!s.scheduleApplies()) return 0.0;
+        return HubSchedule.secondsUntilActive(s.phase, s.matchTime, s.ourHubInactiveFirst());
     }
 
-    public void update() {
-        updateGameData();
-        updateAlliance();
+    /** Seconds left in the current phase (shift); 0 when there is no teleop clock. */
+    public double getRemainingShiftTime() {
+        Snapshot s = snapshot;
+        return HubSchedule.secondsRemainingInPhase(s.phase, s.matchTime);
     }
 }

@@ -7,7 +7,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -45,11 +44,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.generated.TunerConstants;
-import frc.robot.libraries.Repulsor.Repulsor;
-import frc.robot.libraries.Repulsor.DriverStation.RepulsorDriverStationBootstrap;
 import frc.robot.utils.GameState;
 import gg.questnav.questnav.QuestNav;
-import frc.robot.libraries.Repulsor.State.StateManager;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -110,9 +106,7 @@ public class ShipOfTheseus {
     public final IntakeSubsystem intakeSubsystem;
     // public final PoseEstimatorSubsystem poseEstimatorSubsystem;
     // public final ClimberSubsystem climberSubsystem;
-    public final Repulsor repulsor;
     public final GameState gameState;
-    private final AtomicBoolean repulsorHasPiece = new AtomicBoolean(false);
 
     public final PowerDistribution powerBoard;    
 
@@ -125,8 +119,10 @@ public class ShipOfTheseus {
     private final Trigger autoIntakeTrigger = new Trigger(() -> this.autoIntake);
     
     // NeoPixel telemetry state tracking
-    private boolean hubWarningFired = false;
-    private boolean wasHubActive = false;
+    /** Seconds before an inactive shift ends at which the NeoPixel "phase shift incoming" warning fires. */
+    private static final double HUB_WARNING_LEAD_S = 10.0;
+    /** Phase index we last warned for, so the warning fires once per inactive shift. -1 = re-armed. */
+    private int lastWarnedPhaseIndex = -1;
     private final Debouncer aprilTagValidDebouncer = new Debouncer(0.25, DebounceType.kFalling);
 
     // /**
@@ -192,19 +188,7 @@ public class ShipOfTheseus {
     // Debug: lightweight path/event prints added in fillAutoChooser to
     // help diagnose unexpected interruptions during auto.
 
-        this.repulsor =
-            new Repulsor(
-                swerveSubsystem,
-                frc.robot.Constants.RepulsorConstants.ROBOT_X,
-                frc.robot.Constants.RepulsorConstants.ROBOT_Y,
-                0.0,
-                0.0,
-                repulsorHasPiece::get); // operator-controlled supplier until a sensor is available
-        NetworkedTelemetry.Repulsor.setHasPiece(repulsorHasPiece.get());
-        RepulsorDriverStationBootstrap.useDefaultNt();
-
         gameState = new GameState();
-        gameState.update();
 
         Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
         if (alliance == Alliance.Blue) turretAngleOffset = Degrees.mutable(-4);
@@ -501,7 +485,6 @@ public class ShipOfTheseus {
      *   <li>Operator Y: manual turret turn (operator left stick Y, quarter speed)</li>
      *   <li>Operator POV up: turn turret to target without shooting</li>
      *   <li>Operator Start: pull all NetworkTables configs</li>
-     *   <li>Operator Back: toggle Repulsor "has piece"</li>
      * </ul>
      */
     private void configureDebugBindings() {
@@ -527,14 +510,6 @@ public class ShipOfTheseus {
         ));
         OperatorController.y().onFalse(turretSubsystem.runOnce(() -> turretSubsystem.stopTurret()));
 
-        // Operator toggle for Repulsor "has piece" (temporary until a sensor is wired).
-        // Pressing Back will toggle the value; it is published to NetworkTables for visibility.
-        OperatorController.back().onTrue(Commands.runOnce(() -> {
-            boolean next = !repulsorHasPiece.get();
-            repulsorHasPiece.set(next);
-            NetworkedTelemetry.Repulsor.setHasPiece(next);
-            SmartDashboard.putBoolean("Repulsor/HasPiece", next);
-        }));
 
         DriverController.x().onTrue(turretSubsystem.run(() -> {
             turretSubsystem.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
@@ -847,41 +822,34 @@ public class ShipOfTheseus {
 
     /**
      * Called every robot loop from {@code Theseus.robotPeriodic()}. Publishes
-     * game-state telemetry to NetworkTables using the {@link GameState} instance
-     * managed by {@link StateManager} (updated by {@code repulsor.update()}).
+     * game-state telemetry to NetworkTables using the {@link GameState} instance.
      */
     public void periodicUpdate() {
         questNav.cleanUpQuestNavMessages();
         updateVision();
-        if (gameState != null) { 
-            // Countdown is only meaningful when the hub is inactive — how long until it flips active.
-            // When already active (or game data not yet available), publish 0.
-            // double countdown = (!gs.isHubActive()) ? Math.max(0.0, gs.getRemainingShiftTime()) : 0.0;
-            double countdown = gameState.getRemainingShiftTime();
-            NetworkedTelemetry.GameState.publish(
-                 (int) gameState.getMatchTime(),
-                gameState.isHubActive(),
-                 (int) countdown
-            );
-            
-            // Handle NeoPixel hub warning trigger (8 seconds before hub becomes active)
-            boolean isHubActive = gameState.isHubActive();
-            
-            // Fire trigger when hub inactive, countdown <= 6s, and not yet fired
-            if (!isHubActive && countdown <= 10.0 && !hubWarningFired) {
-                NetworkedTelemetry.NeoPixels.setControlTrigger("PHASE_SHIFT_INCOMING");
-                hubWarningFired = true;
-                System.out.println("[NeoPixel] Phase shift incoming trigger: hub activating in ~" + countdown + "s");
+        if (gameState != null) {
+            gameState.update();
+
+            boolean hubActive = gameState.isHubActive();
+            double untilActive = gameState.getSecondsUntilHubActive();
+            NetworkedTelemetry.GameState.publish(gameState.getMatchTime(), hubActive, untilActive);
+            NetworkedTelemetry.GameState.publishDiagnostics(
+                gameState.isDataValid(),
+                gameState.getPhase().name(),
+                gameState.getInactiveFirstAlliance().map(Enum::name).orElse("Unknown"));
+
+            // NeoPixel warning: fire once per inactive shift, HUB_WARNING_LEAD_S before the hub becomes active.
+            if (gameState.isDataValid() && !hubActive && untilActive <= HUB_WARNING_LEAD_S) {
+                if (gameState.getPhaseIndex() != lastWarnedPhaseIndex) {
+                    NetworkedTelemetry.NeoPixels.setControlTrigger("PHASE_SHIFT_INCOMING");
+                    lastWarnedPhaseIndex = gameState.getPhaseIndex();
+                    System.out.println("[NeoPixel] Phase shift incoming trigger: hub activating in ~" + untilActive + "s");
+                }
+            } else if (!gameState.isDataValid() || DriverStation.isDisabled()) {
+                lastWarnedPhaseIndex = -1; // re-arm for the next match
             }
-            
-            // Reset flag when hub just became inactive
-            if (wasHubActive && !isHubActive) {
-                hubWarningFired = false;
-            }
-            
-            wasHubActive = isHubActive;
         }
-        
+
         // Publish current NeoPixel mode based on robot state
         publishNeopixelMode();
 
@@ -932,8 +900,7 @@ public class ShipOfTheseus {
 
         // if (!turretSubsystem.isTargetingHub()) return true;
         // if (NetworkedConfig.Debug.isBypassHubLock()) return true;
-        // GameState gs = StateManager.getState(GameState.class);
-        // return gs == null || gs.isHubActive();
+        // return gameState == null || gameState.isHubActive();
     }
 
     /**
