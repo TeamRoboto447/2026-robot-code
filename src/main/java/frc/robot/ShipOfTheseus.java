@@ -225,10 +225,8 @@ public class ShipOfTheseus {
         // configureAutonomousBindings();
         
         configureProductionBindings();
-        // configureDevBindings();
-
-        // FOR TESTING ONLY
-        DriverController.rightTrigger(0.95).onTrue(Commands.runOnce(() -> questNav.resetPose(new Pose2d(12.95, 3.85, new Rotation2d()))));
+        // Additional debug bindings layered on top of production. Comment out when deploying production code.
+        configureDebugBindings();
     }
 
     // private void configureAutonomousBindings() {
@@ -487,44 +485,26 @@ public class ShipOfTheseus {
         ));
     }
     
-    @SuppressWarnings("unused") // Suppress warnings for unused bindings in dev mode
-    private void configureDevBindings() {
-        // RobotModeTriggers.autonomous().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
-        RobotModeTriggers.teleop().onTrue(Commands.runOnce(() -> runSensorlessHoming()));
-
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        swerveSubsystem.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            swerveSubsystem.applyRequest(() ->
-                driveFieldOriented.withVelocityX(-DriverController.getLeftY() * MaxSpeed / 1.75) // Drive forward with negative Y (forward)
-                    .withVelocityY(-DriverController.getLeftX() * MaxSpeed / 1.75) // Drive left with negative X (left)
-                    .withRotationalRate(-DriverController.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
-
-        OperatorController.pov(90).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.intake(0.7)));
-        OperatorController.pov(270).whileTrue(intakeSubsystem.run(() -> intakeSubsystem.reverseIntake(0.7)));
-        OperatorController.povUp().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.liftIntake()));
-        OperatorController.povDown().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.dropIntake()));
-
-        OperatorController.pov(-1).onTrue(intakeSubsystem.run(() -> {
-            intakeSubsystem.stopIntake();
-        }));
-
-        OperatorController.start().onTrue(intakeSubsystem.runOnce(() -> intakeSubsystem.pullNetworkTableData()));
-
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
-
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-            swerveSubsystem.applyRequest(() -> idle).ignoringDisable(true)
-        );
-
-        // DriverController.a().whileTrue(swerveSubsystem.applyRequest(() -> brake));
-        // DriverController.a().onTrue(getAutoClimbCommand());
-
+    /**
+     * Extra debug/tuning bindings layered on top of {@link #configureProductionBindings()}.
+     * Every binding here uses a button production leaves free, and nothing here sets a default
+     * command or telemetry, so it is safe to call alongside production. Comment out the call in
+     * {@link #configureBindings()} when deploying production code.
+     *
+     * <ul>
+     *   <li>Driver A: reset pose from the NetworkTables debug values</li>
+     *   <li>Driver left + right stick click (both held): reset QuestNav pose to a fixed test pose</li>
+     *   <li>Driver B: point wheels along the left stick</li>
+     *   <li>Driver X: turret to the NetworkTables target angle</li>
+     *   <li>Driver left bumper: spin the indexer (ungated)</li>
+     *   <li>Driver right bumper: shoot + kick (ungated: no target/hood/hub-lock checks)</li>
+     *   <li>Operator Y: manual turret turn (operator left stick Y, quarter speed)</li>
+     *   <li>Operator POV up: turn turret to target without shooting</li>
+     *   <li>Operator Start: pull all NetworkTables configs</li>
+     *   <li>Operator Back: toggle Repulsor "has piece"</li>
+     * </ul>
+     */
+    private void configureDebugBindings() {
         DriverController.b().whileTrue(swerveSubsystem.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-DriverController.getLeftY(), -DriverController.getLeftX()))
         ));
@@ -537,73 +517,44 @@ public class ShipOfTheseus {
         DriverController.rightBumper().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();
             turretSubsystem.stopKicker();
-            }));
-        
-        OperatorController.rightBumper().whileTrue(turretSubsystem.defer(() -> turretSubsystem.turnToTarget()));
-        
-        OperatorController.rightBumper().onFalse(turretSubsystem.runOnce(() ->
-            turretSubsystem.stopTurret()
+        }));
+
+        OperatorController.povUp().whileTrue(turretSubsystem.defer(() -> turretSubsystem.turnToTarget()));
+        OperatorController.povUp().onFalse(turretSubsystem.runOnce(() -> turretSubsystem.stopTurret()));
+
+        OperatorController.y().whileTrue(turretSubsystem.run(() ->
+            turretSubsystem.turnRaw(-OperatorController.getLeftY() / 4)
         ));
-
-        OperatorController.leftBumper().whileTrue(turretSubsystem.run(() ->
-            turretSubsystem.turnRaw(-OperatorController.getRightY()/4)
-        ));
-
-        OperatorController.rightBumper().onFalse(turretSubsystem.runOnce(() ->
-            turretSubsystem.stopTurret()
-        ));
-
-        // AtomicInteger angle = new AtomicInteger(25);
-        // AtomicBoolean goingUp = new AtomicBoolean(true);
-        // joystick.rightTrigger().whileTrue(turretSubsystem.run(() -> {
-        //     turretSubsystem.setHoodAngle(Degrees.of(angle.get()));
-        //     if(goingUp.get()) {
-        //         if(angle.get() >= 45) {
-        //             angle.set(angle.get()-1);
-        //             goingUp.set(false);
-        //         } else angle.set(angle.get()+1);
-        //     } else {
-                
-        //         if(angle.get() <= 25) {
-        //             angle.set(angle.get()+1);
-        //             goingUp.set(true);
-        //         } else angle.set(angle.get()-1);
-        //     }
-        // }));
-
-        // joystick.x().onTrue(turretSubsystem.run(() -> turretSubsystem.kick(1)));
-        // joystick.x().onFalse(turretSubsystem.stopKicker());
+        OperatorController.y().onFalse(turretSubsystem.runOnce(() -> turretSubsystem.stopTurret()));
 
         // Operator toggle for Repulsor "has piece" (temporary until a sensor is wired).
-        // Pressing X will toggle the value; it is published to NetworkTables for visibility.
-        OperatorController.x().onTrue(Commands.runOnce(() -> {
+        // Pressing Back will toggle the value; it is published to NetworkTables for visibility.
+        OperatorController.back().onTrue(Commands.runOnce(() -> {
             boolean next = !repulsorHasPiece.get();
             repulsorHasPiece.set(next);
             NetworkedTelemetry.Repulsor.setHasPiece(next);
             SmartDashboard.putBoolean("Repulsor/HasPiece", next);
         }));
 
-        DriverController.y().onTrue(turretSubsystem.run(() -> {
+        DriverController.x().onTrue(turretSubsystem.run(() -> {
             turretSubsystem.turnToAngle(Degrees.of(NetworkedConfig.Turret.getTargetTurretAngle()));
         }));
-        DriverController.y().onFalse(turretSubsystem.run(() -> {
+        DriverController.x().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopTurret();
         }));
 
-        DriverController.start().onTrue(turretSubsystem.runOnce(() -> {
-            turretSubsystem.pullNetworkTableData();
-        }));
+        OperatorController.start().onTrue(Commands.runOnce(this::pullAllNetworkedConfigs));
 
-        DriverController.leftTrigger().whileTrue(indexerSubsystem.run(() -> {
+        DriverController.leftBumper().whileTrue(indexerSubsystem.run(() -> {
             indexerSubsystem.spin();
         }));
-        DriverController.leftTrigger().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
+        DriverController.leftBumper().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
 
-        DriverController.start().onTrue(indexerSubsystem.runOnce(() -> {
-            indexerSubsystem.pullNetworkTableData();
-        }));
-        
-        DriverController.back().onTrue(swerveSubsystem.run(() -> swerveSubsystem.resetPose(new Pose2d(
+        // Chord so it can't be hit by accident while driving.
+        DriverController.leftStick().and(DriverController.rightStick())
+            .onTrue(Commands.runOnce(() -> questNav.resetPose(new Pose2d(12.95, 3.85, new Rotation2d()))));
+
+        DriverController.a().onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.resetPose(new Pose2d(
             NetworkedConfig.Debug.getNewPoseX(),
             NetworkedConfig.Debug.getNewPoseY(),
             new Rotation2d(NetworkedConfig.Debug.getNewPoseRotation())
@@ -661,8 +612,6 @@ public class ShipOfTheseus {
 
         // Reset the field-centric heading on left bumper press.
         // joystick.leftBumper().onTrue(swerveSubsystem.runOnce(swerveSubsystem::seedFieldCentric));
-
-        swerveSubsystem.registerTelemetry(logger::telemeterize);
     }
 
     public void pullAllNetworkedConfigs() {
