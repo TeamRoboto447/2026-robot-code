@@ -538,8 +538,10 @@ public class NetworkedTelemetry {
             questNavTable.getDoubleTopic("Battery %").getEntry(0);
         private static final DoubleEntry trackingLostCountEntry = 
             questNavTable.getDoubleTopic("Tracking Lost Counter").getEntry(999);
-        private static final StructEntry<Pose3d> robotPoseEntry = 
-            questNavTable.getStructTopic("Robot Pose", Pose3d.struct).getEntry(new Pose3d());
+        private static final StructEntry<Pose3d> rawQuestPoseEntry = 
+            questNavTable.getStructTopic("Raw Quest Pose", Pose3d.struct).getEntry(new Pose3d());
+        private static final StructEntry<Pose3d> correctedQuestPoseEntry = 
+            questNavTable.getStructTopic("Corrected Quest Pose", Pose3d.struct).getEntry(new Pose3d());
 
             
         public static void setConnected(boolean connected)                  { connectedEntry.set(connected); }
@@ -547,7 +549,8 @@ public class NetworkedTelemetry {
         public static void setLatency(double latency)                       { latencyEntry.set(latency); }
         public static void setBattery(double battery)                       { batteryEntry.set(battery); }
         public static void setTrackingLostCount(double trackingLostCount)   { trackingLostCountEntry.set(trackingLostCount); }
-        public static void set3dPose(Pose3d pose)                           { robotPoseEntry.set(pose); }
+        public static void setRawQuestPose(Pose3d pose)                     { rawQuestPoseEntry.set(pose); }
+        public static void setCorrectedQuestPose(Pose3d pose)               { correctedQuestPoseEntry.set(pose); }
 
         public static double getLatency()           { return latencyEntry.get(); }
     }

@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.networking.NetworkedTelemetry;
+import frc.robot.networking.NetworkedTelemetry.QuestNavNT;
 import frc.robot.utils.RollingAveragePose2d;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
@@ -90,8 +91,12 @@ public class TheseusQuestNav {
 
     public void updateTelemetry() {
         questNav.commandPeriodic();
-        batteryPublisher.set(questNav.getBatteryPercent().orElse(0));
-        connectedPublisher.set(questNav.isConnected());
+        QuestNavNT.setBattery(questNav.getBatteryPercent().orElse(0));
+        QuestNavNT.setLatency(questNav.getLatency());
+        QuestNavNT.setConnected(questNav.isConnected());
+        QuestNavNT.setTracking(questNav.isTracking());
+        QuestNavNT.setTrackingLostCount(questNav.getTrackingLostCounter().orElse(999));
+        QuestNavNT.setCorrectedQuestPose(new Pose3d(getQuestPose()));
     }
 
     private Pose2d getUncorrectedOculusPose() {
@@ -109,7 +114,7 @@ public class TheseusQuestNav {
                 double timestamp = questFrame.dataTimestamp();
             }
         }
-        NetworkedTelemetry.QuestNavNT.set3dPose(questPose);
+        QuestNavNT.setRawQuestPose(questPose);
 
         if (questPose != null) {
             return new Pose2d(
