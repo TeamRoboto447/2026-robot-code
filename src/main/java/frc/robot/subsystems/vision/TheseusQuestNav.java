@@ -10,6 +10,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.RollingAveragePose2d;
 import gg.questnav.questnav.PoseFrame;
 import gg.questnav.questnav.QuestNav;
@@ -97,7 +98,7 @@ public class TheseusQuestNav {
         PoseFrame[] questFrames = questNav.getAllUnreadPoseFrames();
 
         // Loop over the pose data frames and send them to the pose estimator
-        Pose3d questPose = new Pose3d().transformBy(VisionConstants.ROBOT_TO_QUEST);
+        Pose3d questPose = null;
 
         for (PoseFrame questFrame : questFrames) {
             // Make sure the Quest was tracking the pose for this frame
@@ -108,11 +109,16 @@ public class TheseusQuestNav {
                 double timestamp = questFrame.dataTimestamp();
             }
         }
+        NetworkedTelemetry.QuestNavNT.set3dPose(questPose);
 
-        return new Pose2d(
-            questPose.getTranslation().toTranslation2d(),
-            questPose.getRotation().toRotation2d()
-        );
+        if (questPose != null) {
+            return new Pose2d(
+                questPose.getTranslation().toTranslation2d(),
+                questPose.getRotation().toRotation2d()
+            );
+        } else {
+            return rollingAvg.getAveragePose().transformBy(robotToQuest);
+        }
     }
     /**
      * Check if the Quest is connected to the robot.
