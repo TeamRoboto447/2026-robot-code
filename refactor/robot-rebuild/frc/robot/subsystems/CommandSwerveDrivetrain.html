@@ -94,12 +94,12 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code>edu.wpi.first.wpilibj2.command.Subsystem</code>, <code><a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code>, <code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code>, <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></code></dd>
+<dd><code>edu.wpi.first.wpilibj2.command.Subsystem</code>, <code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code>, <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">CommandSwerveDrivetrain</span>
 <span class="extends-implements">extends <a href="../generated/TunerConstants.TunerSwerveDrivetrain.html" title="class in frc.robot.generated">TunerConstants.TunerSwerveDrivetrain</a>
-implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a>, <a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></span></div>
+implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a>, edu.wpi.first.wpilibj2.command.Subsystem</span></div>
 <div class="block">Class that extends the Phoenix 6 SwerveDrivetrain class and implements
  Subsystem so it can easily be used in command-based projects.
 
@@ -223,25 +223,19 @@ implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems"
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the current field zone the robot is located in.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.controller.PIDController</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getOmegaPID()" class="member-name-link">getOmegaPID</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.geometry.Pose2d</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPose()" class="member-name-link">getPose</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.geometry.Pose2d</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPose()" class="member-name-link">getPose</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the current estimated pose of the robot on the field.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetQuestPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">resetQuestPose</a><wbr>(edu.wpi.first.math.geometry.Pose2d&nbsp;pose)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetQuestPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">resetQuestPose</a><wbr>(edu.wpi.first.math.geometry.Pose2d&nbsp;pose)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Resets both the QuestNav anchor and the drivetrain pose.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)" class="member-name-link">runVelocity</a><wbr>(edu.wpi.first.math.kinematics.ChassisSpeeds&nbsp;speeds)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;edu.wpi.first.math.geometry.Pose2d&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#samplePoseAt(double)" class="member-name-link">samplePoseAt</a><wbr>(double&nbsp;timestampSeconds)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -530,8 +524,6 @@ implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems"
 <div class="block">Gets the current estimated pose of the robot on the field.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="../libraries/Repulsor/DriveRepulsor.html#getPose()">getPose</a></code>&nbsp;in interface&nbsp;<code><a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code></dd>
-<dt>Specified by:</dt>
 <dd><code><a href="PoseProvider.html#getPose()">getPose</a></code>&nbsp;in interface&nbsp;<code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code></dd>
 <dt>Returns:</dt>
 <dd>The robot's current Pose2d (position and rotation)</dd>
@@ -564,26 +556,6 @@ implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems"
 <dd><code><a href="PoseProvider.html#getFieldZone()">getFieldZone</a></code>&nbsp;in interface&nbsp;<code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code></dd>
 <dt>Returns:</dt>
 <dd>The FieldZone enum representing the robot's current zone</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)">
-<h3>runVelocity</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">runVelocity</span><wbr><span class="parameters">(edu.wpi.first.math.kinematics.ChassisSpeeds&nbsp;speeds)</span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="../libraries/Repulsor/DriveRepulsor.html#runVelocity(edu.wpi.first.math.kinematics.ChassisSpeeds)">runVelocity</a></code>&nbsp;in interface&nbsp;<code><a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getOmegaPID()">
-<h3>getOmegaPID</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.math.controller.PIDController</span>&nbsp;<span class="element-name">getOmegaPID</span>()</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="../libraries/Repulsor/DriveRepulsor.html#getOmegaPID()">getOmegaPID</a></code>&nbsp;in interface&nbsp;<code><a href="../libraries/Repulsor/DriveRepulsor.html" title="interface in frc.robot.libraries.Repulsor">DriveRepulsor</a></code></dd>
 </dl>
 </section>
 </li>

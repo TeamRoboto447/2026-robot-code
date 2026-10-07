@@ -91,7 +91,14 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">GameState</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Add your docs here.</div>
+<div class="block">Hub active/inactive timing for the 2026 game, read live from the DriverStation.
+
+ <p>Call <a href="#update()"><code>update()</code></a> once per loop; every getter then reads that same snapshot so they always
+ agree within a loop. The schedule itself lives in <a href="HubSchedule.html" title="class in frc.robot.utils"><code>HubSchedule</code></a>.
+
+ <p><b>Fail-open:</b> if the FMS game data or alliance is missing/unparseable, or there is no usable
+ teleop clock, the hub is reported <i>active</i> (never block a shot because of bad data) and
+ <a href="#isDataValid()"><code>isDataValid()</code></a> is false so dashboards can show the timer is not trustworthy.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -119,21 +126,52 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMatchTime()" class="member-name-link">getMatchTime</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;edu.wpi.first.wpilibj.DriverStation.Alliance&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getInactiveFirstAlliance()" class="member-name-link">getInactiveFirstAlliance</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">The alliance whose hub is inactive first, if the game data has arrived.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRemainingShiftTime()" class="member-name-link">getRemainingShiftTime</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMatchTime()" class="member-name-link">getMatchTime</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Raw match time from the DriverStation (seconds remaining in the current period, -1 if unknown).</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="HubSchedule.Phase.html" title="enum class in frc.robot.utils">HubSchedule.Phase</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPhase()" class="member-name-link">getPhase</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPhaseIndex()" class="member-name-link">getPhaseIndex</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Increases through the match; changes whenever the phase changes.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRemainingShiftTime()" class="member-name-link">getRemainingShiftTime</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Seconds left in the current phase (shift); 0 when there is no teleop clock.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSecondsUntilHubActive()" class="member-name-link">getSecondsUntilHubActive</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Seconds until our hub is next active; 0 if it is already active or the schedule cannot be applied.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isHubActive()" class="member-name-link">isHubActive</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isDataValid()" class="member-name-link">isDataValid</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">True when both the alliance and the FMS game data are available.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isHubInactive()" class="member-name-link">isHubInactive</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isHubActive()" class="member-name-link">isHubActive</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Whether our hub is active.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isHubInactive()" class="member-name-link">isHubInactive</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update()" class="member-name-link">update</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Re-reads the DriverStation.</div>
+</div>
 </div>
 </div>
 </div>
@@ -166,15 +204,51 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="update()">
+<h3>update</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">update</span>()</div>
+<div class="block">Re-reads the DriverStation. Call once per robot loop before using any getter.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="getMatchTime()">
 <h3>getMatchTime</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getMatchTime</span>()</div>
+<div class="block">Raw match time from the DriverStation (seconds remaining in the current period, -1 if unknown).</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPhase()">
+<h3>getPhase</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="HubSchedule.Phase.html" title="enum class in frc.robot.utils">HubSchedule.Phase</a></span>&nbsp;<span class="element-name">getPhase</span>()</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getPhaseIndex()">
+<h3>getPhaseIndex</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getPhaseIndex</span>()</div>
+<div class="block">Increases through the match; changes whenever the phase changes.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isDataValid()">
+<h3>isDataValid</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isDataValid</span>()</div>
+<div class="block">True when both the alliance and the FMS game data are available.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getInactiveFirstAlliance()">
+<h3>getInactiveFirstAlliance</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;edu.wpi.first.wpilibj.DriverStation.Alliance&gt;</span>&nbsp;<span class="element-name">getInactiveFirstAlliance</span>()</div>
+<div class="block">The alliance whose hub is inactive first, if the game data has arrived.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="isHubActive()">
 <h3>isHubActive</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isHubActive</span>()</div>
+<div class="block">Whether our hub is active. Fails open (true) when the schedule cannot be applied.</div>
 </section>
 </li>
 <li>
@@ -184,15 +258,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="getRemainingShiftTime()">
-<h3>getRemainingShiftTime</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getRemainingShiftTime</span>()</div>
+<section class="detail" id="getSecondsUntilHubActive()">
+<h3>getSecondsUntilHubActive</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getSecondsUntilHubActive</span>()</div>
+<div class="block">Seconds until our hub is next active; 0 if it is already active or the schedule cannot be applied.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="update()">
-<h3>update</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">update</span>()</div>
+<section class="detail" id="getRemainingShiftTime()">
+<h3>getRemainingShiftTime</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getRemainingShiftTime</span>()</div>
+<div class="block">Seconds left in the current phase (shift); 0 when there is no teleop clock.</div>
 </section>
 </li>
 </ul>
