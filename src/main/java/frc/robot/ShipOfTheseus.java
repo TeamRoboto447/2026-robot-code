@@ -492,8 +492,8 @@ public class ShipOfTheseus {
      * {@link #configureBindings()} when deploying production code.
      *
      * <ul>
-     *   <li>Driver A: reset pose from the NetworkTables debug values</li>
-     *   <li>Driver left + right stick click (both held): reset QuestNav pose to a fixed test pose</li>
+     *   <li>Driver A: reset QuestNav and drivetrain pose from the NetworkTables debug values</li>
+     *   <li>Driver left + right stick click (both held): reset QuestNav and drivetrain pose to a fixed test pose</li>
      *   <li>Driver B: point wheels along the left stick</li>
      *   <li>Driver X: turret to the NetworkTables target angle</li>
      *   <li>Driver left bumper: spin the indexer (ungated)</li>
@@ -551,10 +551,11 @@ public class ShipOfTheseus {
         DriverController.leftBumper().onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
 
         // Chord so it can't be hit by accident while driving.
+        // Resets the drivetrain as well as QuestNav, otherwise the Quest pulls the pose back.
         DriverController.leftStick().and(DriverController.rightStick())
-            .onTrue(Commands.runOnce(() -> questNav.resetPose(new Pose2d(12.95, 3.85, new Rotation2d()))));
+            .onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.resetQuestPose(new Pose2d(12.95, 3.85, new Rotation2d()))));
 
-        DriverController.a().onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.resetPose(new Pose2d(
+        DriverController.a().onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.resetQuestPose(new Pose2d(
             NetworkedConfig.Debug.getNewPoseX(),
             NetworkedConfig.Debug.getNewPoseY(),
             new Rotation2d(NetworkedConfig.Debug.getNewPoseRotation())

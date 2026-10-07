@@ -88,7 +88,7 @@ public class Team1732QuestNav {
      */
     public Pose2d getRobotPose() {
         // The robot is the Quest's pose transformed back by the quest->robot offset
-        return getQuestPose().transformBy(robotToQuest);
+        return getQuestPose().transformBy(robotToQuest.inverse());
     }
 
     /**

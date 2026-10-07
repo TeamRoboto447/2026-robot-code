@@ -407,6 +407,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
     public void addVisionMeasurement(
         Pose2d visionRobotPoseMeters, Matrix<N3, N1> visionMeasurementStdDevs
     ) {
+        // Utils.getCurrentTimeSeconds() is already in the CTRE time base, so call super directly
+        // rather than the 3-arg override above, which would convert it a second time.
         super.addVisionMeasurement(
             visionRobotPoseMeters, Utils.getCurrentTimeSeconds() - 0.02, visionMeasurementStdDevs
         );
@@ -518,7 +520,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
         
     }
 
-    private void resetQuestPose(Pose2d pose) {
+    /**
+     * Resets both the QuestNav anchor and the drivetrain pose. Resetting only one lets the other
+     * pull the estimate straight back, since the Quest is fused every frame.
+     */
+    public void resetQuestPose(Pose2d pose) {
         m_questPoseResetConsumer.accept(pose);
         resetPose(pose);
     }
