@@ -86,7 +86,7 @@ public class Theseus extends LoggedRobot {
         // for ~3 s at every enable.
         try {
             Class.forName(Elastic.class.getName());
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | LinkageError e) {
             DriverStation.reportWarning("Could not pre-initialize Elastic: " + e, false);
         }
 

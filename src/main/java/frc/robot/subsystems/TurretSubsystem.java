@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 
-import java.util.Arrays;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -61,6 +60,7 @@ import frc.robot.Constants.FieldConstants.TurretSafety;
 import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.networking.NetworkedTelemetry.QuestNavNT;
+import frc.robot.utils.AppliedGains;
 import frc.robot.utils.ModelShotCalculator;
 import frc.robot.utils.ShooterTable;
 import frc.robot.utils.ShooterTable.ShotSolution;
@@ -297,6 +297,7 @@ public class TurretSubsystem extends SubsystemBase {
             .withSupplyCurrentLimit(TurretSubsystemConstants.TURRET_SUPPLY_CURRENT_LIMIT_A)
             .withSupplyCurrentLimitEnable(true);
 
+        AngleFxConfigs.Feedback.SensorToMechanismRatio = TurretSubsystemConstants.TURRET_GEAR_RATIO;
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
         this.angleMotor.getConfigurator().apply(new FeedbackConfigs()
             .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_GEAR_RATIO));
@@ -1147,60 +1148,68 @@ public class TurretSubsystem extends SubsystemBase {
      */
     // Gains currently on the motors (seeded with the constructor's values). Each CTRE apply() blocks
     // the robot thread on a CAN round trip, so unchanged NetworkTables values skip it.
-    private double[] appliedShooterGains = {
+    private final AppliedGains shooterGains = new AppliedGains(
         TurretSubsystemConstants.SHOOTER_KP, TurretSubsystemConstants.SHOOTER_KI,
-        TurretSubsystemConstants.SHOOTER_KD, TurretSubsystemConstants.SHOOTER_KV};
-    private double[] appliedAngleGains = {
+        TurretSubsystemConstants.SHOOTER_KD, TurretSubsystemConstants.SHOOTER_KV);
+    private final AppliedGains angleGains = new AppliedGains(
         TurretSubsystemConstants.TURRET_KP, TurretSubsystemConstants.TURRET_KI,
-        TurretSubsystemConstants.TURRET_KD, TurretSubsystemConstants.TURRET_KS};
+        TurretSubsystemConstants.TURRET_KD, TurretSubsystemConstants.TURRET_KS);
 
     /** Applies the NetworkTables gains to the motors unconditionally. */
     public void pullNetworkTableData() {
         applyNetworkTableData(true);
     }
 
-    /** Applies the NetworkTables gains only if they differ from what is already on the motors. */
+    /**
+     * Applies the NetworkTables gains only if they differ from what is already on the motors, or if a motor
+     * controller has reset since the last check (a reboot/brownout wipes its whole configuration).
+     */
     public void applyChangedNetworkTableData() {
         applyNetworkTableData(false);
     }
 
     private void applyNetworkTableData(boolean force) {
+        // hasResetOccurred() is a cheap, non-blocking check, but it consumes the flag, so call it every time.
+        boolean shooterReset = this.rightShooterMotor.hasResetOccurred();
+        boolean angleReset = this.angleMotor.hasResetOccurred();
+
         double[] shooter = {
             NetworkedConfig.Turret.getShooterKP(), NetworkedConfig.Turret.getShooterKI(),
             NetworkedConfig.Turret.getShooterKD(), NetworkedConfig.Turret.getShooterKV()};
-        boolean applied = false;
-        if (force || !Arrays.equals(shooter, appliedShooterGains)) {
+        if (shooterReset || shooterGains.shouldApply(force, shooter)) {
             var shooterSlot0config = ShooterFxConfigs.Slot0;
             shooterSlot0config.kP = shooter[0];
             shooterSlot0config.kI = shooter[1];
             shooterSlot0config.kD = shooter[2];
             shooterSlot0config.kV = shooter[3];
             shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
-            // Slot0 only: re-applying the whole config rewrites unrelated settings (current limits, neutral mode, ...).
-            if (this.rightShooterMotor.getConfigurator().apply(shooterSlot0config).isOK()) {
-                appliedShooterGains = shooter;
-            }
-            applied = true;
+            // Normally Slot0 only (re-applying the whole config rewrites unrelated settings). After a
+            // controller reset everything is gone, so restore the full configuration.
+            var status = shooterReset
+                ? this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs)
+                : this.rightShooterMotor.getConfigurator().apply(shooterSlot0config);
+            shooterGains.record(status.isOK(), shooter);
+            reportGainApply("shooter", shooterReset, status.isOK());
         }
 
         double[] angle = {
             NetworkedConfig.Turret.getTurretKP(), NetworkedConfig.Turret.getTurretKI(),
             NetworkedConfig.Turret.getTurretKD(), NetworkedConfig.Turret.getTurretKS()};
-        if (force || !Arrays.equals(angle, appliedAngleGains)) {
+        if (angleReset || angleGains.shouldApply(force, angle)) {
             var angleSlot0config = AngleFxConfigs.Slot0;
             angleSlot0config.kP = angle[0];
             angleSlot0config.kI = angle[1];
             angleSlot0config.kD = angle[2];
             angleSlot0config.kS = angle[3];
             angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
-            // Slot0 only. Applying the full config also reset the feedback (sensor-to-mechanism) ratio
-            // until a second apply restored it.
-            if (this.angleMotor.getConfigurator().apply(angleSlot0config).isOK()) {
-                appliedAngleGains = angle;
-            }
-            applied = true;
+            // AngleFxConfigs includes the sensor-to-mechanism ratio, so even a full apply keeps the turret scale.
+            var status = angleReset
+                ? this.angleMotor.getConfigurator().apply(AngleFxConfigs)
+                : this.angleMotor.getConfigurator().apply(angleSlot0config);
+            angleGains.record(status.isOK(), angle);
+            reportGainApply("turret angle", angleReset, status.isOK());
         }
-        
+
         // SparkMaxConfig hoodConfig = new SparkMaxConfig();
         // hoodConfig.inverted(hoodMotorInverted);
         // hoodConfig.closedLoop
@@ -1210,8 +1219,14 @@ public class TurretSubsystem extends SubsystemBase {
         
         // this.hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        if (applied) System.out.println("Updated Turret PIDs.");
-        
+    }
+
+    private static void reportGainApply(String motor, boolean afterReset, boolean ok) {
+        if (!ok) {
+            DriverStation.reportWarning("Failed to apply " + motor + " motor gains over CAN; will retry.", false);
+        } else {
+            System.out.println("Updated " + motor + " PIDs" + (afterReset ? " (full config re-applied after device reset)." : "."));
+        }
     }
 
     /**
