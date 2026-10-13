@@ -103,9 +103,13 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">TheseusQuestNav</a>()</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Create an instance of this object with a rolling average window size of 2.</div>
+</div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(int)" class="member-name-link">TheseusQuestNav</a><wbr>(int&nbsp;windowSize)</code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Create an instance of this object.</div>
+</div>
 </div>
 </section>
 </li>
@@ -127,7 +131,9 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.geometry.Pose2d</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAverageRobotPose()" class="member-name-link">getAverageRobotPose</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Gets the average pose from the rolling pose average.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getLatestFrameTimestamp()" class="member-name-link">getLatestFrameTimestamp</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -139,7 +145,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.geometry.Pose2d</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getRobotPose()" class="member-name-link">getRobotPose</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Gets the pose of the robot on the field</div>
+<div class="block">Gets the pose of the robot on the field.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasNewFrame()" class="member-name-link">hasNewFrame</a>()</code></div>
@@ -153,13 +159,19 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">resetPose</a><wbr>(edu.wpi.first.math.geometry.Pose2d&nbsp;newPose)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Resets the quest pose a new position.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateAverageRobotPose()" class="member-name-link">updateAverageRobotPose</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Update the rolling pose average with the latest pose.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#updateTelemetry()" class="member-name-link">updateTelemetry</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Updates the NetworkTable telemetry and the internal values (similar to a subsystem's periodic function)</div>
+</div>
 </div>
 </div>
 </div>
@@ -181,12 +193,18 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;(int)">
 <h3>TheseusQuestNav</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">TheseusQuestNav</span><wbr><span class="parameters">(int&nbsp;windowSize)</span></div>
+<div class="block">Create an instance of this object.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>windowSize</code> - The size of the window for the rolling pose average</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>TheseusQuestNav</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">TheseusQuestNav</span>()</div>
+<div class="block">Create an instance of this object with a rolling average window size of 2.</div>
 </section>
 </li>
 </ul>
@@ -201,13 +219,14 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="updateAverageRobotPose()">
 <h3>updateAverageRobotPose</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">updateAverageRobotPose</span>()</div>
+<div class="block">Update the rolling pose average with the latest pose.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="getRobotPose()">
 <h3>getRobotPose</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Pose2d</span>&nbsp;<span class="element-name">getRobotPose</span>()</div>
-<div class="block">Gets the pose of the robot on the field</div>
+<div class="block">Gets the pose of the robot on the field.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>pose of the robot</dd>
@@ -224,18 +243,25 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getAverageRobotPose()">
 <h3>getAverageRobotPose</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.math.geometry.Pose2d</span>&nbsp;<span class="element-name">getAverageRobotPose</span>()</div>
+<div class="block">Gets the average pose from the rolling pose average.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="resetPose(edu.wpi.first.math.geometry.Pose2d)">
 <h3>resetPose</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">resetPose</span><wbr><span class="parameters">(edu.wpi.first.math.geometry.Pose2d&nbsp;newPose)</span></div>
+<div class="block">Resets the quest pose a new position.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>newPose</code> - The new pose to use</dd>
+</dl>
 </section>
 </li>
 <li>
 <section class="detail" id="updateTelemetry()">
 <h3>updateTelemetry</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">updateTelemetry</span>()</div>
+<div class="block">Updates the NetworkTable telemetry and the internal values (similar to a subsystem's periodic function)</div>
 </section>
 </li>
 <li>
