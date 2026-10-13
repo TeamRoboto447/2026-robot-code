@@ -509,7 +509,7 @@ public final class Constants {
          * consistently in the direction you came from (behind your path), increase
          * this value.  If they land consistently ahead of your path, decrease it.
          */
-        public static final double SOTF_LATENCY_COMPENSATION_S = -0.02;
+        public static final double SOTF_LATENCY_COMPENSATION_S = 0.045;
 
         /**
          * Additional radial (toward/away) latency compensation for shoot-on-the-fly

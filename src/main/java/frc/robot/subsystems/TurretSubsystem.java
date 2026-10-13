@@ -453,7 +453,7 @@ public class TurretSubsystem extends SubsystemBase {
         // ball-departure time rather than the stale sensor-capture position.
         // Tune SOTF_LATENCY_COMPENSATION_S by driving perpendicular to the target:
         //   shots landing behind your path → increase; ahead of your path → decrease.
-        double latencyS = QuestNavNT.getLatency() / 1000.0; //TurretSubsystemConstants.SOTF_LATENCY_COMPENSATION_S;
+        double latencyS = QuestNavNT.getLatency() / 1000.0 + TurretSubsystemConstants.SOTF_LATENCY_COMPENSATION_S;
         if (isModelModeActive()) {
             latencyS += NetworkedConfig.Debug.getModelLatencyOffsetSeconds();
         }

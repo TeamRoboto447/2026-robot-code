@@ -216,6 +216,13 @@ public class ShipOfTheseus {
         configureProductionBindings();
         // Additional debug bindings layered on top of production. Comment out when deploying production code.
         configureDebugBindings();
+
+        // FOR TESTING ONLY
+        DriverController.rightTrigger(0.95).onTrue(Commands.runOnce(() -> {
+            System.out.println("Resetting Quest Pose to hub corner");
+            questNav.resetPose(new Pose2d(12.95, 3.85, new Rotation2d(Units.degreesToRadians(0))));
+            System.out.println("Quest Pose reset.");
+        }));
     }
 
     // private void configureAutonomousBindings() {
@@ -276,10 +283,25 @@ public class ShipOfTheseus {
                         .withVelocityY(-DriverController.getLeftX() * speedCap)
                         .withTargetDirection(new Rotation2d(turretSubsystem.getTargetAngleFromPos()));
                 } else {
-                    return driveFieldOriented
-                        .withVelocityX(-DriverController.getLeftY() * speedCap)
-                        .withVelocityY(-DriverController.getLeftX() * speedCap)
-                        .withRotationalRate(-DriverController.getRightX() * angularRateCap);
+                    if (turretSubsystem.isShootingActive()) {
+                        double absDriverX = Math.abs(DriverController.getLeftY()) > 0.5 ? 1 : 0;
+                        double absDriverY = Math.abs(DriverController.getLeftX()) > 0.5 ? 1 : 0;
+
+                        double driverX = Math.copySign(absDriverX, -DriverController.getLeftY());
+                        double driverY = Math.copySign(absDriverY, -DriverController.getLeftX());
+
+                        System.out.println(driverX + "   " + driverY);
+
+                        return driveFieldOriented
+                            .withVelocityX(driverX * TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS)
+                            .withVelocityY(driverY * TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS)
+                            .withRotationalRate(-DriverController.getRightX() * TurretSubsystemConstants.SOTF_MAX_ANGULAR_RATE_RAD_PER_SEC);
+                    } else {
+                        return driveFieldOriented
+                            .withVelocityX(-DriverController.getLeftY() * speedCap)
+                            .withVelocityY(-DriverController.getLeftX() * speedCap)
+                            .withRotationalRate(-DriverController.getRightX() * angularRateCap);
+                    }
                 }
             })
         );
