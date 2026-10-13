@@ -38,6 +38,10 @@ public class TheseusQuestNav {
             VisionConstants.ROBOT_TO_QUEST.getRotation().toRotation2d()
         );
 
+    /**
+     * Create an instance of this object.
+     * @param windowSize The size of the window for the rolling pose average
+     */
     public TheseusQuestNav(int windowSize) {
         questNav = new QuestNav();
 
@@ -51,16 +55,22 @@ public class TheseusQuestNav {
         rollingAvg = new RollingAveragePose2d(windowSize);
     }
 
+    /**
+     * Create an instance of this object with a rolling average window size of 2.
+     */
     public TheseusQuestNav() {
         this(2);
     }
 
+    /**
+     * Update the rolling pose average with the latest pose.
+     */
     public void updateAverageRobotPose() {
         rollingAvg.addPose(getRobotPose());
     }
 
     /**
-     * Gets the pose of the robot on the field
+     * Gets the pose of the robot on the field.
      *
      * @return pose of the robot
      */
@@ -79,28 +89,39 @@ public class TheseusQuestNav {
                 .transformBy(poseRelativeToReset);
     }
 
+    /**
+     * Gets the average pose from the rolling pose average.
+     */
     public Pose2d getAverageRobotPose() {
         return rollingAvg.getAveragePose();
     }
 
+    /**
+     * Resets the quest pose a new position.
+     * @param newPose The new pose to use
+     */
     public void resetPose(Pose2d newPose) {
         rollingAvg.reset();
         resetPoseOculus = getUncorrectedOculusPose();
         resetPoseRobot = newPose;
-    }    
+    }
+
     private Pose2d latestRawQuestPose = null;
 
     // FPGA timestamp of latestRawQuestPose, and whether it arrived during the most recent update
     private double latestFrameTimestamp = 0.0;
     private boolean hasNewFrame = false;
 
+    /**
+     * Updates the NetworkTable telemetry and the internal values (similar to a subsystem's periodic function)
+     */
     public void updateTelemetry() {
         questNav.commandPeriodic();
         hasNewFrame = false;
-        for (PoseFrame f : questNav.getAllUnreadPoseFrames()) {
-            if (f.isTracking()) {
-                latestRawQuestPose = f.questPose3d().toPose2d();
-                latestFrameTimestamp = f.dataTimestamp();
+        for (PoseFrame frame : questNav.getAllUnreadPoseFrames()) {
+            if (frame.isTracking()) {
+                latestRawQuestPose = frame.questPose3d().toPose2d();
+                latestFrameTimestamp = frame.dataTimestamp();
                 hasNewFrame = true;
             }
         }
@@ -127,6 +148,11 @@ public class TheseusQuestNav {
         return latestFrameTimestamp;
     }
 
+    /**
+     * Re
+     * 
+     * @return The raw Quest pose
+     */
     private Pose2d getUncorrectedOculusPose() {
         return latestRawQuestPose != null ? latestRawQuestPose : new Pose2d();
     }
