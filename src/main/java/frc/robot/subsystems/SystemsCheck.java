@@ -11,7 +11,7 @@ import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.ShipOfTheseus;
-import frc.robot.Constants.ClimberSubsystemConstants;
+// import frc.robot.Constants.ClimberSubsystemConstants; // Climber physically removed
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
@@ -96,7 +96,7 @@ public class SystemsCheck {
         final boolean chkIntake   = NetworkedConfig.SystemsCheck.isCheckIntake();
         final boolean chkIndexer  = NetworkedConfig.SystemsCheck.isCheckIndexer();
         final boolean chkFeeder   = NetworkedConfig.SystemsCheck.isCheckFeeder();
-        final boolean chkClimber  = NetworkedConfig.SystemsCheck.isCheckClimber();
+        // final boolean chkClimber  = NetworkedConfig.SystemsCheck.isCheckClimber(); // Climber physically removed
         final boolean chkSwerve   = NetworkedConfig.SystemsCheck.isCheckSwerve();
 
         return Commands.sequence(
@@ -108,7 +108,7 @@ public class SystemsCheck {
                 robot.turretSubsystem.setSystemsCheckMode(true);
                 NetworkedTelemetry.SystemsCheck.resetResults(
                     chkHood, chkTurret, chkFlywheel,
-                    chkIntake, chkIndexer, chkFeeder, chkClimber, chkSwerve);
+                    chkIntake, chkIndexer, chkFeeder, chkSwerve);
                 Elastic.sendNotification(new Notification(
                     NotificationLevel.INFO,
                     "Systems Check",
@@ -216,7 +216,7 @@ public class SystemsCheck {
                     .andThen(robot.turretSubsystem.runOnce(() -> robot.turretSubsystem.stopKicker())),
                 NetworkedTelemetry.SystemsCheck.resFeeder),
 
-            // Climber
+            // Climber (physically removed)
             // step(robot, NetworkedConfig.SystemsCheck::isCheckClimber,
             //     "Climber: Homing",
             //     robot.climberSubsystem.homeClimber()
@@ -293,7 +293,7 @@ public class SystemsCheck {
             // Final summary
             Commands.runOnce(() -> publishFinalResult(
                 chkHood, chkTurret, chkFlywheel,
-                chkIntake, chkIndexer, chkFeeder, chkClimber, chkSwerve))
+                chkIntake, chkIndexer, chkFeeder, chkSwerve))
         ).finallyDo(() -> robot.turretSubsystem.setSystemsCheckMode(false));
     }
 
@@ -450,9 +450,9 @@ public class SystemsCheck {
 
     private static void publishFinalResult(
             boolean hood, boolean turret, boolean flywheel,
-            boolean intake, boolean indexer, boolean feeder, boolean climber, boolean swerve) {
+            boolean intake, boolean indexer, boolean feeder, boolean swerve) {
         boolean allPassed = NetworkedTelemetry.SystemsCheck.computeOverall(
-            hood, turret, flywheel, intake, indexer, feeder, climber, swerve);
+            hood, turret, flywheel, intake, indexer, feeder, swerve);
         if (allPassed) {
             Elastic.sendNotification(new Notification(
                 NotificationLevel.INFO,

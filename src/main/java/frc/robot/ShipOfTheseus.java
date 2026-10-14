@@ -46,7 +46,7 @@ import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.utils.GameState;
 import gg.questnav.questnav.QuestNav;
-import frc.robot.subsystems.ClimberSubsystem;
+// import frc.robot.subsystems.ClimberSubsystem; // Climber physically removed
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -170,9 +170,8 @@ public class ShipOfTheseus {
         turretTargetChooser.addOption("None (disable turret)", "NONE");
         SmartDashboard.putData("Debug/Turret Target Override", turretTargetChooser);
 
-        turretTargetingModeChooser.addOption("Auto Fallback", "AUTO_FALLBACK");
         turretTargetingModeChooser.setDefaultOption("LUT Only", "LUT");
-        turretTargetingModeChooser.addOption("Model Only", "MODEL");
+        turretTargetingModeChooser.addOption("Physics (LUT fallback)", "PHYSICS");
         SmartDashboard.putData("Debug/Turret Targeting Mode", turretTargetingModeChooser);
         
         configureBindings();
@@ -190,8 +189,8 @@ public class ShipOfTheseus {
 
         gameState = new GameState();
 
-        Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
-        if (alliance == Alliance.Blue) turretAngleOffset = Degrees.mutable(-4);
+        // Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Red);
+        // if (alliance == Alliance.Blue) turretAngleOffset = Degrees.mutable(-4);
     }
 
     public void runSensorlessHoming() {
@@ -216,13 +215,6 @@ public class ShipOfTheseus {
         configureProductionBindings();
         // Additional debug bindings layered on top of production. Comment out when deploying production code.
         configureDebugBindings();
-
-        // FOR TESTING ONLY
-        DriverController.rightTrigger(0.95).onTrue(Commands.runOnce(() -> {
-            System.out.println("Resetting Quest Pose to hub corner");
-            questNav.resetPose(new Pose2d(12.95, 3.85, new Rotation2d(Units.degreesToRadians(0))));
-            System.out.println("Quest Pose reset.");
-        }));
     }
 
     // private void configureAutonomousBindings() {
@@ -290,7 +282,7 @@ public class ShipOfTheseus {
                         double driverX = Math.copySign(absDriverX, -DriverController.getLeftY());
                         double driverY = Math.copySign(absDriverY, -DriverController.getLeftX());
 
-                        System.out.println(driverX + "   " + driverY);
+                        // System.out.println(driverX + "   " + driverY);
 
                         return driveFieldOriented
                             .withVelocityX(driverX * TurretSubsystemConstants.SOTF_MAX_DRIVE_SPEED_MPS)
@@ -385,26 +377,26 @@ public class ShipOfTheseus {
                 indexerSubsystem.stop();
             }));
 
-        
-        OperatorController.leftTrigger().or(DriverController.y())
-            .and(turretSubsystem::hasValidTarget)
-            .and(this::isShotAllowed)
-            .whileTrue(
-                turretSubsystem.run(() -> {
-                    turretSubsystem.shootAutoTargetWithRPMOffset(TurretSubsystemConstants.RPM_OFFSET_WHILE_CLIMBED);
-                    turretSubsystem.kick(KICKER_SPEED);
-                })
-            );
+        // Shoot-while-climbed (driver Y / operator left trigger) disabled: the climber was physically removed.
+        // OperatorController.leftTrigger().or(DriverController.y())
+        //     .and(turretSubsystem::hasValidTarget)
+        //     .and(this::isShotAllowed)
+        //     .whileTrue(
+        //         turretSubsystem.run(() -> {
+        //             turretSubsystem.shootAutoTargetWithRPMOffset(TurretSubsystemConstants.RPM_OFFSET_WHILE_CLIMBED);
+        //             turretSubsystem.kick(KICKER_SPEED);
+        //         })
+        //     );
 
-        OperatorController.leftTrigger().or(DriverController.y())
-            .onFalse(Commands.runOnce(() -> {
-                turretSubsystem.stopShooter();
-                turretSubsystem.stopKicker();
-                indexerSubsystem.stop();
-            }));
+        // OperatorController.leftTrigger().or(DriverController.y())
+        //     .onFalse(Commands.runOnce(() -> {
+        //         turretSubsystem.stopShooter();
+        //         turretSubsystem.stopKicker();
+        //         indexerSubsystem.stop();
+        //     }));
 
         Trigger shootRequest = DriverController.start().or(OperatorController.rightTrigger())
-            .or(DriverController.y().or(OperatorController.leftTrigger()))
+            // .or(DriverController.y().or(OperatorController.leftTrigger())) // Climber removed
             .or(autoShootTrigger);
 
         // Feed the spindexer only when the feed trigger is true (flywheel at speed).
@@ -637,6 +629,7 @@ public class ShipOfTheseus {
         NamedCommands.registerCommand("stopShooter", Commands.runOnce(() -> this.autoShoot = false));
         NamedCommands.registerCommand("runAutoShoot", Commands.startEnd(() -> this.autoShoot = true, () -> this.autoShoot = false));
         // NamedCommands.registerCommand("autoClimb", Commands.defer(this::getAutoClimbCommand, Set.of(climberSubsystem, swerveSubsystem)));
+        // Climber physically removed. These stay registered as no-ops because PathPlanner autos still reference them.
         NamedCommands.registerCommand("autoClimb", Commands.none());
         NamedCommands.registerCommand("Raise Climber", Commands.none());
         NamedCommands.registerCommand("Lower Climber", Commands.none());
@@ -718,58 +711,60 @@ public class ShipOfTheseus {
         // );//.finallyDo(interrupted -> poseEstimatorSubsystem.clearTemporaryAprilTagFilter());
     // }
 
-    /**
-     * Picks the correct climb target pose based on the robot's current alliance
-     * and which side of the field (audience vs scoring) it is on.
-     *
-     * <p>Falls back to the blue audience-side position if the alliance or zone
-     * cannot be determined.</p>
-     */
-    private Pose2d selectClimbPosition() {
-        var alliance = edu.wpi.first.wpilibj.DriverStation.getAlliance();
-        boolean isRed = alliance.isPresent()
-            && alliance.get() == edu.wpi.first.wpilibj.DriverStation.Alliance.Red;
+    // Climber physically removed; the climb pose selectors below are disabled.
 
-        // Use the robot's current Y to decide audience side (low Y) vs scoring side (high Y).
-        double fieldMidY = frc.robot.Constants.FieldConstants.FIELD_WIDTH_METERS / 2.0;
-        boolean isScoringside = swerveSubsystem.getPose().getY() >= fieldMidY;
+    // /**
+    //  * Picks the correct climb target pose based on the robot's current alliance
+    //  * and which side of the field (audience vs scoring) it is on.
+    //  *
+    //  * <p>Falls back to the blue audience-side position if the alliance or zone
+    //  * cannot be determined.</p>
+    //  */
+    // private Pose2d selectClimbPosition() {
+    //     var alliance = edu.wpi.first.wpilibj.DriverStation.getAlliance();
+    //     boolean isRed = alliance.isPresent()
+    //         && alliance.get() == edu.wpi.first.wpilibj.DriverStation.Alliance.Red;
 
-        if (isRed) {
-            return isScoringside
-                ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_OUTPOST_SIDE
-                : frc.robot.Constants.FieldConstants.ClimbPositions.RED_DEPOT_SIDE;
-        } else {
-            return isScoringside
-                ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_DEPOT_SIDE
-                : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_OUTPOST_SIDE;
-        }
-    }
+    //     // Use the robot's current Y to decide audience side (low Y) vs scoring side (high Y).
+    //     double fieldMidY = frc.robot.Constants.FieldConstants.FIELD_WIDTH_METERS / 2.0;
+    //     boolean isScoringside = swerveSubsystem.getPose().getY() >= fieldMidY;
 
-    /**
-     * Picks the correct staging pose for the climb — the pre-alignment position the
-     * robot drives to before slotting onto the tower.
-     *
-     * <p>Uses the same alliance + field-side logic as {@link #selectClimbPosition()}
-     * so both poses are always consistent.</p>
-     */
-    private Pose2d selectStagingPosition() {
-        var alliance = edu.wpi.first.wpilibj.DriverStation.getAlliance();
-        boolean isRed = alliance.isPresent()
-            && alliance.get() == edu.wpi.first.wpilibj.DriverStation.Alliance.Red;
+    //     if (isRed) {
+    //         return isScoringside
+    //             ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_OUTPOST_SIDE
+    //             : frc.robot.Constants.FieldConstants.ClimbPositions.RED_DEPOT_SIDE;
+    //     } else {
+    //         return isScoringside
+    //             ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_DEPOT_SIDE
+    //             : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_OUTPOST_SIDE;
+    //     }
+    // }
 
-        double fieldMidY = frc.robot.Constants.FieldConstants.FIELD_WIDTH_METERS / 2.0;
-        boolean isScoringside = swerveSubsystem.getPose().getY() >= fieldMidY;
+    // /**
+    //  * Picks the correct staging pose for the climb — the pre-alignment position the
+    //  * robot drives to before slotting onto the tower.
+    //  *
+    //  * <p>Uses the same alliance + field-side logic as {@link #selectClimbPosition()}
+    //  * so both poses are always consistent.</p>
+    //  */
+    // private Pose2d selectStagingPosition() {
+    //     var alliance = edu.wpi.first.wpilibj.DriverStation.getAlliance();
+    //     boolean isRed = alliance.isPresent()
+    //         && alliance.get() == edu.wpi.first.wpilibj.DriverStation.Alliance.Red;
 
-        if (isRed) {
-            return isScoringside
-                ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_OUTPOST_SIDE_STAGING
-                : frc.robot.Constants.FieldConstants.ClimbPositions.RED_DEPOT_SIDE_STAGING;
-        } else {
-            return isScoringside
-                ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_DEPOT_SIDE_STAGING
-                : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_OUTPOST_SIDE_STAGING;
-        }
-    }
+    //     double fieldMidY = frc.robot.Constants.FieldConstants.FIELD_WIDTH_METERS / 2.0;
+    //     boolean isScoringside = swerveSubsystem.getPose().getY() >= fieldMidY;
+
+    //     if (isRed) {
+    //         return isScoringside
+    //             ? frc.robot.Constants.FieldConstants.ClimbPositions.RED_OUTPOST_SIDE_STAGING
+    //             : frc.robot.Constants.FieldConstants.ClimbPositions.RED_DEPOT_SIDE_STAGING;
+    //     } else {
+    //         return isScoringside
+    //             ? frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_DEPOT_SIDE_STAGING
+    //             : frc.robot.Constants.FieldConstants.ClimbPositions.BLUE_OUTPOST_SIDE_STAGING;
+    //     }
+    // }
 
     /**
      * Gets the starting pose from the currently selected autonomous routine.
@@ -920,17 +915,15 @@ public class ShipOfTheseus {
         }
     }
     /**
-     * Returns {@code true} when a hub-targeting shot is permitted.
+     * Returns {@code true} when a shot is permitted. Currently only checks that the hood is outside the
+     * trench safety zones.
      *
-     * <p>A shot is allowed when any of the following is true:
-     * <ul>
-     *   <li>The turret is <em>not</em> targeting the hub (relay shots always allowed).</li>
-     *   <li>The hub is currently active for this alliance.</li>
-     *   <li>{@link NetworkedConfig.Debug#isBypassHubLock()} is {@code true} (dev override).</li>
-     * </ul>
+     * <p>Hub-schedule gating (block hub shots while our hub is inactive, unless
+     * {@link NetworkedConfig.Debug#isBypassHubLock()}) is disabled below; it was turned off for a bug
+     * that predates the hub timer rewrite.
      */
     private boolean isShotAllowed() {
-        return turretSubsystem.isTurretSafe(); // There appears to be a bug preventing shots, don't have time to debug it
+        return turretSubsystem.isTurretSafe();
 
         // if (!turretSubsystem.isTargetingHub()) return true;
         // if (NetworkedConfig.Debug.isBypassHubLock()) return true;

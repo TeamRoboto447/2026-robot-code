@@ -17,6 +17,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -431,6 +432,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Po
 
     public ChassisSpeeds getChassisSpeeds() {
         return getState().Speeds;
+    }
+
+    public double getPoseAgeSeconds() {
+        // State.Timestamp is in the Utils.getCurrentTimeSeconds() time base. Clamped so a stalled
+        // odometry thread can't make the turret project far ahead.
+        return MathUtil.clamp(Utils.getCurrentTimeSeconds() - getState().Timestamp, 0.0, 0.1);
     }
 
     public FieldZone getFieldZone() {

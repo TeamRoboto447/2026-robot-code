@@ -115,9 +115,10 @@ public class PoseEstimatorSubsystem extends SubsystemBase {
             NetworkedTelemetry.Vision.setDetectedTagPostions(detectedTagPositions);
 
             Pose3d robotPosition3d = new Pose3d(getCurrentPose());
-            Pose3d climberCamPosition = robotPosition3d.transformBy(VisionConstants.ROBOT_TO_CLIMBER_CAM);
+            // Climber (and its camera) physically removed.
+            // Pose3d climberCamPosition = robotPosition3d.transformBy(VisionConstants.ROBOT_TO_CLIMBER_CAM);
             Pose3d turretCamPosition = robotPosition3d.transformBy(VisionConstants.ROBOT_TO_TURRET_CAM);
-            NetworkedTelemetry.Vision.setCameraPostions(List.of(climberCamPosition, turretCamPosition));
+            NetworkedTelemetry.Vision.setCameraPostions(List.of(turretCamPosition));
 
             if (RobotBase.isSimulation()) {
                 visionSim.update(robotPosition3d);

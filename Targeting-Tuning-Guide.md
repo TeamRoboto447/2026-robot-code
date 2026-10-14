@@ -3,8 +3,8 @@
 This guide is a complete, field-usable procedure for tuning the robot targeting stack in this repo.
 
 It is written against the current architecture:
-- On-RIO shot solve in `TurretSubsystem` (LUT + Newton solver, optional model fallback)
-- Lookup data from `src/main/deploy/turret_data.json`
+- On-RIO shot planning in `TurretSubsystem` via `utils/targeting/ShotPlanner` (latency projection + Newton moving-shot solve), with a LUT solver and an optional physics solver
+- Lookup data from `src/main/deploy/turret_data.json` (hood angles in true degrees from vertical)
 - Runtime debug/tuning controls under NetworkTables `Debug/*` and `TurretAssembly/*`
 
 If you follow the order in this document, you will avoid most tuning loops that burn hours.
@@ -17,7 +17,7 @@ The shot quality depends on 5 layers. Tune in this order only:
 2. Actuator control loops (turret, hood, flywheel)
 3. Static shot map (`turret_data.json`) at zero robot motion
 4. Shoot-on-the-fly compensation (latency + range latency + rotation FF)
-5. Optional MODEL mode calibration and LUT-vs-model fallback behavior
+5. Optional PHYSICS mode calibration (ballistic solver with LUT fallback)
 
 If an earlier layer is unstable, do not tune later layers.
 
@@ -61,9 +61,10 @@ If these are wrong, do not tune shooter values yet.
 1. Run hood homing command.
 2. Confirm hood reaches stall, zeros encoder, and becomes homed.
 3. Command min and max hood angles and verify physical endpoints match constants:
-   - `MIN_HOOD_ANGLE`
-   - `MAX_HOOD_ANGLE`
-4. If hood does not hit setpoint repeatably, fix mechanism first (binding, backlash, slipping coupler, brownout).
+   - `MIN_HOOD_ANGLE` (23°, the homed hard stop)
+   - `MAX_HOOD_ANGLE` (≈43.3°, 17 motor rotations above the stop)
+4. Check two angles with a protractor. Hood angles are true degrees from vertical: 301 motor rotations = 360° (`HOOD_DEGREES_ROTATION_RATIO`). Commands outside the travel are clamped, not ignored.
+5. If hood does not hit setpoint repeatably, fix mechanism first (binding, backlash, slipping coupler, brownout).
 
 ### 3.2 Turret angle baseline
 
@@ -76,6 +77,7 @@ If these are wrong, do not tune shooter values yet.
 1. Command a few fixed RPM values.
 2. Verify settle time and steady-state error.
 3. Confirm feed trigger behavior: kicker/indexer should only run when at speed and hood safe.
+   - "At speed" compares the measured flywheel speed with `Turret/Commanded RPM` (the speed actually sent, including the RPM override), within `FLYWHEEL_READY_TOLERANCE_RPS` (currently 750 RPM).
 
 ## 4) Tune Control Loops (Closed-Loop Mechanics First)
 
@@ -144,6 +146,7 @@ Current data file:
 
 1. Keep denser points where curve bends most (mid/far range transitions).
 2. Avoid giant distance gaps; interpolation across big gaps causes weak midpoints.
+3. Hub shots are only taken within `LUT_RANGE_MARGIN_IN` (24 in) of the first and last points (`Turret/Shot In Range`). To shoot from farther or closer, add points there. Relay shots to the corners are not range-limited.
 
 ### 5.3 Deploying updated table
 
@@ -174,23 +177,30 @@ Do not proceed until this phase is stable.
 
 Now tune motion compensation.
 
-### 7.1 Lateral lead latency (`SOTF_LATENCY_COMPENSATION_S`)
+### 7.1 Lateral lead latency (measured + `Latency Trim S`)
 
 Purpose:
-- Projects robot/turret position forward to account for perception + control + feed delay.
+- Projects robot/turret position forward to where the robot will be when the turret actually reaches its aim.
+
+How it is computed (every loop, shown under `Turret/Latency *`):
+- `Latency Pose Age S`: how old the drivetrain pose estimate is (CTRE state timestamp). Normally a few ms.
+- `Latency Turret Lag S`: how far the turret trails its setpoint while auto-aiming, measured live (tracking error ÷ setpoint rate during steady motion, filtered over ~1 s, clamped to 0–0.25 s). It starts at 0.045 s (the old hand-tuned total) and only updates while the turret is tracking a moving aim, e.g. while driving past the hub.
+- Trim: `SOTF_LATENCY_TRIM_S` (constant, 0) + `Debug/Latency Trim S` (live). This covers what the robot can't measure: the Quest's capture-to-robot delay and the ball's response.
+- `Latency Total S` is the sum.
 
 Test method:
-1. Drive perpendicular to target at constant speed.
+1. Drive perpendicular to target at constant speed, long enough for `Latency Turret Lag S` to settle.
 2. Fire repeated shots.
 3. Observe whether impacts lag or lead travel direction.
 
-Adjustment:
+Adjustment (`Debug/Latency Trim S`, then copy the value into `SOTF_LATENCY_TRIM_S`):
 - Shots land behind path: increase value.
 - Shots land ahead of path: decrease value.
 
 Notes:
 - Start with small increments (around 0.01 s).
 - Re-test at multiple speeds.
+- If `Latency Turret Lag S` sits at 0 or 0.25 s, or jumps around, the measurement isn't working; note it, and use the trim to compensate.
 
 ### 7.2 Radial compensation (`SOTF_RANGE_LATENCY_COMPENSATION_S`)
 
@@ -208,7 +218,7 @@ Adjustment:
 ### 7.3 Rotation feedforward (`TURRET_ROTATION_FF`)
 
 Purpose:
-- Reduce turret lag while robot yaws.
+- Reduce turret lag while robot yaws. The planner already aims from the heading projected by the latency, so this is a trim on top of that (default 0).
 
 Test method:
 1. Rotate chassis while maintaining target lock.
@@ -218,31 +228,30 @@ Adjustment:
 - Still lagging: increase FF.
 - Overshooting/leading too much: decrease FF.
 
-## 8) MODEL Mode and Hybrid Fallback Tuning
+## 8) PHYSICS Mode (Ballistic Solver, LUT Fallback)
 
 Use only after LUT mode is reliable.
 
-Relevant debug entries:
-- `Debug/Turret Targeting Mode`: `LUT`, `MODEL`, `AUTO_FALLBACK`
-- `Debug/Model RPM Offset`
-- `Debug/Model Distance Bias Inches`
-- `Debug/Model TOF Scale`
-- `Debug/Model Latency Offset S`
-- `Debug/Model Range Latency Offset S`
+What it does:
+- Takes the hood angle from the LUT's hood curve, then computes the RPM and flight time from a drag-free projectile model. The model has a launch height (`PHYSICS_LAUNCH_HEIGHT_M`) and an exit speed that is linear in RPM (`PHYSICS_EXIT_SPEED_INTERCEPT_MPS`, `PHYSICS_EXIT_SPEED_PER_RPM_MPS`, fit to the LUT).
+- Uses real target heights, so corner relay shots (target at floor level) get their own solution.
+- Its flight times vary with distance (about 0.6 s close to 0.9 s far), unlike the LUT's placeholder `flight_time` values, so moving-shot lead changes. Re-check section 7 in this mode.
+- Falls back to the LUT when the required RPM is outside `PHYSICS_MIN_RPM`–`PHYSICS_MAX_RPM` or the arc can't reach the target.
+
+Relevant entries:
+- `Debug/Turret Targeting Mode`: `LUT` or `PHYSICS`
+- `Debug/Physics Exit Speed Scale` (1.0 = as fit). Physics shots long → raise it; short → lower it.
 
 Telemetry to compare:
-- `Turret/Selected Solver`
-- `Turret/LUT-Model Hood Delta Deg`
-- `Turret/LUT-Model RPM Delta`
+- `Turret/Selected Solver` (`LUT`, `PHYSICS`, or `NONE`)
+- `Turret/LUT-Physics Hood Delta Deg`, `Turret/LUT-Physics RPM Delta`
+- `Turret/Time Of Flight S`
+- `Turret/Shot Arc` (drawn with the physics model; on a LUT shot it shows where the model thinks the LUT RPM lands)
 
 Procedure:
-1. Set mode to `AUTO_FALLBACK` first.
-2. Observe delta telemetry across distances and speeds.
-3. Bring model close to LUT behavior in known-good zones:
-   - Use `Model Distance Bias Inches` for broad range shift.
-   - Use `Model RPM Offset` for energy shift.
-   - Use `Model TOF Scale` and latency offsets for lead timing.
-4. Test pure `MODEL` mode only after fallback behavior is predictable.
+1. In LUT mode, watch `LUT-Physics RPM Delta` across the measured distances. The fit is within about ±150 RPM there.
+2. Switch to `PHYSICS`, take static shots at known distances, and trim `Physics Exit Speed Scale` until range is right.
+3. If no single scale works across distances, refit the two exit-speed constants (and check the launch height) from measured shots.
 
 ## 9) Runtime Override Workflow for Fast Point Collection
 
@@ -256,6 +265,7 @@ Use overrides to find a good point quickly while preserving solver telemetry.
 
 Important:
 - Overrides affect actuation but the solver solution is still published for comparison.
+- Override hood angles are true degrees from vertical and are clamped to the hood travel.
 
 ## 10) Known Failure Modes and What To Do
 
@@ -266,9 +276,10 @@ Likely causes:
 2. Hood not homed.
 3. Hood safety zones suppressing feed.
 4. `has_valid_shot` false due to missing target/solver output.
+5. Hub shot outside the LUT range plus margin (`Turret/Shot In Range` false).
 
 Checks:
-- Flywheel RPM vs target RPM.
+- Flywheel RPM vs `Turret/Commanded RPM`.
 - Hood homed state.
 - `has_valid_shot` and selected target.
 - Safety-zone position.
@@ -354,15 +365,16 @@ Actions:
 Primary:
 - `src/main/deploy/turret_data.json` points (`distance`, `angle`, `rpm`, `flight_time`)
 - `TURRET_KP/KD/KS`, `HOOD_KP/KD`, `SHOOTER_KP/KV`
-- `SOTF_LATENCY_COMPENSATION_S`
+- `SOTF_LATENCY_TRIM_S` (on top of the measured pose age and turret lag)
 - `SOTF_RANGE_LATENCY_COMPENSATION_S`
 - `TURRET_ROTATION_FF`
 
 Debug-only runtime knobs:
 - Target override chooser
-- Mode chooser (`LUT`, `MODEL`, `AUTO_FALLBACK`)
+- Mode chooser (`LUT`, `PHYSICS`)
 - RPM/hood override toggles and values
-- Model bias/offset/scale entries
+- `Physics Exit Speed Scale`
+- `Latency Trim S`
 
 ---
 

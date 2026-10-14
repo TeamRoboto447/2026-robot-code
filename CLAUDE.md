@@ -18,7 +18,7 @@ No linter/formatter task is configured.
 ## Docs (read on demand — not preloaded)
 
 - `docs/entry-points.md` — `Theseus`/`ShipOfTheseus`, `Constants.java` structure. Read before touching robot init/lifecycle code or `Constants.java`.
-- `docs/subsystems.md` — per-subsystem breakdown (drivetrain, turret, intake/indexer/climber, vision, systems check). Read before touching anything in `subsystems/`.
+- `docs/subsystems.md` — per-subsystem breakdown (drivetrain, turret, intake/indexer, vision, systems check). Read before touching anything in `subsystems/`.
 - `docs/networking.md` — `networking/` (NetworkTables config/telemetry) conventions. Read before adding NT keys or dashboard values.
 - `docs/utils.md` — `utils/` package (game state, sim physics, shot calculators). Read before touching `utils/`.
 - `docs/deploy-data.md` — PathPlanner autos/paths and the turret shot LUT (`turret_data.json`) — generated/GUI-edited, not hand-written. Read before editing anything in `src/main/deploy/`.

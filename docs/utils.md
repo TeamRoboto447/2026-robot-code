@@ -4,7 +4,14 @@
 - `HubSchedule` — pure (no WPILib) model of the teleop hub schedule, unit tested in `src/test/java/frc/robot/utils/`. See root `README.md` for the full game rules.
 - `SimPhysics` — sim-only field-boundary/bump collision physics applied in `Theseus.simulationPeriodic`.
 - `Elastic` — helper for switching Elastic dashboard tabs by robot mode.
-- `ModelShotCalculator`, `ShooterTable` — physics-model and LUT+Newton-solver pieces used by `TurretSubsystem` (see `docs/subsystems.md` and `Targeting-Tuning-Guide.md`).
+- `targeting/` — the turret shot math used by `TurretSubsystem`. Pure (no motors, NetworkTables or clock), unit tested in `src/test/java/frc/robot/utils/targeting/`. See `Targeting-Tuning-Guide.md` before changing it.
+  - `ShotPlanner` — pose + field velocity + target → turret angle and shot. It projects the pose (position and heading) forward by the latency and solves the moving-shot flight time (Newton's method on `tau = TOF(|d - v*tau|)`).
+  - `ShotSolver` is the per-distance shot interface (hood, RPM, flight time, in-range), implemented by:
+    - `ShooterTable`, the `turret_data.json` LUT, in range within `LUT_RANGE_MARGIN_IN` of its data.
+    - `BallisticShotSolver`, a drag-free projectile model with a linear RPM→exit-speed fit.
+    - `FallbackShotSolver`, which tries the primary solver and falls back to the second.
+  - `TurretAngles` — the turret angle convention (CW-positive, 0 = back of robot) and wrapping into the turret's travel.
+  - `TrackingLagEstimator` — measures how far the turret trails its moving setpoint (tracking error ÷ setpoint rate), part of the measured shoot-on-the-fly latency.
 
 ## Hub timer
 

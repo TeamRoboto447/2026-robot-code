@@ -29,4 +29,12 @@ public interface PoseProvider {
      * @return The robot's current {@link ChassisSpeeds}
      */
     ChassisSpeeds getChassisSpeeds();
+
+    /**
+     * How long ago the pose and speeds returned by this provider were measured.
+     * Used to project the pose forward to "now" for shoot-on-the-fly aiming.
+     *
+     * @return The age of the current pose estimate, in seconds
+     */
+    double getPoseAgeSeconds();
 }
