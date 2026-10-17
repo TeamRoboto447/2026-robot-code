@@ -27,6 +27,8 @@ import frc.robot.Constants.AdvScopeConstants;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.Constants.FieldConstants.FieldZone;
 import frc.robot.Constants.FieldConstants.FieldZoneAreas;
+import gg.questnav.questnav.QuestNav;
+
 import org.photonvision.PhotonCamera;
 
 /**
@@ -218,6 +220,8 @@ public class NetworkedTelemetry {
      */
     public static class Vision {
         private static final NetworkTable visionTable = defaultNTInstance.getTable("Vision");
+
+        private static final QuestNav questnav = new QuestNav();
         
         private static final BooleanEntry hasValidAprilTags = visionTable
             .getBooleanTopic("Has Valid AprilTags").getEntry(false);
@@ -228,7 +232,7 @@ public class NetworkedTelemetry {
         
 
         private static final PhotonCamera turretCamera = new PhotonCamera("TurretCam");
-        private static final PhotonCamera climberCamera = new PhotonCamera("ClimberCam");
+        // private static final PhotonCamera climberCamera = new PhotonCamera("ClimberCam"); // Climber physically removed
 
         /**
          * Sets whether the vision system currently has valid AprilTag detections.
@@ -265,30 +269,12 @@ public class NetworkedTelemetry {
          * 
          * @return True if both cameras are active and publishing new frames, false otherwise
          */
-        public static boolean bothCamerasActive() {
+        public static boolean allCamerasActive() {
             try {
-                return turretCamera.isConnected() && climberCamera.isConnected();
+                return turretCamera.isConnected() && questnav.isConnected();
             } catch (Exception e) {
                 return false;
             }
-        }
-    }
-
-    /**
-     * Repulsor-related telemetry (operator-supplied "has piece" flag, etc.).
-     */
-    public static class Repulsor {
-        private static final NetworkTable repTable = defaultNTInstance.getTable("Repulsor");
-
-        private static final BooleanEntry hasPiece = repTable
-            .getBooleanTopic("Has Piece").getEntry(false);
-
-        public static void setHasPiece(boolean v) {
-            hasPiece.set(v);
-        }
-
-        public static boolean hasPiece() {
-            return hasPiece.get();
         }
     }
 
@@ -320,28 +306,19 @@ public class NetworkedTelemetry {
     public static class Turret {
         private static final NetworkTable turretTable = defaultNTInstance.getTable("Turret");
 
-        private static final DoubleEntry controlTargetHoodAngle = turretTable.getDoubleTopic("Control Target Hood Angle").getEntry(0);
-        private static final DoubleEntry controlTargetFlywheelRPM = turretTable.getDoubleTopic("Control Target Flywheel RPM").getEntry(0);
-        private static final BooleanEntry controlTargetValidTrajectory = turretTable.getBooleanTopic("Control Target Valid Trajectory").getEntry(false);
         private static final BooleanEntry motorCommStatus = turretTable.getBooleanTopic("Motor Comm Status").getEntry(true);
         private static final StringEntry selectedSolver = turretTable.getStringTopic("Selected Solver").getEntry("NONE");
-        private static final DoubleEntry lutModelHoodDeltaDeg = turretTable.getDoubleTopic("LUT-Model Hood Delta Deg").getEntry(0);
-        private static final DoubleEntry lutModelRPMDelta = turretTable.getDoubleTopic("LUT-Model RPM Delta").getEntry(0);
+        private static final BooleanEntry shotInRange = turretTable.getBooleanTopic("Shot In Range").getEntry(false);
+        private static final DoubleEntry commandedRPM = turretTable.getDoubleTopic("Commanded RPM").getEntry(0);
+        private static final DoubleEntry timeOfFlightS = turretTable.getDoubleTopic("Time Of Flight S").getEntry(0);
+        private static final DoubleEntry latencyPoseAgeS = turretTable.getDoubleTopic("Latency Pose Age S").getEntry(0);
+        private static final DoubleEntry latencyTurretLagS = turretTable.getDoubleTopic("Latency Turret Lag S").getEntry(0);
+        private static final DoubleEntry latencyTotalS = turretTable.getDoubleTopic("Latency Total S").getEntry(0);
+        private static final DoubleEntry lutPhysicsHoodDeltaDeg = turretTable.getDoubleTopic("LUT-Physics Hood Delta Deg").getEntry(0);
+        private static final DoubleEntry lutPhysicsRPMDelta = turretTable.getDoubleTopic("LUT-Physics RPM Delta").getEntry(0);
         private static final DoubleEntry turretAngleOffset = turretTable.getDoubleTopic("Turret Angle Offset").getEntry(0);
         private static final StructArrayPublisher<Pose3d> shotArc =
             turretTable.getStructArrayTopic("Shot Arc", Pose3d.struct).publish();
-
-        public static void setCTHoodAngle(double angle) {
-            controlTargetHoodAngle.set(angle);
-        }
-
-        public static void setCTFlywheelRPM(double rpm) {
-            controlTargetFlywheelRPM.set(rpm);
-        }
-
-        public static void setCTValidTrajectory(boolean valid) {
-            controlTargetValidTrajectory.set(valid);
-        }
 
         public static void setMotorCommStatus(boolean status) {
             motorCommStatus.set(status);
@@ -351,12 +328,41 @@ public class NetworkedTelemetry {
             selectedSolver.set(solver);
         }
 
-        public static void setLutModelHoodDeltaDeg(double deltaDeg) {
-            lutModelHoodDeltaDeg.set(deltaDeg);
+        /** Whether the selected solution is within the solver's trusted range. */
+        public static void setShotInRange(boolean inRange) {
+            shotInRange.set(inRange);
         }
 
-        public static void setLutModelRPMDelta(double deltaRpm) {
-            lutModelRPMDelta.set(deltaRpm);
+        /** The flywheel speed actually commanded this loop (after overrides and offsets); 0 when coasting. */
+        public static void setCommandedRPM(double rpm) {
+            commandedRPM.set(rpm);
+        }
+
+        public static void setTimeOfFlightS(double seconds) {
+            timeOfFlightS.set(seconds);
+        }
+
+        /**
+         * The shoot-on-the-fly latency used this loop and its measured parts.
+         *
+         * @param poseAgeS   age of the pose estimate
+         * @param turretLagS measured turret tracking lag
+         * @param totalS     pose age + turret lag + trims
+         */
+        public static void setLatency(double poseAgeS, double turretLagS, double totalS) {
+            latencyPoseAgeS.set(poseAgeS);
+            latencyTurretLagS.set(turretLagS);
+            latencyTotalS.set(totalS);
+        }
+
+        /** LUT hood angle minus physics hood angle at the current shot distance. */
+        public static void setLutPhysicsHoodDeltaDeg(double deltaDeg) {
+            lutPhysicsHoodDeltaDeg.set(deltaDeg);
+        }
+
+        /** LUT RPM minus physics RPM at the current shot distance. */
+        public static void setLutPhysicsRPMDelta(double deltaRpm) {
+            lutPhysicsRPMDelta.set(deltaRpm);
         }
 
         public static void setShotArc(Pose3d[] arcPoints) {
@@ -393,9 +399,10 @@ public class NetworkedTelemetry {
         public static final BooleanEntry resIntakeLift   = resultsTable.getBooleanTopic("Intake: Lift").getEntry(false);
         public static final BooleanEntry resIndexer      = resultsTable.getBooleanTopic("Indexer: Spin").getEntry(false);
         public static final BooleanEntry resFeeder       = resultsTable.getBooleanTopic("Feeder: Run").getEntry(false);
-        public static final BooleanEntry resClimberHome  = resultsTable.getBooleanTopic("Climber: Homing").getEntry(false);
-        public static final BooleanEntry resClimberExt   = resultsTable.getBooleanTopic("Climber: Full Extension").getEntry(false);
-        public static final BooleanEntry resClimberRet   = resultsTable.getBooleanTopic("Climber: Retract").getEntry(false);
+        // Climber physically removed.
+        // public static final BooleanEntry resClimberHome  = resultsTable.getBooleanTopic("Climber: Homing").getEntry(false);
+        // public static final BooleanEntry resClimberExt   = resultsTable.getBooleanTopic("Climber: Full Extension").getEntry(false);
+        // public static final BooleanEntry resClimberRet   = resultsTable.getBooleanTopic("Climber: Retract").getEntry(false);
         public static final BooleanEntry resSwerveNoFaults    = resultsTable.getBooleanTopic("Swerve: No Faults").getEntry(false);
         public static final BooleanEntry resSwerveForward     = resultsTable.getBooleanTopic("Swerve: Forward").getEntry(false);
         public static final BooleanEntry resSwerveBackward    = resultsTable.getBooleanTopic("Swerve: Backward").getEntry(false);
@@ -414,12 +421,12 @@ public class NetworkedTelemetry {
          * @param flywheel whether the flywheel check is enabled this run
          * @param intake   whether the intake check is enabled this run
          * @param indexer  whether the indexer check is enabled this run
-         * @param climber  whether the climber check is enabled this run
+         * @param feeder   whether the feeder check is enabled this run
          * @param swerve   whether the swerve check is enabled this run
          */
         public static void resetResults(
                 boolean hood, boolean turret, boolean flywheel,
-                boolean intake, boolean indexer, boolean feeder, boolean climber, boolean swerve) {
+                boolean intake, boolean indexer, boolean feeder, boolean swerve) {
             if (hood)     { resHoodHoming.set(false);  resHoodAngle.set(false); }
             if (turret)   { resTurretFwd.set(false);   resTurretRev.set(false); resTurretReturn.set(false); }
             if (flywheel) { resFlywheel2k.set(false);  resFlywheel3k.set(false);
@@ -427,7 +434,6 @@ public class NetworkedTelemetry {
             if (intake)   { resIntakeHoming.set(false); resIntakeDrop.set(false);  resIntakeRoller.set(false); resIntakeLift.set(false); }
             if (indexer)  { resIndexer.set(false); }
             if (feeder)   { resFeeder.set(false); }
-            if (climber)  { resClimberHome.set(false); resClimberExt.set(false); resClimberRet.set(false); }
             if (swerve)   { resSwerveNoFaults.set(false);  resSwerveForward.set(false);
                             resSwerveBackward.set(false);   resSwerveLeft.set(false);
                             resSwerveRight.set(false);      resSwerveRotateCW.set(false);
@@ -446,7 +452,7 @@ public class NetworkedTelemetry {
          */
         public static boolean computeOverall(
                 boolean hood, boolean turret, boolean flywheel,
-                boolean intake, boolean indexer, boolean feeder, boolean climber, boolean swerve) {
+                boolean intake, boolean indexer, boolean feeder, boolean swerve) {
             boolean allPassed = true;
             if (hood)     allPassed &= resHoodHoming.get()    && resHoodAngle.get();
             if (turret)   allPassed &= resTurretFwd.get()     && resTurretRev.get() && resTurretReturn.get();
@@ -455,7 +461,6 @@ public class NetworkedTelemetry {
             if (intake)   allPassed &= resIntakeHoming.get() && resIntakeDrop.get() && resIntakeRoller.get() && resIntakeLift.get();
             if (indexer)  allPassed &= resIndexer.get();
             if (feeder)   allPassed &= resFeeder.get();
-            if (climber)  allPassed &= resClimberHome.get()   && resClimberExt.get() && resClimberRet.get();
             if (swerve)   allPassed &= resSwerveNoFaults.get() && resSwerveForward.get()
                                     && resSwerveBackward.get() && resSwerveLeft.get()
                                     && resSwerveRight.get()    && resSwerveRotateCW.get()
@@ -467,7 +472,7 @@ public class NetworkedTelemetry {
 
     /**
      * Game-state telemetry — publishes match time and hub active status
-     * derived from {@code GameState} via {@code StateManager}.
+     * derived from {@code GameState}.
      *
      * <p>NT path: {@code GameState/}</p>
      */
@@ -481,17 +486,30 @@ public class NetworkedTelemetry {
 
         /**
          * Whether the hub is currently active (accepting fuel) for this alliance.
-         * False if the game data hasn't arrived yet.
+         * Fails open: true when the game data hasn't arrived or there is no teleop clock
+         * (see "Data Valid").
          */
         private static final BooleanEntry hubActive =
             gameStateTable.getBooleanTopic("Hub Active").getEntry(false);
 
         /**
          * Seconds until the hub next becomes active for this alliance.
-         * 0.0 when the hub is already active or game data is unavailable.
+         * 0.0 when the hub is already active or the schedule can't be applied.
          */
         private static final DoubleEntry hubActiveCountdown =
             gameStateTable.getDoubleTopic("Hub Active Countdown").getEntry(0.0);
+
+        /** False when the FMS game data / alliance is unavailable (hub is then reported active). */
+        private static final BooleanEntry dataValid =
+            gameStateTable.getBooleanTopic("Data Valid").getEntry(false);
+
+        /** Current match phase (NONE, AUTO, TRANSITION, SHIFT_1..4, ENDGAME). */
+        private static final StringEntry phase =
+            gameStateTable.getStringTopic("Phase").getEntry("NONE");
+
+        /** Alliance whose hub goes inactive first, or "Unknown". */
+        private static final StringEntry inactiveFirst =
+            gameStateTable.getStringTopic("Inactive First").getEntry("Unknown");
 
         /**
          * Publishes game-state values to NetworkTables.
@@ -504,6 +522,13 @@ public class NetworkedTelemetry {
             matchTime.set(matchTimeSecs);
             hubActive.set(isHubActive);
             hubActiveCountdown.set(hubActiveCountdownSecs);
+        }
+
+        /** Publishes the extra timer diagnostics alongside {@link #publish(double, boolean, double)}. */
+        public static void publishDiagnostics(boolean isDataValid, String phaseName, String inactiveFirstAlliance) {
+            dataValid.set(isDataValid);
+            phase.set(phaseName);
+            inactiveFirst.set(inactiveFirstAlliance);
         }
     }
 
@@ -534,8 +559,10 @@ public class NetworkedTelemetry {
             questNavTable.getDoubleTopic("Battery %").getEntry(0);
         private static final DoubleEntry trackingLostCountEntry = 
             questNavTable.getDoubleTopic("Tracking Lost Counter").getEntry(999);
-        private static final StructEntry<Pose3d> robotPoseEntry = 
-            questNavTable.getStructTopic("Robot Pose", Pose3d.struct).getEntry(new Pose3d());
+        private static final StructEntry<Pose3d> rawQuestPoseEntry = 
+            questNavTable.getStructTopic("Raw Quest Pose", Pose3d.struct).getEntry(new Pose3d());
+        private static final StructEntry<Pose3d> correctedQuestPoseEntry = 
+            questNavTable.getStructTopic("Corrected Quest Pose", Pose3d.struct).getEntry(new Pose3d());
 
             
         public static void setConnected(boolean connected)                  { connectedEntry.set(connected); }
@@ -543,7 +570,8 @@ public class NetworkedTelemetry {
         public static void setLatency(double latency)                       { latencyEntry.set(latency); }
         public static void setBattery(double battery)                       { batteryEntry.set(battery); }
         public static void setTrackingLostCount(double trackingLostCount)   { trackingLostCountEntry.set(trackingLostCount); }
-        public static void set3dPose(Pose3d pose)                           { robotPoseEntry.set(pose); }
+        public static void setRawQuestPose(Pose3d pose)                     { rawQuestPoseEntry.set(pose); }
+        public static void setCorrectedQuestPose(Pose3d pose)               { correctedQuestPoseEntry.set(pose); }
 
         public static double getLatency()           { return latencyEntry.get(); }
     }

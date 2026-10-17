@@ -33,7 +33,6 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.AdvScopeConstants;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.Elastic;
@@ -82,7 +81,16 @@ public class Theseus extends LoggedRobot {
         StatusLogger.disableAutoLogging();
         SignalLogger.stop();
 
-        
+        // Initialize Elastic now, while disabled: its static initializer builds a Jackson ObjectMapper, which
+        // takes ~3 s on a roboRIO 1. Left lazy, the first Elastic.selectTab() in teleopInit() froze the robot
+        // for ~3 s at every enable.
+        try {
+            Class.forName(Elastic.class.getName());
+        } catch (ClassNotFoundException | LinkageError e) {
+            DriverStation.reportWarning("Could not pre-initialize Elastic: " + e, false);
+        }
+
+        m_robotContainer.warmUpSolvers();
 
         // addPeriodic(() -> m_robotContainer.motorStatusCheck(), 10);
     }
@@ -92,10 +100,7 @@ public class Theseus extends LoggedRobot {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
 
-        
-        //  Repulsor main update loop (minimal integration)
-        if (m_robotContainer != null && m_robotContainer.repulsor != null) {
-            m_robotContainer.repulsor.update();
+        if (m_robotContainer != null) {
             m_robotContainer.periodicUpdate();
         }
 
@@ -127,12 +132,20 @@ public class Theseus extends LoggedRobot {
     @Override
     public void disabledInit() {}
 
+    private int disabledLoopCount = 0;
+
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+        // ~2 Hz: push changed NT gains to the motors while disabled, so enabling never has to block on CAN.
+        if (++disabledLoopCount >= 25) {
+            disabledLoopCount = 0;
+            m_robotContainer.applyChangedNetworkedConfigs();
+        }
+    }
 
     @Override
     public void disabledExit() {
-        m_robotContainer.pullAllNetworkedConfigs();
+        m_robotContainer.applyChangedNetworkedConfigs();
     }
 
     @Override
@@ -142,7 +155,6 @@ public class Theseus extends LoggedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
         }
-        CommandScheduler.getInstance().schedule(Commands.runOnce(() -> m_robotContainer.pullAllNetworkedConfigs()));
     }
 
     @Override
@@ -156,7 +168,6 @@ public class Theseus extends LoggedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
-        m_robotContainer.pullAllNetworkedConfigs();
         Elastic.selectTab("Teleoperated");
     }
 
