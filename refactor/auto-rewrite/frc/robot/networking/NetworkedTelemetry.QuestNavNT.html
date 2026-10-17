@@ -126,23 +126,26 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getLatency()" class="member-name-link">getLatency</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#set3dPose(edu.wpi.first.math.geometry.Pose3d)" class="member-name-link">set3dPose</a><wbr>(edu.wpi.first.math.geometry.Pose3d&nbsp;pose)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setBattery(double)" class="member-name-link">setBattery</a><wbr>(double&nbsp;battery)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setBattery(double)" class="member-name-link">setBattery</a><wbr>(double&nbsp;battery)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setConnected(boolean)" class="member-name-link">setConnected</a><wbr>(boolean&nbsp;connected)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setConnected(boolean)" class="member-name-link">setConnected</a><wbr>(boolean&nbsp;connected)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setCorrectedQuestPose(edu.wpi.first.math.geometry.Pose3d)" class="member-name-link">setCorrectedQuestPose</a><wbr>(edu.wpi.first.math.geometry.Pose3d&nbsp;pose)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setLatency(double)" class="member-name-link">setLatency</a><wbr>(double&nbsp;latency)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setTracking(boolean)" class="member-name-link">setTracking</a><wbr>(boolean&nbsp;tracking)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setRawQuestPose(edu.wpi.first.math.geometry.Pose3d)" class="member-name-link">setRawQuestPose</a><wbr>(edu.wpi.first.math.geometry.Pose3d&nbsp;pose)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setTrackingLostCount(double)" class="member-name-link">setTrackingLostCount</a><wbr>(double&nbsp;trackingLostCount)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setTracking(boolean)" class="member-name-link">setTracking</a><wbr>(boolean&nbsp;tracking)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setTrackingLostCount(double)" class="member-name-link">setTrackingLostCount</a><wbr>(double&nbsp;trackingLostCount)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -205,9 +208,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="set3dPose(edu.wpi.first.math.geometry.Pose3d)">
-<h3>set3dPose</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">set3dPose</span><wbr><span class="parameters">(edu.wpi.first.math.geometry.Pose3d&nbsp;pose)</span></div>
+<section class="detail" id="setRawQuestPose(edu.wpi.first.math.geometry.Pose3d)">
+<h3>setRawQuestPose</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setRawQuestPose</span><wbr><span class="parameters">(edu.wpi.first.math.geometry.Pose3d&nbsp;pose)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="setCorrectedQuestPose(edu.wpi.first.math.geometry.Pose3d)">
+<h3>setCorrectedQuestPose</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCorrectedQuestPose</span><wbr><span class="parameters">(edu.wpi.first.math.geometry.Pose3d&nbsp;pose)</span></div>
 </section>
 </li>
 <li>

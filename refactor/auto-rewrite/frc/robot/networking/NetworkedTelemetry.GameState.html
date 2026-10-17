@@ -96,7 +96,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public static class </span><span class="element-name type-name-label">NetworkedTelemetry.GameState</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Game-state telemetry — publishes match time and hub active status
- derived from <code>GameState</code> via <code>StateManager</code>.
+ derived from <code>GameState</code>.
 
  <p>NT path: <code>GameState/</code></p></div>
 </section>
@@ -132,6 +132,13 @@ loadScripts(document, 'script');</script>
  double&nbsp;hubActiveCountdownSecs)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Publishes game-state values to NetworkTables.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#publishDiagnostics(boolean,java.lang.String,java.lang.String)" class="member-name-link">publishDiagnostics</a><wbr>(boolean&nbsp;isDataValid,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;phaseName,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inactiveFirstAlliance)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Publishes the extra timer diagnostics alongside <a href="#publish(double,boolean,double)"><code>publish(double, boolean, double)</code></a>.</div>
 </div>
 </div>
 </div>
@@ -177,6 +184,15 @@ loadScripts(document, 'script');</script>
 <dd><code>isHubActive</code> - Whether the hub is active for this alliance</dd>
 <dd><code>hubActiveCountdownSecs</code> - Seconds until the hub next becomes active; 0 if already active</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="publishDiagnostics(boolean,java.lang.String,java.lang.String)">
+<h3>publishDiagnostics</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">publishDiagnostics</span><wbr><span class="parameters">(boolean&nbsp;isDataValid,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;phaseName,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inactiveFirstAlliance)</span></div>
+<div class="block">Publishes the extra timer diagnostics alongside <a href="#publish(double,boolean,double)"><code>publish(double, boolean, double)</code></a>.</div>
 </section>
 </li>
 </ul>
