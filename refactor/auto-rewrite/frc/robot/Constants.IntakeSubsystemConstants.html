@@ -121,6 +121,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Supply current limit (A) for the intake roller motor.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#LIFT_ACCELERATION_RPS2" class="member-name-link">LIFT_ACCELERATION_RPS2</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#LIFT_CRUISE_VELOCITY_RPS" class="member-name-link">LIFT_CRUISE_VELOCITY_RPS</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
 <div class="col-second odd-row-color"><code><a href="#LIFT_GEARBOX_RATIO" class="member-name-link">LIFT_GEARBOX_RATIO</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final double</code></div>
@@ -139,19 +145,27 @@ loadScripts(document, 'script');</script>
 <div class="block">How long (seconds) current must exceed the threshold before homing is accepted.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final double</code></div>
-<div class="col-second odd-row-color"><code><a href="#LIFT_KD" class="member-name-link">LIFT_KD</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#LIFT_JERK_RPS3" class="member-name-link">LIFT_JERK_RPS3</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final double</code></div>
-<div class="col-second even-row-color"><code><a href="#LIFT_KI" class="member-name-link">LIFT_KI</a></code></div>
+<div class="col-second even-row-color"><code><a href="#LIFT_KD" class="member-name-link">LIFT_KD</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final double</code></div>
-<div class="col-second odd-row-color"><code><a href="#LIFT_KP" class="member-name-link">LIFT_KP</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#LIFT_KI" class="member-name-link">LIFT_KI</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#LIFT_KP" class="member-name-link">LIFT_KP</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final double</code></div>
+<div class="col-second odd-row-color"><code><a href="#LIFT_KV" class="member-name-link">LIFT_KV</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Volts per arm rotation/s: Kraken X60 ~0.12 V per motor rps, times the 64:1 gearbox.</div>
+</div>
 <div class="col-first even-row-color"><code>static final double</code></div>
 <div class="col-second even-row-color"><code><a href="#LIFT_LOWERED_ROTATIONS" class="member-name-link">LIFT_LOWERED_ROTATIONS</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Rotations (output shaft) the lift travels from the stowed position (0)
- to the fully-lowered intake position.</div>
+<div class="block">Rotations (output shaft) the lift travels from the stowed position (0) to the
+ fully-lowered position: the arm swings about 130 degrees.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final int</code></div>
 <div class="col-second odd-row-color"><code><a href="#LIFT_MOTOR_ID" class="member-name-link">LIFT_MOTOR_ID</a></code></div>
@@ -160,7 +174,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><code><a href="#LIFT_POSITION_TOLERANCE_ROTATIONS" class="member-name-link">LIFT_POSITION_TOLERANCE_ROTATIONS</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">Tolerance (rotations) used by <code>isIntakeDown()</code> and <code>isIntakeUp()</code>
- when comparing the lift's actual position against the target endpoints.</div>
+ when comparing the lift's actual position against the target endpoints (5 degrees).</div>
 </div>
 <div class="col-first odd-row-color"><code>static final double</code></div>
 <div class="col-second odd-row-color"><code><a href="#LIFT_STATOR_CURRENT_LIMIT_A" class="member-name-link">LIFT_STATOR_CURRENT_LIMIT_A</a></code></div>
@@ -291,12 +305,70 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="LIFT_KV">
+<h3>LIFT_KV</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LIFT_KV</span></div>
+<div class="block">Volts per arm rotation/s: Kraken X60 ~0.12 V per motor rps, times the 64:1 gearbox.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.IntakeSubsystemConstants.LIFT_KV">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="LIFT_CRUISE_VELOCITY_RPS">
+<h3>LIFT_CRUISE_VELOCITY_RPS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LIFT_CRUISE_VELOCITY_RPS</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.IntakeSubsystemConstants.LIFT_CRUISE_VELOCITY_RPS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="LIFT_ACCELERATION_RPS2">
+<h3>LIFT_ACCELERATION_RPS2</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LIFT_ACCELERATION_RPS2</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.IntakeSubsystemConstants.LIFT_ACCELERATION_RPS2">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="LIFT_JERK_RPS3">
+<h3>LIFT_JERK_RPS3</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LIFT_JERK_RPS3</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../constant-values.html#frc.robot.Constants.IntakeSubsystemConstants.LIFT_JERK_RPS3">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="LIFT_LOWERED_ROTATIONS">
 <h3>LIFT_LOWERED_ROTATIONS</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LIFT_LOWERED_ROTATIONS</span></div>
-<div class="block">Rotations (output shaft) the lift travels from the stowed position (0)
- to the fully-lowered intake position. Negative because the motor must
- turn in the negative direction to lower.</div>
+<div class="block">Rotations (output shaft) the lift travels from the stowed position (0) to the
+ fully-lowered position: the arm swings about 130 degrees. Negative because the motor must
+ turn in the negative direction to lower. (Was -31, beyond the arm's travel, so the
+ lift pushed into its stop at the full current limit the whole time it was down.)</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -312,7 +384,7 @@ loadScripts(document, 'script');</script>
 <h3>LIFT_POSITION_TOLERANCE_ROTATIONS</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">LIFT_POSITION_TOLERANCE_ROTATIONS</span></div>
 <div class="block">Tolerance (rotations) used by <code>isIntakeDown()</code> and <code>isIntakeUp()</code>
- when comparing the lift's actual position against the target endpoints.</div>
+ when comparing the lift's actual position against the target endpoints (5 degrees).</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>

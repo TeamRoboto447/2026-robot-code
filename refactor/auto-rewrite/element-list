@@ -4,3 +4,4 @@ frc.robot.networking
 frc.robot.subsystems
 frc.robot.subsystems.vision
 frc.robot.utils
+frc.robot.utils.targeting
