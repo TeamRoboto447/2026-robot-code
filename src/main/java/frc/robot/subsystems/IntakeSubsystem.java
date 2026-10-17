@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.AppliedGains;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.networking.NetworkedConfig;
 
@@ -68,6 +69,7 @@ public class IntakeSubsystem extends SubsystemBase {
             .withSupplyCurrentLimit(IntakeSubsystemConstants.LIFT_SUPPLY_CURRENT_LIMIT_A)
             .withSupplyCurrentLimitEnable(true);
         liftFXConfigs.CurrentLimits = liftCurrentLimits;
+        liftFXConfigs.Feedback.SensorToMechanismRatio = IntakeSubsystemConstants.LIFT_GEARBOX_RATIO;
 
         liftMotor.getConfigurator().apply(liftFXConfigs);
         liftMotor.getConfigurator().apply(new FeedbackConfigs()
@@ -253,13 +255,45 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * Pulls data from the NetworkTables.
      */
+    // Gains currently on the motor (seeded with the constructor's values); see TurretSubsystem.
+    private final AppliedGains liftGains = new AppliedGains(
+        IntakeSubsystemConstants.LIFT_KP, IntakeSubsystemConstants.LIFT_KI, IntakeSubsystemConstants.LIFT_KD);
+
+    /** Applies the NetworkTables gains to the lift motor unconditionally. */
     public void pullNetworkTableData() {
+        applyNetworkTableData(true);
+    }
+
+    /**
+     * Applies the NetworkTables gains only if they differ from what is already on the motor, or if the
+     * controller has reset since the last check (a reboot/brownout wipes its whole configuration).
+     */
+    public void applyChangedNetworkTableData() {
+        applyNetworkTableData(false);
+    }
+
+    private void applyNetworkTableData(boolean force) {
+        boolean reset = this.liftMotor.hasResetOccurred();
+        double[] lift = {
+            NetworkedConfig.Intake.getLiftKP(), NetworkedConfig.Intake.getLiftKI(), NetworkedConfig.Intake.getLiftKD()};
+        if (!reset && !liftGains.shouldApply(force, lift)) return;
+
         liftFXConfigs.Slot0
-            .withKP(NetworkedConfig.Intake.getLiftKP())
-            .withKI(NetworkedConfig.Intake.getLiftKI())
-            .withKD(NetworkedConfig.Intake.getLiftKD());
-        
-        this.liftMotor.getConfigurator().apply(liftFXConfigs);
+            .withKP(lift[0])
+            .withKI(lift[1])
+            .withKD(lift[2]);
+
+        // Slot0 only, unless the controller reset and lost its whole configuration. liftFXConfigs includes the
+        // feedback ratio, so even a full apply keeps the lift scale.
+        var status = reset
+            ? this.liftMotor.getConfigurator().apply(liftFXConfigs)
+            : this.liftMotor.getConfigurator().apply(liftFXConfigs.Slot0);
+        liftGains.record(status.isOK(), lift);
+        if (!status.isOK()) {
+            DriverStation.reportWarning("Failed to apply intake lift gains over CAN; will retry.", false);
+        } else if (reset) {
+            System.out.println("Intake lift motor reset detected: full config re-applied.");
+        }
     }
 
     public double getIntakeAngleDegrees() {

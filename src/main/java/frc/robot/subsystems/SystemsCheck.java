@@ -217,32 +217,32 @@ public class SystemsCheck {
                 NetworkedTelemetry.SystemsCheck.resFeeder),
 
             // Climber
-            step(robot, NetworkedConfig.SystemsCheck::isCheckClimber,
-                "Climber: Homing",
-                robot.climberSubsystem.homeClimber()
-                    .withTimeout(4.0),
-                NetworkedTelemetry.SystemsCheck.resClimberHome),
+            // step(robot, NetworkedConfig.SystemsCheck::isCheckClimber,
+            //     "Climber: Homing",
+            //     robot.climberSubsystem.homeClimber()
+            //         .withTimeout(4.0),
+            //     NetworkedTelemetry.SystemsCheck.resClimberHome),
 
-            step(robot, NetworkedConfig.SystemsCheck::isCheckClimber,
-                "Climber: Full Extension",
-                Commands.sequence(
-                    robot.climberSubsystem.run(() -> robot.climberSubsystem.raise())
-                        .until(() -> robot.climberSubsystem.getPositionRotations()
-                                    >= ClimberSubsystemConstants.CLIMBER_FULL_EXTENSION_ROTATIONS
-                                       - ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)
-                        .withTimeout(20.0),
-                    robot.climberSubsystem.runOnce(() -> robot.climberSubsystem.stopClimber())),
-                NetworkedTelemetry.SystemsCheck.resClimberExt),
+            // step(robot, NetworkedConfig.SystemsCheck::isCheckClimber,
+            //     "Climber: Full Extension",
+            //     Commands.sequence(
+            //         robot.climberSubsystem.run(() -> robot.climberSubsystem.raise())
+            //             .until(() -> robot.climberSubsystem.getPositionRotations()
+            //                         >= ClimberSubsystemConstants.CLIMBER_FULL_EXTENSION_ROTATIONS
+            //                            - ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)
+            //             .withTimeout(20.0),
+            //         robot.climberSubsystem.runOnce(() -> robot.climberSubsystem.stopClimber())),
+            //     NetworkedTelemetry.SystemsCheck.resClimberExt),
 
-            step(robot, NetworkedConfig.SystemsCheck::isCheckClimber,
-                "Climber: Retract",
-                Commands.sequence(
-                    robot.climberSubsystem.run(() -> robot.climberSubsystem.lower())
-                        .until(() -> robot.climberSubsystem.getPositionRotations()
-                                    <= ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)
-                        .withTimeout(20.0),
-                    robot.climberSubsystem.runOnce(() -> robot.climberSubsystem.stopClimber())),
-                NetworkedTelemetry.SystemsCheck.resClimberRet),
+            // step(robot, NetworkedConfig.SystemsCheck::isCheckClimber,
+            //     "Climber: Retract",
+            //     Commands.sequence(
+            //         robot.climberSubsystem.run(() -> robot.climberSubsystem.lower())
+            //             .until(() -> robot.climberSubsystem.getPositionRotations()
+            //                         <= ClimberSubsystemConstants.CLIMBER_HOLD_TOLERANCE_ROTATIONS)
+            //             .withTimeout(20.0),
+            //         robot.climberSubsystem.runOnce(() -> robot.climberSubsystem.stopClimber())),
+            //     NetworkedTelemetry.SystemsCheck.resClimberRet),
 
             // Swerve
             // 1. Hardware fault check (no movement)

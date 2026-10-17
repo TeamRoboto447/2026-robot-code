@@ -883,19 +883,6 @@
             }
           },
           {
-            "title": "Check Climber",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Toggle Switch",
-            "properties": {
-              "topic": "/SystemsCheck/config/check_climber",
-              "period": 0.06,
-              "data_type": "boolean"
-            }
-          },
-          {
             "title": "Check Flywheel",
             "x": 512.0,
             "y": 0.0,
@@ -962,7 +949,7 @@
           },
           {
             "title": "Check Swerve",
-            "x": 1152.0,
+            "x": 1024.0,
             "y": 0.0,
             "width": 256.0,
             "height": 128.0,
@@ -971,40 +958,6 @@
               "topic": "/SystemsCheck/config/check_swerve",
               "period": 0.06,
               "data_type": "boolean"
-            }
-          },
-          {
-            "title": "Full Extend",
-            "x": 1024.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SystemsCheck/results/Climber: Full Extension",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "Exclamation Point"
-            }
-          },
-          {
-            "title": "Homing",
-            "x": 1024.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SystemsCheck/results/Climber: Homing",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "Exclamation Point"
             }
           },
           {
@@ -1179,7 +1132,7 @@
           },
           {
             "title": "Forward",
-            "x": 1152.0,
+            "x": 1024.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
@@ -1196,7 +1149,7 @@
           },
           {
             "title": "Reverse",
-            "x": 1280.0,
+            "x": 1152.0,
             "y": 256.0,
             "width": 128.0,
             "height": 128.0,
@@ -1213,7 +1166,7 @@
           },
           {
             "title": "Left",
-            "x": 1152.0,
+            "x": 1024.0,
             "y": 384.0,
             "width": 128.0,
             "height": 128.0,
@@ -1230,7 +1183,7 @@
           },
           {
             "title": "Right",
-            "x": 1280.0,
+            "x": 1152.0,
             "y": 384.0,
             "width": 128.0,
             "height": 128.0,
@@ -1247,7 +1200,7 @@
           },
           {
             "title": "Check For Faults",
-            "x": 1152.0,
+            "x": 1024.0,
             "y": 128.0,
             "width": 256.0,
             "height": 128.0,
@@ -1264,7 +1217,7 @@
           },
           {
             "title": "Rotate CW",
-            "x": 1152.0,
+            "x": 1024.0,
             "y": 512.0,
             "width": 128.0,
             "height": 128.0,
@@ -1281,7 +1234,7 @@
           },
           {
             "title": "Rotate CCW",
-            "x": 1280.0,
+            "x": 1152.0,
             "y": 512.0,
             "width": 128.0,
             "height": 128.0,
@@ -1370,23 +1323,6 @@
             "type": "Boolean Box",
             "properties": {
               "topic": "/SystemsCheck/results/Intake: Homing",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "Exclamation Point"
-            }
-          },
-          {
-            "title": "Full Retract",
-            "x": 1024.0,
-            "y": 384.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/SystemsCheck/results/Climber: Retract",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,

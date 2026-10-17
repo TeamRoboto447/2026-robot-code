@@ -2,6 +2,8 @@ package frc.robot.generated;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.Consumer;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.hardware.*;
@@ -10,6 +12,7 @@ import com.ctre.phoenix6.swerve.*;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants.*;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.*;
@@ -200,13 +203,20 @@ public class TunerConstants {
      * Creates a CommandSwerveDrivetrain instance.
      * This should only be called once in your robot program,.
      */
-    public static CommandSwerveDrivetrain createDrivetrain(Field2d field) {
+    public static CommandSwerveDrivetrain createDrivetrain(Consumer<Pose2d> questPoseReset, Field2d field) {
         return new CommandSwerveDrivetrain(
             // Odometry frequency: default on RIO CAN 2.0 is 100 Hz; reducing to 50 Hz
             // significantly lowers CAN bus utilization from the 8 drive/steer motors and
             // 4 CANcoders that the odometry thread polls. 50 Hz is more than sufficient
             // for a 20 ms robot loop. Raise back toward 100 Hz only if you add CAN FD hardware.
-            field, DrivetrainConstants, 50.0, FrontLeft, FrontRight, BackLeft, BackRight
+            questPoseReset,
+            field,
+            DrivetrainConstants,
+            50.0,
+            FrontLeft,
+            FrontRight,
+            BackLeft,
+            BackRight
         );
     }
 

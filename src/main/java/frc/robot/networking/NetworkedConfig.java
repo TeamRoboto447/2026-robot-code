@@ -337,7 +337,7 @@ public class NetworkedConfig {
         private static final DoubleEntry spinnerKV = indexerTable
             .getDoubleTopic("Spinner kV").getEntry(IndexerSubsystemConstants.SPINNER_KV);
         private static final DoubleEntry targetSpeed = indexerTable
-            .getDoubleTopic("Target Speed").getEntry(0.48);
+            .getDoubleTopic("Target Speed").getEntry(0.50);
         
         // Telemetry
         private static final DoubleEntry spinnerSpeed = indexerTable
@@ -351,7 +351,7 @@ public class NetworkedConfig {
             spinnerKI.set(IndexerSubsystemConstants.SPINNER_KI);
             spinnerKD.set(IndexerSubsystemConstants.SPINNER_KD);
             spinnerKV.set(IndexerSubsystemConstants.SPINNER_KV);
-            targetSpeed.set(0.43);
+            targetSpeed.set(0.50);
         }
         
         // Spinner
