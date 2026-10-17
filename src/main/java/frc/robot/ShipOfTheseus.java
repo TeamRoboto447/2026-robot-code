@@ -428,11 +428,6 @@ public class ShipOfTheseus {
             turretSubsystem.stopKicker();
         }));
 
-        DriverController.start()
-            .or(OperatorController.rightTrigger())
-            .or(turretSubsystem::flywheelAtSpeed)
-            .onFalse(indexerSubsystem.runOnce(() -> indexerSubsystem.stop()));
-
         OperatorController.rightTrigger().onFalse(turretSubsystem.runOnce(() -> {
             turretSubsystem.stopShooter();
             turretSubsystem.stopKicker();
