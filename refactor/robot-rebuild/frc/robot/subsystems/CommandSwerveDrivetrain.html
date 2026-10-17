@@ -216,7 +216,8 @@ implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems"
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.math.kinematics.ChassisSpeeds</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getChassisSpeeds()" class="member-name-link">getChassisSpeeds</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Gets the current chassis speeds of the robot (field-relative).</div>
+<div class="block">Gets the current chassis speeds of the robot (robot-relative, as CTRE's swerve state
+ reports them).</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../Constants.FieldConstants.FieldZone.html" title="enum class in frc.robot">Constants.FieldConstants.FieldZone</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFieldZone()" class="member-name-link">getFieldZone</a>()</code></div>
@@ -228,28 +229,33 @@ implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems"
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Gets the current estimated pose of the robot on the field.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>double</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPoseAgeSeconds()" class="member-name-link">getPoseAgeSeconds</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">How long ago the pose and speeds returned by this provider were measured.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetQuestPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">resetQuestPose</a><wbr>(edu.wpi.first.math.geometry.Pose2d&nbsp;pose)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#periodic()" class="member-name-link">periodic</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#resetQuestPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">resetQuestPose</a><wbr>(edu.wpi.first.math.geometry.Pose2d&nbsp;pose)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Resets both the QuestNav anchor and the drivetrain pose.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;edu.wpi.first.math.geometry.Pose2d&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#samplePoseAt(double)" class="member-name-link">samplePoseAt</a><wbr>(double&nbsp;timestampSeconds)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;edu.wpi.first.math.geometry.Pose2d&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#samplePoseAt(double)" class="member-name-link">samplePoseAt</a><wbr>(double&nbsp;timestampSeconds)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Return the pose at a given timestamp, if the buffer is not empty.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sysIdDynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction)" class="member-name-link">sysIdDynamic</a><wbr>(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction&nbsp;direction)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sysIdDynamic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction)" class="member-name-link">sysIdDynamic</a><wbr>(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction&nbsp;direction)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Runs the SysId Dynamic test in the given direction for the routine
  specified by <code>m_sysIdRoutineToApply</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sysIdQuasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction)" class="member-name-link">sysIdQuasistatic</a><wbr>(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction&nbsp;direction)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>edu.wpi.first.wpilibj2.command.Command</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sysIdQuasistatic(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction)" class="member-name-link">sysIdQuasistatic</a><wbr>(edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction&nbsp;direction)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Runs the SysId Quasistatic test in the given direction for the routine
  specified by <code>m_sysIdRoutineToApply</code>.</div>
 </div>
@@ -535,13 +541,28 @@ implements <a href="PoseProvider.html" title="interface in frc.robot.subsystems"
 <h3>getChassisSpeeds</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">edu.wpi.first.math.kinematics.ChassisSpeeds</span>&nbsp;<span class="element-name">getChassisSpeeds</span>()</div>
 <div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="PoseProvider.html#getChassisSpeeds()">PoseProvider</a></code></span></div>
-<div class="block">Gets the current chassis speeds of the robot (field-relative).
- Used for turret rotation compensation during robot yaw motion.</div>
+<div class="block">Gets the current chassis speeds of the robot (robot-relative, as CTRE's swerve state
+ reports them). Convert with <code>ChassisSpeeds.fromRobotRelativeSpeeds</code> for field use.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="PoseProvider.html#getChassisSpeeds()">getChassisSpeeds</a></code>&nbsp;in interface&nbsp;<code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code></dd>
 <dt>Returns:</dt>
 <dd>The robot's current <code>ChassisSpeeds</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getPoseAgeSeconds()">
+<h3>getPoseAgeSeconds</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name">getPoseAgeSeconds</span>()</div>
+<div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="PoseProvider.html#getPoseAgeSeconds()">PoseProvider</a></code></span></div>
+<div class="block">How long ago the pose and speeds returned by this provider were measured.
+ Used to project the pose forward to "now" for shoot-on-the-fly aiming.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="PoseProvider.html#getPoseAgeSeconds()">getPoseAgeSeconds</a></code>&nbsp;in interface&nbsp;<code><a href="PoseProvider.html" title="interface in frc.robot.subsystems">PoseProvider</a></code></dd>
+<dt>Returns:</dt>
+<dd>The age of the current pose estimate, in seconds</dd>
 </dl>
 </section>
 </li>

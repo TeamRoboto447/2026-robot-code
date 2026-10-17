@@ -56,7 +56,8 @@ loadScripts(document, 'script');</script>
 <li><a href="frc/robot/networking/package-tree.html">frc.robot.networking</a>, </li>
 <li><a href="frc/robot/subsystems/package-tree.html">frc.robot.subsystems</a>, </li>
 <li><a href="frc/robot/subsystems/vision/package-tree.html">frc.robot.subsystems.vision</a>, </li>
-<li><a href="frc/robot/utils/package-tree.html">frc.robot.utils</a></li>
+<li><a href="frc/robot/utils/package-tree.html">frc.robot.utils</a>, </li>
+<li><a href="frc/robot/utils/targeting/package-tree.html">frc.robot.utils.targeting</a></li>
 </ul>
 <section class="hierarchy">
 <h2 title="Class Hierarchy">Class Hierarchy</h2>
@@ -64,13 +65,12 @@ loadScripts(document, 'script');</script>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
 <li class="circle">frc.robot.utils.<a href="frc/robot/utils/AppliedGains.html" class="type-name-link" title="class in frc.robot.utils">AppliedGains</a></li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/BallisticShotSolver.html" class="type-name-link" title="class in frc.robot.utils.targeting">BallisticShotSolver</a> (implements frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShotSolver.html" title="interface in frc.robot.utils.targeting">ShotSolver</a>)</li>
 <li class="circle">frc.robot.<a href="frc/robot/BuildConstants.html" class="type-name-link" title="class in frc.robot">BuildConstants</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/Constants.html" class="type-name-link" title="class in frc.robot">Constants</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/Constants.AdvScopeConstants.html" class="type-name-link" title="class in frc.robot">Constants.AdvScopeConstants</a></li>
-<li class="circle">frc.robot.<a href="frc/robot/Constants.ClimberSubsystemConstants.html" class="type-name-link" title="class in frc.robot">Constants.ClimberSubsystemConstants</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/Constants.FieldConstants.html" class="type-name-link" title="class in frc.robot">Constants.FieldConstants</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/Constants.FieldConstants.BumpZones.html" class="type-name-link" title="class in frc.robot">Constants.FieldConstants.BumpZones</a></li>
-<li class="circle">frc.robot.<a href="frc/robot/Constants.FieldConstants.ClimbPositions.html" class="type-name-link" title="class in frc.robot">Constants.FieldConstants.ClimbPositions</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/Constants.FieldConstants.FieldZoneAreas.html" class="type-name-link" title="class in frc.robot">Constants.FieldConstants.FieldZoneAreas</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/Constants.FieldConstants.TurretSafety.html" class="type-name-link" title="class in frc.robot">Constants.FieldConstants.TurretSafety</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/Constants.FieldConstants.TurretTargetPoints.html" class="type-name-link" title="class in frc.robot">Constants.FieldConstants.TurretTargetPoints</a></li>
@@ -85,9 +85,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">frc.robot.utils.<a href="frc/robot/utils/HubSchedule.html" class="type-name-link" title="class in frc.robot.utils">HubSchedule</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/Main.html" class="type-name-link" title="class in frc.robot">Main</a></li>
 <li class="circle">frc.robot.utils.<a href="frc/robot/utils/MathUtils.html" class="type-name-link" title="class in frc.robot.utils">MathUtils</a></li>
-<li class="circle">frc.robot.utils.<a href="frc/robot/utils/ModelShotCalculator.html" class="type-name-link" title="class in frc.robot.utils">ModelShotCalculator</a></li>
 <li class="circle">frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.html" class="type-name-link" title="class in frc.robot.networking">NetworkedConfig</a></li>
-<li class="circle">frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Climber.html" class="type-name-link" title="class in frc.robot.networking">NetworkedConfig.Climber</a></li>
 <li class="circle">frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Debug.html" class="type-name-link" title="class in frc.robot.networking">NetworkedConfig.Debug</a></li>
 <li class="circle">frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Indexer.html" class="type-name-link" title="class in frc.robot.networking">NetworkedConfig.Indexer</a></li>
 <li class="circle">frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Intake.html" class="type-name-link" title="class in frc.robot.networking">NetworkedConfig.Intake</a></li>
@@ -123,13 +121,11 @@ loadScripts(document, 'script');</script>
 </li>
 <li class="circle">frc.robot.utils.<a href="frc/robot/utils/RollingAveragePose2d.html" class="type-name-link" title="class in frc.robot.utils">RollingAveragePose2d</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/ShipOfTheseus.html" class="type-name-link" title="class in frc.robot">ShipOfTheseus</a></li>
-<li class="circle">frc.robot.utils.<a href="frc/robot/utils/ShooterTable.html" class="type-name-link" title="class in frc.robot.utils">ShooterTable</a></li>
-<li class="circle">frc.robot.utils.<a href="frc/robot/utils/ShooterTable.DataPoint.html" class="type-name-link" title="class in frc.robot.utils">ShooterTable.DataPoint</a></li>
-<li class="circle">frc.robot.utils.<a href="frc/robot/utils/ShooterTable.ShotSolution.html" class="type-name-link" title="class in frc.robot.utils">ShooterTable.ShotSolution</a></li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShooterTable.html" class="type-name-link" title="class in frc.robot.utils.targeting">ShooterTable</a> (implements frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShotSolver.html" title="interface in frc.robot.utils.targeting">ShotSolver</a>)</li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShotPlanner.html" class="type-name-link" title="class in frc.robot.utils.targeting">ShotPlanner</a></li>
 <li class="circle">frc.robot.utils.<a href="frc/robot/utils/SimPhysics.html" class="type-name-link" title="class in frc.robot.utils">SimPhysics</a></li>
 <li class="circle">edu.wpi.first.wpilibj2.command.SubsystemBase (implements edu.wpi.first.util.sendable.Sendable, edu.wpi.first.wpilibj2.command.Subsystem)
 <ul>
-<li class="circle">frc.robot.subsystems.<a href="frc/robot/subsystems/ClimberSubsystem.html" class="type-name-link" title="class in frc.robot.subsystems">ClimberSubsystem</a></li>
 <li class="circle">frc.robot.subsystems.<a href="frc/robot/subsystems/IndexerSubsystem.html" class="type-name-link" title="class in frc.robot.subsystems">IndexerSubsystem</a></li>
 <li class="circle">frc.robot.subsystems.<a href="frc/robot/subsystems/IntakeSubsystem.html" class="type-name-link" title="class in frc.robot.subsystems">IntakeSubsystem</a></li>
 <li class="circle">frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/ObjectAvoidanceSubsystem.html" class="type-name-link" title="class in frc.robot.subsystems.vision">ObjectAvoidanceSubsystem</a></li>
@@ -147,12 +143,12 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">frc.robot.subsystems.<a href="frc/robot/subsystems/SystemsCheck.html" class="type-name-link" title="class in frc.robot.subsystems">SystemsCheck</a></li>
-<li class="circle">frc.robot.utils.<a href="frc/robot/utils/TargettingUtils.html" class="type-name-link" title="class in frc.robot.utils">TargettingUtils</a></li>
-<li class="circle">frc.robot.utils.<a href="frc/robot/utils/TargettingUtils.ControlTarget.html" class="type-name-link" title="class in frc.robot.utils">TargettingUtils.ControlTarget</a></li>
 <li class="circle">frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/Team1732QuestNav.html" class="type-name-link" title="class in frc.robot.subsystems.vision">Team1732QuestNav</a></li>
 <li class="circle">frc.robot.<a href="frc/robot/Telemetry.html" class="type-name-link" title="class in frc.robot">Telemetry</a></li>
 <li class="circle">frc.robot.subsystems.vision.<a href="frc/robot/subsystems/vision/TheseusQuestNav.html" class="type-name-link" title="class in frc.robot.subsystems.vision">TheseusQuestNav</a></li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/TrackingLagEstimator.html" class="type-name-link" title="class in frc.robot.utils.targeting">TrackingLagEstimator</a></li>
 <li class="circle">frc.robot.generated.<a href="frc/robot/generated/TunerConstants.html" class="type-name-link" title="class in frc.robot.generated">TunerConstants</a></li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/TurretAngles.html" class="type-name-link" title="class in frc.robot.utils.targeting">TurretAngles</a></li>
 </ul>
 </li>
 </ul>
@@ -161,6 +157,7 @@ loadScripts(document, 'script');</script>
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
 <li class="circle">frc.robot.subsystems.<a href="frc/robot/subsystems/PoseProvider.html" class="type-name-link" title="interface in frc.robot.subsystems">PoseProvider</a></li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShotSolver.html" class="type-name-link" title="interface in frc.robot.utils.targeting">ShotSolver</a></li>
 </ul>
 </section>
 <section class="hierarchy">
@@ -175,6 +172,24 @@ loadScripts(document, 'script');</script>
 <li class="circle">frc.robot.<a href="frc/robot/Constants.NeopixelConstants.PixelStates.html" class="type-name-link" title="enum class in frc.robot">Constants.NeopixelConstants.PixelStates</a></li>
 <li class="circle">frc.robot.utils.<a href="frc/robot/utils/Elastic.NotificationLevel.html" class="type-name-link" title="enum class in frc.robot.utils">Elastic.NotificationLevel</a></li>
 <li class="circle">frc.robot.utils.<a href="frc/robot/utils/HubSchedule.Phase.html" class="type-name-link" title="enum class in frc.robot.utils">HubSchedule.Phase</a></li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShotSolution.Source.html" class="type-name-link" title="enum class in frc.robot.utils.targeting">ShotSolution.Source</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section class="hierarchy">
+<h2 title="Record Class Hierarchy">Record Class Hierarchy</h2>
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" class="type-name-link external-link" title="class or interface in java.lang">Record</a>
+<ul>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/BallisticShotSolver.Params.html" class="type-name-link" title="class in frc.robot.utils.targeting">BallisticShotSolver.Params</a></li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShooterTable.DataPoint.html" class="type-name-link" title="class in frc.robot.utils.targeting">ShooterTable.DataPoint</a></li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShotPlanner.ShotPlan.html" class="type-name-link" title="class in frc.robot.utils.targeting">ShotPlanner.ShotPlan</a></li>
+<li class="circle">frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShotSolution.html" class="type-name-link" title="class in frc.robot.utils.targeting">ShotSolution</a></li>
 </ul>
 </li>
 </ul>
