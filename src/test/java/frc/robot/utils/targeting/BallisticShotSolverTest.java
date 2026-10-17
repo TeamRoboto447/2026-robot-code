@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.TurretSubsystemConstants;
 import org.junit.jupiter.api.Test;
 
@@ -46,16 +45,6 @@ class BallisticShotSolverTest {
             assertEquals(HUB_HEIGHT_M, arcHeightAt(solver, s, d), 1e-6, "at " + d + " m");
             double v = solver.exitSpeedMps(s.rpm());
             assertEquals(d / (v * Math.cos(Math.toRadians(54.0))), s.timeOfFlightS(), 1e-9);
-        }
-    }
-
-    @Test
-    void reproducesFitPointsOfTheTable() {
-        // The exit-speed constants were fit to these turret_data.json shots (hood in true degrees).
-        double[][] shots = {{73.7, 30.18, 3625}, {111.0, 36.16, 3725}, {190.6, 42.14, 4700}};
-        for (double[] shot : shots) {
-            ShotSolution s = fixedHood(shot[1], 1.0).solve(Units.inchesToMeters(shot[0]), HUB_HEIGHT_M);
-            assertEquals(shot[2], s.rpm(), 200.0, "at " + shot[0] + " in");
         }
     }
 

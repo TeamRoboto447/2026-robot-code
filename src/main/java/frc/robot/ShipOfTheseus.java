@@ -170,8 +170,8 @@ public class ShipOfTheseus {
         turretTargetChooser.addOption("None (disable turret)", "NONE");
         SmartDashboard.putData("Debug/Turret Target Override", turretTargetChooser);
 
-        turretTargetingModeChooser.setDefaultOption("LUT Only", "LUT");
-        turretTargetingModeChooser.addOption("Physics (LUT fallback)", "PHYSICS");
+        turretTargetingModeChooser.setDefaultOption("Physics", "PHYSICS");
+        turretTargetingModeChooser.addOption("LUT Only (debug)", "LUT");
         SmartDashboard.putData("Debug/Turret Targeting Mode", turretTargetingModeChooser);
         
         configureBindings();

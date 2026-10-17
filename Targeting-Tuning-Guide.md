@@ -3,7 +3,7 @@
 This guide is a complete, field-usable procedure for tuning the robot targeting stack in this repo.
 
 It is written against the current architecture:
-- On-RIO shot planning in `TurretSubsystem` via `utils/targeting/ShotPlanner` (latency projection + Newton moving-shot solve), with a LUT solver and an optional physics solver
+- On-RIO shot planning in `TurretSubsystem` via `utils/targeting/ShotPlanner` (latency projection + Newton moving-shot solve), with a physics (ballistic) solver by default and the LUT as a debug comparison mode
 - Lookup data from `src/main/deploy/turret_data.json` (hood angles in true degrees from vertical)
 - Runtime debug/tuning controls under NetworkTables `Debug/*` and `TurretAssembly/*`
 
@@ -17,7 +17,7 @@ The shot quality depends on 5 layers. Tune in this order only:
 2. Actuator control loops (turret, hood, flywheel)
 3. Static shot map (`turret_data.json`) at zero robot motion
 4. Shoot-on-the-fly compensation (latency + range latency + rotation FF)
-5. Optional PHYSICS mode calibration (ballistic solver with LUT fallback)
+5. PHYSICS mode exit-speed calibration (the default targeting mode)
 
 If an earlier layer is unstable, do not tune later layers.
 
@@ -30,8 +30,8 @@ If an earlier layer is unstable, do not tune later layers.
    - `Motor Comm Status` telemetry should be true.
 4. Confirm pose estimate and alliance are sane.
    - Wrong alliance or bad pose causes wrong target selection even if turret code is correct.
-5. Start in LUT mode, no overrides.
-   - `Debug/Turret Targeting Mode = LUT`
+5. Start in PHYSICS mode (the default), no overrides.
+   - `Debug/Turret Targeting Mode = PHYSICS`
    - `Debug/Override RPM Enabled = false`
    - `Debug/Override Hood Angle Enabled = false`
    - `Debug/Turret Target Override = AUTO` (or set explicit target for controlled tests)
@@ -228,30 +228,34 @@ Adjustment:
 - Still lagging: increase FF.
 - Overshooting/leading too much: decrease FF.
 
-## 8) PHYSICS Mode (Ballistic Solver, LUT Fallback)
+## 8) PHYSICS Mode (Ballistic Solver, the Default)
 
-Use only after LUT mode is reliable.
+Targeting is physics-based by default and does not use `turret_data.json`. `LUT Only (debug)` on the mode chooser switches back to the table for comparison.
 
 What it does:
-- Takes the hood angle from the LUT's hood curve, then computes the RPM and flight time from a drag-free projectile model. The model has a launch height (`PHYSICS_LAUNCH_HEIGHT_M`) and an exit speed that is linear in RPM (`PHYSICS_EXIT_SPEED_INTERCEPT_MPS`, `PHYSICS_EXIT_SPEED_PER_RPM_MPS`, fit to the LUT).
-- Uses real target heights, so corner relay shots (target at floor level) get their own solution.
-- Its flight times vary with distance (about 0.6 s close to 0.9 s far), unlike the LUT's placeholder `flight_time` values, so moving-shot lead changes. Re-check section 7 in this mode.
-- Falls back to the LUT when the required RPM is outside `PHYSICS_MIN_RPM`–`PHYSICS_MAX_RPM` or the arc can't reach the target.
+- Hood: flies the lowest-speed arc to the target (launch pitch = 45° + half the elevation angle, clamped to the hood travel). Near this angle a small hood error barely moves the landing point.
+- RPM and flight time: drag-free projectile math from the launch height (`PHYSICS_LAUNCH_HEIGHT_M`) to the target, with exit speed linear in RPM (`PHYSICS_EXIT_SPEED_INTERCEPT_MPS`, `PHYSICS_EXIT_SPEED_PER_RPM_MPS`).
+- Target heights come from the field: the hub aim point is the center of its 41.7 in hexagonal opening, whose front edge is 72 in (~1.83 m) off the carpet (2026 Game Manual). Corner relay targets are at floor level.
+- No shot when the required RPM is outside `PHYSICS_MIN_RPM`–`PHYSICS_MAX_RPM` or the arc can't reach the target.
+- Drag and Magnus lift (backspin, roughly 7–8% of the ball's weight) aren't modeled. Fitting exit speed to real shots absorbs them at shooting distances; they only matter for 8–10 m relay lobs (~0.4–0.7 m short).
+
+Exit-speed calibration:
+- The current constants are a stopgap: first fit to the LUT, then shifted ~80 RPM lower because shots carried 6–12 in past the hub center.
+- To calibrate properly, use the debug overrides to hold a fixed hood angle and fire at two RPMs (e.g. 3000 and 4500). Measure where each ball first hits the carpet, solve the exit speed for each, and fit the two constants.
 
 Relevant entries:
-- `Debug/Turret Targeting Mode`: `LUT` or `PHYSICS`
+- `Debug/Turret Targeting Mode`: `PHYSICS` (default) or `LUT`
 - `Debug/Physics Exit Speed Scale` (1.0 = as fit). Physics shots long → raise it; short → lower it.
 
-Telemetry to compare:
-- `Turret/Selected Solver` (`LUT`, `PHYSICS`, or `NONE`)
-- `Turret/LUT-Physics Hood Delta Deg`, `Turret/LUT-Physics RPM Delta`
+Telemetry:
+- `Turret/Selected Solver` (`PHYSICS`, `LUT`, or `NONE`)
+- `Turret/LUT-Physics Hood Delta Deg`, `Turret/LUT-Physics RPM Delta` (comparison only)
 - `Turret/Time Of Flight S`
-- `Turret/Shot Arc` (drawn with the physics model; on a LUT shot it shows where the model thinks the LUT RPM lands)
+- `Turret/Shot Arc` (the modeled ball path)
 
 Procedure:
-1. In LUT mode, watch `LUT-Physics RPM Delta` across the measured distances. The fit is within about ±150 RPM there.
-2. Switch to `PHYSICS`, take static shots at known distances, and trim `Physics Exit Speed Scale` until range is right.
-3. If no single scale works across distances, refit the two exit-speed constants (and check the launch height) from measured shots.
+1. Take static shots at known distances (check `target_distance` against a tape first).
+2. If they are all long or short by about the same amount, trim `Physics Exit Speed Scale`. If the error grows with distance, do the exit-speed calibration above.
 
 ## 9) Runtime Override Workflow for Fast Point Collection
 
@@ -379,7 +383,7 @@ Debug-only runtime knobs:
 ---
 
 If you hit a state where nothing makes sense, reset to this baseline:
-1. LUT mode
+1. PHYSICS mode
 2. Overrides off
 3. Fresh hood homing
 4. Confirm pose + target telemetry

@@ -63,7 +63,6 @@ import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.AppliedGains;
 import frc.robot.utils.targeting.BallisticShotSolver;
-import frc.robot.utils.targeting.FallbackShotSolver;
 import frc.robot.utils.targeting.ShooterTable;
 import frc.robot.utils.targeting.ShotPlanner;
 import frc.robot.utils.targeting.ShotPlanner.ShotPlan;
@@ -114,8 +113,8 @@ public class TurretSubsystem extends SubsystemBase {
     private final ShooterTable shooterTable = new ShooterTable(TurretSubsystemConstants.LUT_RANGE_MARGIN_IN);
 
     /**
-     * Ballistic solver. Takes its hood angles from the firing table (so it only changes RPM and flight
-     * time), or the lowest-speed arc if the table failed to load.
+     * Ballistic solver (the default). Independent of the firing table: it flies the lowest-speed arc
+     * to the target, where a small hood error barely moves the landing point.
      */
     private final BallisticShotSolver physicsSolver = new BallisticShotSolver(
         new BallisticShotSolver.Params(
@@ -126,13 +125,8 @@ public class TurretSubsystem extends SubsystemBase {
             TurretSubsystemConstants.PHYSICS_MAX_RPM,
             TurretSubsystemConstants.MIN_HOOD_ANGLE.in(Degrees),
             TurretSubsystemConstants.MAX_HOOD_ANGLE.in(Degrees)),
-        (distanceM, heightM) -> shooterTable.isLoaded()
-            ? shooterTable.interpolateAngle(Units.metersToInches(distanceM))
-            : BallisticShotSolver.minimumSpeedHoodDeg(distanceM, heightM),
+        BallisticShotSolver::minimumSpeedHoodDeg,
         NetworkedConfig.Debug::getPhysicsExitSpeedScale);
-
-    /** PHYSICS mode: the ballistic solver, or the firing table when the physics shot is out of range. */
-    private final ShotSolver physicsWithLutFallback = new FallbackShotSolver(physicsSolver, shooterTable);
 
     /**
      * This loop's shot plan from {@link #periodic()}: turret angle and shot, or no solution. Cached so
@@ -233,7 +227,7 @@ public class TurretSubsystem extends SubsystemBase {
             Pose2d pose = new Pose2d(10.5 - (i % 40) * 0.1, 3.0 + (i % 25) * 0.08, Rotation2d.fromDegrees(i));
             ChassisSpeeds speeds = new ChassisSpeeds((i % 7) * 0.1 - 0.3, (i % 5) * 0.1 - 0.2, (i % 3) * 0.3 - 0.3);
             ShotPlanner.plan(pose, speeds, PIVOT_OFFSET, TurretTargetPoints.RED_HUB, shooterTable, 0.05, -0.02);
-            ShotPlanner.plan(pose, speeds, PIVOT_OFFSET, TurretTargetPoints.RED_HUB, physicsWithLutFallback, 0.05, -0.02);
+            ShotPlanner.plan(pose, speeds, PIVOT_OFFSET, TurretTargetPoints.RED_HUB, physicsSolver, 0.05, -0.02);
         }
     }
 
@@ -396,13 +390,13 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * The solver for the dashboard-selected mode: {@code "PHYSICS"} is the ballistic solver with the
-     * firing table as fallback; anything else is the firing table alone. {@code null} if unavailable.
+     * The solver for the dashboard-selected mode: {@code "LUT"} is the firing table (debug comparison;
+     * {@code null} if it failed to load); anything else is the ballistic solver.
      */
     private ShotSolver activeSolver() {
         String mode = NetworkedConfig.Debug.getTurretTargetingMode();
-        if (mode != null && "PHYSICS".equalsIgnoreCase(mode.trim())) return physicsWithLutFallback;
-        return shooterTable.isLoaded() ? shooterTable : null;
+        if (mode != null && "LUT".equalsIgnoreCase(mode.trim())) return shooterTable.isLoaded() ? shooterTable : null;
+        return physicsSolver;
     }
 
     /** This loop's shot, or {@code null} when there is no target or no solution. */
@@ -436,7 +430,9 @@ public class TurretSubsystem extends SubsystemBase {
         updateTurretTarget();
 
         Pose2d currentPose = poseProvider.getPose();
-        ChassisSpeeds fieldSpeeds = poseProvider.getChassisSpeeds();
+        // getChassisSpeeds() is robot-relative (CTRE state.Speeds); the planner needs field-relative.
+        ChassisSpeeds fieldSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+            poseProvider.getChassisSpeeds(), currentPose.getRotation());
         Translation3d targetPosition = getTargetFromEnum(turretTarget);
 
         // Latency compensation: aim for where the robot will be when the turret actually gets there.

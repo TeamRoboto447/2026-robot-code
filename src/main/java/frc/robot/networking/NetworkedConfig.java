@@ -584,11 +584,11 @@ public class NetworkedConfig {
 
         /**
          * Runtime turret targeting mode.
-         * Valid values: {@code "LUT"} (lookup table only) and {@code "PHYSICS"} (ballistic solver,
-         * falling back to the lookup table when the physics shot is out of range).
+         * Valid values: {@code "PHYSICS"} (ballistic solver, the default) and {@code "LUT"}
+         * (lookup table only, for debug comparison).
          */
         private static final StringEntry turretTargetingMode =
-            debugTable.getStringTopic("Turret Targeting Mode").getEntry("LUT");
+            debugTable.getStringTopic("Turret Targeting Mode").getEntry("PHYSICS");
 
         /**
          * Multiplier on the physics solver's ball exit-speed model (1.0 = as fit). Physics shots
@@ -615,7 +615,7 @@ public class NetworkedConfig {
             overrideRPMValue.set(3400);
             overrideHoodAngleEnabled.set(false);
             overrideHoodAngleValue.set(30.0);
-            turretTargetingMode.set("LUT");
+            turretTargetingMode.set("PHYSICS");
             physicsExitSpeedScale.set(1.0);
             latencyTrimS.set(0.0);
 
@@ -682,7 +682,7 @@ public class NetworkedConfig {
 
         public static void setTurretTargetingMode(String mode) {
             if (mode == null || mode.isBlank()) {
-                turretTargetingMode.set("LUT");
+                turretTargetingMode.set("PHYSICS");
             } else {
                 turretTargetingMode.set(mode);
             }

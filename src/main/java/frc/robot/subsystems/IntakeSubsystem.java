@@ -9,8 +9,9 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -36,8 +37,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private final StatusSignal<edu.wpi.first.units.measure.Angle> liftPositionSignal;
     private final StatusSignal<Current> liftStatorCurrentSignal;
 
-    /** Reusable position requests — allocated once to avoid per-loop GC pressure. */
-    private final PositionTorqueCurrentFOC liftPositionReq = new PositionTorqueCurrentFOC(0).withSlot(0);
+    /**
+     * Reusable position request — allocated once to avoid per-loop GC pressure. Motion Magic ramps
+     * each move; voltage control lets back-EMF soften it while still holding stiffly at a stop.
+     */
+    private final MotionMagicVoltage liftPositionReq = new MotionMagicVoltage(0).withSlot(0);
 
     private boolean isLiftHomed = false;
     private double target_angle = 0.0;
@@ -60,7 +64,12 @@ public class IntakeSubsystem extends SubsystemBase {
         liftFXConfigs.Slot0
             .withKP(IntakeSubsystemConstants.LIFT_KP)
             .withKI(IntakeSubsystemConstants.LIFT_KI)
-            .withKD(IntakeSubsystemConstants.LIFT_KD);
+            .withKD(IntakeSubsystemConstants.LIFT_KD)
+            .withKV(IntakeSubsystemConstants.LIFT_KV);
+        liftFXConfigs.MotionMagic
+            .withMotionMagicCruiseVelocity(IntakeSubsystemConstants.LIFT_CRUISE_VELOCITY_RPS)
+            .withMotionMagicAcceleration(IntakeSubsystemConstants.LIFT_ACCELERATION_RPS2)
+            .withMotionMagicJerk(IntakeSubsystemConstants.LIFT_JERK_RPS3);
 
         // Current limits — prevent brownouts and protect motor/wiring.
         CurrentLimitsConfigs liftCurrentLimits = new CurrentLimitsConfigs()
@@ -70,6 +79,8 @@ public class IntakeSubsystem extends SubsystemBase {
             .withSupplyCurrentLimitEnable(true);
         liftFXConfigs.CurrentLimits = liftCurrentLimits;
         liftFXConfigs.Feedback.SensorToMechanismRatio = IntakeSubsystemConstants.LIFT_GEARBOX_RATIO;
+        // Positive must raise the arm (homing and liftIntake() rely on it). Flipped after a hardware change.
+        liftFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         liftMotor.getConfigurator().apply(liftFXConfigs);
         liftMotor.getConfigurator().apply(new FeedbackConfigs()
@@ -144,6 +155,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void dropIntake() {
         if (!isLiftHomed && RobotBase.isReal()) return;
         target_angle = NetworkedConfig.Intake.getLiftLoweredPosition();
+        System.out.println("[Intake] lower: target " + target_angle + " rot, at " + liftPositionSignal.getValueAsDouble() + " rot");
         liftMotor.setControl(liftPositionReq.withPosition(target_angle));
     }
 
@@ -154,6 +166,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void liftIntake() {
         if (!isLiftHomed && RobotBase.isReal()) return;
         target_angle = 0;
+        System.out.println("[Intake] raise: target 0 rot, at " + liftPositionSignal.getValueAsDouble() + " rot");
         liftMotor.setControl(liftPositionReq.withPosition(target_angle));
     }
 

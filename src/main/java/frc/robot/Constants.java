@@ -198,6 +198,7 @@ public final class Constants {
         }
 
         public static class TurretTargetPoints {
+            // Hub z: the 41.7 in hexagonal opening's front edge is 72 in (~1.83 m) off the carpet (2026 Game Manual).
             public static final Translation3d RED_HUB = new Translation3d(11.9, 4.035, 1.83);
             public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.04, 6.57, 0);
             public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.04, 1.5, 0);
@@ -438,15 +439,15 @@ public final class Constants {
         public static final double LUT_RANGE_MARGIN_IN = 24.0;
 
         // ── Physics (ballistic) solver ───────────────────────────────────────
-        // Ball exit speed is modeled as linear in flywheel RPM. The two coefficients were fit
-        // (drag-free) to the 73.7, 111 and 190.6 in points of turret_data.json; the 177 in point was
-        // left out because its 41 degree hood angle was above the old 40 degree cap and never applied.
-        // Refit once flight times or exit speeds are measured.
+        // Ball exit speed is modeled as linear in flywheel RPM (drag-free, so drag and Magnus lift are
+        // absorbed into the fit). First fit to turret_data.json, then shifted so shots land ~9 in
+        // shorter: physics shots carried 6-12 in past the hub center at every distance.
+        // shortcut: field-corrected guess, refit from a floor-landing test (two RPMs, fixed hood).
         /** Height of the ball's exit point above the carpet. Currently the turret mount height. */
         public static final double PHYSICS_LAUNCH_HEIGHT_M = Units.inchesToMeters(20);
-        public static final double PHYSICS_EXIT_SPEED_INTERCEPT_MPS = 0.2758;
-        public static final double PHYSICS_EXIT_SPEED_PER_RPM_MPS = 0.0016405;
-        /** Physics shots needing a flywheel speed outside this band are out of range (LUT fallback). */
+        public static final double PHYSICS_EXIT_SPEED_INTERCEPT_MPS = 0.4202;
+        public static final double PHYSICS_EXIT_SPEED_PER_RPM_MPS = 0.0016364;
+        /** Physics shots needing a flywheel speed outside this band are out of range (no shot). */
         public static final double PHYSICS_MIN_RPM = 1500.0;
         public static final double PHYSICS_MAX_RPM = 6000.0;
 
@@ -575,22 +576,32 @@ public final class Constants {
 
         public static final double LIFT_GEARBOX_RATIO = 4.0*4*4;
 
-        public static final double LIFT_KP = 7;
+        // Lift gains are voltage-based (Motion Magic Voltage), per arm rotation.
+        public static final double LIFT_KP = 60;
         public static final double LIFT_KI = 0;
         public static final double LIFT_KD = 0.7;
+        /** Volts per arm rotation/s: Kraken X60 ~0.12 V per motor rps, times the 64:1 gearbox. */
+        public static final double LIFT_KV = 0.12 * LIFT_GEARBOX_RATIO;
+
+        // Motion Magic profile for the lift (arm rotations). Ramped moves instead of a full-current
+        // step, so the arm doesn't slam the gearbox into its stops. ~0.6 s stowed to lowered.
+        public static final double LIFT_CRUISE_VELOCITY_RPS = 0.75;
+        public static final double LIFT_ACCELERATION_RPS2 = 3.0;
+        public static final double LIFT_JERK_RPS3 = 30.0;
 
         /**
-         * Rotations (output shaft) the lift travels from the stowed position (0)
-         * to the fully-lowered intake position. Negative because the motor must
-         * turn in the negative direction to lower.
+         * Rotations (output shaft) the lift travels from the stowed position (0) to the
+         * fully-lowered position: the arm swings about 130 degrees. Negative because the motor must
+         * turn in the negative direction to lower. (Was -31, beyond the arm's travel, so the
+         * lift pushed into its stop at the full current limit the whole time it was down.)
          */
-        public static final double LIFT_LOWERED_ROTATIONS = -31;
+        public static final double LIFT_LOWERED_ROTATIONS = -180.0 / 360.0;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}
-         * when comparing the lift's actual position against the target endpoints.
+         * when comparing the lift's actual position against the target endpoints (5 degrees).
          */
-        public static final double LIFT_POSITION_TOLERANCE_ROTATIONS = .5;
+        public static final double LIFT_POSITION_TOLERANCE_ROTATIONS = 5.0 / 360.0;
 
         /** Open-loop output used while homing toward the upper hard stop. Positive = raise. */
         public static final double LIFT_HOMING_SPEED = 0.1;
