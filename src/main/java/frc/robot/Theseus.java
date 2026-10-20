@@ -54,7 +54,7 @@ public class Theseus extends LoggedRobot {
     public Theseus() {
         Logger.recordMetadata("ProjectName", "2026 Theseus"); // Set a metadata value
 
-        if (isReal() || !Constants.USE_ADV_KIT) {
+        if (isReal() || !Constants.SIMULATOR_USE_ADV_KIT) {
             Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
         } else {
@@ -104,20 +104,22 @@ public class Theseus extends LoggedRobot {
             m_robotContainer.periodicUpdate();
         }
 
+        SmartDashboard.putNumber("Intake/Lift Angle (Degrees)", m_robotContainer.intakeSubsystem.getIntakeAngleDegrees());
+
         //  Publish the status of the flash drive to networktables (connected, space remaining, etc.) once a second
         
         if (periodicLoopCount > 49) {
             periodicLoopCount = 0;
 
-            SmartDashboard.putNumber("Intake/Lift Angle (Degrees)", m_robotContainer.intakeSubsystem.getIntakeAngleDegrees());
-
             if (isReal()) {
                 try {
-                    File logDir = new File(DataLogManager.getLogDir());
+                    String logDirPath = DataLogManager.getLogDir();
+                    File logDir = new File(logDirPath);
                     long rawLogSpaceLeft = logDir.getFreeSpace();  // Gets remaining space in bytes
-                    SmartDashboard.putNumber("Logging Info/Log Space Remaining (MB)", rawLogSpaceLeft / 1024.0 / 1024.0); // Sends space to NT in MB
+                    SmartDashboard.putNumber("Logging Info/Log Space Remaining (MB)", rawLogSpaceLeft / 1024.0 / 1024.0); // Sends remaining space to NT in MB
 
-                    boolean flashDriveConnected = logDir.exists() && DataLogManager.getLogDir().charAt(1) == 'u';
+                    // boolean flashDriveConnected = logDir.exists() && DataLogManager.getLogDir().toLowerCase().charAt(1) == 'u';
+                    Boolean flashDriveConnected = !logDirPath.contains("home/lvuser") && !logDirPath.isEmpty();
                     SmartDashboard.putBoolean("Logging Info/Flash Drive Connected", flashDriveConnected); // Sends true or false depending on whether or not the flash is connected
                 } catch (NullPointerException e) {
                     System.out.println("Could not open file " + DataLogManager.getLogDir());

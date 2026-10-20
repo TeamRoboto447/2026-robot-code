@@ -36,7 +36,7 @@ import edu.wpi.first.units.measure.Angle;
 
 public final class Constants {
 
-    public static final boolean USE_ADV_KIT = false;
+    public static final boolean SIMULATOR_USE_ADV_KIT = false;
 
     public static class AdvScopeConstants {
         public static final Translation3d INTAKE_POS = 
@@ -418,7 +418,7 @@ public final class Constants {
          * kicker is allowed to run. Currently 750 RPM, which is loose (~18% at 4000 RPM).
          * Decrease if shot consistency is poor; increase if the kicker rarely fires.
          */
-        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 750.0 / 60.0;
+        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 150.0 / 60.0;
 
         /** Below this commanded speed the flywheel coasts instead of running closed-loop. */
         public static final double FLYWHEEL_MIN_CLOSED_LOOP_RPM = 960.0;
