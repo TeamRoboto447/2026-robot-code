@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.984,
-        "y": 7.218
+        "x": 3.885,
+        "y": 7.216
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.094876331415644,
-        "y": 6.993932065810816
+        "x": 3.995876331415644,
+        "y": 6.991932065810817
       },
       "isLocked": false,
-      "linkedName": "Depot Side Stage"
+      "linkedName": "LeftStart"
     },
     {
       "anchor": {

@@ -12,7 +12,7 @@
         "y": 0.255099673411886
       },
       "isLocked": false,
-      "linkedName": "Right Trench Shooting"
+      "linkedName": null
     },
     {
       "anchor": {
@@ -146,7 +146,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -179.28908126257707
   },
   "useDefaultConstraints": true
 }

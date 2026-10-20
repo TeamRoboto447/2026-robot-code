@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.325,
-        "y": 7.61
+        "x": 3.885,
+        "y": 7.216
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0521325301204825,
-        "y": 7.805060240963856
+        "x": 1.6121319372787593,
+        "y": 7.4110533329712505
       },
       "isLocked": false,
-      "linkedName": "Left Trench Exit"
+      "linkedName": "LeftStart"
     },
     {
       "anchor": {

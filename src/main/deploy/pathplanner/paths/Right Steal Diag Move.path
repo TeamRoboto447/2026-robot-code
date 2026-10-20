@@ -8,11 +8,11 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.582872069373057,
-        "y": 1.0387267779369824
+        "x": 5.593407455148191,
+        "y": 0.853
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "RightStart"
     },
     {
       "anchor": {
