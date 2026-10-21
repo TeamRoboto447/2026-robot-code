@@ -54,6 +54,8 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="frc/robot/utils/RollingAveragePose2d.html#addPose(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">addPose(Pose2d)</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/RollingAveragePose2d.html" title="class in frc.robot.utils">RollingAveragePose2d</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/QuestOffsetCalibrator.html#addSample(edu.wpi.first.math.geometry.Pose2d)" class="member-name-link">addSample(Pose2d)</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/QuestOffsetCalibrator.html" title="class in frc.robot.utils">QuestOffsetCalibrator</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/subsystems/CommandSwerveDrivetrain.html#addVisionMeasurement(edu.wpi.first.math.geometry.Pose2d,double)" class="member-name-link">addVisionMeasurement(Pose2d, double)</a> - Method in class frc.robot.subsystems.<a href="frc/robot/subsystems/CommandSwerveDrivetrain.html" title="class in frc.robot.subsystems">CommandSwerveDrivetrain</a></dt>
 <dd>
 <div class="block">Adds a vision measurement to the Kalman Filter.</div>
@@ -305,6 +307,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="frc/robot/networking/NetworkedConfig.Debug.html#%3Cinit%3E()" class="member-name-link">Debug()</a> - Constructor for class frc.robot.networking.<a href="frc/robot/networking/NetworkedConfig.Debug.html" title="class in frc.robot.networking">NetworkedConfig.Debug</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/QuestOffsetCalibrator.html#describe()" class="member-name-link">describe()</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/QuestOffsetCalibrator.html" title="class in frc.robot.utils">QuestOffsetCalibrator</a></dt>
+<dd>
+<div class="block">A one-line result for the console.</div>
+</dd>
 <dt><a href="frc/robot/dioPortTest.html" class="type-name-link" title="class in frc.robot">dioPortTest</a> - Class in <a href="frc/robot/package-summary.html">frc.robot</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/dioPortTest.html#%3Cinit%3E()" class="member-name-link">dioPortTest()</a> - Constructor for class frc.robot.<a href="frc/robot/dioPortTest.html" title="class in frc.robot">dioPortTest</a></dt>
@@ -1383,6 +1389,13 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="frc/robot/networking/NetworkedTelemetry.QuestNavNT.html#%3Cinit%3E()" class="member-name-link">QuestNavNT()</a> - Constructor for class frc.robot.networking.<a href="frc/robot/networking/NetworkedTelemetry.QuestNavNT.html" title="class in frc.robot.networking">NetworkedTelemetry.QuestNavNT</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/QuestOffsetCalibrator.html" class="type-name-link" title="class in frc.robot.utils">QuestOffsetCalibrator</a> - Class in <a href="frc/robot/utils/package-summary.html">frc.robot.utils</a></dt>
+<dd>
+<div class="block">Measures where the Quest sits on the robot (the translation of <code>ROBOT_TO_QUEST</code>) from Quest
+ poses recorded while the robot spins in place.</div>
+</dd>
+<dt><a href="frc/robot/utils/QuestOffsetCalibrator.html#%3Cinit%3E(double)" class="member-name-link">QuestOffsetCalibrator(double)</a> - Constructor for class frc.robot.utils.<a href="frc/robot/utils/QuestOffsetCalibrator.html" title="class in frc.robot.utils">QuestOffsetCalibrator</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:R">R</h2>
 <dl class="index">
@@ -1415,6 +1428,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="frc/robot/Constants.FieldConstants.TurretSafety.html#RED_OUTPOST_SIDE_TRENCH" class="member-name-link">RED_OUTPOST_SIDE_TRENCH</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.FieldConstants.TurretSafety.html" title="class in frc.robot">Constants.FieldConstants.TurretSafety</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/Constants.FieldConstants.TurretTargetPoints.html#RED_RIGHT_CORNER" class="member-name-link">RED_RIGHT_CORNER</a> - Static variable in class frc.robot.<a href="frc/robot/Constants.FieldConstants.TurretTargetPoints.html" title="class in frc.robot">Constants.FieldConstants.TurretTargetPoints</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="frc/robot/utils/QuestOffsetCalibrator.html#reset()" class="member-name-link">reset()</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/QuestOffsetCalibrator.html" title="class in frc.robot.utils">QuestOffsetCalibrator</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/utils/RollingAveragePose2d.html#reset()" class="member-name-link">reset()</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/RollingAveragePose2d.html" title="class in frc.robot.utils">RollingAveragePose2d</a></dt>
 <dd>&nbsp;</dd>
@@ -1872,6 +1887,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the value of the <a href="./frc/robot/utils/targeting/ShotPlanner.ShotPlan.html#param-solution"><code>solution</code></a> record component.</div>
 </dd>
+<dt><a href="frc/robot/utils/QuestOffsetCalibrator.html#solve()" class="member-name-link">solve()</a> - Method in class frc.robot.utils.<a href="frc/robot/utils/QuestOffsetCalibrator.html" title="class in frc.robot.utils">QuestOffsetCalibrator</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="frc/robot/utils/targeting/BallisticShotSolver.html#solve(double,double)" class="member-name-link">solve(double, double)</a> - Method in class frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/BallisticShotSolver.html" title="class in frc.robot.utils.targeting">BallisticShotSolver</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="frc/robot/utils/targeting/ShooterTable.html#solve(double,double)" class="member-name-link">solve(double, double)</a> - Method in class frc.robot.utils.targeting.<a href="frc/robot/utils/targeting/ShooterTable.html" title="class in frc.robot.utils.targeting">ShooterTable</a></dt>
