@@ -41,7 +41,7 @@
               "data_type": "double",
               "time_display_mode": "Minutes and Seconds",
               "red_start_time": 0,
-              "yellow_start_time": 3
+              "yellow_start_time": 10
             }
           },
           {

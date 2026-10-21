@@ -45,6 +45,7 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.TurretSubsystemConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.utils.GameState;
+import frc.robot.utils.QuestOffsetCalibrator;
 import gg.questnav.questnav.QuestNav;
 // import frc.robot.subsystems.ClimberSubsystem; // Climber physically removed
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -549,6 +550,19 @@ public class ShipOfTheseus {
             NetworkedConfig.Debug.getNewPoseY(),
             new Rotation2d(NetworkedConfig.Debug.getNewPoseRotation())
         ))));
+
+        // Quest offset calibration: with room around the robot, hold Y. The robot spins slowly in place; on
+        // release the measured ROBOT_TO_QUEST x/y prints to the console. Hold for at least a full turn.
+        QuestOffsetCalibrator questCalibrator =
+            new QuestOffsetCalibrator(Constants.VisionConstants.ROBOT_TO_QUEST.getRotation().getZ());
+        DriverController.y()
+            .onTrue(Commands.runOnce(questCalibrator::reset))
+            .whileTrue(swerveSubsystem.applyRequest(() -> {
+                if (questNav.hasNewFrame()) questCalibrator.addSample(questNav.getQuestPose());
+                // 1.5 rad/s (~4 s per turn): slower stalls the open-loop drive on friction.
+                return driveRobotOriented.withVelocityX(0).withVelocityY(0).withRotationalRate(1.5);
+            }))
+            .onFalse(Commands.runOnce(() -> System.out.println(questCalibrator.describe())));
 
         // DriverController.pov(0).whileTrue(climberSubsystem.run(() -> climberSubsystem.raise()));
         // DriverController.pov(180).whileTrue(climberSubsystem.run(() -> climberSubsystem.lower()));

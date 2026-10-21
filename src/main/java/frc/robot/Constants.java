@@ -116,8 +116,10 @@ public final class Constants {
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(210.24)));
 
+        // ROBOT_TO_QUEST x = -7.79 in, y = 8.52 in
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-8.5), Units.inchesToMeters(7.5), Units.inchesToMeters(19.75)),
+        new Translation3d(Units.inchesToMeters(-7.79), Units.inchesToMeters(8.52), Units.inchesToMeters(19.75)), // Calibrated position
+        // Manually measured position new Translation3d(Units.inchesToMeters(-8.5), Units.inchesToMeters(7.5), Units.inchesToMeters(19.75)),
         new Rotation3d(Units.degreesToRadians(-0), Units.degreesToRadians(0), Units.degreesToRadians(90))
         );
 
