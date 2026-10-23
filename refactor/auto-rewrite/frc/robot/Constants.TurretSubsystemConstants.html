@@ -259,9 +259,21 @@ loadScripts(document, 'script');</script>
 <div class="block">Duration (seconds) over which the drive speed ramps back to full speed
  after the shoot button is released.</div>
 </div>
-<div class="col-first odd-row-color"><code>static final double</code></div>
-<div class="col-second odd-row-color"><code><a href="#TURRET_ANGLE_TOLERANCE_DEGREES" class="member-name-link">TURRET_ANGLE_TOLERANCE_DEGREES</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final double[]</code></div>
+<div class="col-second odd-row-color"><code><a href="#TURRET_ANGLE_DISTANCE_TRIM_IN" class="member-name-link">TURRET_ANGLE_DISTANCE_TRIM_IN</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Seed values for the per-turret-angle shot trims (see <code>TurretAngleTrims</code>), at turret
+ angles -180, -135, -90, -45, 0, 45, 90, 135 (CW-positive, 0 = back of robot).</div>
+</div>
+<div class="col-first even-row-color"><code>static final double</code></div>
+<div class="col-second even-row-color"><code><a href="#TURRET_ANGLE_TOLERANCE_DEGREES" class="member-name-link">TURRET_ANGLE_TOLERANCE_DEGREES</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final double[]</code></div>
+<div class="col-second odd-row-color"><code><a href="#TURRET_ANGLE_YAW_TRIM_DEG" class="member-name-link">TURRET_ANGLE_YAW_TRIM_DEG</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Aim trims (degrees, positive = aim clockwise, to the shooter's right) at the same turret
+ angles, tuned on the robot.</div>
+</div>
 <div class="col-first even-row-color"><code>static final double</code></div>
 <div class="col-second even-row-color"><code><a href="#TURRET_GEAR_RATIO" class="member-name-link">TURRET_GEAR_RATIO</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
@@ -608,6 +620,25 @@ loadScripts(document, 'script');</script>
 </ul>
 </dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="TURRET_ANGLE_DISTANCE_TRIM_IN">
+<h3>TURRET_ANGLE_DISTANCE_TRIM_IN</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double[]</span>&nbsp;<span class="element-name">TURRET_ANGLE_DISTANCE_TRIM_IN</span></div>
+<div class="block">Seed values for the per-turret-angle shot trims (see <code>TurretAngleTrims</code>), at turret
+ angles -180, -135, -90, -45, 0, 45, 90, 135 (CW-positive, 0 = back of robot). Live-tunable
+ under <code>TurretAssembly/angle trims</code>; copy tuned values back here.
+
+ <p>Tuned on the robot (range trims, inches), with the shooter tuned with the turret at 0.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="TURRET_ANGLE_YAW_TRIM_DEG">
+<h3>TURRET_ANGLE_YAW_TRIM_DEG</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">double[]</span>&nbsp;<span class="element-name">TURRET_ANGLE_YAW_TRIM_DEG</span></div>
+<div class="block">Aim trims (degrees, positive = aim clockwise, to the shooter's right) at the same turret
+ angles, tuned on the robot.</div>
 </section>
 </li>
 <li>
