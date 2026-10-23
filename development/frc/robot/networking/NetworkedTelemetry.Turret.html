@@ -10,7 +10,7 @@
 <link rel="stylesheet" type="text/css" href="../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../script-dir/jquery-ui.min.css" title="Style">
 <script type="text/javascript" src="../../../script.js"></script>
-<script type="text/javascript" src="../../../script-dir/jquery-3.7.1.min.js"></script>
+<script type="text/javascript" src="../../../script-dir/jquery-3.6.1.min.js"></script>
 <script type="text/javascript" src="../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="class-declaration-page">
@@ -123,32 +123,47 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setCTFlywheelRPM(double)" class="member-name-link">setCTFlywheelRPM</a><wbr>(double&nbsp;rpm)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setCommandedRPM(double)" class="member-name-link">setCommandedRPM</a><wbr>(double&nbsp;rpm)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">The flywheel speed actually commanded this loop (after overrides and offsets); 0 when coasting.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setLatency(double,double,double)" class="member-name-link">setLatency</a><wbr>(double&nbsp;poseAgeS,
+ double&nbsp;turretLagS,
+ double&nbsp;totalS)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">The shoot-on-the-fly latency used this loop and its measured parts.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setLutPhysicsHoodDeltaDeg(double)" class="member-name-link">setLutPhysicsHoodDeltaDeg</a><wbr>(double&nbsp;deltaDeg)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">LUT hood angle minus physics hood angle at the current shot distance.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setLutPhysicsRPMDelta(double)" class="member-name-link">setLutPhysicsRPMDelta</a><wbr>(double&nbsp;deltaRpm)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">LUT RPM minus physics RPM at the current shot distance.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setMotorCommStatus(boolean)" class="member-name-link">setMotorCommStatus</a><wbr>(boolean&nbsp;status)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setCTHoodAngle(double)" class="member-name-link">setCTHoodAngle</a><wbr>(double&nbsp;angle)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setSelectedSolver(java.lang.String)" class="member-name-link">setSelectedSolver</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;solver)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setCTValidTrajectory(boolean)" class="member-name-link">setCTValidTrajectory</a><wbr>(boolean&nbsp;valid)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setShotArc(edu.wpi.first.math.geometry.Pose3d%5B%5D)" class="member-name-link">setShotArc</a><wbr>(edu.wpi.first.math.geometry.Pose3d[]&nbsp;arcPoints)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setLutModelHoodDeltaDeg(double)" class="member-name-link">setLutModelHoodDeltaDeg</a><wbr>(double&nbsp;deltaDeg)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setShotInRange(boolean)" class="member-name-link">setShotInRange</a><wbr>(boolean&nbsp;inRange)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Whether the selected solution is within the solver's trusted range.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setLutModelRPMDelta(double)" class="member-name-link">setLutModelRPMDelta</a><wbr>(double&nbsp;deltaRpm)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setTimeOfFlightS(double)" class="member-name-link">setTimeOfFlightS</a><wbr>(double&nbsp;seconds)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setMotorCommStatus(boolean)" class="member-name-link">setMotorCommStatus</a><wbr>(boolean&nbsp;status)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setTurretAngleOffset(double)" class="member-name-link">setTurretAngleOffset</a><wbr>(double&nbsp;offset)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setSelectedSolver(java.lang.String)" class="member-name-link">setSelectedSolver</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;solver)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setShotArc(edu.wpi.first.math.geometry.Pose3d%5B%5D)" class="member-name-link">setShotArc</a><wbr>(edu.wpi.first.math.geometry.Pose3d[]&nbsp;arcPoints)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setTurretAngleOffset(double)" class="member-name-link">setTurretAngleOffset</a><wbr>(double&nbsp;offset)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -181,24 +196,6 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="setCTHoodAngle(double)">
-<h3>setCTHoodAngle</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCTHoodAngle</span><wbr><span class="parameters">(double&nbsp;angle)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="setCTFlywheelRPM(double)">
-<h3>setCTFlywheelRPM</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCTFlywheelRPM</span><wbr><span class="parameters">(double&nbsp;rpm)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="setCTValidTrajectory(boolean)">
-<h3>setCTValidTrajectory</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCTValidTrajectory</span><wbr><span class="parameters">(boolean&nbsp;valid)</span></div>
-</section>
-</li>
-<li>
 <section class="detail" id="setMotorCommStatus(boolean)">
 <h3>setMotorCommStatus</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMotorCommStatus</span><wbr><span class="parameters">(boolean&nbsp;status)</span></div>
@@ -211,15 +208,52 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="setLutModelHoodDeltaDeg(double)">
-<h3>setLutModelHoodDeltaDeg</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setLutModelHoodDeltaDeg</span><wbr><span class="parameters">(double&nbsp;deltaDeg)</span></div>
+<section class="detail" id="setShotInRange(boolean)">
+<h3>setShotInRange</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setShotInRange</span><wbr><span class="parameters">(boolean&nbsp;inRange)</span></div>
+<div class="block">Whether the selected solution is within the solver's trusted range.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="setLutModelRPMDelta(double)">
-<h3>setLutModelRPMDelta</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setLutModelRPMDelta</span><wbr><span class="parameters">(double&nbsp;deltaRpm)</span></div>
+<section class="detail" id="setCommandedRPM(double)">
+<h3>setCommandedRPM</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setCommandedRPM</span><wbr><span class="parameters">(double&nbsp;rpm)</span></div>
+<div class="block">The flywheel speed actually commanded this loop (after overrides and offsets); 0 when coasting.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setTimeOfFlightS(double)">
+<h3>setTimeOfFlightS</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setTimeOfFlightS</span><wbr><span class="parameters">(double&nbsp;seconds)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="setLatency(double,double,double)">
+<h3>setLatency</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setLatency</span><wbr><span class="parameters">(double&nbsp;poseAgeS,
+ double&nbsp;turretLagS,
+ double&nbsp;totalS)</span></div>
+<div class="block">The shoot-on-the-fly latency used this loop and its measured parts.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>poseAgeS</code> - age of the pose estimate</dd>
+<dd><code>turretLagS</code> - measured turret tracking lag</dd>
+<dd><code>totalS</code> - pose age + turret lag + trims</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setLutPhysicsHoodDeltaDeg(double)">
+<h3>setLutPhysicsHoodDeltaDeg</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setLutPhysicsHoodDeltaDeg</span><wbr><span class="parameters">(double&nbsp;deltaDeg)</span></div>
+<div class="block">LUT hood angle minus physics hood angle at the current shot distance.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="setLutPhysicsRPMDelta(double)">
+<h3>setLutPhysicsRPMDelta</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setLutPhysicsRPMDelta</span><wbr><span class="parameters">(double&nbsp;deltaRpm)</span></div>
+<div class="block">LUT RPM minus physics RPM at the current shot distance.</div>
 </section>
 </li>
 <li>
