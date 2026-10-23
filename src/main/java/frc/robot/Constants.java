@@ -36,7 +36,7 @@ import edu.wpi.first.units.measure.Angle;
 
 public final class Constants {
 
-    public static final boolean USE_ADV_KIT = false;
+    public static final boolean SIMULATOR_USE_ADV_KIT = false;
 
     public static class AdvScopeConstants {
         public static final Translation3d INTAKE_POS = 
@@ -116,8 +116,10 @@ public final class Constants {
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(210.24)));
 
+        // ROBOT_TO_QUEST x = -7.79 in, y = 8.52 in
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-8.5), Units.inchesToMeters(7.5), Units.inchesToMeters(19.75)),
+        new Translation3d(Units.inchesToMeters(-7.79), Units.inchesToMeters(8.52), Units.inchesToMeters(19.75)), // Calibrated position
+        // Manually measured position new Translation3d(Units.inchesToMeters(-8.5), Units.inchesToMeters(7.5), Units.inchesToMeters(19.75)),
         new Rotation3d(Units.degreesToRadians(-0), Units.degreesToRadians(0), Units.degreesToRadians(90))
         );
 
@@ -414,11 +416,25 @@ public final class Constants {
         public static final double TURRET_ROTATION_FF = 0.0;
 
         /**
+         * Seed values for the per-turret-angle shot trims (see {@code TurretAngleTrims}), at turret
+         * angles -180, -135, -90, -45, 0, 45, 90, 135 (CW-positive, 0 = back of robot). Live-tunable
+         * under {@code TurretAssembly/angle trims}; copy tuned values back here.
+         *
+         * <p>Tuned on the robot (range trims, inches), with the shooter tuned with the turret at 0.
+         */
+        public static final double[] TURRET_ANGLE_DISTANCE_TRIM_IN = {30, 27, 12, 18, 0, 0, 12, 21};
+        /**
+         * Aim trims (degrees, positive = aim clockwise, to the shooter's right) at the same turret
+         * angles, tuned on the robot.
+         */
+        public static final double[] TURRET_ANGLE_YAW_TRIM_DEG = {0, 0, 0, 0, 0, 0, 5, 8};
+
+        /**
          * How close (in RPS) the flywheel must be to its commanded speed before the
          * kicker is allowed to run. Currently 750 RPM, which is loose (~18% at 4000 RPM).
          * Decrease if shot consistency is poor; increase if the kicker rarely fires.
          */
-        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 750.0 / 60.0;
+        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 150.0 / 60.0;
 
         /** Below this commanded speed the flywheel coasts instead of running closed-loop. */
         public static final double FLYWHEEL_MIN_CLOSED_LOOP_RPM = 960.0;

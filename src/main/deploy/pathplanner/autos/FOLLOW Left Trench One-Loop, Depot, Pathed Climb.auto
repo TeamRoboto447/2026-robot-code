@@ -5,45 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Lower Intake"
+            "pathName": "FOLLOW Left Slow Clear"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left Steal Diag Move"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Raise Intake"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Lower Intake"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Clear Left Hub Edge Right Bump Return"
+            "pathName": "Depot Collect Stage from Trench"
           }
         },
         {
@@ -53,9 +23,57 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "Collect Depot from Staging"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Climb Staging from Depot Collect"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Raise Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopShooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Intake"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "Raise Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Climb from Staging"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lower Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
           }
         }
       ]

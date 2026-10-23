@@ -10,6 +10,7 @@
     - `ShooterTable`, the `turret_data.json` LUT, in range within `LUT_RANGE_MARGIN_IN` of its data.
     - `BallisticShotSolver`, a drag-free projectile model with a linear RPM→exit-speed fit. This is the default targeting mode.
   - `TurretAngles` — the turret angle convention (CW-positive, 0 = back of robot) and wrapping into the turret's travel.
+  - `TurretAngleTrims` — per-turret-angle range (inches) and aim (degrees) trims, 8 points every 45°, interpolated with wrap. `TurretSubsystem` re-solves at the trimmed distance and adds the aim trim. Seeds in `TURRET_ANGLE_*_TRIM_*`, live-tunable under `TurretAssembly/angle trims` (see `Targeting-Tuning-Guide.md` §10.4a).
   - `TrackingLagEstimator` — measures how far the turret trails its moving setpoint (tracking error ÷ setpoint rate), part of the measured shoot-on-the-fly latency.
 
 ## Hub timer

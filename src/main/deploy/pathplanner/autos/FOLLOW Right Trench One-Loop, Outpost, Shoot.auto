@@ -7,19 +7,37 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Bump Steal Diag"
+            "pathName": "FOLLOW Right Slow Clear"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Clear Left Hub Edge All Bump"
+            "pathName": "Outpost from Right SC Exit"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
           }
         },
         {
           "type": "named",
           "data": {
             "name": "stopShooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "autoClimb"
           }
         }
       ]

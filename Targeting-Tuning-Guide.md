@@ -324,6 +324,24 @@ Actions:
 2. Confirm target height constants and field dimensions.
 3. Re-tune range latency.
 
+### 10.4a Misses change with robot heading (turret angle)
+
+If the pivot-to-hub distance on the dashboard matches a tape measure at every heading but shots
+still land short or to one side at some headings, the kicker/turret spin differs by turret angle.
+
+Fix with the per-turret-angle trims under `TurretAssembly/angle trims`. There are 8 points, one every
+45 deg of turret angle (CW-positive, 0 = turret pointing at the back of the robot):
+- `Distance Trim In <angle>`: inches added to the solved distance. A shot landing 12 in short gets +12.
+- `Yaw Trim Deg <angle>`: degrees added to the turret aim. A shot landing left (from the shooter's
+  view) gets a positive value.
+- `Enabled`: turns the trims off for A/B comparison. `Applied ... Trim` shows what this loop used.
+
+Procedure: park at one distance, rotate the robot so the turret sits on each table angle in turn,
+and adjust that point until the shot lands centered. Values reset to the constants on reboot, so
+copy tuned values into `TURRET_ANGLE_DISTANCE_TRIM_IN` / `TURRET_ANGLE_YAW_TRIM_DEG`. If the
+needed trims differ a lot between near and far shots, the spin effect scales with distance and a
+fixed-inches trim will need re-tuning per range.
+
 ### 10.5 Works in one alliance, wrong in other
 
 Likely causes:

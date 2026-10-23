@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Depot Collect"
+            "pathName": "FOLLOW Left Slow Clear"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Shooting from Left SC"
           }
         },
         {
@@ -17,15 +23,27 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "Raise Intake"
+            "name": "stopShooter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Hub Slow Clear"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 5.0
+            "waitTime": 3.0
           }
         },
         {

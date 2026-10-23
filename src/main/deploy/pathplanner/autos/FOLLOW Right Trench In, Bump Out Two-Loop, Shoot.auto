@@ -5,15 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "R Bump Backup to Outpost"
+            "name": "Lower Intake"
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 2.5
+            "pathName": "FOLLOW Right Steal Diag Move"
           }
         },
         {
@@ -23,27 +23,39 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lower Intake"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Clear Right Hub Edge All Trench"
+          }
+        },
+        {
           "type": "named",
           "data": {
             "name": "startShooter"
           }
         },
         {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.5
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Outpost Move To Climb"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "autoClimb"
+            "name": "Raise Intake"
           }
         }
       ]

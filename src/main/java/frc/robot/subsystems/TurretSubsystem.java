@@ -69,6 +69,7 @@ import frc.robot.utils.targeting.ShotPlanner.ShotPlan;
 import frc.robot.utils.targeting.ShotSolution;
 import frc.robot.utils.targeting.ShotSolver;
 import frc.robot.utils.targeting.TrackingLagEstimator;
+import frc.robot.utils.targeting.TurretAngleTrims;
 import frc.robot.utils.targeting.TurretAngles;
 
 /**
@@ -442,14 +443,33 @@ public class TurretSubsystem extends SubsystemBase {
         double latencyS = poseAgeS + turretLagS
             + TurretSubsystemConstants.SOTF_LATENCY_TRIM_S + NetworkedConfig.Debug.getLatencyTrimSeconds();
         NetworkedTelemetry.Turret.setLatency(poseAgeS, turretLagS, latencyS);
+        ShotSolver solver = activeSolver();
         ShotPlan plan = ShotPlanner.plan(
             currentPose,
             fieldSpeeds,
             PIVOT_OFFSET,
             (turretTarget == TurretTarget.NONE) ? null : targetPosition,
-            activeSolver(),
+            solver,
             latencyS,
             TurretSubsystemConstants.SOTF_RANGE_LATENCY_COMPENSATION_S);
+
+        // Per-turret-angle trims (spin from the kicker/turret varies with turret angle): re-solve at a
+        // trimmed distance here; the yaw trim is added where the turret is aimed below.
+        TurretAngleTrims.Trim angleTrim = NetworkedConfig.Turret.areAngleTrimsEnabled()
+            ? TurretAngleTrims.at(
+                plan.turretAngleDeg(),
+                NetworkedConfig.Turret.getAngleDistanceTrimsIn(),
+                NetworkedConfig.Turret.getAngleYawTrimsDeg())
+            : TurretAngleTrims.Trim.NONE;
+        NetworkedConfig.Turret.setAppliedAngleTrim(angleTrim.distanceIn(), angleTrim.yawDeg());
+        if (plan.hasSolution() && angleTrim.distanceIn() != 0.0) {
+            ShotSolution trimmed = solver.solve(
+                plan.virtualDistanceM() + Units.inchesToMeters(angleTrim.distanceIn()), targetPosition.getZ());
+            if (trimmed != null) {
+                plan = new ShotPlan(plan.pivot(), plan.targetDistanceM(), plan.virtualDistanceM(),
+                    plan.aimBearingRad(), plan.turretAngleDeg(), trimmed);
+            }
+        }
         lastPlan = plan;
         ShotSolution sol = plan.solution();
 
@@ -514,7 +534,8 @@ public class TurretSubsystem extends SubsystemBase {
                     // Optional extra lead in the direction the robot is turning (TURRET_ROTATION_FF).
                     double omegaDegPerSec = Units.radiansToDegrees(fieldSpeeds.omegaRadiansPerSecond);
                     double turretDeg = plan.turretAngleDeg()
-                        + omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02;
+                        + omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02
+                        + angleTrim.yawDeg();
                     this.turnToAngle(Degrees.of(turretDeg).plus(turretAngleOffset));
                     aiming = true;
                 }
