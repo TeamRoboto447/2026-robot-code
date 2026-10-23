@@ -10,7 +10,7 @@
 <link rel="stylesheet" type="text/css" href="stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="script-dir/jquery-ui.min.css" title="Style">
 <script type="text/javascript" src="script.js"></script>
-<script type="text/javascript" src="script-dir/jquery-3.7.1.min.js"></script>
+<script type="text/javascript" src="script-dir/jquery-3.6.1.min.js"></script>
 <script type="text/javascript" src="script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="all-classes-index-page">
@@ -224,68 +224,79 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Abstact interface to make it easier to implement pose retreival.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/RollingAveragePose2d.html" title="class in frc.robot.utils">RollingAveragePose2d</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/ShipOfTheseus.html" title="class in frc.robot">ShipOfTheseus</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/targeting/ShooterTable.html" title="class in frc.robot.utils.targeting">ShooterTable</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/QuestOffsetCalibrator.html" title="class in frc.robot.utils">QuestOffsetCalibrator</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Measures where the Quest sits on the robot (the translation of <code>ROBOT_TO_QUEST</code>) from Quest
+ poses recorded while the robot spins in place.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/RollingAveragePose2d.html" title="class in frc.robot.utils">RollingAveragePose2d</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/ShipOfTheseus.html" title="class in frc.robot">ShipOfTheseus</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/targeting/ShooterTable.html" title="class in frc.robot.utils.targeting">ShooterTable</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">The empirical lookup table from <code>deploy/turret_data.json</code>: hood angle, flywheel RPM and
  flight time measured for static shots at the hub, linearly interpolated by distance.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="frc/robot/utils/targeting/ShooterTable.DataPoint.html" title="class in frc.robot.utils.targeting">ShooterTable.DataPoint</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="frc/robot/utils/targeting/ShooterTable.DataPoint.html" title="class in frc.robot.utils.targeting">ShooterTable.DataPoint</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
 <div class="block">One static shot from <code>turret_data.json</code>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/targeting/ShotPlanner.html" title="class in frc.robot.utils.targeting">ShotPlanner</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/targeting/ShotPlanner.html" title="class in frc.robot.utils.targeting">ShotPlanner</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Turns the robot's pose and velocity into a turret angle and a shot.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="frc/robot/utils/targeting/ShotPlanner.ShotPlan.html" title="class in frc.robot.utils.targeting">ShotPlanner.ShotPlan</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="frc/robot/utils/targeting/ShotSolution.html" title="class in frc.robot.utils.targeting">ShotSolution</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="frc/robot/utils/targeting/ShotPlanner.ShotPlan.html" title="class in frc.robot.utils.targeting">ShotPlanner.ShotPlan</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="frc/robot/utils/targeting/ShotSolution.html" title="class in frc.robot.utils.targeting">ShotSolution</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
 <div class="block">Hood angle, flywheel speed and flight time for a shot from a stationary robot at a given
  horizontal distance.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="frc/robot/utils/targeting/ShotSolution.Source.html" title="enum class in frc.robot.utils.targeting">ShotSolution.Source</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="frc/robot/utils/targeting/ShotSolution.Source.html" title="enum class in frc.robot.utils.targeting">ShotSolution.Source</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
 <div class="block">The solver that produced a solution.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="frc/robot/utils/targeting/ShotSolver.html" title="interface in frc.robot.utils.targeting">ShotSolver</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="frc/robot/utils/targeting/ShotSolver.html" title="interface in frc.robot.utils.targeting">ShotSolver</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Produces a static (robot not moving) shot for a horizontal distance to a target.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/SimPhysics.html" title="class in frc.robot.utils">SimPhysics</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/subsystems/SystemsCheck.html" title="class in frc.robot.subsystems">SystemsCheck</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/SimPhysics.html" title="class in frc.robot.utils">SimPhysics</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/subsystems/SystemsCheck.html" title="class in frc.robot.subsystems">SystemsCheck</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Builds the automated systems-check command that runs during test mode.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/subsystems/vision/Team1732QuestNav.html" title="class in frc.robot.subsystems.vision">Team1732QuestNav</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/Telemetry.html" title="class in frc.robot">Telemetry</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/subsystems/vision/Team1732QuestNav.html" title="class in frc.robot.subsystems.vision">Team1732QuestNav</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/Theseus.html" title="class in frc.robot">Theseus</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/Telemetry.html" title="class in frc.robot">Telemetry</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/subsystems/vision/TheseusQuestNav.html" title="class in frc.robot.subsystems.vision">TheseusQuestNav</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/Theseus.html" title="class in frc.robot">Theseus</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/targeting/TrackingLagEstimator.html" title="class in frc.robot.utils.targeting">TrackingLagEstimator</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/subsystems/vision/TheseusQuestNav.html" title="class in frc.robot.subsystems.vision">TheseusQuestNav</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/targeting/TrackingLagEstimator.html" title="class in frc.robot.utils.targeting">TrackingLagEstimator</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Measures how far a position loop lags behind a moving setpoint, in seconds.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/generated/TunerConstants.html" title="class in frc.robot.generated">TunerConstants</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/generated/TunerConstants.TunerSwerveDrivetrain.html" title="class in frc.robot.generated">TunerConstants.TunerSwerveDrivetrain</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/generated/TunerConstants.html" title="class in frc.robot.generated">TunerConstants</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/generated/TunerConstants.TunerSwerveDrivetrain.html" title="class in frc.robot.generated">TunerConstants.TunerSwerveDrivetrain</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Swerve Drive class utilizing CTR Electronics' Phoenix 6 API with the selected device types.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/targeting/TurretAngles.html" title="class in frc.robot.utils.targeting">TurretAngles</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/targeting/TurretAngles.html" title="class in frc.robot.utils.targeting">TurretAngles</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Turret angle conventions in one place.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/utils/targeting/TurretAngleTrims.html" title="class in frc.robot.utils.targeting">TurretAngleTrims</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Per-turret-angle shot corrections.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="frc/robot/utils/targeting/TurretAngleTrims.Trim.html" title="class in frc.robot.utils.targeting">TurretAngleTrims.Trim</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="frc/robot/subsystems/TurretSubsystem.html" title="class in frc.robot.subsystems">TurretSubsystem</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">A subsystem that allows control of the flywheel, the hood, 
  the turret's angle, and the kicker.</div>
 </div>
