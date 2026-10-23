@@ -416,6 +416,20 @@ public final class Constants {
         public static final double TURRET_ROTATION_FF = 0.0;
 
         /**
+         * Seed values for the per-turret-angle shot trims (see {@code TurretAngleTrims}), at turret
+         * angles -180, -135, -90, -45, 0, 45, 90, 135 (CW-positive, 0 = back of robot). Live-tunable
+         * under {@code TurretAssembly/angle trims}; copy tuned values back here.
+         *
+         * <p>Tuned on the robot (range trims, inches), with the shooter tuned with the turret at 0.
+         */
+        public static final double[] TURRET_ANGLE_DISTANCE_TRIM_IN = {30, 27, 12, 18, 0, 0, 12, 21};
+        /**
+         * Aim trims (degrees, positive = aim clockwise, to the shooter's right) at the same turret
+         * angles, tuned on the robot.
+         */
+        public static final double[] TURRET_ANGLE_YAW_TRIM_DEG = {0, 0, 0, 0, 0, 0, 5, 8};
+
+        /**
          * How close (in RPS) the flywheel must be to its commanded speed before the
          * kicker is allowed to run. Currently 750 RPM, which is loose (~18% at 4000 RPM).
          * Decrease if shot consistency is poor; increase if the kicker rarely fires.

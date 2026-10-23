@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.StringEntry;
 import frc.robot.Constants.IndexerSubsystemConstants;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.Constants.TurretSubsystemConstants;
+import frc.robot.utils.targeting.TurretAngleTrims;
 
 /**
  * NetworkedConfig centralizes all NetworkTables-based configurations for the robot.
@@ -104,6 +105,26 @@ public class NetworkedConfig {
         private static final DoubleEntry kickerSpeed = kickerTable
             .getDoubleTopic("Kicker Speed").getEntry(0);
 
+        // Per-turret-angle shot trims (TurretAngleTrims), one entry per table point.
+        private static final NetworkTable angleTrimTable = turretTable.getSubTable("angle trims");
+        private static final BooleanEntry angleTrimsEnabled = angleTrimTable
+            .getBooleanTopic("Enabled").getEntry(true);
+        private static final DoubleEntry[] angleDistanceTrimIn = new DoubleEntry[TurretAngleTrims.POINTS];
+        private static final DoubleEntry[] angleYawTrimDeg = new DoubleEntry[TurretAngleTrims.POINTS];
+        static {
+            for (int i = 0; i < TurretAngleTrims.POINTS; i++) {
+                String angle = String.format("%+.0f", TurretAngleTrims.angleOfPoint(i));
+                angleDistanceTrimIn[i] = angleTrimTable.getDoubleTopic("Distance Trim In " + angle)
+                    .getEntry(TurretSubsystemConstants.TURRET_ANGLE_DISTANCE_TRIM_IN[i]);
+                angleYawTrimDeg[i] = angleTrimTable.getDoubleTopic("Yaw Trim Deg " + angle)
+                    .getEntry(TurretSubsystemConstants.TURRET_ANGLE_YAW_TRIM_DEG[i]);
+            }
+        }
+        private static final DoubleEntry appliedDistanceTrimIn = angleTrimTable
+            .getDoubleTopic("Applied Distance Trim In").getEntry(0);
+        private static final DoubleEntry appliedYawTrimDeg = angleTrimTable
+            .getDoubleTopic("Applied Yaw Trim Deg").getEntry(0);
+
         /**
          * Initializes the NetworkTables entries for the turret subsystem.
          */
@@ -135,8 +156,41 @@ public class NetworkedConfig {
 
             kickerTarget.set(0);
             kickerSpeed.set(0);
+
+            angleTrimsEnabled.set(true);
+            for (int i = 0; i < TurretAngleTrims.POINTS; i++) {
+                angleDistanceTrimIn[i].set(TurretSubsystemConstants.TURRET_ANGLE_DISTANCE_TRIM_IN[i]);
+                angleYawTrimDeg[i].set(TurretSubsystemConstants.TURRET_ANGLE_YAW_TRIM_DEG[i]);
+            }
+            appliedDistanceTrimIn.set(0);
+            appliedYawTrimDeg.set(0);
         }
-        
+
+        /** Whether the per-turret-angle shot trims are applied. */
+        public static boolean areAngleTrimsEnabled() {
+            return angleTrimsEnabled.get();
+        }
+
+        /** Range trims (inches) at {@link TurretAngleTrims#angleOfPoint} turret angles. */
+        public static double[] getAngleDistanceTrimsIn() {
+            double[] values = new double[TurretAngleTrims.POINTS];
+            for (int i = 0; i < values.length; i++) values[i] = angleDistanceTrimIn[i].get();
+            return values;
+        }
+
+        /** Aim trims (degrees, positive = clockwise) at {@link TurretAngleTrims#angleOfPoint} turret angles. */
+        public static double[] getAngleYawTrimsDeg() {
+            double[] values = new double[TurretAngleTrims.POINTS];
+            for (int i = 0; i < values.length; i++) values[i] = angleYawTrimDeg[i].get();
+            return values;
+        }
+
+        /** Publishes the trim applied this loop. */
+        public static void setAppliedAngleTrim(double distanceIn, double yawDeg) {
+            appliedDistanceTrimIn.set(distanceIn);
+            appliedYawTrimDeg.set(yawDeg);
+        }
+
         // Launcher
         
         /** Gets the kP for the shooter's PID. */
