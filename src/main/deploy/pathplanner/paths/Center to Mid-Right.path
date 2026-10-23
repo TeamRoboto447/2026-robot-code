@@ -4,15 +4,15 @@
     {
       "anchor": {
         "x": 3.5273734939759036,
-        "y": 4.045927710843373
+        "y": 4.217
       },
       "prevControl": null,
       "nextControl": {
         "x": 2.842508085259816,
-        "y": 3.2576590374484105
+        "y": 3.4287313266050368
       },
       "isLocked": false,
-      "linkedName": "Center Stage"
+      "linkedName": "MiddleStart"
     },
     {
       "anchor": {

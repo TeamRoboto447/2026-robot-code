@@ -5,8 +5,6 @@ import static edu.wpi.first.units.Units.Degrees;
 import java.util.Set;
 import java.util.concurrent.TransferQueue;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.Nat;
@@ -22,8 +20,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
-import frc.robot.libraries.Repulsor.Fields.FieldDefinition;
-import frc.robot.libraries.Repulsor.Fields.Rebuilt2026;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -40,7 +36,7 @@ import frc.robot.libraries.Repulsor.Fields.Rebuilt2026;
 
 public final class Constants {
 
-    public static final boolean USE_ADV_KIT = false;
+    public static final boolean SIMULATOR_USE_ADV_KIT = false;
 
     public static class AdvScopeConstants {
         public static final Translation3d INTAKE_POS = 
@@ -93,32 +89,6 @@ public final class Constants {
         };
     }
 
-    public static class RepulsorConstants {
-    public static final AprilTagFieldLayout aprilTagLayout =
-        AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-    /**
-     * Field length in meters (full field X dimension). Sourced from the
-     * AprilTag field layout; keep units in meters.
-     */
-    public static final double FIELD_LENGTH = 16.540988;
-
-    /**
-     * Field width in meters (full field Y dimension). Sourced from the
-     * AprilTag field layout; keep units in meters.
-     */
-    public static final double FIELD_WIDTH = aprilTagLayout.getFieldWidth();
-    public static final FieldDefinition FIELD = new Rebuilt2026();
-
-    /**
-     * Robot external footprint (meters). These are the full robot
-     * dimensions (length = X, width = Y) and SHOULD include bumpers and
-     * any permanent protrusions. Use these values for collision checks
-     * and pathing where the code expects full extents.
-     */
-    public static final double ROBOT_X = Units.inchesToMeters(33.583);
-    public static final double ROBOT_Y = Units.inchesToMeters(36.583000);
-    }
-
     /**
      * Holds constants related to the vision subsystem.
      */
@@ -138,16 +108,19 @@ public final class Constants {
         // e.g. 0.3 means +0.3 to the multiplier per extra meter.
         public static final double VISION_STD_DEV_SCALE_FACTOR = 0.4;
 
-        public static final Transform3d ROBOT_TO_CLIMBER_CAM = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
-        new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(142)));
+        // Climber (and its camera) physically removed.
+        // public static final Transform3d ROBOT_TO_CLIMBER_CAM = new Transform3d(
+        // new Translation3d(Units.inchesToMeters(-10.625), Units.inchesToMeters(13.375), Units.inchesToMeters(9.25)),
+        // new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(142)));
         public static final Transform3d ROBOT_TO_TURRET_CAM = new Transform3d(
         new Translation3d(Units.inchesToMeters(-11.875), Units.inchesToMeters(-10.375), Units.inchesToMeters(7.95)),
         new Rotation3d(0, Units.degreesToRadians(-20), Units.degreesToRadians(210.24)));
 
+        // ROBOT_TO_QUEST x = -7.79 in, y = 8.52 in
         public static final Transform3d ROBOT_TO_QUEST = new Transform3d(
-        new Translation3d(Units.inchesToMeters(-11), Units.inchesToMeters(2.5), Units.inchesToMeters(12)),
-        new Rotation3d(Units.degreesToRadians(-85), Units.degreesToRadians(0), Units.degreesToRadians(180))
+        new Translation3d(Units.inchesToMeters(-7.79), Units.inchesToMeters(8.52), Units.inchesToMeters(19.75)), // Calibrated position
+        // Manually measured position new Translation3d(Units.inchesToMeters(-8.5), Units.inchesToMeters(7.5), Units.inchesToMeters(19.75)),
+        new Rotation3d(Units.degreesToRadians(-0), Units.degreesToRadians(0), Units.degreesToRadians(90))
         );
 
         // Base std devs for vision measurements. Higher = trust odometry more over vision.
@@ -227,6 +200,7 @@ public final class Constants {
         }
 
         public static class TurretTargetPoints {
+            // Hub z: the 41.7 in hexagonal opening's front edge is 72 in (~1.83 m) off the carpet (2026 Game Manual).
             public static final Translation3d RED_HUB = new Translation3d(11.9, 4.035, 1.83);
             public static final Translation3d RED_RIGHT_CORNER = new Translation3d(15.04, 6.57, 0);
             public static final Translation3d RED_LEFT_CORNER = new Translation3d(15.04, 1.5, 0);
@@ -236,114 +210,116 @@ public final class Constants {
             public static final Translation3d BLUE_LEFT_CORNER = new Translation3d(1.5, 6.57, 0);
         }
 
-        /**
-         * Target poses the robot drives to during an automated climb, one per
-         * alliance-side combination.
-         *
-         * <p>All coordinates use the blue-alliance origin (standard WPILib convention).
-         * X/Y are in meters; rotation is the heading the robot should face when it
-         * arrives so that the side-mounted hooks engage the bar correctly.
-         *
-         * <p>Each alliance+side has two poses:
-         * <ul>
-         *   <li><b>Staging</b> — where the robot stops to align before slotting onto
-         *       the tower. It should be in front of (but not touching) the bar,
-         *       facing the correct direction, with the climber already raised.</li>
-         *   <li><b>Final</b>   — the precise position where the hooks engage the bar.
-         *       The robot approaches this from the staging pose at reduced speed.</li>
-         * </ul>
-         *
-         * <p><b>TODO: Tune all eight poses to match the actual bar locations on your field.</b>
-         */
-        public static class ClimbPositions {
-            /**
-             * Maximum drive speed (m/s) while approaching the bar.
-             * Applied to the entire climb path so the robot slows down before
-             * slotting onto the tower.
-             */
-            public static final double APPROACH_SPEED_MPS = .25;
+        // Climber physically removed; climb poses disabled.
+        // /**
+         // * Target poses the robot drives to during an automated climb, one per
+         // * alliance-side combination.
+         // *
+         // * <p>All coordinates use the blue-alliance origin (standard WPILib convention).
+         // * X/Y are in meters; rotation is the heading the robot should face when it
+         // * arrives so that the side-mounted hooks engage the bar correctly.
+         // *
+         // * <p>Each alliance+side has two poses:
+         // * <ul>
+         // *   <li><b>Staging</b> — where the robot stops to align before slotting onto
+         // *       the tower. It should be in front of (but not touching) the bar,
+         // *       facing the correct direction, with the climber already raised.</li>
+         // *   <li><b>Final</b>   — the precise position where the hooks engage the bar.
+         // *       The robot approaches this from the staging pose at reduced speed.</li>
+         // * </ul>
+         // *
+         // * <p><b>TODO: Tune all eight poses to match the actual bar locations on your field.</b>
+         // */
+        // public static class ClimbPositions {
+            // /**
+             // * Maximum drive speed (m/s) while approaching the bar.
+             // * Applied to the entire climb path so the robot slows down before
+             // * slotting onto the tower.
+             // */
+            // public static final double APPROACH_SPEED_MPS = .25;
 
-            /**
-             * How close the robot must get to the staging waypoint (meters) before
-             * BLine hands off to the final bar pose. Smaller = tighter alignment
-             */
-            public static final double STAGING_HANDOFF_RADIUS_METERS = Units.inchesToMeters(.25);
+            // /**
+             // * How close the robot must get to the staging waypoint (meters) before
+             // * BLine hands off to the final bar pose. Smaller = tighter alignment
+             // */
+            // public static final double STAGING_HANDOFF_RADIUS_METERS = Units.inchesToMeters(.25);
 
-            /**
-             * How close the robot must get to the final waypoint (meters) before
-             * BLine considers the path complete. Smaller = tighter alignment
-             */
-            public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(.25);
+            // /**
+             // * How close the robot must get to the final waypoint (meters) before
+             // * BLine considers the path complete. Smaller = tighter alignment
+             // */
+            // public static final double FINAL_APPROACH_RADIUS_METERS = Units.inchesToMeters(.25);
 
 
-            // private static final double BLUE_DEPOT_X = 1.133;
-            // private static final double BLUE_OUTPOST_X = 0.9;
-            private static final double BLUE_DEPOT_X = 1.1061;
-            private static final double BLUE_OUTPOST_X = 1;
+            // // private static final double BLUE_DEPOT_X = 1.133;
+            // // private static final double BLUE_OUTPOST_X = 0.9;
+            // private static final double BLUE_DEPOT_X = 1.1061;
+            // private static final double BLUE_OUTPOST_X = 1;
 
-            // ── Final (hook-engagement) positions ──────────────────────────────
-            public static final Pose2d BLUE_OUTPOST_SIDE = new Pose2d(
-                BLUE_OUTPOST_X, // placeholder — tune to your bar
-                3.090,  // audience side: y < field midpoint
-                Rotation2d.fromDegrees(270)   // placeholder — tune to face the bar
-            );
-            public static final Pose2d BLUE_DEPOT_SIDE = new Pose2d(
-                BLUE_DEPOT_X, // placeholder — tune to your bar
-                4.30, // scoring side: y > field midpoint
-                Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
-            );
+            // // ── Final (hook-engagement) positions ──────────────────────────────
+            // public static final Pose2d BLUE_OUTPOST_SIDE = new Pose2d(
+                // BLUE_OUTPOST_X, // placeholder — tune to your bar
+                // 3.090,  // audience side: y < field midpoint
+                // Rotation2d.fromDegrees(270)   // placeholder — tune to face the bar
+            // );
+            // public static final Pose2d BLUE_DEPOT_SIDE = new Pose2d(
+                // BLUE_DEPOT_X, // placeholder — tune to your bar
+                // 4.30, // scoring side: y > field midpoint
+                // Rotation2d.fromDegrees(90)  // placeholder — tune to face the bar
+            // );
 
-            private static final double RED_DEPOT_X = 15.2521;
-            // private static final double RED_DEPOT_X = 15.449;
-            // private static final double RED_OUTPOST_X = 15.61;
-            private static final double RED_OUTPOST_X = 15.66;
+            // private static final double RED_DEPOT_X = 15.2521;
+            // // private static final double RED_DEPOT_X = 15.449;
+            // // private static final double RED_OUTPOST_X = 15.61;
+            // private static final double RED_OUTPOST_X = 15.66;
 
-            public static final Pose2d RED_DEPOT_SIDE = new Pose2d(
-                RED_DEPOT_X, // placeholder — tune to your bar
-                3.726,   // audience side: y < field midpoint
-                Rotation2d.fromDegrees(270)    // placeholder — tune to face the bar
-            );
-            public static final Pose2d RED_OUTPOST_SIDE = new Pose2d(
-                RED_OUTPOST_X, // placeholder — tune to your bar
-                5.10,  // scoring side: y > field midpoint
-                Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
-            );
+            // public static final Pose2d RED_DEPOT_SIDE = new Pose2d(
+                // RED_DEPOT_X, // placeholder — tune to your bar
+                // 3.726,   // audience side: y < field midpoint
+                // Rotation2d.fromDegrees(270)    // placeholder — tune to face the bar
+            // );
+            // public static final Pose2d RED_OUTPOST_SIDE = new Pose2d(
+                // RED_OUTPOST_X, // placeholder — tune to your bar
+                // 5.10,  // scoring side: y > field midpoint
+                // Rotation2d.fromDegrees(90)   // placeholder — tune to face the bar
+            // );
 
             
-            // ── Staging (pre-alignment) positions ──────────────────────────────
-            // These should be positioned a short distance back from the final poses,
-            // with the same heading, so the robot can align before slotting in.
-            public static final Pose2d BLUE_OUTPOST_SIDE_STAGING = new Pose2d(
-                BLUE_OUTPOST_X, // TODO: tune — offset from final pose
-                2,
-                Rotation2d.fromDegrees(270)
-            );
-            public static final Pose2d BLUE_DEPOT_SIDE_STAGING = new Pose2d(
-                BLUE_DEPOT_X, // TODO: tune — offset from final pose
-                5.5,
-                Rotation2d.fromDegrees(90)
-            );
-            public static final Pose2d RED_DEPOT_SIDE_STAGING = new Pose2d(
-                RED_DEPOT_X, // TODO: tune — offset from final pose
-                2.8,
-                Rotation2d.fromDegrees(270)
-            );
-            public static final Pose2d RED_OUTPOST_SIDE_STAGING = new Pose2d(
-                RED_OUTPOST_X, // TODO: tune — offset from final pose
-                5.75,
-                Rotation2d.fromDegrees(90)
-            );
-        }
+            // // ── Staging (pre-alignment) positions ──────────────────────────────
+            // // These should be positioned a short distance back from the final poses,
+            // // with the same heading, so the robot can align before slotting in.
+            // public static final Pose2d BLUE_OUTPOST_SIDE_STAGING = new Pose2d(
+                // BLUE_OUTPOST_X, // TODO: tune — offset from final pose
+                // 2,
+                // Rotation2d.fromDegrees(270)
+            // );
+            // public static final Pose2d BLUE_DEPOT_SIDE_STAGING = new Pose2d(
+                // BLUE_DEPOT_X, // TODO: tune — offset from final pose
+                // 5.5,
+                // Rotation2d.fromDegrees(90)
+            // );
+            // public static final Pose2d RED_DEPOT_SIDE_STAGING = new Pose2d(
+                // RED_DEPOT_X, // TODO: tune — offset from final pose
+                // 2.8,
+                // Rotation2d.fromDegrees(270)
+            // );
+            // public static final Pose2d RED_OUTPOST_SIDE_STAGING = new Pose2d(
+                // RED_OUTPOST_X, // TODO: tune — offset from final pose
+                // 5.75,
+                // Rotation2d.fromDegrees(90)
+            // );
+        // }
 
-        public static final Translation2d BLUE_TOWER_CENTER = new Translation2d(
-            1,
-            3.75
-        );
-        
-        public static final Translation2d RED_TOWER_CENTER = new Translation2d(
-            15.55,
-            4.3
-        );
+        // Climbing towers: only used by the (removed) climber's safe-range check.
+        // public static final Translation2d BLUE_TOWER_CENTER = new Translation2d(
+        //     1,
+        //     3.75
+        // );
+
+        // public static final Translation2d RED_TOWER_CENTER = new Translation2d(
+        //     15.55,
+        //     4.3
+        // );
 
         /**
          * Rectangles in which Theseus drops the hood to protect the turret from breaking off.
@@ -432,29 +408,64 @@ public final class Constants {
         public static final double TURRET_KS = 0.15;
 
         /**
-         * Feed-forward gain for robot-rotation compensation (degrees of turret offset
-         * per degree-per-second of robot yaw rate). When the robot rotates, the turret
-         * target angle is shifted by {@code omega_deg_per_s * TURRET_ROTATION_FF} so
-         * the turret leads the motion rather than lagging behind.
-         * Start at 1.0 (one-to-one compensation) and tune by watching turret lag
-         * during a spin: increase if still lagging, decrease if it overshoots.
+         * Extra turret lead for robot rotation, in loops: the turret setpoint is shifted by
+         * {@code omega_deg_per_s * TURRET_ROTATION_FF * 0.02} in the direction the robot is turning.
+         * The shot planner already aims from the latency-projected heading, so this is only a
+         * trim on top of that. Increase if the turret still lags during a spin, decrease if it leads.
          */
         public static final double TURRET_ROTATION_FF = 0.0;
 
         /**
-         * How close (in RPS) the flywheel must be to its target speed before the
-         * kicker is allowed to run. At 50 RPS (~3000 RPM) this is ±3%, which is
-         * tight enough to ensure a consistent shot without being unreachably precise.
-         * Increase if the kicker rarely fires; decrease if shot consistency is poor.
+         * Seed values for the per-turret-angle shot trims (see {@code TurretAngleTrims}), at turret
+         * angles -180, -135, -90, -45, 0, 45, 90, 135 (CW-positive, 0 = back of robot). Live-tunable
+         * under {@code TurretAssembly/angle trims}; copy tuned values back here.
+         *
+         * <p>Tuned on the robot (range trims, inches), with the shooter tuned with the turret at 0.
          */
-        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 750.0 / 60.0; // 50 RPM tolerance / 60 seconds = RPS
+        public static final double[] TURRET_ANGLE_DISTANCE_TRIM_IN = {30, 27, 12, 18, 0, 0, 12, 21};
+        /**
+         * Aim trims (degrees, positive = aim clockwise, to the shooter's right) at the same turret
+         * angles, tuned on the robot.
+         */
+        public static final double[] TURRET_ANGLE_YAW_TRIM_DEG = {0, 0, 0, 0, 0, 0, 5, 8};
 
-        public static final int LOOKUP_TABLE_VEL_STEP = 1;
-        public static final int LOOKUP_TABLE_DIST_STEP = 1;
+        /**
+         * How close (in RPS) the flywheel must be to its commanded speed before the
+         * kicker is allowed to run. Currently 750 RPM, which is loose (~18% at 4000 RPM).
+         * Decrease if shot consistency is poor; increase if the kicker rarely fires.
+         */
+        public static final double FLYWHEEL_READY_TOLERANCE_RPS = 150.0 / 60.0;
+
+        /** Below this commanded speed the flywheel coasts instead of running closed-loop. */
+        public static final double FLYWHEEL_MIN_CLOSED_LOOP_RPM = 960.0;
 
         public static final Angle MIN_HOOD_ANGLE = Degrees.of(23);
-        public static final Angle MAX_HOOD_ANGLE = Degrees.of(40);
-        public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(1);
+        /** Hood degrees per motor rotation: 301 motor rotations = 360 degrees of hood travel. */
+        public static final Angle HOOD_DEGREES_ROTATION_RATIO = Degrees.of(360.0 / 301.0);
+        /**
+         * 17 motor rotations above the homed minimum: the physical position the hood reached when
+         * the code still assumed 1 degree per rotation and capped commands at "40 degrees".
+         */
+        public static final Angle MAX_HOOD_ANGLE = MIN_HOOD_ANGLE.plus(HOOD_DEGREES_ROTATION_RATIO.times(17));
+
+        /**
+         * Extra distance (inches) beyond each end of {@code turret_data.json} where LUT shots still
+         * count as in range (values clamp to the end point). Past that, hub shots are not taken.
+         */
+        public static final double LUT_RANGE_MARGIN_IN = 24.0;
+
+        // ── Physics (ballistic) solver ───────────────────────────────────────
+        // Ball exit speed is modeled as linear in flywheel RPM (drag-free, so drag and Magnus lift are
+        // absorbed into the fit). First fit to turret_data.json, then shifted so shots land ~9 in
+        // shorter: physics shots carried 6-12 in past the hub center at every distance.
+        // shortcut: field-corrected guess, refit from a floor-landing test (two RPMs, fixed hood).
+        /** Height of the ball's exit point above the carpet. Currently the turret mount height. */
+        public static final double PHYSICS_LAUNCH_HEIGHT_M = Units.inchesToMeters(20);
+        public static final double PHYSICS_EXIT_SPEED_INTERCEPT_MPS = 0.4202;
+        public static final double PHYSICS_EXIT_SPEED_PER_RPM_MPS = 0.0016364;
+        /** Physics shots needing a flywheel speed outside this band are out of range (no shot). */
+        public static final double PHYSICS_MIN_RPM = 1500.0;
+        public static final double PHYSICS_MAX_RPM = 6000.0;
 
         public static final Angle MIN_TURRET_ANGLE = Degrees.of(-190);
         public static final Angle MAX_TURRET_ANGLE = Degrees.of(170);
@@ -475,7 +486,7 @@ public final class Constants {
         public static final double HOOD_HOMING_STALL_DURATION_S = 0.1;
 
         public static final Transform3d TURRET_TO_ROBOT = new Transform3d(
-            new Translation3d(Units.inchesToMeters(-7.5), Units.inchesToMeters(-6.5), Units.inchesToMeters(20)),
+            new Translation3d(Units.inchesToMeters(-6.125), Units.inchesToMeters(-5.208486), Units.inchesToMeters(20)),
             new Rotation3d(0, 0, 0));
 
         /**
@@ -515,37 +526,38 @@ public final class Constants {
         public static final double SOTF_SPEED_RAMP_TIME_S = 0.5;
 
         /**
-         * Latency compensation for shoot-on-the-fly (seconds).
+         * Shoot-on-the-fly latency trim (seconds).
          *
-         * <p>The aim-point calculation uses the robot's current pose and velocity, but
-         * by the time the ball actually leaves the robot, the robot has moved.  This
-         * constant projects the turret-pivot position forward in time so the virtual
-         * target is computed from where the robot <em>will be</em> when the ball departs,
-         * not where it <em>was</em> when the sensor frame was captured.
+         * <p>The planner projects the robot pose forward by the total latency so the aim is
+         * computed for where the robot will be when the turret has actually reached it. The
+         * total is measured every loop: the pose estimate's age, plus the turret's measured
+         * tracking lag (see {@code TURRET_LAG_*}), plus this trim and {@code Debug/Latency Trim S}.
+         * The trim covers what the robot can't measure: the Quest's capture-to-robot delay and
+         * the ball's response.
          *
-         * <p>It accounts for the sum of all pipeline delays:
-         * <ul>
-         *   <li>Camera frame capture → coprocessor processing (PhotonVision): ~10–20 ms</li>
-         *   <li>NT round-trip (coprocessor → RoboRIO): ~5–10 ms</li>
-         *   <li>Robot loop period: up to 20 ms</li>
-         *   <li>Turret PID settling + motor response: ~20–40 ms</li>
-         *   <li>Ball travel through the indexer/shooter: ~20–40 ms</li>
-         * </ul>
-         * Total is typically 75–130 ms.  Starting value of 0.1 s (100 ms) is a
-         * reasonable first guess.
-         *
-         * <p><b>Tuning procedure:</b> Drive in a straight line perpendicular to the
-         * target at constant speed and watch where shots land.  If shots land
-         * consistently in the direction you came from (behind your path), increase
-         * this value.  If they land consistently ahead of your path, decrease it.
+         * <p><b>Tuning procedure:</b> Drive in a straight line perpendicular to the target at
+         * constant speed and watch where shots land. If they land behind your path (the
+         * direction you came from), increase the trim. If they land ahead of it, decrease it.
          */
-        public static final double SOTF_LATENCY_COMPENSATION_S = -0.02;
+        public static final double SOTF_LATENCY_TRIM_S = 0.0;
+
+        // Measured turret tracking lag (TrackingLagEstimator). Seeded with the old hand-tuned total
+        // latency (0.045 s), so aim matches the previous tuning until real samples arrive.
+        public static final double TURRET_LAG_SEED_S = 0.045;
+        public static final double TURRET_LAG_MAX_S = 0.25;
+        public static final double TURRET_LAG_FILTER_TIME_CONSTANT_S = 1.0;
+        /** Setpoint motion slower than this (deg/s) is ignored when measuring turret lag. */
+        public static final double TURRET_LAG_MIN_RATE_DEG_PER_S = 20.0;
+        /** Setpoint motion faster than this (deg/s) is a jump (target switch, seam wrap), not tracking. */
+        public static final double TURRET_LAG_MAX_RATE_DEG_PER_S = 400.0;
+        /** Tracking errors larger than this (degrees) are ignored when measuring turret lag. */
+        public static final double TURRET_LAG_MAX_ERROR_DEG = 15.0;
 
         /**
          * Additional radial (toward/away) latency compensation for shoot-on-the-fly
          * distance solving (seconds).
          *
-         * <p>{@link #SOTF_LATENCY_COMPENSATION_S} projects the full turret position for
+         * <p>The measured latency (plus {@link #SOTF_LATENCY_TRIM_S}) projects the full turret position for
          * lateral/bearing lead. This constant independently adjusts only the
          * <em>range</em> component (distance to target) so toward/away misses can be
          * tuned without disturbing the perpendicular lead that is already correct.
@@ -570,8 +582,8 @@ public final class Constants {
         /** Supply current limit (A) for the turret angle motor. */
         public static final double TURRET_SUPPLY_CURRENT_LIMIT_A = 30.0;
 
-        // 12 inches of distance offset
-        public static final double RPM_OFFSET_WHILE_CLIMBED = -200;
+        // Climber physically removed; shoot-while-climbed offset (12 inches of distance) disabled.
+        // public static final double RPM_OFFSET_WHILE_CLIMBED = -200;
     }
     
     public static class IntakeSubsystemConstants {
@@ -580,22 +592,32 @@ public final class Constants {
 
         public static final double LIFT_GEARBOX_RATIO = 4.0*4*4;
 
-        public static final double LIFT_KP = 7;
+        // Lift gains are voltage-based (Motion Magic Voltage), per arm rotation.
+        public static final double LIFT_KP = 60;
         public static final double LIFT_KI = 0;
         public static final double LIFT_KD = 0.7;
+        /** Volts per arm rotation/s: Kraken X60 ~0.12 V per motor rps, times the 64:1 gearbox. */
+        public static final double LIFT_KV = 0.12 * LIFT_GEARBOX_RATIO;
+
+        // Motion Magic profile for the lift (arm rotations). Ramped moves instead of a full-current
+        // step, so the arm doesn't slam the gearbox into its stops. ~0.6 s stowed to lowered.
+        public static final double LIFT_CRUISE_VELOCITY_RPS = 0.75;
+        public static final double LIFT_ACCELERATION_RPS2 = 3.0;
+        public static final double LIFT_JERK_RPS3 = 30.0;
 
         /**
-         * Rotations (output shaft) the lift travels from the stowed position (0)
-         * to the fully-lowered intake position. Negative because the motor must
-         * turn in the negative direction to lower.
+         * Rotations (output shaft) the lift travels from the stowed position (0) to the
+         * fully-lowered position: the arm swings about 130 degrees. Negative because the motor must
+         * turn in the negative direction to lower. (Was -31, beyond the arm's travel, so the
+         * lift pushed into its stop at the full current limit the whole time it was down.)
          */
-        public static final double LIFT_LOWERED_ROTATIONS = -31;
+        public static final double LIFT_LOWERED_ROTATIONS = -180.0 / 360.0;
 
         /**
          * Tolerance (rotations) used by {@code isIntakeDown()} and {@code isIntakeUp()}
-         * when comparing the lift's actual position against the target endpoints.
+         * when comparing the lift's actual position against the target endpoints (5 degrees).
          */
-        public static final double LIFT_POSITION_TOLERANCE_ROTATIONS = .5;
+        public static final double LIFT_POSITION_TOLERANCE_ROTATIONS = 5.0 / 360.0;
 
         /** Open-loop output used while homing toward the upper hard stop. Positive = raise. */
         public static final double LIFT_HOMING_SPEED = 0.1;
@@ -633,41 +655,42 @@ public final class Constants {
         public static final double SPINNER_SUPPLY_CURRENT_LIMIT_A = 80.0;
     }
 
-    public static class ClimberSubsystemConstants {
-        public static final int CLIMBER_MOTOR_ID = 45;
+    // Climber physically removed; ClimberSubsystem is commented out.
+    // public static class ClimberSubsystemConstants {
+        // public static final int CLIMBER_MOTOR_ID = 45;
 
-        public static final double CLIMBER_HOLD_KP = 1.0;
-        public static final double CLIMBER_HOLD_KI = 0.0;
-        public static final double CLIMBER_HOLD_KD = 0.0;
-        public static final double CLIMBER_HOLD_KS = 0.0;
+        // public static final double CLIMBER_HOLD_KP = 1.0;
+        // public static final double CLIMBER_HOLD_KI = 0.0;
+        // public static final double CLIMBER_HOLD_KD = 0.0;
+        // public static final double CLIMBER_HOLD_KS = 0.0;
 
-        public static final double CLIMBER_HOLD_TOLERANCE_ROTATIONS = 0.5;
+        // public static final double CLIMBER_HOLD_TOLERANCE_ROTATIONS = 0.5;
 
-        // Climber homing constants (TalonFX / Kraken X60, 64:1 gearbox, ~7 in travel).
-        // Homing drives slowly downward to the lower hard stop and zeros when stall is detected.
-        /** Open-loop output while homing toward the lower hard stop. Negative = retract/lower. */
-        public static final double CLIMBER_HOMING_SPEED = -1;
+        // // Climber homing constants (TalonFX / Kraken X60, 64:1 gearbox, ~7 in travel).
+        // // Homing drives slowly downward to the lower hard stop and zeros when stall is detected.
+        // /** Open-loop output while homing toward the lower hard stop. Negative = retract/lower. */
+        // public static final double CLIMBER_HOMING_SPEED = -1;
 
-        /**
-         * Winch drum radius (inches). Used to convert linear travel to motor rotations.
-         * Full extension = CLIMBER_TRAVEL_INCHES / (2π × CLIMBER_DRUM_RADIUS_INCHES) × CLIMBER_GEARBOX_RATIO
-         * Tune this if the climber overshoots or undershoots during the systems check.
-         */
-        public static final double CLIMBER_DRUM_RADIUS_INCHES = 0.25;
-        public static final double CLIMBER_GEARBOX_RATIO = 64.0;
-        public static final double CLIMBER_TRAVEL_INCHES = 7.0;
+        // /**
+         // * Winch drum radius (inches). Used to convert linear travel to motor rotations.
+         // * Full extension = CLIMBER_TRAVEL_INCHES / (2π × CLIMBER_DRUM_RADIUS_INCHES) × CLIMBER_GEARBOX_RATIO
+         // * Tune this if the climber overshoots or undershoots during the systems check.
+         // */
+        // public static final double CLIMBER_DRUM_RADIUS_INCHES = 0.25;
+        // public static final double CLIMBER_GEARBOX_RATIO = 64.0;
+        // public static final double CLIMBER_TRAVEL_INCHES = 7.0;
 
-        /**
-         * Motor rotations required to reach full extension.
-         * = travel / circumference × gear ratio
-         */
-        public static final double CLIMBER_FULL_EXTENSION_ROTATIONS = 212.38;
+        // /**
+         // * Motor rotations required to reach full extension.
+         // * = travel / circumference × gear ratio
+         // */
+        // public static final double CLIMBER_FULL_EXTENSION_ROTATIONS = 212.38;
 
-        /** Stator current limit (A) for the climber motor (Kraken X60). */
-        public static final double CLIMBER_STATOR_CURRENT_LIMIT_A = 120.0;
-        /** Supply current limit (A) for the climber motor. */
-        public static final double CLIMBER_SUPPLY_CURRENT_LIMIT_A = 80.0;
-    }
+        // /** Stator current limit (A) for the climber motor (Kraken X60). */
+        // public static final double CLIMBER_STATOR_CURRENT_LIMIT_A = 120.0;
+        // /** Supply current limit (A) for the climber motor. */
+        // public static final double CLIMBER_SUPPLY_CURRENT_LIMIT_A = 80.0;
+    // }
 
     public static class NeopixelConstants {
         public enum PixelStates {

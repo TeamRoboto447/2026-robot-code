@@ -1,0 +1,85 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FOLLOW Left Slow Clear"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Depot Collect Stage from Trench"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Collect Depot from Staging"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Climb Staging from Depot Collect"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Raise Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "stopShooter"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Stop Intake"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Raise Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Climb from Staging"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Lower Climber"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "startShooter"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

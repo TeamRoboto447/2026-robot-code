@@ -14,6 +14,8 @@ import com.ctre.phoenix6.signals.GainSchedBehaviorValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.utils.AppliedGains;
 import frc.robot.Constants.IndexerSubsystemConstants;
 import frc.robot.networking.NetworkedConfig;
 
@@ -105,15 +107,47 @@ public class IndexerSubsystem extends SubsystemBase {
     /**
      * Pulls data from the NetworkTables.
      */
+    // Gains currently on the motor (seeded with the constructor's values); see TurretSubsystem.
+    private final AppliedGains spinnerGains = new AppliedGains(
+        IndexerSubsystemConstants.SPINNER_KP, IndexerSubsystemConstants.SPINNER_KI,
+        IndexerSubsystemConstants.SPINNER_KD, IndexerSubsystemConstants.SPINNER_KV);
+
+    /** Applies the NetworkTables gains to the motor unconditionally. */
     public void pullNetworkTableData() {
+        applyNetworkTableData(true);
+    }
+
+    /**
+     * Applies the NetworkTables gains only if they differ from what is already on the motor, or if the
+     * controller has reset since the last check (a reboot/brownout wipes its whole configuration).
+     */
+    public void applyChangedNetworkTableData() {
+        applyNetworkTableData(false);
+    }
+
+    private void applyNetworkTableData(boolean force) {
+        boolean reset = this.spinnerMotor.hasResetOccurred();
+        double[] spinner = {
+            NetworkedConfig.Indexer.getSpinnerKP(), NetworkedConfig.Indexer.getSpinnerKI(),
+            NetworkedConfig.Indexer.getSpinnerKD(), NetworkedConfig.Indexer.getSpinnerKV()};
+        if (!reset && !spinnerGains.shouldApply(force, spinner)) return;
+
         var spinnerSlot0config = SpinnerFxConfigs.Slot0;
-        
-        spinnerSlot0config.kP = NetworkedConfig.Indexer.getSpinnerKP();
-        spinnerSlot0config.kI = NetworkedConfig.Indexer.getSpinnerKI();
-        spinnerSlot0config.kD = NetworkedConfig.Indexer.getSpinnerKD();
-        spinnerSlot0config.kV = NetworkedConfig.Indexer.getSpinnerKV();
+        spinnerSlot0config.kP = spinner[0];
+        spinnerSlot0config.kI = spinner[1];
+        spinnerSlot0config.kD = spinner[2];
+        spinnerSlot0config.kV = spinner[3];
         spinnerSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
 
-        this.spinnerMotor.getConfigurator().apply(spinnerSlot0config);        
+        // Slot0 only, unless the controller reset and lost its whole configuration.
+        var status = reset
+            ? this.spinnerMotor.getConfigurator().apply(SpinnerFxConfigs)
+            : this.spinnerMotor.getConfigurator().apply(spinnerSlot0config);
+        spinnerGains.record(status.isOK(), spinner);
+        if (!status.isOK()) {
+            DriverStation.reportWarning("Failed to apply indexer motor gains over CAN; will retry.", false);
+        } else if (reset) {
+            System.out.println("Indexer motor reset detected: full config re-applied.");
+        }
     }
 }

@@ -5,12 +5,14 @@
 package frc.robot.subsystems;
 
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -59,11 +61,16 @@ import frc.robot.Constants.FieldConstants.TurretTargetPoints;
 import frc.robot.Constants.FieldConstants.TurretSafety;
 import frc.robot.networking.NetworkedConfig;
 import frc.robot.networking.NetworkedTelemetry;
-import frc.robot.networking.NetworkedTelemetry.QuestNavNT;
-import frc.robot.utils.ModelShotCalculator;
-import frc.robot.utils.ShooterTable;
-import frc.robot.utils.ShooterTable.ShotSolution;
-import frc.robot.utils.TargettingUtils.ControlTarget;
+import frc.robot.utils.AppliedGains;
+import frc.robot.utils.targeting.BallisticShotSolver;
+import frc.robot.utils.targeting.ShooterTable;
+import frc.robot.utils.targeting.ShotPlanner;
+import frc.robot.utils.targeting.ShotPlanner.ShotPlan;
+import frc.robot.utils.targeting.ShotSolution;
+import frc.robot.utils.targeting.ShotSolver;
+import frc.robot.utils.targeting.TrackingLagEstimator;
+import frc.robot.utils.targeting.TurretAngleTrims;
+import frc.robot.utils.targeting.TurretAngles;
 
 /**
  * A subsystem that allows control of the flywheel, the hood, 
@@ -71,8 +78,7 @@ import frc.robot.utils.TargettingUtils.ControlTarget;
  */
 public class TurretSubsystem extends SubsystemBase {
     private final PoseProvider poseProvider;
-    
-    private ControlTarget currentControlTarget = new ControlTarget();
+
     private boolean hoodLimitSet = false;
     private boolean rightShooterMotorConnected, leftShooterMotorConnected,
         angleMotorConnected, hoodMotorConnected;
@@ -99,28 +105,61 @@ public class TurretSubsystem extends SubsystemBase {
     /** The current turret target as an enum. */
     public TurretTarget turretTarget = TurretTarget.NONE;
 
-    /**
-     * Firing table loaded from {@code deploy/turret_data.json} at startup.
-     * Provides linear interpolation across static data points and a Newton-method
-     * shoot-on-the-fly solver. Replaces the external Python coprocessor round-trip.
-     */
-    private final ShooterTable shooterTable = new ShooterTable();
+    /** Turret pivot position in the robot frame. */
+    private static final Translation2d PIVOT_OFFSET = new Translation2d(
+        TurretSubsystemConstants.TURRET_TO_ROBOT.getX(),
+        TurretSubsystemConstants.TURRET_TO_ROBOT.getY());
+
+    /** Empirical firing table loaded from {@code deploy/turret_data.json} at startup. */
+    private final ShooterTable shooterTable = new ShooterTable(TurretSubsystemConstants.LUT_RANGE_MARGIN_IN);
 
     /**
-     * Most-recent shot solution from the on-RIO solver. {@code null} until the
-     * first successful solve. Cached here so {@link #hasValidTarget()} and
-     * {@link #getFeedTrigger()} can inspect it without re-running the solver.
+     * Ballistic solver (the default). Independent of the firing table: it flies the lowest-speed arc
+     * to the target, where a small hood error barely moves the landing point.
      */
-    private ShotSolution lastSolution = null;
-    private ShotSolution lastLutSolution = null;
-    private ShotSolution lastModelSolution = null;
-    private String selectedSolver = "NONE";
+    private final BallisticShotSolver physicsSolver = new BallisticShotSolver(
+        new BallisticShotSolver.Params(
+            TurretSubsystemConstants.PHYSICS_LAUNCH_HEIGHT_M,
+            TurretSubsystemConstants.PHYSICS_EXIT_SPEED_INTERCEPT_MPS,
+            TurretSubsystemConstants.PHYSICS_EXIT_SPEED_PER_RPM_MPS,
+            TurretSubsystemConstants.PHYSICS_MIN_RPM,
+            TurretSubsystemConstants.PHYSICS_MAX_RPM,
+            TurretSubsystemConstants.MIN_HOOD_ANGLE.in(Degrees),
+            TurretSubsystemConstants.MAX_HOOD_ANGLE.in(Degrees)),
+        BallisticShotSolver::minimumSpeedHoodDeg,
+        NetworkedConfig.Debug::getPhysicsExitSpeedScale);
 
-    private enum TargetingMode {
-        LUT,
-        MODEL,
-        AUTO_FALLBACK
-    }
+    /**
+     * This loop's shot plan from {@link #periodic()}: turret angle and shot, or no solution. Cached so
+     * the readiness checks and telemetry use the same result without re-solving.
+     */
+    private ShotPlan lastPlan = null;
+
+    /** The flywheel speed {@link #periodic()} commanded this loop (overrides and offsets included); 0 = coasting. */
+    private double commandedRpm = 0.0;
+    /** Added to the solver's RPM while shooting (see {@link #shootAutoTargetWithRPMOffset}). Cleared by {@link #stopShooter()}. */
+    private double rpmOffset = 0.0;
+
+    /** Measures how far the turret trails its setpoint while aiming; part of the shoot-on-the-fly latency. */
+    private final TrackingLagEstimator turretLag = new TrackingLagEstimator(
+        TurretSubsystemConstants.TURRET_LAG_SEED_S,
+        TurretSubsystemConstants.TURRET_LAG_MIN_RATE_DEG_PER_S,
+        TurretSubsystemConstants.TURRET_LAG_MAX_RATE_DEG_PER_S,
+        TurretSubsystemConstants.TURRET_LAG_MAX_ERROR_DEG,
+        TurretSubsystemConstants.TURRET_LAG_FILTER_TIME_CONSTANT_S,
+        TurretSubsystemConstants.TURRET_LAG_MAX_S);
+    /** The turret setpoint last sent by {@link #turnToAngle} (degrees, after wrapping into travel). */
+    private double lastTurretSetpointDeg = Double.NaN;
+    private double lastPeriodicTimeS = Double.NaN;
+
+    // Controller-reset recovery (see recoverFromMotorResets()).
+    private static final double RESET_RETRY_PERIOD_S = 1.0;
+    private final Follower followerReq =
+        new Follower(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID, MotorAlignmentValue.Opposed);
+    private boolean shooterConfigPending = false;
+    private boolean angleConfigPending = false;
+    private double lastTurretPositionRot = 0.0;
+    private double nextResetRetryS = 0.0;
 
     private TalonFXConfiguration ShooterFxConfigs = new TalonFXConfiguration();
     private final VelocityTorqueCurrentFOC velocityReq = new VelocityTorqueCurrentFOC(0).withSlot(0);
@@ -147,9 +186,6 @@ public class TurretSubsystem extends SubsystemBase {
     /** How many 20ms loops between dashboard-visualization updates (5 = 10 Hz). */
     private static final int TELEMETRY_LOOP_DIVISOR = 5;
     private static final int SHOT_ARC_SAMPLES = 20;
-    private static final double SHOT_ARC_GRAVITY_MPS2 = 9.81;
-    private static final double SHOT_ARC_MPS_AT_0_RPM = 2.5;
-    private static final double SHOT_ARC_MPS_PER_RPM = 0.00115;
 
     /**
      * When {@code true}, {@link #periodic()} skips the trajectory-tracking override
@@ -179,6 +215,21 @@ public class TurretSubsystem extends SubsystemBase {
      */
     public Trigger getFeedTrigger() {
         return feedTrigger;
+    }
+
+    /**
+     * Runs the shot planner with both solvers a few hundred times on representative inputs so their
+     * classes load and the JIT compiles them during boot. Otherwise the first enabled
+     * {@link #periodic()} paid ~80-140 ms for it. Touches no motors or subsystem state (the physics
+     * solver only reads its exit-speed scale from NetworkTables).
+     */
+    public void warmUpSolvers() {
+        for (int i = 0; i < 300; i++) {
+            Pose2d pose = new Pose2d(10.5 - (i % 40) * 0.1, 3.0 + (i % 25) * 0.08, Rotation2d.fromDegrees(i));
+            ChassisSpeeds speeds = new ChassisSpeeds((i % 7) * 0.1 - 0.3, (i % 5) * 0.1 - 0.2, (i % 3) * 0.3 - 0.3);
+            ShotPlanner.plan(pose, speeds, PIVOT_OFFSET, TurretTargetPoints.RED_HUB, shooterTable, 0.05, -0.02);
+            ShotPlanner.plan(pose, speeds, PIVOT_OFFSET, TurretTargetPoints.RED_HUB, physicsSolver, 0.05, -0.02);
+        }
     }
 
     public void motorStatusCheck() {
@@ -223,7 +274,7 @@ public class TurretSubsystem extends SubsystemBase {
 
         this.leftShooterMotor = new TalonFX(TurretSubsystemConstants.LEFT_SHOOTER_MOTOR_ID);
 
-        this.leftShooterMotor.setControl(new Follower(TurretSubsystemConstants.RIGHT_SHOOTER_MOTOR_ID, MotorAlignmentValue.Opposed));
+        this.leftShooterMotor.setControl(followerReq);
 
         /* build SysId routine now that motors are initialized */
         m_sysIdRoutineFlywheel = new SysIdRoutine(
@@ -280,6 +331,7 @@ public class TurretSubsystem extends SubsystemBase {
             .withSupplyCurrentLimit(TurretSubsystemConstants.TURRET_SUPPLY_CURRENT_LIMIT_A)
             .withSupplyCurrentLimitEnable(true);
 
+        AngleFxConfigs.Feedback.SensorToMechanismRatio = TurretSubsystemConstants.TURRET_GEAR_RATIO;
         this.angleMotor.getConfigurator().apply(AngleFxConfigs);
         this.angleMotor.getConfigurator().apply(new FeedbackConfigs()
             .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_GEAR_RATIO));
@@ -296,26 +348,28 @@ public class TurretSubsystem extends SubsystemBase {
         // Reduce update frequencies to 20 Hz for telemetry-only signals.
         // These values are only used for dashboard display and targeting decisions
         // that run at the 20 ms robot loop rate, so 50 Hz is wasteful.
-        // this.shooterVelocitySignal.setUpdateFrequency(20);
+        // Flywheel velocity drives flywheelAtSpeed()/feed gating, so keep it at the 50 Hz loop rate
+        // rather than the 20 Hz the telemetry-only signals use.
+        this.shooterVelocitySignal.setUpdateFrequency(50);
         this.anglePositionSignal.setUpdateFrequency(20);
 
         // Silence all other status frames on these motors that we never read.
         // Phoenix 6 motors broadcast many signals by default; this tells the firmware
-        // to suppress any frame not explicitly configured above.
-        // this.rightShooterMotor.optimizeBusUtilization();
-        // this.leftShooterMotor.optimizeBusUtilization();
-        // this.angleMotor.optimizeBusUtilization();
+        // to suppress any frame not explicitly configured above. (The CAN bus was ~54% utilized
+        // while disabled, and the CAN receive thread was the biggest non-Java CPU consumer.)
+        // Only the two signals above are read; the left shooter motor is a follower.
+        this.rightShooterMotor.optimizeBusUtilization();
+        this.leftShooterMotor.optimizeBusUtilization();
+        this.angleMotor.optimizeBusUtilization();
 
-        this.feedTrigger = new Trigger(() -> {
-            // Use the on-RIO solution's RPM if available; otherwise fall back to the
-            // NT-configured value (used for manual/systems-check overrides).
-            double targetRPS = (lastSolution != null)
-                    ? lastSolution.rpm / 60.0
-                    : NetworkedConfig.Turret.getTargetRPM() / 60.0;
-            // Only "ready" when the flywheel is commanded to spin AND within tolerance.
-            if (!runFlywheel || targetRPS < 16) return false;
-            return this.flywheelAtSpeed() && this.hoodSafe;
-        });
+        // Ready when the flywheel is commanded to spin and is at the commanded speed.
+        this.feedTrigger = new Trigger(() -> runFlywheel && this.flywheelAtSpeed() && this.hoodSafe);
+
+        // The first hasResetOccurred() call reports the power-on boot. Consume it here so only later
+        // resets (brownouts, reboots) trigger recovery in periodic().
+        this.rightShooterMotor.hasResetOccurred();
+        this.leftShooterMotor.hasResetOccurred();
+        this.angleMotor.hasResetOccurred();
 
         motorStatusCheck();
 
@@ -336,216 +390,121 @@ public class TurretSubsystem extends SubsystemBase {
         return DriverStation.getAlliance().orElse(Alliance.Red);
     }
 
-    private TargetingMode getTargetingMode() {
-        String modeRaw = NetworkedConfig.Debug.getTurretTargetingMode();
-        if (modeRaw == null) return TargetingMode.AUTO_FALLBACK;
-        switch (modeRaw.trim().toUpperCase()) {
-            case "LUT":
-                return TargetingMode.LUT;
-            case "MODEL":
-                return TargetingMode.MODEL;
-            default:
-                return TargetingMode.AUTO_FALLBACK;
-        }
+    /**
+     * The solver for the dashboard-selected mode: {@code "LUT"} is the firing table (debug comparison;
+     * {@code null} if it failed to load); anything else is the ballistic solver.
+     */
+    private ShotSolver activeSolver() {
+        String mode = NetworkedConfig.Debug.getTurretTargetingMode();
+        if (mode != null && "LUT".equalsIgnoreCase(mode.trim())) return shooterTable.isLoaded() ? shooterTable : null;
+        return physicsSolver;
     }
 
-    private ShotSolution selectSolution(TargetingMode mode, ShotSolution lut, ShotSolution model) {
-        switch (mode) {
-            case LUT:
-                selectedSolver = (lut != null) ? "LUT" : "NONE";
-                return lut;
-            case MODEL:
-                selectedSolver = (model != null) ? "MODEL" : "NONE";
-                return model;
-            case AUTO_FALLBACK:
-            default:
-                if (model != null && model.inRange) {
-                    selectedSolver = "MODEL";
-                    return model;
-                }
-                if (lut != null && lut.inRange) {
-                    selectedSolver = "LUT";
-                    return lut;
-                }
-                if (model != null) {
-                    selectedSolver = "MODEL";
-                    return model;
-                }
-                selectedSolver = (lut != null) ? "LUT" : "NONE";
-                return lut;
-        }
+    /** This loop's shot, or {@code null} when there is no target or no solution. */
+    private ShotSolution currentSolution() {
+        return (lastPlan != null) ? lastPlan.solution() : null;
     }
 
-    private boolean isModelModeActive() {
-        return "MODEL".equals(selectedSolver);
+    private static boolean isDebugOverrideActive() {
+        return NetworkedConfig.Debug.isOverrideRPMEnabled() || NetworkedConfig.Debug.isOverrideHoodAngleEnabled();
     }
 
     /**
-     * Updates the subsystem's various elements, including the on-RIO shot solver,
-     * motor setpoints, and NetworkTables telemetry.
+     * Plans the shot, publishes telemetry and drives the flywheel, hood and turret.
      *
-     * <h4>Aiming pipeline (runs every 20 ms, zero NT round-trip)</h4>
+     * <h4>Aiming pipeline (every 20 ms)</h4>
      * <ol>
-     *   <li>Compute the turret pivot position in field coordinates (robot pose +
-     *       rotated TURRET_TO_ROBOT offset).</li>
-     *   <li>Look up the current target 3-D position from {@link #turretTarget}.</li>
-     *   <li>Feed the displacement vector and robot chassis velocity (in inches) into
-     *       {@link ShooterTable#solve}, which runs a Newton TOF-recursion to produce
-     *       a field-relative aim bearing and interpolated hood angle / RPM.</li>
-     *   <li>Convert the aim bearing to a robot-frame turret angle, apply a yaw-rate
-     *       feed-forward lead, and command the motor.</li>
+     *   <li>Pick the target from field zone, alliance and the debug override.</li>
+     *   <li>{@link ShotPlanner#plan} projects the pose forward by the latency, compensates for robot
+     *       motion, and returns the turret angle and the shot from the selected solver.</li>
+     *   <li>Apply the debug overrides and RPM offset, then command the motors.</li>
      * </ol>
      */
     @Override
     public void periodic() {
-        // ── 1. Refresh CAN signals ────────────────────────────────────────────
         // Single batched read — avoids creating new signal objects every loop.
         BaseStatusSignal.refreshAll(shooterVelocitySignal, anglePositionSignal);
+        recoverFromMotorResets();
 
         // Update target selection before solving so this loop aims at the latest
         // field-zone/alliance/override target rather than the previous loop's target.
         updateTurretTarget();
 
-        TargetingMode requestedMode = getTargetingMode();
-        if (requestedMode == TargetingMode.MODEL) {
-            selectedSolver = "MODEL";
-        } else if (requestedMode == TargetingMode.LUT) {
-            selectedSolver = "LUT";
-        } else {
-            selectedSolver = "AUTO_FALLBACK";
-        }
-
-        // ── 2. Geometry: turret pivot position in field frame ─────────────────
         Pose2d currentPose = poseProvider.getPose();
+        // getChassisSpeeds() is robot-relative (CTRE state.Speeds); the planner needs field-relative.
+        ChassisSpeeds fieldSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+            poseProvider.getChassisSpeeds(), currentPose.getRotation());
+        Translation3d targetPosition = getTargetFromEnum(turretTarget);
 
-        // ── 4. Robot velocity in inches/s ─────────────────────────────────────
-        // Read chassis speeds early so we can use them for latency compensation
-        // as well as the omega-offset correction below.
-        var chassis = poseProvider.getChassisSpeeds();
-        double omegaRadPerSec = chassis.omegaRadiansPerSecond;
+        // Latency compensation: aim for where the robot will be when the turret actually gets there.
+        // Measured parts (pose age, turret tracking lag) plus trims for the rest (see SOTF_LATENCY_TRIM_S).
+        double poseAgeS = poseProvider.getPoseAgeSeconds();
+        double turretLagS = turretLag.getLagSeconds();
+        double latencyS = poseAgeS + turretLagS
+            + TurretSubsystemConstants.SOTF_LATENCY_TRIM_S + NetworkedConfig.Debug.getLatencyTrimSeconds();
+        NetworkedTelemetry.Turret.setLatency(poseAgeS, turretLagS, latencyS);
+        ShotSolver solver = activeSolver();
+        ShotPlan plan = ShotPlanner.plan(
+            currentPose,
+            fieldSpeeds,
+            PIVOT_OFFSET,
+            (turretTarget == TurretTarget.NONE) ? null : targetPosition,
+            solver,
+            latencyS,
+            TurretSubsystemConstants.SOTF_RANGE_LATENCY_COMPENSATION_S);
 
-        // ── Latency compensation ───────────────────────────────────────────────
-        // Project the turret pivot position forward by SOTF_LATENCY_COMPENSATION_S
-        // to account for combined camera, network, loop, and motor-response delays.
-        // This ensures the virtual-target solve uses the robot's expected position at
-        // ball-departure time rather than the stale sensor-capture position.
-        // Tune SOTF_LATENCY_COMPENSATION_S by driving perpendicular to the target:
-        //   shots landing behind your path → increase; ahead of your path → decrease.
-        double latencyS = QuestNavNT.getLatency() / 1000.0; //TurretSubsystemConstants.SOTF_LATENCY_COMPENSATION_S;
-        if (isModelModeActive()) {
-            latencyS += NetworkedConfig.Debug.getModelLatencyOffsetSeconds();
-        }
-        double projectedRobotX = currentPose.getX() + chassis.vxMetersPerSecond * latencyS;
-        double projectedRobotY = currentPose.getY() + chassis.vyMetersPerSecond * latencyS;
-
-        double projectedHeadingRad = currentPose.getRotation().getRadians() - omegaRadPerSec * latencyS;
-        Rotation2d projectedRotation = new Rotation2d(projectedHeadingRad);
-        // Offset the projected robot centre by the turret mount point, rotated to field frame.
-        Translation2d turretOffset = new Translation2d(
-            TurretSubsystemConstants.TURRET_TO_ROBOT.getX(),
-            TurretSubsystemConstants.TURRET_TO_ROBOT.getY()
-        ).rotateBy(projectedRotation); //.rotateBy(currentPose.getRotation());
-        double turretXm = projectedRobotX + turretOffset.getX();
-        double turretYm = projectedRobotY + turretOffset.getY();
-
-        // ── 3. Target position ────────────────────────────────────────────────
-        Translation3d currentTargetPose = getTargetFromEnum(turretTarget);
-
-        // Displacement from the projected turret pivot to the target, in inches.
-        double dxIn = Units.metersToInches(currentTargetPose.getX() - turretXm);
-        double dyIn = Units.metersToInches(currentTargetPose.getY() - turretYm);
-
-        // Apply an independent radial (toward/away) latency compensation so depth
-        // behavior can be tuned separately from lateral/bearing lead.
-        double rangeLatencyS = TurretSubsystemConstants.SOTF_RANGE_LATENCY_COMPENSATION_S;
-        if (isModelModeActive()) {
-            rangeLatencyS += NetworkedConfig.Debug.getModelRangeLatencyOffsetSeconds();
-        }
-        if (Math.abs(rangeLatencyS) > 1e-9) {
-            double rangeMeters = Math.hypot(currentTargetPose.getX() - turretXm, currentTargetPose.getY() - turretYm);
-            if (rangeMeters > 1e-6) {
-                double toTargetX = (currentTargetPose.getX() - turretXm) / rangeMeters;
-                double toTargetY = (currentTargetPose.getY() - turretYm) / rangeMeters;
-                double radialVelMps = chassis.vxMetersPerSecond * toTargetX + chassis.vyMetersPerSecond * toTargetY;
-                double radialShiftIn = Units.metersToInches(radialVelMps * rangeLatencyS);
-
-                double rangeIn = Math.hypot(dxIn, dyIn);
-                double adjustedRangeIn = Math.max(0.0, rangeIn + radialShiftIn);
-                if (rangeIn > 1e-9) {
-                    double rangeScale = adjustedRangeIn / rangeIn;
-                    dxIn *= rangeScale;
-                    dyIn *= rangeScale;
-                }
+        // Per-turret-angle trims (spin from the kicker/turret varies with turret angle): re-solve at a
+        // trimmed distance here; the yaw trim is added where the turret is aimed below.
+        TurretAngleTrims.Trim angleTrim = NetworkedConfig.Turret.areAngleTrimsEnabled()
+            ? TurretAngleTrims.at(
+                plan.turretAngleDeg(),
+                NetworkedConfig.Turret.getAngleDistanceTrimsIn(),
+                NetworkedConfig.Turret.getAngleYawTrimsDeg())
+            : TurretAngleTrims.Trim.NONE;
+        NetworkedConfig.Turret.setAppliedAngleTrim(angleTrim.distanceIn(), angleTrim.yawDeg());
+        if (plan.hasSolution() && angleTrim.distanceIn() != 0.0) {
+            ShotSolution trimmed = solver.solve(
+                plan.virtualDistanceM() + Units.inchesToMeters(angleTrim.distanceIn()), targetPosition.getZ());
+            if (trimmed != null) {
+                plan = new ShotPlan(plan.pivot(), plan.targetDistanceM(), plan.virtualDistanceM(),
+                    plan.aimBearingRad(), plan.turretAngleDeg(), trimmed);
             }
         }
+        lastPlan = plan;
+        ShotSolution sol = plan.solution();
 
-        double distanceInches = Math.hypot(dxIn, dyIn);
-
-        // Include the velocity contribution of the turret pivot offset due to robot
-        // yaw (v_turret = v_robot_centre + ω × r_offset).
-        double vxIps = Units.metersToInches(chassis.vxMetersPerSecond)
-                       - omegaRadPerSec * Units.metersToInches(turretOffset.getY());
-        double vyIps = Units.metersToInches(chassis.vyMetersPerSecond)
-                       + omegaRadPerSec * Units.metersToInches(turretOffset.getX());
-
-        // ── 5. On-RIO shot solve ──────────────────────────────────────────────
-        ShotSolution lutSol = null;
-        ShotSolution modelSol = null;
-        if (shooterTable.isLoaded() && turretTarget != TurretTarget.NONE && distanceInches > 1.0) {
-            lutSol = shooterTable.solve(dxIn, dyIn, vxIps, vyIps);
-            modelSol = ModelShotCalculator.solve(
-                dxIn,
-                dyIn,
-                vxIps,
-                vyIps,
-                NetworkedConfig.Debug.getModelDistanceBiasInches(),
-                NetworkedConfig.Debug.getModelRpmOffset(),
-                NetworkedConfig.Debug.getModelTofScale());
-        }
-        lastLutSolution = lutSol;
-        lastModelSolution = modelSol;
-        ShotSolution sol = selectSolution(getTargetingMode(), lutSol, modelSol);
-        lastSolution = sol;
-
-        // ── 6. Publish NT telemetry (coprocessor now reads these for visualisation) ──
-        // Publish the actual (non-projected) turret position for field-visualization accuracy.
-        double actualTurretXm = currentPose.getX() + turretOffset.getX();
-        double actualTurretYm = currentPose.getY() + turretOffset.getY();
-        NetworkedConfig.Turret.setRobotX(Units.metersToInches(actualTurretXm));
-        NetworkedConfig.Turret.setRobotY(Units.metersToInches(actualTurretYm));
+        // ── Telemetry: solver inputs and the raw solution ────────────────────
+        // The actual (non-projected) pivot position, for field-visualization accuracy.
+        NetworkedConfig.Turret.setRobotX(Units.metersToInches(plan.pivot().getX()));
+        NetworkedConfig.Turret.setRobotY(Units.metersToInches(plan.pivot().getY()));
         NetworkedConfig.Turret.setRobotAngle(currentPose.getRotation().getDegrees());
-        NetworkedConfig.Turret.setTargetX(Units.metersToInches(currentTargetPose.getX()));
-        NetworkedConfig.Turret.setTargetY(Units.metersToInches(currentTargetPose.getY()));
-        NetworkedConfig.Turret.setTargetHeight(Units.metersToInches(currentTargetPose.getZ()));
-        NetworkedConfig.Turret.setDistanceToTarget(distanceInches);
+        NetworkedConfig.Turret.setTargetX(Units.metersToInches(targetPosition.getX()));
+        NetworkedConfig.Turret.setTargetY(Units.metersToInches(targetPosition.getY()));
+        NetworkedConfig.Turret.setTargetHeight(Units.metersToInches(targetPosition.getZ()));
+        double targetDistanceM = Double.isFinite(plan.targetDistanceM()) ? plan.targetDistanceM() : 0.0;
+        NetworkedConfig.Turret.setDistanceToTarget(Units.metersToInches(targetDistanceM));
 
-        checkHoodSafety(actualTurretXm, actualTurretYm);
+        checkHoodSafety(plan.pivot());
 
-        boolean validShot = (sol != null);
-        NetworkedConfig.Turret.setValidTarget(validShot);
-        if (validShot) {
-            // Publish the raw LUT solution so both values remain visible on the
-            // dashboard regardless of whether the debug overrides are active.
-            NetworkedConfig.Turret.setTargetHoodAngle(sol.angleDeg);
-            NetworkedConfig.Turret.setTargetRPM(sol.rpm);
+        NetworkedConfig.Turret.setValidTarget(sol != null);
+        if (sol != null) {
+            // The raw solution stays visible even while the debug overrides drive the motors.
+            NetworkedConfig.Turret.setTargetHoodAngle(sol.hoodDeg());
+            NetworkedConfig.Turret.setTargetRPM(sol.rpm());
         }
-
-        if (lutSol != null && modelSol != null) {
-            NetworkedTelemetry.Turret.setLutModelHoodDeltaDeg(lutSol.angleDeg - modelSol.angleDeg);
-            NetworkedTelemetry.Turret.setLutModelRPMDelta(lutSol.rpm - modelSol.rpm);
-        }
+        publishSolverComparison(plan, targetPosition.getZ());
 
         // ── Debug / LUT-tuning overrides for actuation ────────────────────────
         // These replace the solved RPM and/or hood angle sent to the motors while
-        // leaving the NT-published LUT solution untouched, so you can compare the
+        // leaving the NT-published solution untouched, so you can compare the
         // override value against what the solver computed on the same dashboard.
         // Enable via Debug.Override RPM/Hood Angle Enabled on SmartDashboard.
-        double actuationRPM     = validShot ? sol.rpm      : 0;
-        double actuationHoodDeg = validShot ? sol.angleDeg : TurretSubsystemConstants.MIN_HOOD_ANGLE.magnitude();
-
+        boolean validShot = (sol != null);
+        double actuationRPM = validShot ? sol.rpm() + rpmOffset : 0;
+        double actuationHoodDeg = validShot ? sol.hoodDeg() : TurretSubsystemConstants.MIN_HOOD_ANGLE.in(Degrees);
         if (NetworkedConfig.Debug.isOverrideRPMEnabled()) {
             actuationRPM = NetworkedConfig.Debug.getOverrideRPMValue();
-            // Override is active even without a valid LUT solution so you can spin
+            // Override is active even without a valid solution so you can spin
             // up while parked outside the table range.
             validShot = true;
         }
@@ -554,39 +513,31 @@ public class TurretSubsystem extends SubsystemBase {
             validShot = true;
         }
 
-        periodicLoopCount++;
-        updateNetworkTables();
-
-        // ── 7. Actuate ────────────────────────────────────────────────────────
+        // ── Actuate ───────────────────────────────────────────────────────────
+        boolean aiming = false;
         if (!systemsCheckMode) {
-            double targetRPS = (runFlywheel && validShot) ? actuationRPM / 60.0 : 0;
-            if (targetRPS > 16) // ≈ 1000 RPM — spin up whenever a valid shot exists
-                rightShooterMotor.setControl(velocityReq.withVelocity(targetRPS));
-            else
+            boolean spin = runFlywheel && validShot
+                && actuationRPM >= TurretSubsystemConstants.FLYWHEEL_MIN_CLOSED_LOOP_RPM;
+            commandedRpm = spin ? actuationRPM : 0.0;
+            if (spin) {
+                rightShooterMotor.setControl(velocityReq.withVelocity(commandedRpm / 60.0));
+            } else {
                 rightShooterMotor.setControl(coastReq); // coast freely
+            }
 
             if (validShot && shooting && hoodSafe) {
                 this.setHoodAngle(Degrees.of(actuationHoodDeg));
 
-                // Convert field-relative aim bearing to robot-frame turret angle.
-                // Both the bearing and the robot heading are CCW-positive; the turret
-                // convention is CW-positive with 0 pointing toward the back of the robot.
-                // turret_angle = robot_heading - aim_bearing + 180 (then negate for CW).
-                // When only the RPM/hood are overridden, sol is still used for bearing;
-                // when there is no LUT solution at all (pure override), hold last angle.
+                // With only RPM/hood overridden the solution still supplies the aim; with no
+                // solution at all (pure override), the turret holds its last angle.
                 if (sol != null) {
-                    double robotHeadingDeg = currentPose.getRotation().getDegrees();
-                    double baseTargetDeg   = robotHeadingDeg - sol.aimBearingDeg + 180.0;
-                    // Normalise to [-180, 180]
-                    baseTargetDeg = ((baseTargetDeg + 180.0) % 360.0 + 360.0) % 360.0 - 180.0;
-
-                    // Yaw-rate feed-forward: lead the turret ahead by one loop worth of
-                    // robot rotation so it tracks rather than lagging.
-                    double omegaDegPerSec    = Units.radiansToDegrees(omegaRadPerSec);
-                    double compensatedTarget = baseTargetDeg
-                        - omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02;
-
-                    this.turnToAngle(Degrees.of(compensatedTarget).plus(turretAngleOffset));
+                    // Optional extra lead in the direction the robot is turning (TURRET_ROTATION_FF).
+                    double omegaDegPerSec = Units.radiansToDegrees(fieldSpeeds.omegaRadiansPerSecond);
+                    double turretDeg = plan.turretAngleDeg()
+                        + omegaDegPerSec * TurretSubsystemConstants.TURRET_ROTATION_FF * 0.02
+                        + angleTrim.yawDeg();
+                    this.turnToAngle(Degrees.of(turretDeg).plus(turretAngleOffset));
+                    aiming = true;
                 }
             } else {
                 this.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE);
@@ -594,38 +545,121 @@ public class TurretSubsystem extends SubsystemBase {
                 // the closed-loop position hold from the last turnToAngle() call.
             }
         }
+
+        // Measure turret tracking lag from auto-aim only (manual/debug turret commands don't count).
+        // The position was read at the top of this loop, before this loop's setpoint was sent.
+        double nowS = Timer.getFPGATimestamp();
+        double dtS = Double.isNaN(lastPeriodicTimeS) ? 0.0 : nowS - lastPeriodicTimeS;
+        lastPeriodicTimeS = nowS;
+        turretLag.update(
+            aiming,
+            lastTurretSetpointDeg,
+            getTurretAngleDegrees(),
+            anglePositionSignal.getTimestamp().getLatency(),
+            dtS);
+
+        periodicLoopCount++;
+        updateNetworkTables();
+    }
+
+    /** Publishes how far the LUT and physics solvers disagree at the current shot distance. */
+    private void publishSolverComparison(ShotPlan plan, double targetHeightM) {
+        if (!plan.hasSolution() || !shooterTable.isLoaded()) return;
+        ShotSolution lut = shooterTable.solve(plan.virtualDistanceM(), targetHeightM);
+        ShotSolution physics = physicsSolver.solve(plan.virtualDistanceM(), targetHeightM);
+        if (lut == null || physics == null) return;
+        NetworkedTelemetry.Turret.setLutPhysicsHoodDeltaDeg(lut.hoodDeg() - physics.hoodDeg());
+        NetworkedTelemetry.Turret.setLutPhysicsRPMDelta(lut.rpm() - physics.rpm());
     }
 
     /**
-     * Signals the shooter to spin up. The target RPM comes from the most-recent
-     * {@link ShooterTable} solution computed in {@link #periodic()}; if no solution
-     * is available the flywheel coasts.
+     * Restores a motor controller's setup after it resets (brownout or reboot wipes it). Runs every
+     * loop: {@code hasResetOccurred()} is cheap, but it consumes the flag, so this is its only caller.
+     *
+     * <p>The follower request is re-sent at once (non-blocking). Full configuration re-applies block
+     * on CAN, but only run after a reset and retry once a second until they succeed. The turret
+     * controller also loses its position, so it is restored to the last position read before the
+     * reset; any movement while it was unpowered is not recovered.
+     */
+    private void recoverFromMotorResets() {
+        if (rightShooterMotor.hasResetOccurred()) shooterConfigPending = true;
+        if (angleMotor.hasResetOccurred()) angleConfigPending = true;
+        if (leftShooterMotor.hasResetOccurred()) {
+            leftShooterMotor.setControl(followerReq);
+            DriverStation.reportWarning("Left flywheel controller reset; follower request re-sent.", false);
+        }
+
+        if (!angleConfigPending) {
+            lastTurretPositionRot = anglePositionSignal.getValueAsDouble();
+        }
+
+        if (!(shooterConfigPending || angleConfigPending) || Timer.getFPGATimestamp() < nextResetRetryS) return;
+
+        if (shooterConfigPending) {
+            // ShooterFxConfigs.Slot0 holds the most recent NetworkTables gains.
+            boolean ok = rightShooterMotor.getConfigurator().apply(ShooterFxConfigs).isOK();
+            if (ok) {
+                shooterVelocitySignal.setUpdateFrequency(50);
+                rightShooterMotor.optimizeBusUtilization();
+                var slot0 = ShooterFxConfigs.Slot0;
+                shooterGains.record(true, slot0.kP, slot0.kI, slot0.kD, slot0.kV);
+            }
+            shooterConfigPending = !ok;
+            reportResetRecovery("flywheel", ok);
+        }
+        if (angleConfigPending) {
+            // The config carries the gear ratio, so it must land before the position is restored.
+            boolean ok = angleMotor.getConfigurator().apply(AngleFxConfigs).isOK()
+                && angleMotor.setPosition(lastTurretPositionRot).isOK();
+            if (ok) {
+                anglePositionSignal.setUpdateFrequency(20);
+                angleMotor.optimizeBusUtilization();
+                var slot0 = AngleFxConfigs.Slot0;
+                angleGains.record(true, slot0.kP, slot0.kI, slot0.kD, slot0.kS);
+            }
+            angleConfigPending = !ok;
+            reportResetRecovery("turret angle", ok);
+        }
+        if (shooterConfigPending || angleConfigPending) {
+            nextResetRetryS = Timer.getFPGATimestamp() + RESET_RETRY_PERIOD_S;
+        }
+    }
+
+    private static void reportResetRecovery(String motor, boolean ok) {
+        if (ok) {
+            DriverStation.reportWarning(motor + " controller reset; full configuration restored.", false);
+        } else {
+            DriverStation.reportWarning(motor + " controller reset; restoring its configuration failed, retrying.", false);
+        }
+    }
+
+    /**
+     * Signals the shooter to spin up and aim. {@link #periodic()} commands the RPM from this loop's
+     * shot solution; with no solution the flywheel coasts.
      */
     public void shootAutoTarget() {
         shootAutoTargetWithRPMOffset(0);
     }
 
+    /**
+     * Like {@link #shootAutoTarget()}, with {@code rpmOffset} added to the solved RPM until
+     * {@link #stopShooter()}. Not applied while the debug RPM override is on.
+     */
     public void shootAutoTargetWithRPMOffset(double rpmOffset) {
         shooting = true;
         runFlywheel = true;
-        double targetRPM = (lastSolution != null) ? (lastSolution.rpm + rpmOffset)
-                                                  : NetworkedConfig.Turret.getTargetRPM();
-        shootWithRPM(targetRPM);
-    }
-
-    public void shootWithRPM(double rpm) {
-        rightShooterMotor.setControl(velocityReq.withVelocity(rpm / 60.0));
+        this.rpmOffset = rpmOffset;
     }
 
     /**
-     * Spins the flywheel directly at the given RPM, bypassing NetworkTables.
-     * Intended for use in systems checks and other automated sequences that
-     * need to target a specific speed without mutating shared NT state.
+     * Spins the flywheel directly at the given RPM, bypassing the solver and NetworkTables.
+     * For systems checks: {@link #periodic()} only leaves the flywheel alone in systems-check mode.
      *
      * @param rpm The target flywheel speed in RPM.
      */
     public void spinFlywheelAtRPM(double rpm) {
         shooting = true;
+        commandedRpm = rpm;
         rightShooterMotor.setControl(velocityReq.withVelocity(rpm / 60.0));
     }
 
@@ -635,6 +669,7 @@ public class TurretSubsystem extends SubsystemBase {
     public void stopShooter() {
         shooting = false;
         this.runFlywheel = false;
+        this.rpmOffset = 0.0;
     }
 
     /**
@@ -720,11 +755,15 @@ public class TurretSubsystem extends SubsystemBase {
         hoodLimitSet = false;
     }
 
-    /** Returns true when the on-RIO solver has computed a valid shot solution this loop. */
+    /**
+     * True when this loop has a shot worth taking, or a debug override is on. Hub shots must be in the
+     * solver's range; relay shots to the alliance-zone corners only need a solution, since the table
+     * has no data that far out and a clamped lob is what those shots want.
+     */
     public boolean hasValidTarget() {
-        boolean overrideActive = NetworkedConfig.Debug.isOverrideRPMEnabled()
-            || NetworkedConfig.Debug.isOverrideHoodAngleEnabled();
-        return overrideActive || (lastSolution != null && lastSolution.inRange);
+        if (isDebugOverrideActive()) return true;
+        ShotSolution sol = currentSolution();
+        return sol != null && (sol.inRange() || !isTargetingHub());
     }
 
     /**
@@ -864,7 +903,8 @@ public class TurretSubsystem extends SubsystemBase {
 
     /** Returns the current turret rotation angle in degrees (from the cached position signal). */
     public double getTurretAngleDegrees() {
-        return anglePositionSignal.getValueAsDouble();
+        // The signal is in mechanism rotations (the gear ratio is configured on the controller).
+        return anglePositionSignal.getValueAsDouble() * 360.0;
     }
 
     /**
@@ -907,45 +947,49 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * Starts the turret moving towards a new angle.
-     * 
-     * @param newAngle The angle to move toward.
+     * Starts the turret moving towards a new angle. An angle outside the turret's travel is replaced
+     * by its equivalent (±360°) inside it, so every direction stays reachable.
+     *
+     * @param newAngle The angle to move toward (CW-positive from the back of the robot).
      */
     public void turnToAngle(Angle newAngle) {
-        if (newAngle.lt(TurretSubsystemConstants.MIN_TURRET_ANGLE) || newAngle.gt(TurretSubsystemConstants.MAX_TURRET_ANGLE)) {
-            return;
-        }
+        double deg = newAngle.in(Degrees);
+        if (!Double.isFinite(deg)) return;
+        double travelDeg = TurretAngles.wrapIntoTravel(
+            deg,
+            TurretSubsystemConstants.MIN_TURRET_ANGLE.in(Degrees),
+            TurretSubsystemConstants.MAX_TURRET_ANGLE.in(Degrees));
+        lastTurretSetpointDeg = travelDeg;
         // Always issue the closed-loop position request — even when within tolerance
         // this keeps the motor actively holding position instead of going open-loop (set(0))
         // which would allow the mechanism to drift under gravity or mechanism compliance.
-        angleMotor.setControl(anglePositionReq.withPosition(newAngle));
+        angleMotor.setControl(anglePositionReq.withPosition(Degrees.of(travelDeg)));
     }
 
     public void turnRaw(double power) {
         angleMotor.set(power);
     }
 
+    /**
+     * True when the flywheel is being driven closed-loop and is within
+     * {@link TurretSubsystemConstants#FLYWHEEL_READY_TOLERANCE_RPS} of the speed actually commanded
+     * (debug override and RPM offset included).
+     */
     public boolean flywheelAtSpeed() {
-        // Prefer the on-RIO solution's RPM; fall back to the NT override for manual use.
-        double targetRPS = (lastSolution != null && lastSolution.inRange)
-                ? lastSolution.rpm / 60.0
-                : NetworkedConfig.Turret.getTargetRPM() / 60.0;
-        return Math.abs(shooterVelocitySignal.getValueAsDouble() - targetRPS)
+        if (commandedRpm <= 0) return false;
+        return Math.abs(shooterVelocitySignal.getValueAsDouble() - commandedRpm / 60.0)
             <= TurretSubsystemConstants.FLYWHEEL_READY_TOLERANCE_RPS;
     }
 
     /**
-     * Runs the kicker motor only when the flywheel is within
-     * {@link TurretSubsystemConstants#FLYWHEEL_READY_TOLERANCE_RPS} of its target
-     * speed AND the coprocessor has a valid trajectory. Stops the kicker otherwise
-     * so a game piece is never fed into an under-speed flywheel.
+     * Runs the kicker motor only when there is a shot worth taking ({@link #hasValidTarget()}) and
+     * the flywheel is at its commanded speed. Stops the kicker otherwise so a game piece is never
+     * fed into an under-speed flywheel.
      *
      * @param strength The strength to run the motor at, on a scale of -1 (full reverse) to 1 (full forward).
      */
     public void kick(double strength) {
-        boolean overrideActive = NetworkedConfig.Debug.isOverrideRPMEnabled()
-            || NetworkedConfig.Debug.isOverrideHoodAngleEnabled();
-        if ((overrideActive || (lastSolution != null && lastSolution.inRange)) && flywheelAtSpeed()) {
+        if (hasValidTarget() && flywheelAtSpeed()) {
             runKickerRaw(strength);
             targetKickerSpeed = strength;
         } else {
@@ -955,23 +999,18 @@ public class TurretSubsystem extends SubsystemBase {
     }
 
     /**
-     * Starts the hood moving towards a new angle.
-     * 
-     * @param newAngle The new angle for the hood to move to.
+     * Starts the hood moving towards a new angle, clamped to the hood's travel. Ignored until the
+     * hood has been homed.
+     *
+     * @param newAngle The new angle for the hood to move to (degrees from vertical).
      */
     public void setHoodAngle(Angle newAngle) {
-        if ((!hoodLimitSet) ||
-                (newAngle.compareTo(TurretSubsystemConstants.MAX_HOOD_ANGLE) > 0) ||
-                (newAngle.compareTo(TurretSubsystemConstants.MIN_HOOD_ANGLE) < 0)) {
-            return;
-        } else {
-            double angleToRotations = newAngle
-                .minus(TurretSubsystemConstants.MIN_HOOD_ANGLE)
-                .div(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO)
-                .magnitude();
-            hoodController.setSetpoint(angleToRotations, ControlType.kPosition);
-            
-        }
+        double deg = newAngle.in(Degrees);
+        if (!hoodLimitSet || !Double.isFinite(deg)) return;
+        double minDeg = TurretSubsystemConstants.MIN_HOOD_ANGLE.in(Degrees);
+        double clampedDeg = MathUtil.clamp(deg, minDeg, TurretSubsystemConstants.MAX_HOOD_ANGLE.in(Degrees));
+        double rotations = (clampedDeg - minDeg) / TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.in(Degrees);
+        hoodController.setSetpoint(rotations, ControlType.kPosition);
     }
 
     /**
@@ -983,11 +1022,16 @@ public class TurretSubsystem extends SubsystemBase {
      */
     private void updateNetworkTables() {
         // Use cached signals refreshed at the top of periodic() — no additional CAN reads here.
-        NetworkedConfig.Turret.setTurretAngle(anglePositionSignal.getValueAsDouble());
-        NetworkedConfig.Turret.setHoodAngle(TurretSubsystemConstants.MIN_HOOD_ANGLE.plus(TurretSubsystemConstants.HOOD_DEGREES_ROTATION_RATIO.times(this.hoodEncoder.getPosition())).magnitude());
-        NetworkedConfig.Turret.setFlywheelSpeed(shooterVelocitySignal.getValueAsDouble() * 60);
+        NetworkedConfig.Turret.setTurretAngle(getTurretAngleDegrees());
+        NetworkedConfig.Turret.setHoodAngle(getHoodAngleDegrees());
+        NetworkedConfig.Turret.setFlywheelSpeed(getFlywheelRPM());
         NetworkedConfig.Turret.setTurretTarget(this.turretTarget.toString());
-        NetworkedTelemetry.Turret.setSelectedSolver(selectedSolver);
+
+        ShotSolution sol = currentSolution();
+        NetworkedTelemetry.Turret.setSelectedSolver((sol != null) ? sol.source().name() : "NONE");
+        NetworkedTelemetry.Turret.setShotInRange(sol != null && sol.inRange());
+        NetworkedTelemetry.Turret.setTimeOfFlightS((sol != null) ? sol.timeOfFlightS() : 0.0);
+        NetworkedTelemetry.Turret.setCommandedRPM(commandedRpm);
 
         // Rate-limit pure visualization data — dashboards don't need 50 Hz updates.
         if (periodicLoopCount % TELEMETRY_LOOP_DIVISOR == 0) {
@@ -995,9 +1039,6 @@ public class TurretSubsystem extends SubsystemBase {
             NetworkedTelemetry.Pose.publishTargetCircle(targetPosition, Units.inchesToMeters(12));
             publishShotArcVisualization();
 
-            NetworkedTelemetry.Turret.setCTHoodAngle(currentControlTarget.hoodAngle);
-            NetworkedTelemetry.Turret.setCTFlywheelRPM(currentControlTarget.rpm);
-            NetworkedTelemetry.Turret.setCTValidTrajectory(currentControlTarget.properlySet);
             NetworkedTelemetry.Turret.setMotorCommStatus(
                 rightShooterMotorConnected && leftShooterMotorConnected &&
                 angleMotorConnected && hoodMotorConnected);
@@ -1007,34 +1048,31 @@ public class TurretSubsystem extends SubsystemBase {
         }
     }
 
+    /**
+     * Publishes the predicted ball path (relative to the robot, as if stationary) using the physics
+     * solver's exit-speed model. A physics shot's arc ends at the target; a LUT shot's arc shows
+     * where the model thinks the table's RPM would land.
+     */
     private void publishShotArcVisualization() {
-        if (lastSolution == null || !shooting || turretTarget == TurretTarget.NONE) {
+        ShotSolution sol = currentSolution();
+        if (sol == null || !shooting || turretTarget == TurretTarget.NONE) {
             NetworkedTelemetry.Turret.setShotArc(new Pose3d[0]);
             return;
         }
 
-        Pose2d robotPose = poseProvider.getPose();
-        Translation3d turretOffset = TurretSubsystemConstants.TURRET_TO_ROBOT.getTranslation();
-        Translation2d turretOffsetField = new Translation2d(turretOffset.getX(), turretOffset.getY())
-            .rotateBy(robotPose.getRotation());
+        double startX = lastPlan.pivot().getX();
+        double startY = lastPlan.pivot().getY();
+        double startZ = physicsSolver.launchHeightM();
 
-        double startX = robotPose.getX() + turretOffsetField.getX();
-        double startY = robotPose.getY() + turretOffsetField.getY();
-        double startZ = turretOffset.getZ();
+        double yawRad = lastPlan.aimBearingRad();
+        double launchPitchRad = Units.degreesToRadians(90.0 - sol.hoodDeg());
 
-        double yawDeg = lastSolution.aimBearingDeg;
-        double yawRad = Units.degreesToRadians(yawDeg);
-
-        double hoodFromVerticalDeg = lastSolution.angleDeg;
-        double launchPitchDeg = 90.0 - hoodFromVerticalDeg;
-        double launchPitchRad = Units.degreesToRadians(launchPitchDeg);
-
-        double launchSpeedMps = SHOT_ARC_MPS_AT_0_RPM + SHOT_ARC_MPS_PER_RPM * lastSolution.rpm;
+        double launchSpeedMps = physicsSolver.exitSpeedMps(sol.rpm());
         double vx0 = launchSpeedMps * Math.cos(launchPitchRad) * Math.cos(yawRad);
         double vy0 = launchSpeedMps * Math.cos(launchPitchRad) * Math.sin(yawRad);
         double vz0 = launchSpeedMps * Math.sin(launchPitchRad);
 
-        double totalT = Math.max(0.05, lastSolution.timeOfFlightS);
+        double totalT = Math.max(0.05, sol.timeOfFlightS());
         Pose3d[] samples = new Pose3d[SHOT_ARC_SAMPLES];
 
         for (int i = 0; i < SHOT_ARC_SAMPLES; i++) {
@@ -1043,7 +1081,7 @@ public class TurretSubsystem extends SubsystemBase {
 
             double x = startX + vx0 * t;
             double y = startY + vy0 * t;
-            double z = startZ + vz0 * t - 0.5 * SHOT_ARC_GRAVITY_MPS2 * t * t;
+            double z = startZ + vz0 * t - 0.5 * BallisticShotSolver.GRAVITY_MPS2 * t * t;
 
             samples[i] = new Pose3d(x, y, Math.max(0.0, z), new Rotation3d());
         }
@@ -1124,29 +1162,61 @@ public class TurretSubsystem extends SubsystemBase {
     /**
      * Pulls data from the NetworkTables.
      */
+    // Gains currently on the motors (seeded with the constructor's values). Each CTRE apply() blocks
+    // the robot thread on a CAN round trip, so unchanged NetworkTables values skip it.
+    private final AppliedGains shooterGains = new AppliedGains(
+        TurretSubsystemConstants.SHOOTER_KP, TurretSubsystemConstants.SHOOTER_KI,
+        TurretSubsystemConstants.SHOOTER_KD, TurretSubsystemConstants.SHOOTER_KV);
+    private final AppliedGains angleGains = new AppliedGains(
+        TurretSubsystemConstants.TURRET_KP, TurretSubsystemConstants.TURRET_KI,
+        TurretSubsystemConstants.TURRET_KD, TurretSubsystemConstants.TURRET_KS);
+
+    /** Applies the NetworkTables gains to the motors unconditionally. */
     public void pullNetworkTableData() {
-        var shooterSlot0config = ShooterFxConfigs.Slot0;
-        
-        shooterSlot0config.kP = NetworkedConfig.Turret.getShooterKP();
-        shooterSlot0config.kI = NetworkedConfig.Turret.getShooterKI();
-        shooterSlot0config.kD = NetworkedConfig.Turret.getShooterKD();
-        shooterSlot0config.kV = NetworkedConfig.Turret.getShooterKV();
-        shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+        applyNetworkTableData(true);
+    }
 
-        this.rightShooterMotor.getConfigurator().apply(ShooterFxConfigs);
+    /**
+     * Applies the NetworkTables gains only if they differ from what is already on the motors. (A
+     * controller reset is handled every loop by {@link #recoverFromMotorResets()}.)
+     */
+    public void applyChangedNetworkTableData() {
+        applyNetworkTableData(false);
+    }
 
-        var angleSlot0config = AngleFxConfigs.Slot0;
+    private void applyNetworkTableData(boolean force) {
+        // Slot0 only: re-applying the whole config rewrites unrelated settings. The gains are also
+        // stored in the full configs so a reset recovery restores the latest values.
+        double[] shooter = {
+            NetworkedConfig.Turret.getShooterKP(), NetworkedConfig.Turret.getShooterKI(),
+            NetworkedConfig.Turret.getShooterKD(), NetworkedConfig.Turret.getShooterKV()};
+        if (shooterGains.shouldApply(force, shooter)) {
+            var shooterSlot0config = ShooterFxConfigs.Slot0;
+            shooterSlot0config.kP = shooter[0];
+            shooterSlot0config.kI = shooter[1];
+            shooterSlot0config.kD = shooter[2];
+            shooterSlot0config.kV = shooter[3];
+            shooterSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+            var status = this.rightShooterMotor.getConfigurator().apply(shooterSlot0config);
+            shooterGains.record(status.isOK(), shooter);
+            reportGainApply("shooter", status.isOK());
+        }
 
-        angleSlot0config.kP = NetworkedConfig.Turret.getTurretKP();
-        angleSlot0config.kI = NetworkedConfig.Turret.getTurretKI();
-        angleSlot0config.kD = NetworkedConfig.Turret.getTurretKD();
-        angleSlot0config.kS = NetworkedConfig.Turret.getTurretKS();
-        angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+        double[] angle = {
+            NetworkedConfig.Turret.getTurretKP(), NetworkedConfig.Turret.getTurretKI(),
+            NetworkedConfig.Turret.getTurretKD(), NetworkedConfig.Turret.getTurretKS()};
+        if (angleGains.shouldApply(force, angle)) {
+            var angleSlot0config = AngleFxConfigs.Slot0;
+            angleSlot0config.kP = angle[0];
+            angleSlot0config.kI = angle[1];
+            angleSlot0config.kD = angle[2];
+            angleSlot0config.kS = angle[3];
+            angleSlot0config.GainSchedBehavior = GainSchedBehaviorValue.UseSlot0;
+            var status = this.angleMotor.getConfigurator().apply(angleSlot0config);
+            angleGains.record(status.isOK(), angle);
+            reportGainApply("turret angle", status.isOK());
+        }
 
-        this.angleMotor.getConfigurator().apply(AngleFxConfigs);
-        this.angleMotor.getConfigurator().apply(new FeedbackConfigs()
-            .withSensorToMechanismRatio(TurretSubsystemConstants.TURRET_GEAR_RATIO));
-        
         // SparkMaxConfig hoodConfig = new SparkMaxConfig();
         // hoodConfig.inverted(hoodMotorInverted);
         // hoodConfig.closedLoop
@@ -1156,8 +1226,14 @@ public class TurretSubsystem extends SubsystemBase {
         
         // this.hoodMotor.configure(hoodConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        System.out.println("Updated Turret PIDs.");
-        
+    }
+
+    private static void reportGainApply(String motor, boolean ok) {
+        if (!ok) {
+            DriverStation.reportWarning("Failed to apply " + motor + " motor gains over CAN; will retry.", false);
+        } else {
+            System.out.println("Updated " + motor + " PIDs.");
+        }
     }
 
     /**
@@ -1235,8 +1311,7 @@ public class TurretSubsystem extends SubsystemBase {
         return this.hoodSafe;
     }
 
-    private void checkHoodSafety(double turretX, double turretY) {
-        Translation2d turretPos = new Translation2d(turretX, turretY);
+    private void checkHoodSafety(Translation2d turretPos) {
         this.hoodSafe = !(
             TurretSafety.RED_DEPOT_SIDE_TRENCH.contains(turretPos)    ||
             TurretSafety.RED_OUTPOST_SIDE_TRENCH.contains(turretPos)  ||

@@ -8,6 +8,7 @@ import edu.wpi.first.networktables.StringEntry;
 import frc.robot.Constants.IndexerSubsystemConstants;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.Constants.TurretSubsystemConstants;
+import frc.robot.utils.targeting.TurretAngleTrims;
 
 /**
  * NetworkedConfig centralizes all NetworkTables-based configurations for the robot.
@@ -104,6 +105,26 @@ public class NetworkedConfig {
         private static final DoubleEntry kickerSpeed = kickerTable
             .getDoubleTopic("Kicker Speed").getEntry(0);
 
+        // Per-turret-angle shot trims (TurretAngleTrims), one entry per table point.
+        private static final NetworkTable angleTrimTable = turretTable.getSubTable("angle trims");
+        private static final BooleanEntry angleTrimsEnabled = angleTrimTable
+            .getBooleanTopic("Enabled").getEntry(true);
+        private static final DoubleEntry[] angleDistanceTrimIn = new DoubleEntry[TurretAngleTrims.POINTS];
+        private static final DoubleEntry[] angleYawTrimDeg = new DoubleEntry[TurretAngleTrims.POINTS];
+        static {
+            for (int i = 0; i < TurretAngleTrims.POINTS; i++) {
+                String angle = String.format("%+.0f", TurretAngleTrims.angleOfPoint(i));
+                angleDistanceTrimIn[i] = angleTrimTable.getDoubleTopic("Distance Trim In " + angle)
+                    .getEntry(TurretSubsystemConstants.TURRET_ANGLE_DISTANCE_TRIM_IN[i]);
+                angleYawTrimDeg[i] = angleTrimTable.getDoubleTopic("Yaw Trim Deg " + angle)
+                    .getEntry(TurretSubsystemConstants.TURRET_ANGLE_YAW_TRIM_DEG[i]);
+            }
+        }
+        private static final DoubleEntry appliedDistanceTrimIn = angleTrimTable
+            .getDoubleTopic("Applied Distance Trim In").getEntry(0);
+        private static final DoubleEntry appliedYawTrimDeg = angleTrimTable
+            .getDoubleTopic("Applied Yaw Trim Deg").getEntry(0);
+
         /**
          * Initializes the NetworkTables entries for the turret subsystem.
          */
@@ -135,8 +156,41 @@ public class NetworkedConfig {
 
             kickerTarget.set(0);
             kickerSpeed.set(0);
+
+            angleTrimsEnabled.set(true);
+            for (int i = 0; i < TurretAngleTrims.POINTS; i++) {
+                angleDistanceTrimIn[i].set(TurretSubsystemConstants.TURRET_ANGLE_DISTANCE_TRIM_IN[i]);
+                angleYawTrimDeg[i].set(TurretSubsystemConstants.TURRET_ANGLE_YAW_TRIM_DEG[i]);
+            }
+            appliedDistanceTrimIn.set(0);
+            appliedYawTrimDeg.set(0);
         }
-        
+
+        /** Whether the per-turret-angle shot trims are applied. */
+        public static boolean areAngleTrimsEnabled() {
+            return angleTrimsEnabled.get();
+        }
+
+        /** Range trims (inches) at {@link TurretAngleTrims#angleOfPoint} turret angles. */
+        public static double[] getAngleDistanceTrimsIn() {
+            double[] values = new double[TurretAngleTrims.POINTS];
+            for (int i = 0; i < values.length; i++) values[i] = angleDistanceTrimIn[i].get();
+            return values;
+        }
+
+        /** Aim trims (degrees, positive = clockwise) at {@link TurretAngleTrims#angleOfPoint} turret angles. */
+        public static double[] getAngleYawTrimsDeg() {
+            double[] values = new double[TurretAngleTrims.POINTS];
+            for (int i = 0; i < values.length; i++) values[i] = angleYawTrimDeg[i].get();
+            return values;
+        }
+
+        /** Publishes the trim applied this loop. */
+        public static void setAppliedAngleTrim(double distanceIn, double yawDeg) {
+            appliedDistanceTrimIn.set(distanceIn);
+            appliedYawTrimDeg.set(yawDeg);
+        }
+
         // Launcher
         
         /** Gets the kP for the shooter's PID. */
@@ -337,7 +391,7 @@ public class NetworkedConfig {
         private static final DoubleEntry spinnerKV = indexerTable
             .getDoubleTopic("Spinner kV").getEntry(IndexerSubsystemConstants.SPINNER_KV);
         private static final DoubleEntry targetSpeed = indexerTable
-            .getDoubleTopic("Target Speed").getEntry(0.48);
+            .getDoubleTopic("Target Speed").getEntry(0.50);
         
         // Telemetry
         private static final DoubleEntry spinnerSpeed = indexerTable
@@ -351,7 +405,7 @@ public class NetworkedConfig {
             spinnerKI.set(IndexerSubsystemConstants.SPINNER_KI);
             spinnerKD.set(IndexerSubsystemConstants.SPINNER_KD);
             spinnerKV.set(IndexerSubsystemConstants.SPINNER_KV);
-            targetSpeed.set(0.43);
+            targetSpeed.set(0.50);
         }
         
         // Spinner
@@ -449,65 +503,66 @@ public class NetworkedConfig {
         }
     }
 
-    /**
-     * Climber configuration values accessible via NetworkTables.
-     */
-    public static class Climber {
-        private static final NetworkTable climberTable = defaultNTInstance.getTable("Climber");
+    // Climber physically removed; its NetworkTables config is disabled.
+    // /**
+     // * Climber configuration values accessible via NetworkTables.
+     // */
+    // public static class Climber {
+        // private static final NetworkTable climberTable = defaultNTInstance.getTable("Climber");
 
-        // Spark MAX closed-loop PID (prepared for future implementation)
-        private static final DoubleEntry climberKP = climberTable
-            .getDoubleTopic("kP").getEntry(0.0);
-        private static final DoubleEntry climberKI = climberTable
-            .getDoubleTopic("kI").getEntry(0.0);
-        private static final DoubleEntry climberKD = climberTable
-            .getDoubleTopic("kD").getEntry(0.0);
-        private static final DoubleEntry climberKFF = climberTable
-            .getDoubleTopic("kFF").getEntry(0.0);
-        private static final DoubleEntry climberIZone = climberTable
-            .getDoubleTopic("iZone").getEntry(0.0);
-        private static final DoubleEntry climberMaxOutput = climberTable
-            .getDoubleTopic("Max Output").getEntry(1.0);
+        // // Spark MAX closed-loop PID (prepared for future implementation)
+        // private static final DoubleEntry climberKP = climberTable
+            // .getDoubleTopic("kP").getEntry(0.0);
+        // private static final DoubleEntry climberKI = climberTable
+            // .getDoubleTopic("kI").getEntry(0.0);
+        // private static final DoubleEntry climberKD = climberTable
+            // .getDoubleTopic("kD").getEntry(0.0);
+        // private static final DoubleEntry climberKFF = climberTable
+            // .getDoubleTopic("kFF").getEntry(0.0);
+        // private static final DoubleEntry climberIZone = climberTable
+            // .getDoubleTopic("iZone").getEntry(0.0);
+        // private static final DoubleEntry climberMaxOutput = climberTable
+            // .getDoubleTopic("Max Output").getEntry(1.0);
 
-        // Target / telemetry
-        private static final DoubleEntry targetPosition = climberTable
-            .getDoubleTopic("Target Position").getEntry(0.0);
-        private static final DoubleEntry currentPosition = climberTable
-            .getDoubleTopic("Current Position").getEntry(0.0);
-        // Direct open-loop output for testing (-1.0 .. 1.0)
-        private static final DoubleEntry openLoopOutput = climberTable
-            .getDoubleTopic("Open Loop Speed").getEntry(1);
-        private static final BooleanEntry climbLimitReached = climberTable
-            .getBooleanTopic("Climb Limit Reached").getEntry(false);
+        // // Target / telemetry
+        // private static final DoubleEntry targetPosition = climberTable
+            // .getDoubleTopic("Target Position").getEntry(0.0);
+        // private static final DoubleEntry currentPosition = climberTable
+            // .getDoubleTopic("Current Position").getEntry(0.0);
+        // // Direct open-loop output for testing (-1.0 .. 1.0)
+        // private static final DoubleEntry openLoopOutput = climberTable
+            // .getDoubleTopic("Open Loop Speed").getEntry(1);
+        // private static final BooleanEntry climbLimitReached = climberTable
+            // .getBooleanTopic("Climb Limit Reached").getEntry(false);
 
-        public static void initializeDefaults() {
-            climberKP.set(0.0);
-            climberKI.set(0.0);
-            climberKD.set(0.0);
-            climberKFF.set(0.0);
-            climberIZone.set(0.0);
-            climberMaxOutput.set(1.0);
-            targetPosition.set(0.0);
-            currentPosition.set(0.0);
-            openLoopOutput.set(1.0);
-            climbLimitReached.set(false);
-        }
+        // public static void initializeDefaults() {
+            // climberKP.set(0.0);
+            // climberKI.set(0.0);
+            // climberKD.set(0.0);
+            // climberKFF.set(0.0);
+            // climberIZone.set(0.0);
+            // climberMaxOutput.set(1.0);
+            // targetPosition.set(0.0);
+            // currentPosition.set(0.0);
+            // openLoopOutput.set(1.0);
+            // climbLimitReached.set(false);
+        // }
 
-        // PID accessors (for future closed-loop control)
-        public static double getClimberKP() { return climberKP.get(); }
-        public static double getClimberKI() { return climberKI.get(); }
-        public static double getClimberKD() { return climberKD.get(); }
-        public static double getClimberKFF() { return climberKFF.get(); }
-        public static double getClimberIZone() { return climberIZone.get(); }
-        public static double getClimberMaxOutput() { return climberMaxOutput.get(); }
+        // // PID accessors (for future closed-loop control)
+        // public static double getClimberKP() { return climberKP.get(); }
+        // public static double getClimberKI() { return climberKI.get(); }
+        // public static double getClimberKD() { return climberKD.get(); }
+        // public static double getClimberKFF() { return climberKFF.get(); }
+        // public static double getClimberIZone() { return climberIZone.get(); }
+        // public static double getClimberMaxOutput() { return climberMaxOutput.get(); }
 
-        // Target / telemetry
-        public static double getTargetPosition() { return targetPosition.get(); }
-        public static void setCurrentPosition(double pos) { currentPosition.set(pos); }
-        public static double getOpenLoopOutput() { return openLoopOutput.get(); }
-        public static void setOpenLoopOutput(double out) { openLoopOutput.set(out); }
-        public static void setCurrentLimitState(boolean state) { climbLimitReached.set(state);}
-    }
+        // // Target / telemetry
+        // public static double getTargetPosition() { return targetPosition.get(); }
+        // public static void setCurrentPosition(double pos) { currentPosition.set(pos); }
+        // public static double getOpenLoopOutput() { return openLoopOutput.get(); }
+        // public static void setOpenLoopOutput(double out) { openLoopOutput.set(out); }
+        // public static void setCurrentLimitState(boolean state) { climbLimitReached.set(state);}
+    // }
 
     public static class Debug {
         private static final NetworkTable debugTable = defaultNTInstance.getTable("Debug");
@@ -583,44 +638,25 @@ public class NetworkedConfig {
 
         /**
          * Runtime turret targeting mode.
-         * Valid values: {@code "LUT"}, {@code "MODEL"}, {@code "AUTO_FALLBACK"}.
+         * Valid values: {@code "PHYSICS"} (ballistic solver, the default) and {@code "LUT"}
+         * (lookup table only, for debug comparison).
          */
         private static final StringEntry turretTargetingMode =
-            debugTable.getStringTopic("Turret Targeting Mode").getEntry("AUTO_FALLBACK");
+            debugTable.getStringTopic("Turret Targeting Mode").getEntry("PHYSICS");
 
         /**
-         * Additive RPM bias applied only in MODEL mode.
-         * Positive values push shots farther; negative values pull shots shorter.
+         * Multiplier on the physics solver's ball exit-speed model (1.0 = as fit). Physics shots
+         * landing long mean the real exit speed is higher than modeled: raise this. Short: lower it.
          */
-        private static final DoubleEntry modelRpmOffset =
-            debugTable.getDoubleTopic("Model RPM Offset").getEntry(200.0);
+        private static final DoubleEntry physicsExitSpeedScale =
+            debugTable.getDoubleTopic("Physics Exit Speed Scale").getEntry(1.0);
 
         /**
-         * Additive virtual-distance bias (inches) applied only in MODEL mode.
-         * Useful for quick range tuning while preserving the model's arc shape trend.
+         * Seconds added to the measured shoot-on-the-fly latency, on top of
+         * {@code SOTF_LATENCY_TRIM_S}. Shots landing behind the robot's path: raise it. Ahead: lower it.
          */
-        private static final DoubleEntry modelDistanceBiasInches =
-            debugTable.getDoubleTopic("Model Distance Bias Inches").getEntry(0.0);
-
-        /**
-         * Multiplicative scale on model TOF used for motion lead.
-         * Values below 1.0 reduce lead; values above 1.0 increase lead.
-         */
-        private static final DoubleEntry modelTofScale =
-            debugTable.getDoubleTopic("Model TOF Scale").getEntry(1.0);
-
-        /**
-         * Additive latency-compensation offset (seconds) applied only in MODEL mode.
-         * Positive increases lead, negative reduces lead.
-         */
-        private static final DoubleEntry modelLatencyOffsetS =
-            debugTable.getDoubleTopic("Model Latency Offset S").getEntry(0.0);
-
-        /**
-         * Additive radial latency-compensation offset (seconds) applied only in MODEL mode.
-         */
-        private static final DoubleEntry modelRangeLatencyOffsetS =
-            debugTable.getDoubleTopic("Model Range Latency Offset S").getEntry(0.0);
+        private static final DoubleEntry latencyTrimS =
+            debugTable.getDoubleTopic("Latency Trim S").getEntry(0.0);
 
         public static void initializeDefaults() {
             newPoseX.set(0);
@@ -633,12 +669,9 @@ public class NetworkedConfig {
             overrideRPMValue.set(3400);
             overrideHoodAngleEnabled.set(false);
             overrideHoodAngleValue.set(30.0);
-            turretTargetingMode.set("AUTO_FALLBACK");
-            modelRpmOffset.set(0.0);
-            modelDistanceBiasInches.set(0.0);
-            modelTofScale.set(1.0);
-            modelLatencyOffsetS.set(0.0);
-            modelRangeLatencyOffsetS.set(0.0);
+            turretTargetingMode.set("PHYSICS");
+            physicsExitSpeedScale.set(1.0);
+            latencyTrimS.set(0.0);
 
             demoMode.set(false);
         }
@@ -703,30 +736,18 @@ public class NetworkedConfig {
 
         public static void setTurretTargetingMode(String mode) {
             if (mode == null || mode.isBlank()) {
-                turretTargetingMode.set("AUTO_FALLBACK");
+                turretTargetingMode.set("PHYSICS");
             } else {
                 turretTargetingMode.set(mode);
             }
         }
 
-        public static double getModelRpmOffset() {
-            return modelRpmOffset.get();
+        public static double getPhysicsExitSpeedScale() {
+            return physicsExitSpeedScale.get();
         }
 
-        public static double getModelDistanceBiasInches() {
-            return modelDistanceBiasInches.get();
-        }
-
-        public static double getModelTofScale() {
-            return modelTofScale.get();
-        }
-
-        public static double getModelLatencyOffsetSeconds() {
-            return modelLatencyOffsetS.get();
-        }
-
-        public static double getModelRangeLatencyOffsetSeconds() {
-            return modelRangeLatencyOffsetS.get();
+        public static double getLatencyTrimSeconds() {
+            return latencyTrimS.get();
         }
         
         public static boolean getDemoMode() {
@@ -759,8 +780,8 @@ public class NetworkedConfig {
             checkTable.getBooleanTopic("check_indexer").getEntry(true);
         private static final BooleanEntry checkFeeder =
             checkTable.getBooleanTopic("check_feeder").getEntry(true);
-        private static final BooleanEntry checkClimber =
-            checkTable.getBooleanTopic("check_climber").getEntry(true);
+        // private static final BooleanEntry checkClimber =
+            // checkTable.getBooleanTopic("check_climber").getEntry(true);
         private static final BooleanEntry checkSwerve =
             checkTable.getBooleanTopic("check_swerve").getEntry(true);
 
@@ -772,7 +793,7 @@ public class NetworkedConfig {
             checkIntake.set(true);
             checkIndexer.set(true);
             checkFeeder.set(true);
-            checkClimber.set(true);
+            // checkClimber.set(true);
             checkSwerve.set(true);
         }
 
@@ -783,7 +804,7 @@ public class NetworkedConfig {
         public static boolean isCheckIntake()    { return checkIntake.get(); }
         public static boolean isCheckIndexer()   { return checkIndexer.get(); }
         public static boolean isCheckFeeder()    { return checkFeeder.get(); }
-        public static boolean isCheckClimber()   { return checkClimber.get(); }
+        // public static boolean isCheckClimber()   { return checkClimber.get(); }
         public static boolean isCheckSwerve()    { return checkSwerve.get(); }
     }
 
@@ -795,7 +816,7 @@ public class NetworkedConfig {
         Turret.initializeDefaults();
         Indexer.initializeDefaults();
         Intake.initializeDefaults();
-        Climber.initializeDefaults();
+        // Climber.initializeDefaults();
         Debug.initializeDefaults();
         SystemsCheck.initializeDefaults();
     }

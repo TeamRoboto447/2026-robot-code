@@ -9,8 +9,9 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.InvertedValue;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.AppliedGains;
 import frc.robot.Constants.IntakeSubsystemConstants;
 import frc.robot.networking.NetworkedConfig;
 
@@ -35,8 +37,11 @@ public class IntakeSubsystem extends SubsystemBase {
     private final StatusSignal<edu.wpi.first.units.measure.Angle> liftPositionSignal;
     private final StatusSignal<Current> liftStatorCurrentSignal;
 
-    /** Reusable position requests — allocated once to avoid per-loop GC pressure. */
-    private final PositionTorqueCurrentFOC liftPositionReq = new PositionTorqueCurrentFOC(0).withSlot(0);
+    /**
+     * Reusable position request — allocated once to avoid per-loop GC pressure. Motion Magic ramps
+     * each move; voltage control lets back-EMF soften it while still holding stiffly at a stop.
+     */
+    private final MotionMagicVoltage liftPositionReq = new MotionMagicVoltage(0).withSlot(0);
 
     private boolean isLiftHomed = false;
     private double target_angle = 0.0;
@@ -59,7 +64,12 @@ public class IntakeSubsystem extends SubsystemBase {
         liftFXConfigs.Slot0
             .withKP(IntakeSubsystemConstants.LIFT_KP)
             .withKI(IntakeSubsystemConstants.LIFT_KI)
-            .withKD(IntakeSubsystemConstants.LIFT_KD);
+            .withKD(IntakeSubsystemConstants.LIFT_KD)
+            .withKV(IntakeSubsystemConstants.LIFT_KV);
+        liftFXConfigs.MotionMagic
+            .withMotionMagicCruiseVelocity(IntakeSubsystemConstants.LIFT_CRUISE_VELOCITY_RPS)
+            .withMotionMagicAcceleration(IntakeSubsystemConstants.LIFT_ACCELERATION_RPS2)
+            .withMotionMagicJerk(IntakeSubsystemConstants.LIFT_JERK_RPS3);
 
         // Current limits — prevent brownouts and protect motor/wiring.
         CurrentLimitsConfigs liftCurrentLimits = new CurrentLimitsConfigs()
@@ -68,6 +78,9 @@ public class IntakeSubsystem extends SubsystemBase {
             .withSupplyCurrentLimit(IntakeSubsystemConstants.LIFT_SUPPLY_CURRENT_LIMIT_A)
             .withSupplyCurrentLimitEnable(true);
         liftFXConfigs.CurrentLimits = liftCurrentLimits;
+        liftFXConfigs.Feedback.SensorToMechanismRatio = IntakeSubsystemConstants.LIFT_GEARBOX_RATIO;
+        // Positive must raise the arm (homing and liftIntake() rely on it). Flipped after a hardware change.
+        liftFXConfigs.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
         liftMotor.getConfigurator().apply(liftFXConfigs);
         liftMotor.getConfigurator().apply(new FeedbackConfigs()
@@ -142,6 +155,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void dropIntake() {
         if (!isLiftHomed && RobotBase.isReal()) return;
         target_angle = NetworkedConfig.Intake.getLiftLoweredPosition();
+        System.out.println("[Intake] lower: target " + target_angle + " rot, at " + liftPositionSignal.getValueAsDouble() + " rot");
         liftMotor.setControl(liftPositionReq.withPosition(target_angle));
     }
 
@@ -152,6 +166,7 @@ public class IntakeSubsystem extends SubsystemBase {
     public void liftIntake() {
         if (!isLiftHomed && RobotBase.isReal()) return;
         target_angle = 0;
+        System.out.println("[Intake] raise: target 0 rot, at " + liftPositionSignal.getValueAsDouble() + " rot");
         liftMotor.setControl(liftPositionReq.withPosition(target_angle));
     }
 
@@ -253,13 +268,45 @@ public class IntakeSubsystem extends SubsystemBase {
     /**
      * Pulls data from the NetworkTables.
      */
+    // Gains currently on the motor (seeded with the constructor's values); see TurretSubsystem.
+    private final AppliedGains liftGains = new AppliedGains(
+        IntakeSubsystemConstants.LIFT_KP, IntakeSubsystemConstants.LIFT_KI, IntakeSubsystemConstants.LIFT_KD);
+
+    /** Applies the NetworkTables gains to the lift motor unconditionally. */
     public void pullNetworkTableData() {
+        applyNetworkTableData(true);
+    }
+
+    /**
+     * Applies the NetworkTables gains only if they differ from what is already on the motor, or if the
+     * controller has reset since the last check (a reboot/brownout wipes its whole configuration).
+     */
+    public void applyChangedNetworkTableData() {
+        applyNetworkTableData(false);
+    }
+
+    private void applyNetworkTableData(boolean force) {
+        boolean reset = this.liftMotor.hasResetOccurred();
+        double[] lift = {
+            NetworkedConfig.Intake.getLiftKP(), NetworkedConfig.Intake.getLiftKI(), NetworkedConfig.Intake.getLiftKD()};
+        if (!reset && !liftGains.shouldApply(force, lift)) return;
+
         liftFXConfigs.Slot0
-            .withKP(NetworkedConfig.Intake.getLiftKP())
-            .withKI(NetworkedConfig.Intake.getLiftKI())
-            .withKD(NetworkedConfig.Intake.getLiftKD());
-        
-        this.liftMotor.getConfigurator().apply(liftFXConfigs);
+            .withKP(lift[0])
+            .withKI(lift[1])
+            .withKD(lift[2]);
+
+        // Slot0 only, unless the controller reset and lost its whole configuration. liftFXConfigs includes the
+        // feedback ratio, so even a full apply keeps the lift scale.
+        var status = reset
+            ? this.liftMotor.getConfigurator().apply(liftFXConfigs)
+            : this.liftMotor.getConfigurator().apply(liftFXConfigs.Slot0);
+        liftGains.record(status.isOK(), lift);
+        if (!status.isOK()) {
+            DriverStation.reportWarning("Failed to apply intake lift gains over CAN; will retry.", false);
+        } else if (reset) {
+            System.out.println("Intake lift motor reset detected: full config re-applied.");
+        }
     }
 
     public double getIntakeAngleDegrees() {

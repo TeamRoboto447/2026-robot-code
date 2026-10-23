@@ -33,7 +33,6 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.AdvScopeConstants;
 import frc.robot.networking.NetworkedTelemetry;
 import frc.robot.utils.Elastic;
@@ -55,7 +54,7 @@ public class Theseus extends LoggedRobot {
     public Theseus() {
         Logger.recordMetadata("ProjectName", "2026 Theseus"); // Set a metadata value
 
-        if (isReal() || !Constants.USE_ADV_KIT) {
+        if (isReal() || !Constants.SIMULATOR_USE_ADV_KIT) {
             Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
             Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
         } else {
@@ -82,7 +81,16 @@ public class Theseus extends LoggedRobot {
         StatusLogger.disableAutoLogging();
         SignalLogger.stop();
 
-        
+        // Initialize Elastic now, while disabled: its static initializer builds a Jackson ObjectMapper, which
+        // takes ~3 s on a roboRIO 1. Left lazy, the first Elastic.selectTab() in teleopInit() froze the robot
+        // for ~3 s at every enable.
+        try {
+            Class.forName(Elastic.class.getName());
+        } catch (ClassNotFoundException | LinkageError e) {
+            DriverStation.reportWarning("Could not pre-initialize Elastic: " + e, false);
+        }
+
+        m_robotContainer.warmUpSolvers();
 
         // addPeriodic(() -> m_robotContainer.motorStatusCheck(), 10);
     }
@@ -92,27 +100,26 @@ public class Theseus extends LoggedRobot {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
 
-        
-        //  Repulsor main update loop (minimal integration)
-        if (m_robotContainer != null && m_robotContainer.repulsor != null) {
-            m_robotContainer.repulsor.update();
+        if (m_robotContainer != null) {
             m_robotContainer.periodicUpdate();
         }
+
+        SmartDashboard.putNumber("Intake/Lift Angle (Degrees)", m_robotContainer.intakeSubsystem.getIntakeAngleDegrees());
 
         //  Publish the status of the flash drive to networktables (connected, space remaining, etc.) once a second
         
         if (periodicLoopCount > 49) {
             periodicLoopCount = 0;
 
-            SmartDashboard.putNumber("Intake/Lift Angle (Degrees)", m_robotContainer.intakeSubsystem.getIntakeAngleDegrees());
-
             if (isReal()) {
                 try {
-                    File logDir = new File(DataLogManager.getLogDir());
+                    String logDirPath = DataLogManager.getLogDir();
+                    File logDir = new File(logDirPath);
                     long rawLogSpaceLeft = logDir.getFreeSpace();  // Gets remaining space in bytes
-                    SmartDashboard.putNumber("Logging Info/Log Space Remaining (MB)", rawLogSpaceLeft / 1024.0 / 1024.0); // Sends space to NT in MB
+                    SmartDashboard.putNumber("Logging Info/Log Space Remaining (MB)", rawLogSpaceLeft / 1024.0 / 1024.0); // Sends remaining space to NT in MB
 
-                    boolean flashDriveConnected = logDir.exists() && DataLogManager.getLogDir().charAt(1) == 'u';
+                    // boolean flashDriveConnected = logDir.exists() && DataLogManager.getLogDir().toLowerCase().charAt(1) == 'u';
+                    Boolean flashDriveConnected = !logDirPath.contains("home/lvuser") && !logDirPath.isEmpty();
                     SmartDashboard.putBoolean("Logging Info/Flash Drive Connected", flashDriveConnected); // Sends true or false depending on whether or not the flash is connected
                 } catch (NullPointerException e) {
                     System.out.println("Could not open file " + DataLogManager.getLogDir());
@@ -127,12 +134,20 @@ public class Theseus extends LoggedRobot {
     @Override
     public void disabledInit() {}
 
+    private int disabledLoopCount = 0;
+
     @Override
-    public void disabledPeriodic() {}
+    public void disabledPeriodic() {
+        // ~2 Hz: push changed NT gains to the motors while disabled, so enabling never has to block on CAN.
+        if (++disabledLoopCount >= 25) {
+            disabledLoopCount = 0;
+            m_robotContainer.applyChangedNetworkedConfigs();
+        }
+    }
 
     @Override
     public void disabledExit() {
-        m_robotContainer.pullAllNetworkedConfigs();
+        m_robotContainer.applyChangedNetworkedConfigs();
     }
 
     @Override
@@ -142,7 +157,6 @@ public class Theseus extends LoggedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
         }
-        CommandScheduler.getInstance().schedule(Commands.runOnce(() -> m_robotContainer.pullAllNetworkedConfigs()));
     }
 
     @Override
@@ -156,7 +170,6 @@ public class Theseus extends LoggedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().cancel(m_autonomousCommand);
         }
-        m_robotContainer.pullAllNetworkedConfigs();
         Elastic.selectTab("Teleoperated");
     }
 
