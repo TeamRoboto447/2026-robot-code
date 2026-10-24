@@ -52,6 +52,7 @@ public class Theseus extends LoggedRobot {
         .withJoystickReplay();
 
     public Theseus() {
+
         Logger.recordMetadata("ProjectName", "2026 Theseus"); // Set a metadata value
 
         if (isReal() || !Constants.SIMULATOR_USE_ADV_KIT) {
@@ -69,6 +70,8 @@ public class Theseus extends LoggedRobot {
 
         Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
         m_robotContainer = new ShipOfTheseus();
+
+        DataLogManager.start();
     }
 
     @Override

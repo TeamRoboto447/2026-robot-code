@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0521325301204825,
-        "y": 7.805060240963856
+        "x": 3.560156626506024,
+        "y": 7.324240963855422
       },
       "isLocked": false,
       "linkedName": "Left Trench Exit"
     },
     {
       "anchor": {
-        "x": 2.8170722891566267,
-        "y": 6.242397590361446
+        "x": 3.024698795180723,
+        "y": 7.214963855421687
       },
       "prevControl": {
-        "x": 2.8061445783132544,
-        "y": 6.548373493975904
+        "x": 3.341602409638555,
+        "y": 7.3023855421686745
       },
       "nextControl": null,
       "isLocked": false,
@@ -59,7 +59,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.20432152724219
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": null,

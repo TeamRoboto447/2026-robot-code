@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.8282289156626503,
-        "y": 5.247975903614458
+        "x": 0.17256626506024086,
+        "y": 4.952927710843373
       },
       "isLocked": false,
       "linkedName": "Backup Left"
     },
     {
       "anchor": {
-        "x": 0.6861686746987952,
-        "y": 5.783433734939758
+        "x": 0.4239036144578311,
+        "y": 5.925493975903614
       },
       "prevControl": {
-        "x": 0.992144578313253,
-        "y": 5.12777108433735
+        "x": 0.4129759036144581,
+        "y": 4.548602409638555
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.2238181818181807,
-      "rotationDegrees": 145.0
+      "rotationDegrees": 105.00000000000001
     }
   ],
   "constraintZones": [
@@ -53,7 +53,7 @@
   "eventMarkers": [
     {
       "name": "Start Intake",
-      "waypointRelativePos": 0.75,
+      "waypointRelativePos": 0.2,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -73,7 +73,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 140.964487101253
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
