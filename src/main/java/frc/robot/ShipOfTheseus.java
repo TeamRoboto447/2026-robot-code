@@ -543,7 +543,14 @@ public class ShipOfTheseus {
         // Chord so it can't be hit by accident while driving.
         // Resets the drivetrain as well as QuestNav, otherwise the Quest pulls the pose back.
         DriverController.leftStick().and(DriverController.rightStick())
-            .onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.resetQuestPose(new Pose2d(12.95, 3.85, new Rotation2d()))));
+            .onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.resetQuestPose(
+                DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Red ?
+                new Pose2d(12.95, 3.85, new Rotation2d()) : // Red Side Hub Front
+                new Pose2d(
+                    FieldConstants.FIELD_LENGTH_METERS - 12.95, // Blue Side Hub Front
+                    FieldConstants.FIELD_WIDTH_METERS - 3.85,
+                    new Rotation2d(Units.degreesToRadians(180)))
+                )));
 
         DriverController.a().onTrue(swerveSubsystem.runOnce(() -> swerveSubsystem.resetQuestPose(new Pose2d(
             NetworkedConfig.Debug.getNewPoseX(),
@@ -650,6 +657,13 @@ public class ShipOfTheseus {
         NamedCommands.registerCommand("Stop Intake", Commands.runOnce(() -> {this.autoIntake = false; System.out.println("Intake Stop");}));
         NamedCommands.registerCommand("Run Intake", Commands.runEnd(() -> this.autoIntake = true, () -> this.autoIntake = false));
         NamedCommands.registerCommand("Raise Intake", Commands.runOnce(() -> intakeSubsystem.liftIntake()));
+        
+        NamedCommands.registerCommand("Flip Intake (USE DEADLINE GROUP)", Commands.repeatingSequence(
+            Commands.runOnce(() -> intakeSubsystem.liftIntake()),
+            Commands.waitSeconds(1),
+            Commands.runOnce(() -> intakeSubsystem.dropIntake()),
+            Commands.waitSeconds(1)
+        ).finallyDo((interrupted) -> intakeSubsystem.dropIntake()));
     }
 
     public Command getAutonomousCommand() {
